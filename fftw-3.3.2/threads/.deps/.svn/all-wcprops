@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps
+END
+libfftw3_threads_la-conf.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-conf.Plo
+END
+libfftw3_omp_la-conf.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-conf.Plo
+END
+libfftw3_threads_la-hc2hc.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-hc2hc.Plo
+END
+libfftw3_threads_la-dft-vrank-geq1.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-dft-vrank-geq1.Plo
+END
+libfftw3_omp_la-hc2hc.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-hc2hc.Plo
+END
+libfftw3_omp_la-dft-vrank-geq1.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-dft-vrank-geq1.Plo
+END
+libfftw3_threads_la-threads.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-threads.Plo
+END
+libfftw3_threads_la-vrank-geq1-rdft2.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-vrank-geq1-rdft2.Plo
+END
+libfftw3_omp_la-vrank-geq1-rdft2.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-vrank-geq1-rdft2.Plo
+END
+libfftw3_threads_la-f77api.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-f77api.Plo
+END
+libfftw3_omp_la-f77api.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-f77api.Plo
+END
+libfftw3_omp_la-openmp.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-openmp.Plo
+END
+libfftw3_threads_la-ct.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-ct.Plo
+END
+libfftw3_omp_la-ct.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-ct.Plo
+END
+libfftw3_threads_la-api.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-api.Plo
+END
+libfftw3_threads_la-rdft-vrank-geq1.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_threads_la-rdft-vrank-geq1.Plo
+END
+libfftw3_omp_la-rdft-vrank-geq1.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-rdft-vrank-geq1.Plo
+END
+libfftw3_omp_la-api.Plo
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/threads/.deps/libfftw3_omp_la-api.Plo
+END

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate
+END
+degenerate
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/degenerate
+END
+degenerate2
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/degenerate2
+END
+degenerate.pov
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/degenerate.pov
+END
+degenerate.cc
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/degenerate.cc
+END
+degenerate2.pov
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/degenerate2.pov
+END
+degenerate2.cc
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/degenerate2.cc
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/Makefile
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/voro++-0.4.4/examples/degenerate/README
+END

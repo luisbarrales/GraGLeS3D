@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support
+END
+simd-neon.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/simd-neon.h
+END
+avx.c
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/avx.c
+END
+neon.c
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/neon.c
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/Makefile.in
+END
+simd-sse2.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/simd-sse2.h
+END
+sse2.c
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/sse2.c
+END
+taint.c
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/taint.c
+END
+amd64-cpuid.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/amd64-cpuid.h
+END
+simd-altivec.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/simd-altivec.h
+END
+simd-common.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/simd-common.h
+END
+altivec.c
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/altivec.c
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/Makefile.am
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/Makefile
+END
+x86-cpuid.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/x86-cpuid.h
+END
+sse2-nonportable.c
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/sse2-nonportable.c
+END
+simd-avx.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/simd-support/simd-avx.h
+END

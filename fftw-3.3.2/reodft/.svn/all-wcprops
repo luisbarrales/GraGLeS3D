@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft
+END
+rodft00e-r2hc.c
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/rodft00e-r2hc.c
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/Makefile.in
+END
+reodft11e-radix2.c
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/reodft11e-radix2.c
+END
+rodft00e-r2hc-pad.c
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/rodft00e-r2hc-pad.c
+END
+conf.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/conf.c
+END
+redft00e-r2hc.c
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/redft00e-r2hc.c
+END
+reodft010e-r2hc.c
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/reodft010e-r2hc.c
+END
+reodft11e-r2hc.c
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/reodft11e-r2hc.c
+END
+redft00e-r2hc-pad.c
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/redft00e-r2hc-pad.c
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/Makefile.am
+END
+reodft.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/reodft.h
+END
+reodft00e-splitradix.c
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/reodft00e-splitradix.c
+END
+reodft11e-r2hc-odd.c
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/reodft11e-r2hc-odd.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/reodft/Makefile
+END

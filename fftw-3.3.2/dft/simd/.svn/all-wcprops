@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd
+END
+t1f.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t1f.h
+END
+t2f.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t2f.h
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/Makefile.in
+END
+t3f.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t3f.h
+END
+n2s.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/n2s.h
+END
+t1bu.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t1bu.h
+END
+simd.mk
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/simd.mk
+END
+t1fu.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t1fu.h
+END
+n1b.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/n1b.h
+END
+n2b.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/n2b.h
+END
+codlist.mk
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/codlist.mk
+END
+q1b.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/q1b.h
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/Makefile.am
+END
+n1f.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/n1f.h
+END
+n2f.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/n2f.h
+END
+t1b.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t1b.h
+END
+ts.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/ts.h
+END
+q1f.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/q1f.h
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/Makefile
+END
+t2b.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t2b.h
+END
+t3b.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/cm654063_Levelset/!svn/ver/4/Level%20Set%20Project/fftw-3.3.2/dft/simd/t3b.h
+END
