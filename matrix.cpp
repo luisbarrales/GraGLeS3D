@@ -181,9 +181,9 @@ matrix matrix::distancefunction(voronoicell& c, int *ID_mat, double *part_pos, i
                     }
                 }
             }
-            if (abs(dmin) < DELTA || dmin > 0.0) (*x[i])[j]= dmin;
-            else (*x[i])[j] = -DELTA;
-            // 		(*x[i])[j]= dmin;
+//             if (abs(dmin) < DELTA || dmin > 0.0) (*x[i])[j]= dmin;
+//             else (*x[i])[j] = -DELTA;
+            (*x[i])[j]= dmin;
         }
 	}
 	return(*this);
@@ -246,10 +246,10 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
     fftw_execute(fftplan1);
     
     for(i=0;i<n2;i++)
-        for(j=0;j<n;j++)
-        {
+        for(j=0;j<n;j++){
             // 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
-            G = 2.0*(2.0 - cos(k*i) - cos(k*j))*nsq;
+			
+            G = 2.0*(2.0 - cos(k*i) - cos(k*j)) * nsq;
             G = 1.0/(1.0+dt*G) / nsq;
             //        USE this line for Richardson-type extrapolation
             //       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
@@ -273,19 +273,22 @@ void matrix::convolution(const double dt){
     fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
     u = (double*)	fftw_malloc(m*n*sizeof(double));
     v = (double*)	fftw_malloc(m*n*sizeof(double));
-    
-    makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
-	utils::print_2dim_array(*fftTemp,1,m*n);
     matrix_to_array(u);
-    matrix_to_array(v);
+    makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
+// 	utils::print_2dim_array(*fftTemp,1,m*n);
+   
+//     matrix_to_array(v);
     conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
     
-    //   for(int i=0; i< n*n; i++) {v[i]-=u[i]; cout << v[i] << " | ";}
-    //   cout << endl <<endl << flush;
-    diff.matrix_to_array(v);
-    diff.save_matrix("diff.gnu");
+// 	for(int i=0; i< n*n; i++) {v[i]-=u[i]; cout << u[i] << " | ";}
+// 	cout << endl <<endl << flush;
+//  diff.matrix_to_array(v);
+//  iff.save_matrix("diff.gnu");
+
+	array_to_matrix(u);
     fftw_destroy_plan(fwdPlan);
     fftw_destroy_plan(bwdPlan);
+
 }
 /*********************************************************************************/
 /*********************************************************************************/
@@ -309,14 +312,17 @@ bool matrix::discrete_convolution(const double dt, const double h, const int gri
     bool exist = false;
     double conv_rad = grid_blowup/2;
     double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
+	const double outside_domain = -2.0;
     //   double tube = double(DELTA)-conv_rad;
     //   erg = *this;
     for (int i=0; i< m; i++)
         for (int j=0; j< n; j++)
             for (int ii=-conv_rad;ii< conv_rad;ii++)
                 for (int jj=-conv_rad;jj< conv_rad;jj++){
-                    if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-                    else erg[i][j]= - DELTA;
+//                     if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
+                    if( ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup))) ) 	
+						erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
+					else erg[i][j]= outside_domain;
                     //since we get one positiv value, the grain still exists
                     if(erg[i][j] > 0) exist = true;
                     //			  if((*x[i])[j] > - DELTA) erg[i][j] += (dt *  1/(h*h) * (kernel(dt,m,i,j) * (*x[i-ii])[j-jj]));
@@ -393,7 +399,7 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
 	for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-                (*this)[i][j] = -2.0;
+                (*this)[i][j] = -0.2;
             }
             else if((*this)[i][j] >= 0) exist = true;
         }
@@ -412,17 +418,17 @@ void matrix::redistancing(double h, int grid_blowup) {
     int n = get_n();
     int m = get_m();
     stringstream filename;
-	
+	const double limiter = -2.0; //double(DELTA);
     // temporary matrix
     matrix *temp = new matrix(m,n,id);
-    (*temp)[0][0]=-DELTA;
+    (*temp)[0][0]=-limiter;
     for (int i = 0; i < m-1; i++) {
         for (int j = 0; j < n-1; j++){
 			  
 			// rectangle comparison from upper left corner 
 			// needs forward declaration in the first row:
             if (i==0 || j==m-2) {
-                (*temp)[i][j+1]=-DELTA;
+                (*temp)[i][j+1]=-limiter;
             }
             
             // sign change in x direction
@@ -450,7 +456,7 @@ void matrix::redistancing(double h, int grid_blowup) {
             
 			 
 			double candidate_y = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
-			(*temp)[i+1][j] = DELTA * utils::sgn((*this)[i+1][j]); 
+			(*temp)[i+1][j] = limiter * utils::sgn((*this)[i+1][j]); 
             if (abs(candidate_y) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate_y;       
             
         }

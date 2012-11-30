@@ -45,7 +45,7 @@ int main() {
 
 /*********************************************************************************/
 	const int particles = int(PARTICLES);
-	const double dt = 1./(double(M*M));
+	const double dt = 1./(double(0.5*M*M));
 
 	double x,y,z,rx,ry,rz;
 	int m = M, current_cell, cell_id;	
@@ -131,7 +131,7 @@ int main() {
 		// compute the current cell, taken out of the container
 		con.compute_cell(c,vl); 
 		cell_order[particles-1-i]=vl.pid();
-		// vd.pid(): holds current cell_id
+		// vl.pid(): holds current cell_id
 		// c: current voronoicell
 		// ID: matrix with Information grid point -> cell_id
 		// part_pos: array with length 3 times particles, 
@@ -144,7 +144,7 @@ int main() {
 		filename.str(std::string());
 		filename << "Distanzmatrix" << vl.pid() << ".gnu";
 		cout << filename.str() << endl << endl;
-		(*distances.begin()).save_matrix(filename.str().c_str());
+		if (SAFEFILES)(*distances.begin()).save_matrix(filename.str().c_str());
 	}
 	while(vl.inc());	
 
@@ -165,14 +165,14 @@ int main() {
 		
 		for (it = distances.begin(); it !=distances.end(); it++){	
 			bool exist = false;
-			exist = (*it).discrete_convolution(dt, h, grid_blowup, fp);
-			// 	(*it).convolution(dt);
+		    if (MODUS)	exist = (*it).discrete_convolution(dt, h, grid_blowup, fp);
+			else	(*it).convolution(dt);
 			// 	(*it).five_point_formula(dt, h);
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Convoluted_matrix" << (*it).get_id() << "_"<< loop << ".gnu";
 				cout << filename.str() << endl << endl;	
-				(*it).save_matrix(filename.str().c_str());
+				if (SAFEFILES)(*it).save_matrix(filename.str().c_str());
 			}
 		}
 		
@@ -198,7 +198,7 @@ int main() {
 					filename.str(std::string());
 					filename << "Compared_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
 					cout << filename.str() << endl << endl;
-					(*itc).save_matrix(filename.str().c_str());
+					if (SAFEFILES) (*itc).save_matrix(filename.str().c_str());
 				}
 			}
 		}
@@ -216,12 +216,11 @@ int main() {
 				filename.str(std::string());
 				filename << "Redistanced_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
 				cout << filename.str() << endl << endl;
-				(*itc).save_matrix(filename.str().c_str());
+				if (SAFEFILES) (*itc).save_matrix(filename.str().c_str());
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
 				if(i!=(length-1)) plotfiles << ",";
-			}
-			
+			}	
 		}
 		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 			filename.str(std::string());
