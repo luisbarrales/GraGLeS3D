@@ -139,7 +139,7 @@ double matrix::entry(const int i, const int j){
 }
 
 
-matrix matrix::distancefunction(voronoicell& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
+matrix matrix::distancefunction(voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
     int i,j,k;
 	double d, dmin,lambda;
 	int m=get_m();
@@ -181,9 +181,9 @@ matrix matrix::distancefunction(voronoicell& c, int *ID_mat, double *part_pos, i
                     }
                 }
             }
-//             if (abs(dmin) < DELTA || dmin > 0.0) (*x[i])[j]= dmin;
-//             else (*x[i])[j] = -DELTA;
-            (*x[i])[j]= dmin;
+            if (abs(dmin) < DELTA || dmin > 0.0) (*x[i])[j]= dmin;
+            else (*x[i])[j] = -DELTA;
+//             (*x[i])[j]= dmin;
         }
 	}
 	return(*this);

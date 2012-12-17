@@ -45,7 +45,7 @@ int main() {
 
 /*********************************************************************************/
 	const int particles = int(PARTICLES);
-	const double dt = 1./(double(0.5*M*M));
+	const double dt = 1./(double(M*M));
 
 	double x,y,z,rx,ry,rz;
 	int m = M, current_cell, cell_id;	
@@ -62,7 +62,7 @@ int main() {
 	std::list<matrix> compared_dist;	
 	std::list<matrix>::iterator itc;
 	std::list<matrix>::iterator it_rm;
-	voronoicell c;
+	voronoicell_neighbor c;
 
 	// Create a container with the geometry given above, and make it
 	// non-periodic in each of the three coordinates. Allocate space for
@@ -131,6 +131,8 @@ int main() {
 		// compute the current cell, taken out of the container
 		con.compute_cell(c,vl); 
 		cell_order[particles-1-i]=vl.pid();
+		vector<int> v; c.neighbors(v);
+		utils::print_vector(v);
 		// vl.pid(): holds current cell_id
 		// c: current voronoicell
 		// ID: matrix with Information grid point -> cell_id

@@ -31,7 +31,7 @@ public:
     vektor operator*(const vektor& v);
     matrix operator/(matrix& A);
 	double entry(const int i, const int j);
-	matrix distancefunction(voro::voronoicell& con, int *ID_mat, double *part_pos, int grid_blowup, double h);
+	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
 	
 	void maximum(const matrix &A, const matrix &B);
 	void matrix_to_array(double *u);
