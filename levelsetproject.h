@@ -8,10 +8,10 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 #define TIMESTEPS 1
-#define PRINTSTEP 10
-#define PARTICLES 50
-#define SAFEFILES false
-#define MODUS false
+#define PRINTSTEP 1
+#define PARTICLES 10
+#define SAFEFILES true
+#define MODUS true
 
 #pragma once
 #include <vector>
