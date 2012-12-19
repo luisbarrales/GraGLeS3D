@@ -84,7 +84,15 @@ int main() {
 	container con(0,1,0,1,0,1,5,5,5,randbedingung,randbedingung,randbedingung,2);
 	c_loop_all vl(con);
 
-	
+	//program options:
+	cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
+	cout << "Number of Grains: " << PARTICLES << endl;
+	cout << "FFT: " << MODUS << endl;
+	cout << "simulated Timesteps: " << TIMESTEPS << endl;
+	cout << "Timestepwidth " << dt << endl;
+	cout << "Number of Gridpoints: " << M << endl << endl;
+		
+	cout << endl << "******* start simulation: *******" << endl << endl;
 	
 	/*********************************************************************************/
 	// Randomly add particles into the container
@@ -167,14 +175,17 @@ int main() {
 		
 		for (it = distances.begin(); it !=distances.end(); it++){	
 			bool exist = false;
-		    if (MODUS)	exist = (*it).discrete_convolution(dt, h, grid_blowup, fp);
-			else	(*it).convolution(dt);
+		    if (MODUS) (*it).convolution(dt);
+				else exist = (*it).discrete_convolution(dt, h, grid_blowup, fp);
 			// 	(*it).five_point_formula(dt, h);
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Convoluted_matrix" << (*it).get_id() << "_"<< loop << ".gnu";
-				cout << filename.str() << endl << endl;	
-				if (SAFEFILES)(*it).save_matrix(filename.str().c_str());
+				
+				if (SAFEFILES) {
+					(*it).save_matrix(filename.str().c_str());
+					cout << filename.str() << endl << endl;	
+				}
 			}
 		}
 		
@@ -199,8 +210,11 @@ int main() {
 				if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 					filename.str(std::string());
 					filename << "Compared_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
-					cout << filename.str() << endl << endl;
-					if (SAFEFILES) (*itc).save_matrix(filename.str().c_str());
+					
+					if (SAFEFILES) {
+						(*itc).save_matrix(filename.str().c_str());
+						cout << filename.str() << endl << endl;
+					}
 				}
 			}
 		}
@@ -217,8 +231,11 @@ int main() {
 			if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Redistanced_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
-				cout << filename.str() << endl << endl;
-				if (SAFEFILES) (*itc).save_matrix(filename.str().c_str());
+				
+				if (SAFEFILES) {
+					(*itc).save_matrix(filename.str().c_str());
+					cout << filename.str() << endl << endl;
+				}
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
 				if(i!=(length-1)) plotfiles << ",";

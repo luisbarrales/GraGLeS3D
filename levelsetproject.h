@@ -4,14 +4,15 @@
 #define DIM 2
 #define M 100
 #define EPS 1e-6
-#define DELTA 0.02
+#define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
-#define TIMESTEPS 1
+#define TIMESTEPS 5
 #define PRINTSTEP 1
-#define PARTICLES 10
+#define PARTICLES 5
 #define SAFEFILES true
-#define MODUS false
+#define MODUS false // true for FFT
+
 
 #pragma once
 #include <vector>
