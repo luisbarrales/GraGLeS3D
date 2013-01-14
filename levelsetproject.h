@@ -7,12 +7,12 @@
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
-#define TIMESTEPS 5
-#define PRINTSTEP 1
-#define PARTICLES 5
-#define SAFEFILES true
-#define MODUS false // true for FFT
 
+#define TIMESTEPS 50
+#define PRINTSTEP 10
+#define PARTICLES 10
+#define SAFEFILES true
+#define MODUS true // true for FFT
 
 #pragma once
 #include <vector>

@@ -181,9 +181,9 @@ matrix matrix::distancefunction(voronoicell_neighbor& c, int *ID_mat, double *pa
                     }
                 }
             }
-            if (abs(dmin) < DELTA || dmin > 0.0) (*x[i])[j]= dmin;
-            else (*x[i])[j] = -DELTA;
-//             (*x[i])[j]= dmin;
+          //  if (abs(dmin) < DELTA || dmin > 0.0) (*x[i])[j]= dmin;
+          //else (*x[i])[j] = -DELTA;
+            (*x[i])[j]= dmin;
         }
 	}
 	return(*this);
@@ -363,7 +363,23 @@ void matrix::maximum(const matrix &A, const matrix &B){
         }
 }
 
-
+int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglect){
+    
+    std::list<matrix>::iterator it;
+    int minID = -1;
+    double minVal = 100000; // just a value that can not be reached
+    
+    for(it = distances.begin(); it != distances.end(); it++){
+        if ((*it).id != neglect) {
+            if (abs((*it)[m][n]) < minVal) {
+                minVal = abs((*it)[m][n]);
+                minID = (*it).id;
+            }
+        }
+    }
+    
+    return minID;
+}
 
 
 /*********************************************************************************/
@@ -377,11 +393,12 @@ void matrix::maximum(const matrix &A, const matrix &B){
 bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
     std::list<matrix>::iterator it;
     it = distances.begin();
-    int m = get_m();
+	double boundary_value = -0.5;
+	int m = get_m();
     int n = get_n();
     matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
     bool exist = false;
-    if (id == (*it).id) Max = *(it++);
+    if (id == (*it).id) Max = *(++it);
 	else Max = *it;
 	
     for (it = distances.begin(); it != distances.end(); it++ ){
@@ -399,7 +416,7 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
 	for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-                (*this)[i][j] = -0.2;
+                (*this)[i][j] = boundary_value;
             }
             else if((*this)[i][j] >= 0) exist = true;
         }
@@ -414,68 +431,237 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
 		// Redistancing Step
 /*********************************************************************************/
 
-void matrix::redistancing(double h, int grid_blowup) {
+void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField) {
     int n = get_n();
     int m = get_m();
-    stringstream filename;
-	const double limiter = -2.0; //double(DELTA);
-    // temporary matrix
     matrix *temp = new matrix(m,n,id);
-    (*temp)[0][0]=-limiter;
-    for (int i = 0; i < m-1; i++) {
-        for (int j = 0; j < n-1; j++){
-			  
-			// rectangle comparison from upper left corner 
-			// needs forward declaration in the first row:
-            if (i==0 || j==m-2) {
-                (*temp)[i][j+1]=-limiter;
-            }
+    double limiter = 2.0;
+    //double slope = 1;
+    
+    
+    // x-direction forward
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n-1; j++) {
+            if (j==0) (*temp)[i][j] = -limiter;
+            (*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
             
-            // sign change in x direction
-            if ((*this)[i][j] * (*this)[i][j+1] <= 0.0) {
+            // check for sign change
+            if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
+                
                 // interpolate
-                double slope  = ((*this)[i][j+1] - (*this)[i][j])  / h;
-                double zero_x = -(*this)[i][j] / slope;                
-                if ( abs((*temp)[i][j]) > abs(-zero_x)) (*temp)[i][j] = -zero_x * utils::sgn(slope);
+                double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
+                double zero = -(*this)[i][j] / i_slope;
+                if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 			}
-            
-            // sign change in y direction
-            if ((*this)[i][j] * (*this)[i+1][j] <= 0.0) {
-                // interpolate
-                double slope  = ((*this)[i+1][j] - (*this)[i][j])  / h;
-                double zero_y = -(*this)[i][j] / slope;    
-				if (abs((*temp)[i][j]) > abs(-zero_y)) (*temp)[i][j] = -zero_y * utils::sgn(slope);
-            }
-            
             // calculate new distance candidate and assign if appropriate
-			double candidate_x = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h);
-			if (abs(candidate_x) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate_x;
-                        
-            // y direction
-            // initial "forward"-value in y-direction, depending on sign of respective compared value
-            
-			 
-			double candidate_y = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
-			(*temp)[i+1][j] = limiter * utils::sgn((*this)[i+1][j]); 
-            if (abs(candidate_y) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate_y;       
-            
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slopeField[i][j]);
+			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
         }
     }
     
-    (*temp)[m-1][n-1]=(*temp)[m-1][n-2]-h;
-    // assign temporary matrix to this matrix
+    // y-direction forward
+    for (int j = 0; j < n; j++) {
+        for (int i = 0; i < m-1; i++) {
+            
+            // check for sign change
+            if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {                
+                // interpolate
+                double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+                double zero = -(*this)[i][j] / i_slope;
+                if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+			}
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h * slopeField[i][j]);
+			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
+        }
+    }
+    
+    // x-direction backward
+    for (int i = 0; i < m; i++) {
+        for (int j = n-1; j > 0; j--) {
+        
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slopeField[i][j]); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
+        }
+    }
+    
+    // y-direction backward
+    for (int j = 0; j < n; j++) {
+        for (int i = m-1; i > 0; i--) {
 
-	for (int i = m-1; i > 0; i--) {
-       for (int j = n-1; j > 0; j--){
-			double candidate_x = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h);
-			if (abs(candidate_x) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate_x;
- 
-			double candidate_y = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h);
-            if (abs(candidate_y) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate_y;   
-		}
+            
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h * slopeField[i][j]); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
+        }
+    }
+
+    
+    
+    
+    /*** THIS IS THE VERSION USING SIGN CHANGES TO GET THE SLOPES
+    
+    // x-direction forward
+    for (int i = 0; i < m; i++) {
+        slope = 1;
+        for (int j = 0; j < n-1; j++) {
+            if (j==0) (*temp)[i][j] = -limiter;
+            (*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
+            
+            // check for sign change
+            if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
+                // find grain with minimal distance to [i][j]
+                int rightID = (*this).id;
+                int leftID = minimumInPoint(distances, i, j, rightID);
+                slope = borderSlopes[leftID][rightID];
+                
+                if (slope == 0) slope = 1;
+                
+                // interpolate
+                double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
+                double zero = -(*this)[i][j] / i_slope;
+                if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+			}
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slope); 
+			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
+        }
+    }
+    
+    // y-direction forward
+    for (int j = 0; j < n; j++) {
+        slope = 1;
+        for (int i = 0; i < m-1; i++) {
+            
+            // check for sign change
+            if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {
+                // find grain with minimal distance to [i][j]
+                int bottomID = (*this).id;
+                int topID = minimumInPoint(distances, i, j, bottomID);
+                slope = borderSlopes[topID][bottomID];
+                
+                if (slope == 0) slope = 1;
+                
+                // interpolate
+                double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+                double zero = -(*this)[i][j] / i_slope;
+                if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+			}
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h * slope);
+			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
+        }
+    }
+    
+    // x-direction backward
+    for (int i = 0; i < m; i++) {
+        slope = 1;
+        for (int j = n-1; j > 0; j--) {
+            
+            // check for sign change
+            if ((*this)[i][j] * (*this)[i][j-1] < 0.0) {
+                // find grain with minimal distance to [i][j]
+                int leftID = (*this).id;
+                int rightID = minimumInPoint(distances, i, j, leftID);
+                slope = borderSlopes[leftID][rightID];
+                
+                if (slope == 0) slope = 1;
+            }
+            
+            
+            
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slope); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
+        }
+    }
+    
+    
+    // y-direction backward
+    for (int j = 0; j < n; j++) {
+        slope = 1;
+        for (int i = m-1; i > 0; i--) {
+            
+            // check for sign change
+            if ((*this)[i][j] * (*this)[i-1][j] < 0.0) {
+                // find grain with minimal distance to [i][j]
+                int topID = (*this).id;
+                int bottomID = minimumInPoint(distances, i, j, topID);
+                slope = borderSlopes[topID][bottomID];
+                
+                if (slope == 0) slope = 1;
+            }
+            
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h * slope); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
+        }
+    }
+     
+     */
+    
+    
+    /*
+     // temporary matrix
+     (*temp)[0][0]=-limiter;
+     for (int i = 0; i < m-1; i++) {
+     for (int j = 0; j < n-1; j++){
+     
+     // rectangle comparison from upper left corner
+     // needs forward declaration in the first row:
+     if (i==0 || j==m-2) {
+     (*temp)[i][j+1]=-limiter;
+     }
+     
+     // sign change in x direction
+     if ((*this)[i][j] * (*this)[i][j+1] <= 0.0) {
+     // interpolate
+     double slope  = ((*this)[i][j+1] - (*this)[i][j])  / h;
+     double zero_x = -(*this)[i][j] / slope;
+     if ( abs((*temp)[i][j]) > abs(-zero_x)) (*temp)[i][j] = -zero_x * utils::sgn(slope);
+     }
+     
+     // sign change in y direction
+     if ((*this)[i][j] * (*this)[i+1][j] <= 0.0) {
+     // interpolate
+     double slope  = ((*this)[i+1][j] - (*this)[i][j])  / h;
+     double zero_y = -(*this)[i][j] / slope;
+     if (abs((*temp)[i][j]) > abs(-zero_y)) (*temp)[i][j] = -zero_y * utils::sgn(slope);
+     }
+     
+     // calculate new distance candidate and assign if appropriate
+     double candidate_x = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h);
+     if (abs(candidate_x) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate_x;
+     
+     // y direction
+     // initial "forward"-value in y-direction, depending on sign of respective compared value
+     
+     
+     double candidate_y = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
+     (*temp)[i+1][j] = limiter * utils::sgn((*this)[i+1][j]);
+     if (abs(candidate_y) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate_y;
+     
+     }
+     }
+     
+     (*temp)[m-1][n-1]=(*temp)[m-1][n-2]-h;
+     // assign temporary matrix to this matrix
+     
+     for (int i = m-1; i > 0; i--) {
+     for (int j = n-1; j > 0; j--){
+     double candidate_x = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h);
+     if (abs(candidate_x) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate_x;
+     
+     double candidate_y = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h);
+     if (abs(candidate_y) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate_y;
+     }
 	 }
 	 (*temp)[0][0]=(*temp)[0][1]-h;
-	*this = *temp;
+     
+     */
+	
+    *this = *temp;
     delete temp;
 }
 
