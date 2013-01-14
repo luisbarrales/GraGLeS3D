@@ -31,9 +31,10 @@ public:
     vektor operator*(const vektor& v);
     matrix operator/(matrix& A);
 	double entry(const int i, const int j);
-	matrix distancefunction(voro::voronoicell& con, int *ID_mat, double *part_pos, int grid_blowup, double h);
+	matrix distancefunction(voro::voronoicell_neighbor& con, int *ID_mat, double *part_pos, int grid_blowup, double h);
 	
 	void maximum(const matrix &A, const matrix &B);
+    int minimumInPoint(std::list<matrix> distances, int m, int n, int neglect);
 	void matrix_to_array(double *u);
 	void array_to_matrix(double *u);
 	void makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
@@ -41,7 +42,7 @@ public:
 	void conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt);
 	void convolution(double dt);
 	
-    void redistancing(double h, int grid_blowup);
+    void redistancing(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
     void fastSweepingStepX(int mPos, int nPos, double h, char sign );
     void fastSweepingStepY(int mPos, int nPos, double h, char sign );
     

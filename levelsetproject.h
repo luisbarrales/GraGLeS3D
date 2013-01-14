@@ -7,9 +7,9 @@
 #define DELTA 0.02
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
-#define TIMESTEPS 1
-#define PRINTSTEP 1
-#define PARTICLES 10
+#define TIMESTEPS 100
+#define PRINTSTEP 5
+#define PARTICLES 4
 #define SAFEFILES true
 #define MODUS true
 
