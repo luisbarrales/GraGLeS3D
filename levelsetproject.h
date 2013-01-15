@@ -8,9 +8,9 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 50
-#define PRINTSTEP 10
-#define PARTICLES 10
+#define TIMESTEPS 200
+#define PRINTSTEP 5
+#define PARTICLES 3
 #define SAFEFILES true
 #define MODUS true // true for FFT
 

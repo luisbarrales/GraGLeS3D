@@ -117,31 +117,39 @@ int main() {
 	/*********************************************************************************/
 	// Randomly add particles into the container
 	/*********************************************************************************/
-	
+	/*
     for(int i=0;i<particles;i++) {
 		x=utils::rnd();
 		y=utils::rnd();
         // 		cout << x <<y <<endl;
 		z=0;
 		con.put(i,x,y,z);
-	}
+	}*/
     
     
-    /*
-    //****
-    // Add particles for one triple-point
-    //***
+    
+//     ****
+//     Add particles for one triple-point
+//     ***
     con.put(0,0.33,0.33,0);
     con.put(1,0.33,0.66,0);
     con.put(2,0.66,0.66,0);
     
     borderSlopes[0][1] = 1.2;
-    borderSlopes[0][2] = 1.2;
-    borderSlopes[1][0] = 0.8;
-    borderSlopes[1][2] = 0.8;
-    borderSlopes[2][0] = 1.5;
-    borderSlopes[2][1] = 1.5;*/
+    borderSlopes[0][2] = 0.8;
+    borderSlopes[1][0] = 1.2;
+    borderSlopes[1][2] = 1.5;
+    borderSlopes[2][0] = 0.8;
+    borderSlopes[2][1] = 1.5;
     
+// 	borderSlopes[0][1] = 1.;
+//     borderSlopes[0][2] = 1.;
+//     borderSlopes[1][0] = 1.;
+//     borderSlopes[1][2] = 1.;
+//     borderSlopes[2][0] = 1.;
+//     borderSlopes[2][1] = 1.;
+	
+	
     /*********************************************************************************/
     // 	Output the Voronoi cells to a file, in the gnuplot format
 	con.draw_cells_gnuplot("random_points_v.gnu");
@@ -188,12 +196,12 @@ int main() {
         c.neighbors(cellNeighbors);
         
         
-        for (vector<int>::iterator it = cellNeighbors.begin();
-             it != cellNeighbors.end(); ++it) {
-            if (*it >= 0) {
-                borderSlopes[vl.pid()][*it] = 1; // ((rand() % 100) / 100.0) + 1;
-            }
-        }
+//         for (vector<int>::iterator it = cellNeighbors.begin();
+//              it != cellNeighbors.end(); ++it) {
+//             if (*it >= 0) {
+//                 borderSlopes[vl.pid()][*it] = 1; // ((rand() % 100) / 100.0) + 1;
+//             }
+//         }
         
         
 		compared_dist.push_front(matrix(resized_m,resized_m, vl.pid()));
