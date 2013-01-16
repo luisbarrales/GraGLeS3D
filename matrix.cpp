@@ -459,6 +459,16 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
         }
     }
     
+     // x-direction backward
+    for (int i = 0; i < m; i++) {
+        for (int j = n-1; j > 0; j--) {
+        
+            // calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slopeField[i][j]); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
+        }
+    }
+    
     // y-direction forward
     for (int j = 0; j < n; j++) {
         for (int i = 0; i < m-1; i++) {
@@ -476,15 +486,7 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
         }
     }
     
-    // x-direction backward
-    for (int i = 0; i < m; i++) {
-        for (int j = n-1; j > 0; j--) {
-        
-            // calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slopeField[i][j]); // replace with the "a"-slope stuff...
-			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
-        }
-    }
+   
     
     // y-direction backward
     for (int j = 0; j < n; j++) {
