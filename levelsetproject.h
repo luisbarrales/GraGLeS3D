@@ -8,11 +8,14 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 10
-#define PRINTSTEP 1
+#define TIMESTEPS 50
+#define PRINTSTEP 5
 #define PARTICLES 3
+
 #define SAFEFILES true
-#define MODUS true // true for FFT
+#define IMAGEOUT true
+#define PLOTGNU false
+#define DISCRETE_CONVOLUTION true
 
 #pragma once
 #include <vector>
@@ -28,7 +31,6 @@
 #include <fftw3.h>
 
 #include "./vorolib/include/voro++/voro++.hh"
-
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"

@@ -25,6 +25,12 @@ all: ${CPPOBJ}
 clean: 
 	rm -f *.o
 
+<<<<<<< HEAD
 remove:
 	rm *.gnu
 	rm *.png
+=======
+clearAll:
+	rm -f *.gnu
+	rm -f *.png
+>>>>>>> b101026bcaecc9e071efe64ea32bb37e7518099c
