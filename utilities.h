@@ -67,6 +67,7 @@ inline int sgn(double x)
 
 void plotGnu(const char *fileName, const char *plotfiles);
     void plotGnuPNG(const char *fileName, const char *plotfiles);
+    void PNGtoGIF(const char *fileName);
 
 };
 #endif

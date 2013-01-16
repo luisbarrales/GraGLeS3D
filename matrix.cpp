@@ -397,7 +397,7 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
     int n = get_n();
     matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
     bool exist = false;
-    if (id == (*it).id) Max = *(it++);
+    if (id == (*it).id) Max = *(++it);
 	else Max = *it;
 	
     for (it = distances.begin(); it != distances.end(); it++ ){
@@ -435,11 +435,12 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
     int m = get_m();
     matrix *temp = new matrix(m,n,id);
     double limiter = 2.0;
-    //double slope = 1;
+    double slope = 1;
     
-    
+    /* Slope-Field solution attempt
     // x-direction forward
     for (int i = 0; i < m; i++) {
+        slope = 0;
         for (int j = 0; j < n-1; j++) {
             if (j==0) (*temp)[i][j] = -limiter;
             (*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
@@ -495,11 +496,8 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
 			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
         }
     }
-
+    */
     
-    
-    
-    /*** THIS IS THE VERSION USING SIGN CHANGES TO GET THE SLOPES
     
     // x-direction forward
     for (int i = 0; i < m; i++) {
@@ -598,7 +596,7 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
         }
     }
      
-     */
+     
     
     
     /*
