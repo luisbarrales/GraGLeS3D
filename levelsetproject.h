@@ -8,7 +8,7 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 200
+#define TIMESTEPS 80
 #define PRINTSTEP 5
 #define PARTICLES 3
 #define SAFEFILES true

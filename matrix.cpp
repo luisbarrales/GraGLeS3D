@@ -435,7 +435,7 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
     int n = get_n();
     int m = get_m();
     matrix *temp = new matrix(m,n,id);
-    double limiter = 2.0;
+    double limiter = DELTA;
     //double slope = 1;
     
     
