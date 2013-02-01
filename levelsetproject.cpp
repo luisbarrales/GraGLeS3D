@@ -35,9 +35,10 @@
 
 double kernel(double dt,int m, int i ,int j){
     double erg;
-    double k = 2.0 * PI / m;
-    double nsq = (double) m * (double) m;
-    erg = exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
+    double nominator = 4.0 * PI *dt;
+    double dx = 1/ (double) m;
+	double abs_x_sq= ((i*dx)*(i*dx)) + ((j*dx)*(j*dx));
+    erg = 1/nominator * exp(-abs(abs_x_sq) /(4.0*dt));
     return(erg);
 }
 
@@ -106,7 +107,7 @@ int main() {
 	//program options:
 	cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
 	cout << "Number of Grains: " << PARTICLES << endl;
-	cout << "FFT: " << MODUS << endl;
+	cout << "FFT: " << DISCRETE_CONVOLUTION << endl;
 	cout << "simulated Timesteps: " << TIMESTEPS << endl;
 	cout << "Timestepwidth " << dt << endl;
 	cout << "Number of Gridpoints: " << M << endl << endl;
@@ -137,19 +138,19 @@ int main() {
     con.put(1,0.33,0.66,0);
     con.put(2,0.66,0.66,0);
     
-    borderSlopes[0][1] = 1.2;
-    borderSlopes[0][2] = 0.8;
-    borderSlopes[1][0] = 1.2;
-    borderSlopes[1][2] = 1.5;
-    borderSlopes[2][0] = 0.8;
-    borderSlopes[2][1] = 1.5;
+//     borderSlopes[0][1] = 1.2;
+//     borderSlopes[0][2] = 0.8;
+//     borderSlopes[1][0] = 1.2;
+//     borderSlopes[1][2] = 1.1;
+//     borderSlopes[2][0] = 0.8;
+//     borderSlopes[2][1] = 1.1;
     
-// 	borderSlopes[0][1] = 1.;
-//     borderSlopes[0][2] = 1.;
-//     borderSlopes[1][0] = 1.;
-//     borderSlopes[1][2] = 1.;
-//     borderSlopes[2][0] = 1.;
-//     borderSlopes[2][1] = 1.;
+	borderSlopes[0][1] = 1.;
+    borderSlopes[0][2] = 1.;
+    borderSlopes[1][0] = 1.;
+    borderSlopes[1][2] = 1.;
+    borderSlopes[2][0] = 1.;
+    borderSlopes[2][1] = 1.;
 	
 	
     /*********************************************************************************/

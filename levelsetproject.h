@@ -8,14 +8,15 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 50
+#define TIMESTEPS 80
+
 #define PRINTSTEP 5
 #define PARTICLES 3
 
 #define SAFEFILES true
 #define IMAGEOUT true
-#define PLOTGNU false
-#define DISCRETE_CONVOLUTION true
+#define PLOTGNU true
+#define DISCRETE_CONVOLUTION false
 
 #pragma once
 #include <vector>

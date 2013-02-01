@@ -435,13 +435,15 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
     int n = get_n();
     int m = get_m();
     matrix *temp = new matrix(m,n,id);
-    double limiter = 2.0;
+
+    double limiter = DELTA;
     double slope = 1;
     
-    /* Slope-Field solution attempt
+/*
+    
+    
     // x-direction forward
     for (int i = 0; i < m; i++) {
-        slope = 0;
         for (int j = 0; j < n-1; j++) {
             if (j==0) (*temp)[i][j] = -limiter;
             (*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
@@ -487,8 +489,6 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
         }
     }
     
-   
-    
     // y-direction backward
     for (int j = 0; j < n; j++) {
         for (int i = m-1; i > 0; i--) {
@@ -499,8 +499,11 @@ void matrix::redistancing(double h, int grid_blowup, std::list<matrix> distances
 			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
         }
     }
+
+    
     */
     
+    // THIS IS THE VERSION USING SIGN CHANGES TO GET THE SLOPES
     
     // x-direction forward
     for (int i = 0; i < m; i++) {
