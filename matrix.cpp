@@ -191,6 +191,31 @@ matrix matrix::distancefunction(voronoicell_neighbor& c, int *ID_mat, double *pa
 
 
 
+/*************************************************************************/
+// BOX Functions
+/*************************************************************************/
+
+bool matrix::addBox(LSbox* aBox){
+    vector<LSbox*>::iterator it;
+    // check if new box interesects with any of the current boxes
+    bool intersect = false;
+    if (!grains.empty())
+        for (it = grains.begin(); it != grains.end(); it++) {
+            intersect = aBox->checkIntersect(*it);
+        }
+    if (!intersect) {
+        grains.push_back(aBox);
+        return true;
+    }
+    return false;
+}
+
+
+
+
+
+
+
 
 
 /*********************************************************************************/

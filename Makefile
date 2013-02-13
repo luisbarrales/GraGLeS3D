@@ -3,14 +3,14 @@
 # Author : Christian Miessen
 # Date   : Juli 2012
 
-CPPSRC =   utilities.cpp outOfBoundsException.cpp vektor.cpp matrix.cpp functions.cpp levelsetproject.cpp  
+CPPSRC =   utilities.cpp outOfBoundsException.cpp vektor.cpp matrix.cpp box.cpp functions.cpp levelsetproject.cpp  
 CPPOBJ = $(CPPSRC:%.cpp=%.o)
 
 PROG_NAME = levelset_project
 #CXX=g++
 INCLUDES = -I./vorolib/include/voro++
 LINKER_FLAGS = -L./vorolib/lib 
-C_FLAGS=-Wall -ansi -pedantic -O3 -g
+C_FLAGS=-Wall -std=c++0x -ansi -pedantic -O3 -g
 
 
 

@@ -2,7 +2,7 @@
 #define LEVELSETPROJECT_h
 
 #define DIM 2
-#define M 100
+#define M 1000
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
@@ -35,6 +35,7 @@
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
+#include "box.h"
 #include "matrix.h"
 #include "functions.h"
 

@@ -6,14 +6,17 @@
 using namespace std;
 
 class vektor;
+class LSbox;
 class particle_information;
 
 class matrix{
     int m,n,id;
     vektor **x;
+    vector<LSbox*> grains;
 	
 public:
     friend class vektor;
+    friend class LSbox;
     friend ostream& operator<<(ostream &os, const matrix& A);
 	
     matrix(int m, int n);
@@ -34,7 +37,9 @@ public:
 
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
 
-	
+	bool addBox(LSbox* aBox);
+    
+    
 	void maximum(const matrix &A, const matrix &B);
     int minimumInPoint(std::list<matrix> distances, int m, int n, int neglect);
 	void matrix_to_array(double *u);
