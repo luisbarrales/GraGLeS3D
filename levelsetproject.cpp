@@ -492,8 +492,8 @@ int main() {
 //    /*********************************************************************************/
 //    /*********************************************************************************/
 	
-//	con.draw_cells_gnuplot("particles.gnu");
-//	cout << "number of distanzmatrices: "<< distances.size() << endl;
+	con.draw_cells_gnuplot("particles.gnu");
+	cout << "number of distanzmatrices: "<< domains.size() << endl;
 //	//utils::print_2dim_array( ID, m, m );
 	
  	free (ID);
