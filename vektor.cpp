@@ -8,6 +8,11 @@ vektor::vektor(int n) : n(n) {
         for (int i=0;i<n;i++) x[i]=0;
     }
 
+vektor::vektor(int n, double startval) : n(n) {
+        x=new double[n];
+        for (int i=0;i<n;i++) x[i]=startval;
+    }
+
 vektor::~vektor() { delete [] x; }
 
 vektor::vektor(const vektor& v) : n(v.n) {

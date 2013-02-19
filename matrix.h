@@ -21,6 +21,7 @@ public:
 	
     matrix(int m, int n);
 	matrix(int m, int n, int id);
+	matrix(int m, int n, int id, double startval);
 	~matrix();
     matrix(const matrix& v);
 	

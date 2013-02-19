@@ -4,17 +4,15 @@
 #define DIM 2
 
 #define M 500
-
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 80
-
+#define TIMESTEPS 0
 #define PRINTSTEP 5
-
 #define PARTICLES 50
+#define INTERIMVAL -sqrt(1. / PARTICLES)
 
 
 #define SAFEFILES true

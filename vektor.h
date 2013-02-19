@@ -29,6 +29,7 @@ public:
 	// constructors etc.
 	/*****************************************************************************/
 	vektor(int n);
+	vektor(int n, double startval);
     ~vektor();
     vektor(const vektor& v);
 	

@@ -13,6 +13,13 @@ matrix::matrix(int m, int n, int id) : m(m), n(n), id(id) {
     for (int i=0;i<m;i++) x[i]=new vektor(n);
 }
 
+matrix::matrix(int m, int n, int id, double startval) : m(m), n(n), id(id) {
+	x=new vektor*[m];
+    for (int i=0;i<m;i++) x[i]=new vektor(n, startval);
+}
+
+
+
 matrix::~matrix() {
     for (int i=0;i<m;i++) delete x[i];
     delete [] x;
@@ -50,6 +57,7 @@ double& matrix::operator=(const matrix& A){
         assert(m == A.m && n == A.n);
         for (int i = 0; i < m; i++) *x[i] = *(A.x[i]);
     }
+    this->grains = A.grains;
 }
 
 // "+" Operator
@@ -202,6 +210,7 @@ bool matrix::addBox(LSbox* aBox){
     if (!grains.empty())
         for (it = grains.begin(); it != grains.end(); it++) {
             intersect = aBox->checkIntersect(*it);
+            if (intersect) break;
         }
     if (!intersect) {
         grains.push_back(aBox);
@@ -332,33 +341,33 @@ void matrix::convolution(const double dt){
 // the domain by grid_blow gridpoints at each boundary.
 /*********************************************************************************/
 
+// TO DO: umschreiben auf boxconzept
 
-
-bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
-    int m= get_m();
-    int n= get_n();
-    matrix erg(m,n,id);
-    bool exist = false;
-    double conv_rad = grid_blowup/2;
-    double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
-	const double outside_domain = -2.0;
-    //   double tube = double(DELTA)-conv_rad;
-    //   erg = *this;
-    for (int i=0; i< m; i++)
-        for (int j=0; j< n; j++)
-            for (int ii=-conv_rad;ii< conv_rad;ii++)
-                for (int jj=-conv_rad;jj< conv_rad;jj++){
-//                     if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-                    if( ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup))) ) 	
-						erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-					else erg[i][j]= outside_domain;
-                    //since we get one positiv value, the grain still exists
-                    if(erg[i][j] > 0) exist = true;
-                    //			  if((*x[i])[j] > - DELTA) erg[i][j] += (dt *  1/(h*h) * (kernel(dt,m,i,j) * (*x[i-ii])[j-jj]));
-                }
-    *this= erg;
-	return(exist);
-}
+// bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
+//     int m= get_m();
+//     int n= get_n();
+//     matrix erg(m,n,id);
+//     bool exist = false;
+//     double conv_rad = grid_blowup/2;
+//     double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
+// 	const double outside_domain = -2.0;
+//     //   double tube = double(DELTA)-conv_rad;
+//     //   erg = *this;
+//     for (int i=0; i< m; i++)
+//         for (int j=0; j< n; j++)
+//             for (int ii=-conv_rad;ii< conv_rad;ii++)
+//                 for (int jj=-conv_rad;jj< conv_rad;jj++){
+// //                     if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
+//                     if( ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup))) ) 	
+// 						erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
+// 					else erg[i][j]= outside_domain;
+//                     //since we get one positiv value, the grain still exists
+//                     if(erg[i][j] > 0) exist = true;
+//                     //			  if((*x[i])[j] > - DELTA) erg[i][j] += (dt *  1/(h*h) * (kernel(dt,m,i,j) * (*x[i-ii])[j-jj]));
+//                 }
+//     *this= erg;
+// 	return(exist);
+// }
 
 
 
@@ -367,15 +376,15 @@ bool matrix::discrete_convolution(const double dt, const double h, const int gri
 		// five point formula for solving pde
 /*********************************************************************************/
 
-void matrix::five_point_formula(const double dt, const double dx){
-    int m= get_m();
-    matrix erg(m,m);
-    erg = *this;
-    for (int i=1;i< m-1;i++)
-        for (int j=1;j< m-1;j++)
-            if (erg[i][j] > -DELTA) erg[i][j] += (dt *  1/(dx*dx) * ((( *x[i+1])[j] - (2 * (*x[i])[j]) + (*x[i-1])[j] ) + (( *x[i])[j+1] - (2 * (*x[i])[j]) + (*x[i])[j-1] )));
-    *this= erg;
-}
+// void matrix::five_point_formula(const double dt, const double dx){
+//     int m= get_m();
+//     matrix erg(m,m);
+//     erg = *this;
+//     for (int i=1;i< m-1;i++)
+//         for (int j=1;j< m-1;j++)
+//             if (erg[i][j] > -DELTA) erg[i][j] += (dt *  1/(dx*dx) * ((( *x[i+1])[j] - (2 * (*x[i])[j]) + (*x[i-1])[j] ) + (( *x[i])[j+1] - (2 * (*x[i])[j]) + (*x[i])[j-1] )));
+//     *this= erg;
+// }
 
 
 /*********************************************************************************/
@@ -422,7 +431,7 @@ int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglec
 bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
     std::list<matrix>::iterator it;
     it = distances.begin();
-	double boundary_value = -0.5;
+// 	double boundary_value = -0.5;
 	int m = get_m();
     int n = get_n();
     matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
@@ -445,7 +454,7 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
 	for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-                (*this)[i][j] = boundary_value;
+                (*this)[i][j] = INTERIMVAL;
             }
             else if((*this)[i][j] >= 0) exist = true;
         }
