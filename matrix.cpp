@@ -205,12 +205,16 @@ bool matrix::addBox(LSbox* aBox){
         }
     if (!intersect) {
         grains.push_back(aBox);
+        aBox->setDomain(this);
         return true;
     }
     return false;
 }
 
 
+vector<LSbox*> matrix::getBoxList() {
+    return grains;
+}
 
 
 

@@ -2,7 +2,9 @@
 #define LEVELSETPROJECT_h
 
 #define DIM 2
-#define M 100
+
+#define M 500
+
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
@@ -11,7 +13,9 @@
 #define TIMESTEPS 80
 
 #define PRINTSTEP 5
-#define PARTICLES 100
+
+#define PARTICLES 50
+
 
 #define SAFEFILES true
 #define IMAGEOUT true

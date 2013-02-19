@@ -19,7 +19,7 @@ struct pointVal {
 class LSbox {
     
     int id;
-    double xmin, xmax, ymin, ymax;
+    int xmin, xmax, ymin, ymax;
     vector<pointVal> zeros;
     matrix* domain;
 
@@ -29,6 +29,8 @@ public:
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
     void setZeros(double h);
+    int getID();
+    void setDomain(matrix* aDomain);
     bool checkIntersect(LSbox* box2);
     
 };

@@ -19,42 +19,51 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
             x1[0]=vv[3*ii];x1[1]=vv[3*ii+1];
             x2[0]=vv[3*k]; x2[1]=vv[3*k+1];
             
-            if (x1[0] < xmin) xmin = x1[0];
-            if (x2[0] < xmin) xmin = x2[0];
-            if (x1[1] < ymin) ymin = x1[1];
-            if (x2[1] < ymin) ymin = x2[1];
-            if (x1[0] > xmax) xmax = x1[0];
-            if (x2[0] > xmax) xmax = x2[0];
-            if (x1[1] > ymax) ymax = x1[1];
-            if (x2[1] > ymax) ymax = x2[1];
+            if (x1[0]/h < xmin) xmin = x1[0]/h;
+            if (x2[0]/h < xmin) xmin = x2[0]/h;
+            if (x1[1]/h < ymin) ymin = x1[1]/h;
+            if (x2[1]/h < ymin) ymin = x2[1]/h;
+            if (x1[0]/h > xmax) xmax = x1[0]/h;
+            if (x2[0]/h > xmax) xmax = x2[0]/h;
+            if (x1[1]/h > ymax) ymax = x1[1]/h;
+            if (x2[1]/h > ymax) ymax = x2[1]/h;
             
         }
     }
-    xmin -= grid_blowup*h;
-    xmax += grid_blowup*h;
-    ymin -= grid_blowup*h;
-    ymax += grid_blowup*h;
+    
+    
+    xmax += 2*grid_blowup;
+    ymax += 2*grid_blowup;
     
     cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
     
 }
 
 LSbox::~LSbox() {
-    
 }
+
+void LSbox::setDomain(matrix* aDomain) {
+    domain = aDomain;
+}
+
+int LSbox::getID() {
+    return id;
+}
+
 
 LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
     int i,j,k;
+
 	double d, dmin,lambda;
 	int m=domain->get_m();
 	int n=domain->get_n();
-	
+
 	vektor u(2), a(2), p(2), x1(2), x2(2);
     vector<double> vv;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
-	
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
 	
+    
 	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
         for (j=ymin;j< ymax;j++){
             dmin=1000.;
@@ -85,7 +94,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
                     }
                 }
             }
-            
+
             (*domain)[i][j]= dmin;
         }
 	}
