@@ -202,6 +202,7 @@ bool matrix::addBox(LSbox* aBox){
     if (!grains.empty())
         for (it = grains.begin(); it != grains.end(); it++) {
             intersect = aBox->checkIntersect(*it);
+            if (intersect) break;
         }
     if (!intersect) {
         grains.push_back(aBox);

@@ -187,6 +187,8 @@ void LSbox::setZeros(double h) {
 
 bool LSbox::checkIntersect(LSbox* box2) {
     
-    if (xmin <= box2->xmax && xmax >= box2->xmin && ymin <= box2->ymax && ymax >= box2->ymin) return true;
-    return false;
+    //if (xmin <= box2->xmax && xmax >= box2->xmin && ymin <= box2->ymax && ymax >= box2->ymin) return true;
+    if ((xmin > box2->xmax || xmax < box2->xmin || ymin > box2->ymax || ymax < box2->ymin)) return false;
+    
+    return true;
 }
