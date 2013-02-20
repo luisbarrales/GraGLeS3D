@@ -260,10 +260,22 @@ plotfiles.str(std::string());
 // 		}
 	}  
 		
-    //		/*********************************************************************************/
-    //		// Redistancing Step
-    //		/*********************************************************************************/
-    //
+/*********************************************************************************/
+// Redistancing Step
+/*********************************************************************************/
+
+//  for (i=0, itc= compared_domains.begin(); itc != compared_domains.end(); itc++, i++){
+//	berechne Nullstellenmenge und neue Größe jeder Box
+//	teste ob Box noch in aktuelle Domain passt 
+//				-> bei Kollision:
+// 				-> sonst verschiebe (teste Domainliste von Hinten) oder "merke" in "zuverteilende Boxen"
+//	rechne Redistancing für verbleibende Boxen in aktueller Domain
+//
+   
+   
+// }
+
+
     //		int length = compared_dist.size();
     //        for (i=0, itc= compared_dist.begin(); itc != compared_dist.end(); itc++, i++){
     //			(*itc).redistancing(h, grid_blowup, distances, borderSlopes, slopeField);
