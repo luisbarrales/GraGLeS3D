@@ -33,7 +33,8 @@
 #include <algorithm>
 #include <fftw3.h>
 
-#include "./vorolib/include/voro++/voro++.hh"
+#include "voro++/include/voro++/voro++.hh"
+
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
