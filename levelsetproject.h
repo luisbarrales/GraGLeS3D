@@ -3,7 +3,7 @@
 
 #define DIM 2
 
-#define M 500
+#define M 100
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
@@ -11,7 +11,7 @@
 
 #define TIMESTEPS 0
 #define PRINTSTEP 5
-#define PARTICLES 50
+#define PARTICLES 9
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
 

@@ -101,13 +101,19 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 }
 
 void LSbox::setZeros(double h) {
-    
+
+
     // clear current vector
     zeros.clear();
     
+
+    
     int firstx, firsty;
-    int currentx, currenty;
+    int currentx=0, currenty=0;
     char direction = 1; // 0 y+  2 y-  1 x+  3 x-  (1 is firstDir)
+    
+    /*
+    
     
     // find first zero
     bool success = false;
@@ -128,9 +134,23 @@ void LSbox::setZeros(double h) {
         }
         k*=2;
     }
-    cout << "check1" << endl;
+    
+    */
+    int dist = ymax - ymin;
+    int y = ymin+ (dist/2);
+    // look for zero in row y
+    for (int j = xmin; j < xmax; j++) {
+        if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
+            firstx = j; firsty = y;
+            currentx = j; currenty = y;
+            break;
+        }
+    }
+    
+    
     // begin zero-tracking and interpolations
     bool newZero = true;
+
     
     while (newZero) {
         // interpolate current zero
@@ -144,11 +164,14 @@ void LSbox::setZeros(double h) {
             else nextx = currentx-1;
             nexty = currenty;
         }
+
         double val1 = (*domain)[currenty][currentx];
         double val2 = (*domain)[nexty][nextx];
 
         double i_slope = (val2 - val1) / h;
         double zero = -val1 / i_slope;
+        
+
         
         // add to zero-list
         double bufferVal = -zero * i_slope;
@@ -165,9 +188,8 @@ void LSbox::setZeros(double h) {
         // find next zero
         direction = (direction-1)%4; //left turn
         
-        cout << "check2" << endl;
 
-        
+        bool foundnext = false;
         for (int i = 0; i < 3; i++) {
             
             int nextx, nexty;
@@ -181,16 +203,23 @@ void LSbox::setZeros(double h) {
                 nexty = currenty;
             }
             
-            if ((*domain)[currenty][currentx] * (*domain)[nexty][nextx] < 0) break;
+            if ((*domain)[currenty][currentx] * (*domain)[nexty][nextx] < 0) {
+                foundnext = true;
+                break;
+            }
             
             direction = (direction+1)%4; // right turn
             currentx = nextx; currenty = nexty;
         }
+        if (!foundnext) {
+            break;
+        }
         
         // check if completed round
-        if (currentx == firstx && currenty == firsty && direction == 1) newZero = false;
+        if (currentx == firstx && currenty == firsty && direction == 1) {
+            newZero = false;
+        }
     }
-
 }
 
 bool LSbox::checkIntersect(LSbox* box2) {
