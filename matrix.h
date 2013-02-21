@@ -18,7 +18,7 @@ public:
     friend class vektor;
     friend class LSbox;
     friend ostream& operator<<(ostream &os, const matrix& A);
-	
+	matrix();
     matrix(int m, int n);
 	matrix(int m, int n, int id);
 	matrix(int m, int n, int id, double startval);
@@ -28,7 +28,8 @@ public:
     vektor& operator[](int i);
     const vektor& operator[](int i) const;
 	
-    double& operator=(const matrix& A);
+//     double& operator=(const matrix& A);
+	double& operator=(const matrix& A);
     matrix operator+(const matrix& A);
     matrix operator-(const matrix& A);
     matrix operator*(const matrix& A);
@@ -38,6 +39,7 @@ public:
 
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
 
+    void grainCheck(double h);
 	bool addBox(LSbox* aBox);
     vector<LSbox*> getBoxList();
     

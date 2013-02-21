@@ -3,6 +3,9 @@
 using namespace std;
 using namespace voro;
 
+
+matrix::matrix(){}
+
 matrix::matrix(int m, int n) : m(m), n(n) {
 	int id=0;
     x=new vektor*[m];
@@ -57,8 +60,8 @@ double& matrix::operator=(const matrix& A){
         assert(m == A.m && n == A.n);
         for (int i = 0; i < m; i++) *x[i] = *(A.x[i]);
     }
-    (this->grains).assign(A.grains.begin(),A.grains.end());
 }
+
 
 // "+" Operator
 matrix matrix::operator+(const matrix& A){
@@ -73,6 +76,8 @@ matrix matrix::operator+(const matrix& A){
 // "-" Operator
 matrix matrix::operator-(const matrix& A){
     matrix C(m,n);
+	C.grains = this->grains;
+	C.id = id;
     assert(m == A.m && n == A.n);
     for (int i = 0; i < m; i++) *(C.x[i]) = (*x[i]) - *(A.x[i]);
     return C;
@@ -225,6 +230,18 @@ vector<LSbox*> matrix::getBoxList() {
     return grains;
 }
 
+
+
+void matrix::grainCheck(double h)
+{
+    vector<LSbox*>::iterator it;
+    for(it = grains.begin(); it != grains.end(); it++) {
+        // find zeros and new box size
+        (*it)->setZeros(h);
+        
+        
+    }
+}
 
 
 
