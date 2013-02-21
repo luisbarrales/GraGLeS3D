@@ -192,3 +192,113 @@ bool LSbox::checkIntersect(LSbox* box2) {
     
     return true;
 }
+
+// void LSbox::redistancing(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField) {
+//     int n = get_n();
+//     int m = get_m();
+//     matrix *temp = new matrix(m,n,id);
+// 
+//     double limiter = INTERIMVAL;
+//     double slope = 1;
+// 	
+// 	    // THIS IS THE VERSION USING SIGN CHANGES TO GET THE SLOPES
+//     
+//     // x-direction forward
+//     for (int i = xmin; i <= xmax; i++) {
+//         slope = 1;
+//         for (int j = ymin; j <= ymax-1; j++) {
+//             if (j==0) (*temp)[i][j] = -limiter;
+//             (*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
+//             
+//             // check for sign change
+//             if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
+//                 // find grain with minimal distance to [i][j]
+//                 int rightID = (*this).id;
+//                 int leftID = minimumInPoint(distances, i, j, rightID);
+//                 slope = borderSlopes[leftID][rightID];
+//                 
+//                 if (slope == 0) slope = 1;
+//                 
+//                 // interpolate
+//                 double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
+//                 double zero = -(*this)[i][j] / i_slope;
+//                 if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+// 			}
+//             // calculate new distance candidate and assign if appropriate
+// 			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slope); 
+// 			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
+//         }
+//     }
+//     
+//     // y-direction forward
+//     for (int j = ymin; j <= ymax; j++) {
+//         slope = 1;
+//         for (int i = xmin; i <= xmax-1; i++) {
+//             
+//             // check for sign change
+//             if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {
+//                 // find grain with minimal distance to [i][j]
+//                 int bottomID = (*this).id;
+//                 int topID = minimumInPoint(distances, i, j, bottomID);
+//                 slope = borderSlopes[topID][bottomID];
+//                 
+//                 if (slope == 0) slope = 1;
+//                 
+//                 // interpolate
+//                 double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+//                 double zero = -(*this)[i][j] / i_slope;
+//                 if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+// 			}
+//             // calculate new distance candidate and assign if appropriate
+// 			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h * slope);
+// 			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
+//         }
+//     }
+//     
+//     // x-direction backward
+//     for (int i = xmin; i <= xmax; i++) {
+//         slope = 1;
+//         for (int j = ymax-1; j >= ymin; j--) {
+//             
+//             // check for sign change
+//             if ((*this)[i][j] * (*this)[i][j-1] < 0.0) {
+//                 // find grain with minimal distance to [i][j]
+//                 int leftID = (*this).id;
+//                 int rightID = minimumInPoint(distances, i, j, leftID);
+//                 slope = borderSlopes[leftID][rightID];
+//                 
+//                 if (slope == 0) slope = 1;
+//             }
+//             
+//             
+//             
+//             // calculate new distance candidate and assign if appropriate
+// 			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slope); // replace with the "a"-slope stuff...
+// 			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
+//         }
+//     }
+//     
+//     
+//     // y-direction backward
+//     for (int j = ymin; j <= ymax; j++) {
+//         slope = 1;
+//         for (int i = xmax-1; i >= xmin; i--) {
+//             
+//             // check for sign change
+//             if ((*this)[i][j] * (*this)[i-1][j] < 0.0) {
+//                 // find grain with minimal distance to [i][j]
+//                 int topID = (*this).id;
+//                 int bottomID = minimumInPoint(distances, i, j, topID);
+//                 slope = borderSlopes[topID][bottomID];
+//                 
+//                 if (slope == 0) slope = 1;
+//             }
+//             
+//             // calculate new distance candidate and assign if appropriate
+// 			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h * slope); // replace with the "a"-slope stuff...
+// 			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
+//         }
+//     }
+//     
+//     
+// }

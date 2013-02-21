@@ -64,7 +64,7 @@ int main() {
     part_pos = (double*) calloc (3*particles,sizeof(double));
     stringstream filename;
     
-    std::list<matrix> domains, compared_domains;
+    std::list<matrix> domains, domains_copy;
     std::list<matrix>::iterator it, itc;
     
     voronoicell_neighbor c;
@@ -231,12 +231,13 @@ plotfiles.str(std::string());
 /*********************************************************************************/
 // Create a list for storing the new distances after comparison
 
-	compared_domains=domains;
-	for (it = domains.begin(), itc= compared_domains.begin(); itc != compared_domains.end(); it++, itc++){
+	domains_copy=domains;	
+	
+	for (it = domains.begin(), itc= domains_copy.begin(); itc != domains_copy.end(); it++, itc++){
 		bool exist = false;
-		exist = (*itc).comparison(domains, grid_blowup);
+		exist = (*it).comparison(domains_copy, grid_blowup);
 // 		if (exist == false) {
-// 			cout << "now we delete domain: "<< (*itc).get_id() << endl << endl;;
+// 			cout << "now we delete domain: "<< (*itc).get_id() << endl << endl;
 // 			itc = compared_domains.erase(itc);
 // 			itc--;
 // 			it = domains.erase(it);
@@ -255,7 +256,7 @@ plotfiles.str(std::string());
 				
 				cout << filename.str() << endl << endl;
 				
-				(*itc).save_matrix(filename.str().c_str());
+				(*it).save_matrix(filename.str().c_str());
 			}
 // 		}
 	}  
@@ -264,15 +265,47 @@ plotfiles.str(std::string());
 // Redistancing Step
 /*********************************************************************************/
 
-//  for (i=0, itc= compared_domains.begin(); itc != compared_domains.end(); itc++, i++){
-//	berechne Nullstellenmenge und neue Größe jeder Box
-//	teste ob Box noch in aktuelle Domain passt 
-//				-> bei Kollision:
-// 				-> sonst verschiebe (teste Domainliste von Hinten) oder "merke" in "zuverteilende Boxen"
-//	rechne Redistancing für verbleibende Boxen in aktueller Domain
-//
-   
-   
+/*	// Slope-Field solution attempt
+	// create slope-field
+	for (int k = 0; k < resized_m; k++) {
+		for (int l = 0; l < resized_m; l++) {
+			double min1=99999, min2=99999; // just some random large numbers for first comparison
+			int min1ID=-1, min2ID=-1;
+			// find Minima in [k][l]
+			std::list<matrix>::iterator it;
+			for(it = distances.begin(); it != distances.end(); it++) {
+				double val = abs((*it)[k][l]);
+
+				if (val < min1) {
+					min2 = min1; min2ID = min1ID;
+					min1 = val; min1ID = (*it).get_id();
+				}
+				else if(val < min2) {
+					min2 = val; min2ID = (*it).get_id();
+				}
+			}
+			// assign slope
+			if (min1ID != -1 && min2ID != -1) {
+				slopeField[k][l] = borderSlopes[min1ID][min2ID];
+			} else {
+				slopeField[k][l] = 1;
+			}
+		}
+	*/
+
+
+
+// for (i=0, it= domains.begin(); it != domains.end(); it++, i++){
+// 	vector<LSbox*> grains = (*it).getBoxList();
+// 	vector<LSbox*>::iterator it2;
+// 	for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+// 		(*it2);
+// 	}
+// //	teste ob Box noch in aktuelle Domain passt 
+// //				-> bei Kollision:
+// // 				-> sonst verschiebe (teste Domainliste von Hinten) oder "merke" in "zuverteilende Boxen"
+// //	rechne Redistancing für verbleibende Boxen in aktueller Domain
+// //   
 // }
 
 
@@ -314,7 +347,9 @@ plotfiles.str(std::string());
     //		
     //		distances = compared_dist;  
     
-}  
+}
+
+
 /*******************************************************************************************/
 // end of simulation
 /*******************************************************************************************/
@@ -332,43 +367,9 @@ plotfiles.str(std::string());
     //
     //
     //
-    //        /* Slope-Field solution attempt
-    //         // create slope-field
-    //         for (int k = 0; k < resized_m; k++) {
-    //         for (int l = 0; l < resized_m; l++) {
-    //         double min1=99999, min2=99999; // just some random large numbers for first comparison
-    //         int min1ID=-1, min2ID=-1;
-    //         // find Minima in [k][l]
-    //         std::list<matrix>::iterator it;
-    //         for(it = distances.begin(); it != distances.end(); it++) {
-    //         double val = abs((*it)[k][l]);
-    //
-    //         if (val < min1) {
-    //         min2 = min1; min2ID = min1ID;
-    //         min1 = val; min1ID = (*it).get_id();
-    //         }
-    //         else if(val < min2) {
-    //         min2 = val; min2ID = (*it).get_id();
-    //         }
-    //         }
-    //         // assign slope
-    //         if (min1ID != -1 && min2ID != -1) {
-    //         slopeField[k][l] = borderSlopes[min1ID][min2ID];
-    //         } else {
-    //         slopeField[k][l] = 1;
-    //         }
-    //         }
-    //         }
-    //         //***
-    //         */
-    //
-    //
-    //
 
-    //	}
-    //    
   
-    //    
+  
     //    /*********************************************************************************/
     //    /******************************************************************************/
 	con.draw_cells_gnuplot("particles.gnu");

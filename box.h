@@ -28,10 +28,12 @@ public:
     ~LSbox();
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
-    void setZeros(double h);
+    void redistancing(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
+	void setZeros(double h);
     int getID();
     void setDomain(matrix* aDomain);
     bool checkIntersect(LSbox* box2);
+	
     
 };
 

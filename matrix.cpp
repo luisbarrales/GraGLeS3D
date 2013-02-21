@@ -3,6 +3,9 @@
 using namespace std;
 using namespace voro;
 
+
+matrix::matrix(){}
+
 matrix::matrix(int m, int n) : m(m), n(n) {
 	int id=0;
     x=new vektor*[m];
@@ -57,8 +60,12 @@ double& matrix::operator=(const matrix& A){
         assert(m == A.m && n == A.n);
         for (int i = 0; i < m; i++) *x[i] = *(A.x[i]);
     }
+//     cout << this << "||" << &A << endl;
+// 	vector<LSbox*> mygrains = A.grains;
+// 	for(it = A.grains.begin(); it != A.grain.end(), it++)
     this->grains = A.grains;
 }
+
 
 // "+" Operator
 matrix matrix::operator+(const matrix& A){
@@ -73,6 +80,8 @@ matrix matrix::operator+(const matrix& A){
 // "-" Operator
 matrix matrix::operator-(const matrix& A){
     matrix C(m,n);
+	C.grains = this->grains;
+	C.id = id;
     assert(m == A.m && n == A.n);
     for (int i = 0; i < m; i++) *(C.x[i]) = (*x[i]) - *(A.x[i]);
     return C;
@@ -429,7 +438,8 @@ int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglec
 
 
 bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
-    std::list<matrix>::iterator it;
+    vector<LSbox*> mygrains = grains;
+	std::list<matrix>::iterator it;
     it = distances.begin();
 // 	double boundary_value = -0.5;
 	int m = get_m();
@@ -459,6 +469,7 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
             else if((*this)[i][j] >= 0) exist = true;
         }
 	}
+	this->grains = mygrains;
     return (exist);
 }
 

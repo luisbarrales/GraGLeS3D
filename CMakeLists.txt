@@ -16,19 +16,28 @@ set(VORO++_FOUND true)
 set(VORO++_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/voro++/)
 set(VORO++_LIBRARIES ${CMAKE_SOURCE_DIR}/voro++/lib/libvoro++.a)
 set(VORO++_DEFINITIONS "")
-
+#die nächste Zeile sollte eigentlich funktionieren, tut es aber nicht, da die lokale Installation von voro++ die FindVoro++.cmake unnötigt macht,und die Pfade lokale zum Source bleiben (jaja, kann man ändern).
 #find_package(Voro++ REQUIRED)
+
+
+# dies hier hinzufügen...
+#find_package(Boost COMPONENTS serialization mpi REQUIRED)
+#find_package(MPI REQUIRED)
+
+
 find_package(Boost REQUIRED)
+
 
 ADD_DEFINITIONS("-std=c++0x")
 
 include_directories(${Boost_INCLUDE_PATH})
 include_directories(${VORO++_INCLUDE_DIRS})
+include_directories(${MPI_INCLUDE_PATH})
 
 
 add_executable(LevelSet_IMM ${MY_SOURCES})
 
-target_link_libraries(LevelSet_IMM ${VORO++_LIBRARIES} ${Boost_LIBRARIES} -lfftw3 -lm)
+target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} ${Boost_LIBRARIES} -lfftw3 -lm)
 
 
 
