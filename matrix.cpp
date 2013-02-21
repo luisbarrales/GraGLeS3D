@@ -234,14 +234,12 @@ vector<LSbox*> matrix::getBoxList() {
 
 void matrix::grainCheck(double h)
 {
-	double wait;
-    vector<LSbox*>::iterator it;
+	vector<LSbox*>::iterator it;
     for(it = grains.begin(); it != grains.end(); it++) {
         // find zeros and new box size
 		cout << "number of grain" << (*it)->getID() << endl << flush;
         (*it)->setZeros(h);
-        cin >> wait ;
-        
+          
     }
 }
 
