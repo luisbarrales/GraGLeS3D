@@ -202,8 +202,9 @@ plotfiles.str(std::string());
    for (it = domains.begin(); it !=domains.end(); it++){
        
        
-       if (DISCRETE_CONVOLUTION) (*it).discrete_convolution(dt, h, grid_blowup, fp);
-       else	(*it).convolution(dt);
+//        if (DISCRETE_CONVOLUTION) (*it).discrete_convolution(dt, h, grid_blowup, fp);
+//        else	
+(*it).convolution(dt);
        
        // Output
        
@@ -264,11 +265,7 @@ plotfiles.str(std::string());
 		
     
     
-    
-    for (it = domains.begin(); it != domains.end(); it++) {
-        (*it).grainCheck(h);
-        
-    }
+   
     
     
 /*********************************************************************************/
@@ -303,7 +300,12 @@ plotfiles.str(std::string());
 		}
 	*/
 
-
+ 
+for (it = domains.begin(); it != domains.end(); it++) {
+		//Nullstellenverfolgung:
+        (*it).grainCheck(h); // h Gitterabstand
+        
+}
 
 // for (i=0, it= domains.begin(); it != domains.end(); it++, i++){
 // 	vector<LSbox*> grains = (*it).getBoxList();

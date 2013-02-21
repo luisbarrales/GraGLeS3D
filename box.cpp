@@ -113,21 +113,21 @@ void LSbox::setZeros(double h) {
     bool success = false;
     int dist = ymax - ymin;
     int k = 2;
-    while (!success) {
-        for (int i = 0; i < k; i+=2) {
-            int y = ((1+i)*dist) / k;
+//     while (!success) {
+//         for (int i = 0; i < k; i+=2) {
+            int y = ((1+0)*dist) / k;
             // look for zero in row y
             for (int j = xmin; j < xmax; j++) {
                 if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
                     firstx = j; firsty = y;
                     currentx = j; currenty = y;
-                    success = true;
+//                     success = true;
                     break;
                 }
             }
-        }
-        k*=2;
-    }
+//         }
+//         k*=2;
+//     }
     cout << "check1" << endl;
     // begin zero-tracking and interpolations
     bool newZero = true;
@@ -165,7 +165,7 @@ void LSbox::setZeros(double h) {
         // find next zero
         direction = (direction-1)%4; //left turn
         
-        cout << "check2" << endl;
+//         cout << "check2" << endl;
 
         
         for (int i = 0; i < 3; i++) {
