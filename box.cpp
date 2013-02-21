@@ -157,6 +157,12 @@ void LSbox::setZeros(double h) {
         bufferVal = (h-zero) * i_slope;
         zeros.emplace_back(nextx, nexty, bufferVal);
         
+        // check for size change
+        if (currentx < xmin) xmin = currentx;
+        else if (currentx > xmax) xmax = currentx;
+        if (currenty < ymin) ymin = currenty;
+        else if (currenty > ymax) ymax = currenty;
+        
         // find next zero
         direction = (direction-1)%4; //left turn
         
