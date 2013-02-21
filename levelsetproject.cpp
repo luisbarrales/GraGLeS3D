@@ -64,7 +64,7 @@ int main() {
     part_pos = (double*) calloc (3*particles,sizeof(double));
     stringstream filename;
     
-    std::list<matrix> domains, compared_domains;
+    std::list<matrix> domains, domains_copy;
     std::list<matrix>::iterator it, itc;
     
     voronoicell_neighbor c;
@@ -231,10 +231,10 @@ plotfiles.str(std::string());
 /*********************************************************************************/
 // Create a list for storing the new distances after comparison
 
-	compared_domains=domains;
-	for (it = domains.begin(), itc= compared_domains.begin(); itc != compared_domains.end(); it++, itc++){
+	domains_copy=domains;
+	for (it = domains.begin(), itc= domains_copy.begin(); it != domains.end(); it++, itc++){
 		bool exist = false;
-		exist = (*itc).comparison(domains, grid_blowup);
+		exist = (*it).comparison(domains_copy, grid_blowup);
 // 		if (exist == false) {
 // 			cout << "now we delete domain: "<< (*itc).get_id() << endl << endl;;
 // 			itc = compared_domains.erase(itc);
@@ -246,6 +246,7 @@ plotfiles.str(std::string());
 			if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Comparedmatrix_";
+                                
 				vector<LSbox*> grains = (*it).getBoxList();
 				vector<LSbox*>::iterator it2;
 				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
@@ -255,15 +256,31 @@ plotfiles.str(std::string());
 				
 				cout << filename.str() << endl << endl;
 				
-				(*itc).save_matrix(filename.str().c_str());
+				(*it).save_matrix(filename.str().c_str());
 			}
 // 		}
 	}  
 		
-    //		/*********************************************************************************/
-    //		// Redistancing Step
-    //		/*********************************************************************************/
-    //
+    
+    
+    
+    
+/*********************************************************************************/
+// Redistancing Step
+/*********************************************************************************/
+
+//  for (i=0, itc= compared_domains.begin(); itc != compared_domains.end(); itc++, i++){
+//	berechne Nullstellenmenge und neue Größe jeder Box
+//	teste ob Box noch in aktuelle Domain passt 
+//				-> bei Kollision:
+// 				-> sonst verschiebe (teste Domainliste von Hinten) oder "merke" in "zuverteilende Boxen"
+//	rechne Redistancing für verbleibende Boxen in aktueller Domain
+//
+   
+   
+// }
+
+
     //		int length = compared_dist.size();
     //        for (i=0, itc= compared_dist.begin(); itc != compared_dist.end(); itc++, i++){
     //			(*itc).redistancing(h, grid_blowup, distances, borderSlopes, slopeField);
@@ -302,7 +319,9 @@ plotfiles.str(std::string());
     //		
     //		distances = compared_dist;  
     
-}  
+}
+    
+    
 /*******************************************************************************************/
 // end of simulation
 /*******************************************************************************************/

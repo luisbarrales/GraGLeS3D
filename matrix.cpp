@@ -57,7 +57,7 @@ double& matrix::operator=(const matrix& A){
         assert(m == A.m && n == A.n);
         for (int i = 0; i < m; i++) *x[i] = *(A.x[i]);
     }
-    this->grains = A.grains;
+    (this->grains).assign(A.grains.begin(),A.grains.end());
 }
 
 // "+" Operator
@@ -429,6 +429,7 @@ int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglec
 
 
 bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
+    vector<LSbox*> buffer = this->grains;
     std::list<matrix>::iterator it;
     it = distances.begin();
 // 	double boundary_value = -0.5;
@@ -449,7 +450,7 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
     cur_Max = (Grain-Max);
     cur_Max.mult_with_scalar(0.5);
     cur_Max.save_matrix("Max.gnu");
-    *this =cur_Max;
+    *this = cur_Max;
 
 	for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -459,6 +460,8 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
             else if((*this)[i][j] >= 0) exist = true;
         }
 	}
+    
+    this->grains = buffer;
     return (exist);
 }
 

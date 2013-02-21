@@ -31,7 +31,6 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
         }
     }
     
-    
     xmax += 2*grid_blowup;
     ymax += 2*grid_blowup;
     
