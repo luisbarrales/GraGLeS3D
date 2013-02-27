@@ -301,10 +301,10 @@ plotfiles.str(std::string());
 	*/
 
  
+    vector<LSbox*> buffer;
 for (it = domains.begin(); it != domains.end(); it++) {
 		//Nullstellenverfolgung:
-        (*it).grainCheck(h); // h Gitterabstand
-        
+        (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
 }
 
 // for (i=0, it= domains.begin(); it != domains.end(); it++, i++){

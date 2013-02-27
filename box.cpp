@@ -100,7 +100,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 	return(*this);
 }
 
-void LSbox::setZeros(double h) {
+void LSbox::setZeros(double h, int grid_blowup) {
 
 
     // clear current vector
@@ -156,10 +156,10 @@ void LSbox::setZeros(double h) {
         zeros.emplace_back(nextx, nexty, bufferVal);
         
         // check for size change
-        if (currentx < xmin) xmin = currentx;
-        else if (currentx > xmax) xmax = currentx;
-        if (currenty < ymin) ymin = currenty;
-        else if (currenty > ymax) ymax = currenty;
+        if (currentx < xmin+grid_blowup) xmin = currentx-grid_blowup;
+        else if (currentx > xmax-grid_blowup) xmax = currentx+grid_blowup;
+        if (currenty < ymin+grid_blowup) ymin = currenty-grid_blowup;
+        else if (currenty > ymax-grid_blowup) ymax = currenty+grid_blowup;
         
         // find next zero
         direction = (direction-1)%4; //left turn

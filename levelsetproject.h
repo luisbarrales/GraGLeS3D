@@ -12,7 +12,7 @@
 #define TIMESTEPS 0
 #define PRINTSTEP 5
 
-#define PARTICLES 9
+#define PARTICLES 15
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 

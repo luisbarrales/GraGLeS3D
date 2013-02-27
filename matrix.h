@@ -39,7 +39,7 @@ public:
 
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
 
-    void grainCheck(double h);
+    void grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
 	bool addBox(LSbox* aBox);
     vector<LSbox*> getBoxList();
     
