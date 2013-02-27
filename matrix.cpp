@@ -235,11 +235,11 @@ vector<LSbox*> matrix::getBoxList() {
 void matrix::grainCheck(double h)
 {
 	vector<LSbox*>::iterator it;
+	// iteriere über alle Körner/Boxen einer Domain:
     for(it = grains.begin(); it != grains.end(); it++) {
-        // find zeros and new box size
-		cout << "number of grain" << (*it)->getID() << endl << flush;
-        (*it)->setZeros(h);
-          
+        //	find zeros and new box size
+		// 	cout << "number of grain" << (*it)->getID() << endl << flush;
+        (*it)->setZeros(h); // sucht Nullstellen und zueghörige Boxgröße für jedes Korn
     }
 }
 

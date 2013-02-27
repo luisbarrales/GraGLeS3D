@@ -300,11 +300,35 @@ plotfiles.str(std::string());
 		}
 	*/
 
- 
+cout << "compute new Boxsizes and set zeros:" << endl << endl;
+vector<LSbox*> todo;
+// iteriere über alle Domainen und alle Körner:
 for (it = domains.begin(); it != domains.end(); it++) {
 		//Nullstellenverfolgung:
-        (*it).grainCheck(h); // h Gitterabstand
+		// iteriere über alle alle Körner der Domain:
+		// bestimme die Nullstellenmenge der Körner und die neue Boxgröße:
         
+        (*it).grainCheck(h, ); // h Gitterabstand
+		
+		vector<LSbox*> grains;
+		vector<LSbox*>::iterator itrefbox;
+		vector<LSbox*>::iterator itbox;
+		grains = (*it).getBoxList();
+		
+		for (itrefbox = grains.begin(); itrefbox != grains.end(); itrefbox++) {
+			bool intersect = false;			
+			for (itbox = itrefbox++; itbox != grains.end(); itbox++) {
+				intersect = itrefbox->checkIntersect(itbox);
+				// speichere Box in Liste addbox()
+				// Alternative: direkt neu platzieren
+				
+				if (intersect) {
+					// todo.pushback(itrefbox);
+					
+					//break;
+				}
+			}
+		}        
 }
 
 // for (i=0, it= domains.begin(); it != domains.end(); it++, i++){

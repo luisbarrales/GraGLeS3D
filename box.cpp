@@ -83,7 +83,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
                         lambda=((p-a)*u)/(u*u);
                         
                         if(lambda <= 0.) 					    d= (p-x1).laenge();
-                        if((0. < lambda) && (lambda < 1.)) 	d= (p-(a+(u*lambda))).laenge();
+                        if((0. < lambda) && (lambda < 1.)) 		d= (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 					    d= (p-x2).laenge();
                         
                         if(id==ID_mat[i*m +j] && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
@@ -101,7 +101,6 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 }
 
 void LSbox::setZeros(double h) {
-
 
     // clear current vector
     zeros.clear();
