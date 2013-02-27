@@ -100,12 +100,15 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 	return(*this);
 }
 
-void LSbox::setZeros(double h) {
+void LSbox::setZeros(double h, int grid_blowup) {
 
     // clear current vector
     zeros.clear();
     
-
+	cout << "grain: " << id << endl << "Boxabmessung: " << endl;;
+	
+	cout << xmin << " || " << xmax << endl;
+	cout << ymin << " || " << ymax << endl;
     
     int firstx, firsty;
     int currentx=0, currenty=0;
@@ -118,6 +121,7 @@ void LSbox::setZeros(double h) {
         if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
             firstx = j; firsty = y;
             currentx = j; currenty = y;
+			cout << "found first zero: " << currentx <<" || " << currenty << endl;
             break;
         }
     }
@@ -126,7 +130,7 @@ void LSbox::setZeros(double h) {
     // begin zero-tracking and interpolations
     bool newZero = true;
 
-    
+    cout << "suche boxgroesse" << endl;
     while (newZero) {
         // interpolate current zero
         int nextx, nexty;
@@ -154,11 +158,13 @@ void LSbox::setZeros(double h) {
         bufferVal = (h-zero) * i_slope;
         zeros.emplace_back(nextx, nexty, bufferVal);
         
+// 		cout << currentx << " - " << currenty << endl;
+		
         // check for size change
-        if (currentx < xmin) xmin = currentx;
-        else if (currentx > xmax) xmax = currentx;
-        if (currenty < ymin) ymin = currenty;
-        else if (currenty > ymax) ymax = currenty;
+        if (currentx-grid_blowup < xmin) xmin = currentx-grid_blowup;
+        else if (currentx > xmax-grid_blowup) xmax = currentx+grid_blowup;
+        if (currenty < ymin+grid_blowup) ymin = currenty-grid_blowup;
+        else if (currenty > ymax-grid_blowup) ymax = currenty+grid_blowup;
         
         // find next zero
         direction = (direction-1)%4; //left turn
@@ -194,6 +200,14 @@ void LSbox::setZeros(double h) {
             newZero = false;
         }
     }
+    
+    if (xmin < 0) xmin = 0;
+    if (xmax > (*domain).get_m()) xmax = (*domain).get_m();
+	if (ymin < 0) ymin = 0;
+	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
+	cout <<"neue Abmessungen : " << endl;
+	cout << xmin << " || " << xmax << endl;
+	cout << ymin << " || " << ymax << endl << endl;
 }
 
 bool LSbox::checkIntersect(LSbox* box2) {
@@ -204,20 +218,22 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
-// void LSbox::redistancing(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField) {
-//     int n = get_n();
-//     int m = get_m();
+void LSbox::redistancing(/*double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField*/) {
+
 //     matrix *temp = new matrix(m,n,id);
-// 
-//     double limiter = INTERIMVAL;
-//     double slope = 1;
-// 	
-// 	    // THIS IS THE VERSION USING SIGN CHANGES TO GET THE SLOPES
-//     
-//     // x-direction forward
-//     for (int i = xmin; i <= xmax; i++) {
-//         slope = 1;
-//         for (int j = ymin; j <= ymax-1; j++) {
+
+    double limiter = INTERIMVAL;
+    double slope = 1;
+	
+	   // THIS IS THE VERSION USING SIGN CHANGES TO GET THE SLOPES
+    //slope=1;
+    // x-direction forward
+	cout << "berechne box: "<< id << endl;
+	
+    for (int i = xmin; i < xmax; i++) {
+		for (int j = ymin; j < ymax; j++) {
+			(*domain)[i][j]= (double)id;			
+		}
 //             if (j==0) (*temp)[i][j] = -limiter;
 //             (*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
 //             
@@ -239,8 +255,8 @@ bool LSbox::checkIntersect(LSbox* box2) {
 // 			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slope); 
 // 			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
 //         }
-//     }
-//     
+    }
+    
 //     // y-direction forward
 //     for (int j = ymin; j <= ymax; j++) {
 //         slope = 1;
@@ -312,4 +328,4 @@ bool LSbox::checkIntersect(LSbox* box2) {
 //     }
 //     
 //     
-// }
+ }

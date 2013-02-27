@@ -300,36 +300,37 @@ plotfiles.str(std::string());
 		}
 	*/
 
-cout << "compute new Boxsizes and set zeros:" << endl << endl;
-vector<LSbox*> todo;
-// iteriere über alle Domainen und alle Körner:
+
+ 
+vector<LSbox*> buffer;
 for (it = domains.begin(); it != domains.end(); it++) {
 		//Nullstellenverfolgung:
-		// iteriere über alle alle Körner der Domain:
-		// bestimme die Nullstellenmenge der Körner und die neue Boxgröße:
-        
-        (*it).grainCheck(h, ); // h Gitterabstand
-		
-		vector<LSbox*> grains;
-		vector<LSbox*>::iterator itrefbox;
-		vector<LSbox*>::iterator itbox;
-		grains = (*it).getBoxList();
-		
-		for (itrefbox = grains.begin(); itrefbox != grains.end(); itrefbox++) {
-			bool intersect = false;			
-			for (itbox = itrefbox++; itbox != grains.end(); itbox++) {
-				intersect = itrefbox->checkIntersect(itbox);
-				// speichere Box in Liste addbox()
-				// Alternative: direkt neu platzieren
-				
-				if (intersect) {
-					// todo.pushback(itrefbox);
-					
-					//break;
-				}
-			}
-		}        
+        (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
 }
+
+
+for (it = domains.begin(); it != domains.end(); it++) {
+		//Nullstellenverfolgung:
+		cout <<"Rechne Redistancing auf Boxen: " << endl;
+        (*it).redistancing(); // h Gitterabstand
+		
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+				filename.str(std::string());
+				filename << "Redistanced_matrix_";
+                                
+				vector<LSbox*> grains = (*it).getBoxList();
+				vector<LSbox*>::iterator it2;
+				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+					filename << (*it2)->getID() << "_";
+				}
+				filename << "\b.gnu";
+				
+				cout << filename.str() << endl << endl;
+				
+				(*it).save_matrix(filename.str().c_str());
+			}
+}
+
 
 // for (i=0, it= domains.begin(); it != domains.end(); it++, i++){
 // 	vector<LSbox*> grains = (*it).getBoxList();
