@@ -118,7 +118,7 @@ void LSbox::setZeros(double h, int grid_blowup) {
     int y = ymin+ int(dist/2);
     // look for zero in row y
     for (int j = xmin; j < xmax; j++) {
-		cout << y <<" || "<< j << endl;
+		cout << y <<" || "<< j << " || value: " << (*domain)[y][j] <<endl;
         if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
             firstx = j; firsty = y;
             currentx = j; currenty = y;
