@@ -115,9 +115,10 @@ void LSbox::setZeros(double h, int grid_blowup) {
     char direction = 1; // 0 y+  2 y-  1 x+  3 x-  (1 is firstDir)
     
     int dist = ymax - ymin;
-    int y = ymin+ (dist/2);
+    int y = ymin+ int(dist/2);
     // look for zero in row y
     for (int j = xmin; j < xmax; j++) {
+		cout << y <<" || "<< j << endl;
         if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
             firstx = j; firsty = y;
             currentx = j; currenty = y;
