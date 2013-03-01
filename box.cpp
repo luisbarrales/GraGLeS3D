@@ -61,13 +61,11 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
     vector<double> vv;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
-	
-    
+	    
 	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
         for (j=ymin;j< ymax;j++){
             dmin=1000.;
-            p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;
-            
+            p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
             
             for(int ii=0;ii<c.p;ii++) {
                 for(int jj=0;jj<c.nu[ii];jj++) {
@@ -210,44 +208,123 @@ void LSbox::setZeros(double h, int grid_blowup) {
     if (xmax > (*domain).get_m()) xmax = (*domain).get_m();
 	if (ymin < 0) ymin = 0;
 	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
-	cout <<"neue Abmessungen : " << endl;
+	cout << "neue Abmessungen : " << endl;
 	cout << xmin << " || " << xmax << endl;
 	cout << ymin << " || " << ymax << endl << endl;
 }
 
-bool LSbox::checkIntersect(LSbox* box2) {
-    
+bool LSbox::checkIntersect(LSbox* box2) {    
     //if (xmin <= box2->xmax && xmax >= box2->xmin && ymin <= box2->ymax && ymax >= box2->ymin) return true;
     if ((xmin > box2->xmax || xmax < box2->xmin || ymin > box2->ymax || ymax < box2->ymin)) return false;
-    
     return true;
 }
 
 void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distances, double** borderSlopes, double** slopeField*/) {
-	int m = ymax - ymin;
-    int n = xmax - xmin;
-	matrix *temp = new matrix(m,n,id,-INTERIMVAL);
+// 	int m = ymax - ymin;
+//  int n = xmax - xmin;
+// 	matrix *temp = new matrix(m,n,id,-INTERIMVAL);
 
     double limiter = INTERIMVAL;
     double slope = 1;
+	int zero_found = 0;
 	
 	cout << "Berechne Redist fuer Box: "<< id << endl;
 	
 	// write zeros to domain:
 	vector<pointVal> :: iterator k;
 	for (k = zeros.begin(); k != zeros.end(); k++){
-		(*temp)[(*k).y][(*k).x]= (*k).val;	
+		(*domain)[(*k).y][(*k).x]= (*k).val;	
 	}
-	(*temp).redistancing(h, grid_blowup); // ruft rististancing aus Matrixklasse auf
-// 	(*temp).redistancing_2(h, grid_blowup);
+	// x-direction forward
+	for (int i = ymin; i < ymax; i++) {
+		zero_found=0;
+		for (int j = xmin; j < xmax-1; j++) {
+			if (j==xmin) (*domain)[i][j] = -limiter;
+			(*domain)[i][j+1] = limiter * utils::sgn((*domain)[i][j+1]); // set temp to limiter initially
+			
+			// check for sign change
+			// zero are allready set
+			if ((*domain)[i][j] * (*domain)[i][j+1] < 0.0) {
+				zero_found+=1;
+			}
+			// calculate new distance candidate and assign if appropriate
+			if (zero_found==1) {
+				double candidate = (*domain)[i][j] + h;
+				if (abs(candidate) < abs((*domain)[i][j+1])) (*domain)[i][j+1] = candidate;
+			}
+			if (zero_found==2) {
+				double candidate = (*domain)[i][j] - h;
+				if (abs(candidate) < abs((*domain)[i][j+1])) (*domain)[i][j+1] = candidate;
+			}
+		}
+	}
+		// x-direction backward
+	for (int i = ymin; i < ymax; i++) {
+		zero_found=0;
+		for (int j = xmax-1; j > xmin; j--) {
+			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {
+				zero_found+=1;
+			}
+			// calculate new distance candidate and assign if appropriate
+			if (zero_found==1){
+				double candidate = (*domain)[i][j] + h; 
+				if (abs(candidate) < abs((*domain)[i][j-1])) (*domain)[i][j-1] = candidate;
+			}
+			if (zero_found==2) {
+				double candidate = (*domain)[i][j] - h;
+				if (abs(candidate) < abs((*domain)[i][j-1])) (*domain)[i][j-1] = candidate;
+			}
+		}
+	}
+	
+	// y-direction forward
+	for (int j = xmin; j < xmax; j++) {
+		zero_found=0;
+		for (int i = ymin; i < ymax-1; i++) {	
+			// check for sign change
+			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
+				zero_found+= 1;
+			}
+			if (zero_found==1){
+			// calculate new distance candidate and assign if appropriate
+				double candidate = (*domain)[i][j] + h;
+				if (abs(candidate) < abs((*domain)[i+1][j])) (*domain)[i+1][j] = candidate;
+			}
+			if (zero_found==2) {
+				double candidate = (*domain)[i][j] - h;
+				if (abs(candidate) < abs((*domain)[i+1][j])) (*domain)[i+1][j] = candidate;
+			}
+			
+		}
+	}
+	
+	// y-direction backward
+	for (int j = xmin; j < xmax; j++) {
+		zero_found=0;
+		for (int i = ymax-1; i > ymin; i--) {	
+			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
+				zero_found+=1;
+			}
+			if (zero_found==1){
+				// calculate new distance candidate and assign if appropriate
+				double candidate = (*domain)[i][j] + h; // replace with the "a"-slope stuff...
+				if (abs(candidate) < abs((*domain)[i-1][j])) (*domain)[i-1][j] = candidate;
+			}
+			if (zero_found==2) {
+				double candidate = (*domain)[i][j] - h;
+				if (abs(candidate) < abs((*domain)[i-1][j])) (*domain)[i-1][j] = candidate;
+			}
+		}
+	}
+	
 
 	// copy temp to domain
-	int ii,jj,i,j;
+	/*int ii,jj,i,j;
     for (ii=0, i = xmin; i < xmax; i++, ii++) {
 		for (jj=0, j = ymin; j < ymax; j++, jj++) {
 			(*domain)[i][j]= (*temp)[ii][jj];			
 		}
-    }
+    */
     cout << "Box in Domain kopiert -- success"<< endl;
-	delete temp;
+
 }
