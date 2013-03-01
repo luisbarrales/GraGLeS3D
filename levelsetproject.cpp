@@ -191,201 +191,151 @@ int main() {
 
 for(int loop=0; loop <= TIMESTEPS; loop++){
 
-stringstream plotfiles;
-plotfiles.str(std::string());  
+	stringstream plotfiles;
+	plotfiles.str(std::string());  
 
 
-/*********************************************************************************/
-// Convolution simulates grain growth
-/*********************************************************************************/
+	/*********************************************************************************/
+	// Convolution simulates grain growth
+	/*********************************************************************************/
 
-   for (it = domains.begin(); it !=domains.end(); it++){
-       
-       
-//        if (DISCRETE_CONVOLUTION) (*it).discrete_convolution(dt, h, grid_blowup, fp);
-//        else	
-(*it).convolution(dt);
-       
-       // Output
-       
-       if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-        filename.str(std::string());
-        filename << "Convolutedmatrix_";
-        vector<LSbox*> grains = (*it).getBoxList();
-        vector<LSbox*>::iterator it2;
-        for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-            filename << (*it2)->getID() << "_";
-        }
-        filename << "\b.gnu";
-        
-        cout << filename.str() << endl << endl;
-        
-        (*it).save_matrix(filename.str().c_str());
-       }
-       
-   }
-   
-   
-   
-/*********************************************************************************/
-// Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
-/*********************************************************************************/
-// Create a list for storing the new distances after comparison
-
-	domains_copy=domains;
-	for (it = domains.begin(), itc= domains_copy.begin(); it != domains.end(); it++, itc++){
-
-		bool exist = false;
-		exist = (*it).comparison(domains_copy, grid_blowup);
-// 		if (exist == false) {
-// 			cout << "now we delete domain: "<< (*itc).get_id() << endl << endl;
-// 			itc = compared_domains.erase(itc);
-// 			itc--;
-// 			it = domains.erase(it);
-// 			it--;
-// 		}
-// 		else {
-			if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-				filename.str(std::string());
-				filename << "Comparedmatrix_";
-                                
-				vector<LSbox*> grains = (*it).getBoxList();
-				vector<LSbox*>::iterator it2;
-				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-					filename << (*it2)->getID() << "_";
-				}
-				filename << "\b.gnu";
-				
-				cout << filename.str() << endl << endl;
-				
-				(*it).save_matrix(filename.str().c_str());
-			}
-// 		}
-	}  
+	for (it = domains.begin(); it !=domains.end(); it++){
 		
-    
-    
-   
-    
-    
-/*********************************************************************************/
-// Redistancing Step
-/*********************************************************************************/
-
-/*	// Slope-Field solution attempt
-	// create slope-field
-	for (int k = 0; k < resized_m; k++) {
-		for (int l = 0; l < resized_m; l++) {
-			double min1=99999, min2=99999; // just some random large numbers for first comparison
-			int min1ID=-1, min2ID=-1;
-			// find Minima in [k][l]
-			std::list<matrix>::iterator it;
-			for(it = distances.begin(); it != distances.end(); it++) {
-				double val = abs((*it)[k][l]);
-
-				if (val < min1) {
-					min2 = min1; min2ID = min1ID;
-					min1 = val; min1ID = (*it).get_id();
-				}
-				else if(val < min2) {
-					min2 = val; min2ID = (*it).get_id();
-				}
+		
+	//        if (DISCRETE_CONVOLUTION) (*it).discrete_convolution(dt, h, grid_blowup, fp);
+	//        else	
+	(*it).convolution(dt);
+		
+		// Output
+		
+		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+			filename.str(std::string());
+			filename << "Convolutedmatrix_";
+			vector<LSbox*> grains = (*it).getBoxList();
+			vector<LSbox*>::iterator it2;
+			for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+				filename << (*it2)->getID() << "_";
 			}
-			// assign slope
-			if (min1ID != -1 && min2ID != -1) {
-				slopeField[k][l] = borderSlopes[min1ID][min2ID];
-			} else {
-				slopeField[k][l] = 1;
-			}
+			filename << "\b.gnu";
+			
+			cout << filename.str() << endl << endl;
+			
+			(*it).save_matrix(filename.str().c_str());
 		}
-	*/
-
-
- 
-vector<LSbox*> buffer;
-for (it = domains.begin(); it != domains.end(); it++) {
-		//Nullstellenverfolgung:
-        (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
-}
-
-
-for (it = domains.begin(); it != domains.end(); it++) {
-		//Nullstellenverfolgung:
-		cout <<"Rechne Redistancing auf Boxen: " << endl;
-        (*it).redistancing(); // h Gitterabstand
 		
-		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+	}
+	
+	
+	
+	/*********************************************************************************/
+	// Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
+	/*********************************************************************************/
+	// Create a list for storing the new distances after comparison
+
+		domains_copy=domains;
+		for (it = domains.begin(), itc= domains_copy.begin(); it != domains.end(); it++, itc++){
+
+			bool exist = false;
+			exist = (*it).comparison(domains_copy, grid_blowup);
+	// 		if (exist == false) {
+	// 			cout << "now we delete domain: "<< (*itc).get_id() << endl << endl;
+	// 			itc = compared_domains.erase(itc);
+	// 			itc--;
+	// 			it = domains.erase(it);
+	// 			it--;
+	// 		}
+	// 		else {
+				if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+					filename.str(std::string());
+					filename << "Comparedmatrix_";
+									
+					vector<LSbox*> grains = (*it).getBoxList();
+					vector<LSbox*>::iterator it2;
+					for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+						filename << (*it2)->getID() << "_";
+					}
+					filename << "\b.gnu";
+					
+					cout << filename.str() << endl << endl;
+					
+					(*it).save_matrix(filename.str().c_str());
+				}
+	// 		}
+		}  
+			
+		
+		
+	
+		
+		
+	/*********************************************************************************/
+	// Redistancing Step
+	/*********************************************************************************/
+
+	/*	// Slope-Field solution attempt
+		// create slope-field
+		for (int k = 0; k < resized_m; k++) {
+			for (int l = 0; l < resized_m; l++) {
+				double min1=99999, min2=99999; // just some random large numbers for first comparison
+				int min1ID=-1, min2ID=-1;
+				// find Minima in [k][l]
+				std::list<matrix>::iterator it;
+				for(it = distances.begin(); it != distances.end(); it++) {
+					double val = abs((*it)[k][l]);
+
+					if (val < min1) {
+						min2 = min1; min2ID = min1ID;
+						min1 = val; min1ID = (*it).get_id();
+					}
+					else if(val < min2) {
+						min2 = val; min2ID = (*it).get_id();
+					}
+				}
+				// assign slope
+				if (min1ID != -1 && min2ID != -1) {
+					slopeField[k][l] = borderSlopes[min1ID][min2ID];
+				} else {
+					slopeField[k][l] = 1;
+				}
+			}
+		*/
+
+	/****************************************************/
+	// Nullstellenverfolgung:
+	// Speichert Nullstellen als NNZ-OBjekt in jeder Box
+	// Testet Boxen auf Konlikte
+	// Verschiebt "Konfliktboxen" in andere Domain
+	
+	vector<LSbox*> buffer;
+	for (it = domains.begin(); it != domains.end(); it++) {
+		(*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
+	}
+	/****************************************************/
+	
+	for (it = domains.begin(); it != domains.end(); it++) {
+		//Nullstellenverfolgung:
+		cout <<"Rechne Redistancing auf Boxen: " << endl <<endl;
+		
+		// zugriff auf Boxen über die Domain "it"
+		// Intern können verschiedenRedistancing Routinen verwendet werden
+		//(*it).redistancing_for_all_boxes(h, grid_blowup);
+		
+		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Redistanced_matrix_";
-                                
+								
 				vector<LSbox*> grains = (*it).getBoxList();
 				vector<LSbox*>::iterator it2;
 				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
 					filename << (*it2)->getID() << "_";
 				}
-				filename << "\b.gnu";
 				
-				cout << filename.str() << endl << endl;
-				
+				filename << "\b.gnu";				
+				cout << filename.str() << endl << endl;				
 				(*it).save_matrix(filename.str().c_str());
 			}
+	}  
 }
-
-
-// for (i=0, it= domains.begin(); it != domains.end(); it++, i++){
-// 	vector<LSbox*> grains = (*it).getBoxList();
-// 	vector<LSbox*>::iterator it2;
-// 	for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-// 		(*it2);
-// 	}
-// //	teste ob Box noch in aktuelle Domain passt 
-// //				-> bei Kollision:
-// // 				-> sonst verschiebe (teste Domainliste von Hinten) oder "merke" in "zuverteilende Boxen"
-// //	rechne Redistancing für verbleibende Boxen in aktueller Domain
-// //   
-// }
-
-
-    //		int length = compared_dist.size();
-    //        for (i=0, itc= compared_dist.begin(); itc != compared_dist.end(); itc++, i++){
-    //			(*itc).redistancing(h, grid_blowup, distances, borderSlopes, slopeField);
-    //			if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-    //				filename.str(std::string());
-    //				filename << "Redistanced_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
-    //
-    //				if (SAFEFILES) {
-    //					(*itc).save_matrix(filename.str().c_str());
-    //					cout << filename.str() << endl << endl;
-    //				}
-    //				plotfiles << " \""<<filename.str();
-    //				plotfiles << "\" matrix w l";
-    //				if(i!=(length-1)) plotfiles << ",";
-    //			}
-    //		}
-    //		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-    //            if (PLOTGNU) {
-    //			filename.str(std::string());
-    //			filename << "GrainNetwork" << "_"<< loop << ".gnu";
-    //			utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str());
-    //
-    //            }
-    //            
-    //            if (IMAGEOUT) {
-    //                int imgnum = (loop/PRINTSTEP);
-    //                filename.str(std::string());
-    //                filename << "GrainNetwork";
-    //                if (imgnum < 100) filename << "0";
-    //                if (imgnum < 10) filename << "0";
-    //                filename << imgnum << ".png";
-    //                utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
-    //            }
-    //
-    //		}
-    //		
-    //		distances = compared_dist;  
-    
-}
-
 /*******************************************************************************************/
 // end of simulation
 /*******************************************************************************************/
@@ -394,26 +344,14 @@ for (it = domains.begin(); it != domains.end(); it++) {
 //        // make gif
 //        utils::PNGtoGIF("test.mp4");
 //    }   
-    
-    
-
- 
-    //
-
-    //
-    //
-    //
-
   
-  
-    //    /*********************************************************************************/
-    //    /******************************************************************************/
+//    /*********************************************************************************/
+//    /******************************************************************************/
 	con.draw_cells_gnuplot("particles.gnu");
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 //	//utils::print_2dim_array( ID, m, m );
 
 	
- 	free (ID);
-    
+ 	free (ID);    
 	return 0;
 }

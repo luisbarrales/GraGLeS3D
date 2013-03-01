@@ -28,24 +28,24 @@ public:
     vektor& operator[](int i);
     const vektor& operator[](int i) const;
 	
-//     double& operator=(const matrix& A);
 	double& operator=(const matrix& A);
-    matrix operator+(const matrix& A);
-    matrix operator-(const matrix& A);
-    matrix operator*(const matrix& A);
-    vektor operator*(const vektor& v);
-    matrix operator/(matrix& A);
+    matrix	operator+(const matrix& A);
+    matrix	operator-(const matrix& A);
+    matrix	operator*(const matrix& A);
+    vektor	operator*(const vektor& v);
+    matrix	operator/(matrix& A);
 	double entry(const int i, const int j);
 
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
-
+	
+	// grain check: Erklärung anfügen!!
     void grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
 	bool addBox(LSbox* aBox);
-    void redistancing(); // ruft boxweise auf
+    void redistancing_for_all_boxes(double h, int grid_blowup); // ruft boxweise auf
 	vector<LSbox*> getBoxList();
     
 	void maximum(const matrix &A, const matrix &B);
-    int minimumInPoint(std::list<matrix> distances, int m, int n, int neglect);
+    int  minimumInPoint(std::list<matrix> distances, int m, int n, int neglect);
 	void matrix_to_array(double *u);
 	void array_to_matrix(double *u);
 	void makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
@@ -53,8 +53,10 @@ public:
 	void conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt);
 	void convolution(double dt);
 	
-    void redistancing(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
-    void fastSweepingStepX(int mPos, int nPos, double h, char sign );
+    void redistancing_advanced(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
+    void redistancing(double h, int grid_blowup);
+	void redistancing_2(double h, int grid_blowup);
+	void fastSweepingStepX(int mPos, int nPos, double h, char sign );
     void fastSweepingStepY(int mPos, int nPos, double h, char sign );
     
 	void five_point_formula(const double dt, const double dx);
