@@ -105,10 +105,7 @@ void LSbox::setZeros(double h, int grid_blowup) {
     // clear current vector
     zeros.clear();
     
-	cout << "grain: " << id << endl << "Boxabmessung: " << endl;;
-	
-	cout << xmin << " || " << xmax << endl;
-	cout << ymin << " || " << ymax << endl;
+	cout << "grain: " << id << endl;
     
     int firstx, firsty;
     int currentx=0, currenty=0;
@@ -116,12 +113,13 @@ void LSbox::setZeros(double h, int grid_blowup) {
     
     int dist = ymax - ymin;
     int y = ymin+ (dist/2);
+    cout << dist << "  " << y << endl;
     // look for zero in row y
     for (int j = xmin; j < xmax; j++) {
         if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
             firstx = j; firsty = y;
             currentx = j; currenty = y;
-			cout << "found first zero: " << currentx <<" || " << currenty << endl;
+            cout << "found" << endl;
             break;
         }
     }
@@ -130,7 +128,6 @@ void LSbox::setZeros(double h, int grid_blowup) {
     // begin zero-tracking and interpolations
     bool newZero = true;
 
-    cout << "suche boxgroesse" << endl;
     while (newZero) {
         // interpolate current zero
         int nextx, nexty;
@@ -205,9 +202,6 @@ void LSbox::setZeros(double h, int grid_blowup) {
     if (xmax > (*domain).get_m()) xmax = (*domain).get_m();
 	if (ymin < 0) ymin = 0;
 	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
-	cout <<"neue Abmessungen : " << endl;
-	cout << xmin << " || " << xmax << endl;
-	cout << ymin << " || " << ymax << endl << endl;
 }
 
 bool LSbox::checkIntersect(LSbox* box2) {
