@@ -318,7 +318,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		
 		// zugriff auf Boxen über die Domain "it"
 		// Intern können verschiedenRedistancing Routinen verwendet werden
-		(*it).redistancing_for_all_boxes(h, grid_blowup); 
+		(*it).clear_domain(INTERIMVAL);
+		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());

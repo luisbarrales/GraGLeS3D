@@ -92,7 +92,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
                 }
             }
 
-            (*domain)[i][j]= dmin;
+            (*domain)[j][i]= dmin;
         }
 	}
 	return(*this);
@@ -102,38 +102,27 @@ void LSbox::setZeros(double h, int grid_blowup) {
 
     // clear current vector
     zeros.clear();
-    bool zero_found = false;
-	cout << "grain: " << id << endl << "Boxabmessung: " << endl;;
-	
-	cout << xmin << " || " << xmax << endl;
-	cout << ymin << " || " << ymax << endl;
     
     int firstx, firsty;
     int currentx=0, currenty=0;
     char direction = 1; // 0 y+  2 y-  1 x+  3 x-  (1 is firstDir)
     
     int dist = ymax - ymin;
+
+    
     int y = ymin+ int(dist/2);
     // look for zero in row y
     for (int j = xmin; j < xmax; j++) {
-// 		cout << y <<" || "<< j << " || value: " << (*domain)[y][j] <<endl;
         if ((*domain)[y][j] * (*domain)[y][j+1] <= 0) {
             firstx = j; firsty = y;
             currentx = j; currenty = y;
-			cout << "found first zero: " << currentx << " || " << currenty << endl;
-            zero_found= true;
 			break;
         }
     }
-    
-    if (!zero_found) {
-		cout << "error: no grain in box: " << id << endl << endl;
-		return;
-	}
+
     // begin zero-tracking and interpolations
     bool newZero = true;
 
-    cout << "suche neue boxgroesse" << endl;
     while (newZero) {
         // interpolate current zero
         int nextx, nexty;
@@ -208,9 +197,11 @@ void LSbox::setZeros(double h, int grid_blowup) {
     if (xmax > (*domain).get_m()) xmax = (*domain).get_m();
 	if (ymin < 0) ymin = 0;
 	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
-	cout << "neue Abmessungen : " << endl;
-	cout << xmin << " || " << xmax << endl;
-	cout << ymin << " || " << ymax << endl << endl;
+
+// 	cout << "neue Abmessungen : " << endl;
+// 	cout << xmin << " || " << xmax << endl;
+// 	cout << ymin << " || " << ymax << endl << endl;
+
 }
 
 bool LSbox::checkIntersect(LSbox* box2) {    
@@ -219,14 +210,21 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
+// void LSbox::sweep(vector<pointVal> zero){
+// 	
+// 
+// 
+// 
+// 
+// }
+
 void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distances, double** borderSlopes, double** slopeField*/) {
 // 	int m = ymax - ymin;
 //  int n = xmax - xmin;
 // 	matrix *temp = new matrix(m,n,id,-INTERIMVAL);
-
+	cout << " Start Redist für Box: " << id << endl;
     double limiter = INTERIMVAL;
     double slope = 1;
-	int zero_found = 0;
 	
 	cout << "Berechne Redist fuer Box: "<< id << endl;
 	
@@ -234,89 +232,107 @@ void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distance
 	vector<pointVal> :: iterator k;
 	for (k = zeros.begin(); k != zeros.end(); k++){
 		(*domain)[(*k).y][(*k).x]= (*k).val;	
+// 		sweep(*k);
 	}
 	// x-direction forward
 	for (int i = ymin; i < ymax; i++) {
-		zero_found=0;
 		for (int j = xmin; j < xmax-1; j++) {
-			if (j==xmin) (*domain)[i][j] = -limiter;
-			(*domain)[i][j+1] = limiter * utils::sgn((*domain)[i][j+1]); // set temp to limiter initially
-			
+			if (j==xmin) (*domain)[i][j] = limiter;			
 			// check for sign change
 			// zero are allready set
 			if ((*domain)[i][j] * (*domain)[i][j+1] < 0.0) {
-				zero_found+=1;
-			}
-			// calculate new distance candidate and assign if appropriate
-			if (zero_found==1) {
+				
+				// 1te Nullstelle in x-Richtung Übergang außen -> innen
 				double candidate = (*domain)[i][j] + h;
-				if (abs(candidate) < abs((*domain)[i][j+1])) (*domain)[i][j+1] = candidate;
-			}
-			if (zero_found==2) {
-				double candidate = (*domain)[i][j] - h;
-				if (abs(candidate) < abs((*domain)[i][j+1])) (*domain)[i][j+1] = candidate;
-			}
-		}
+				if ( ((*domain)[i][j+1]) < 0 || (abs(candidate) < abs((*domain)[i][j+1])) ) 
+					(*domain)[i][j+1] = candidate;
+				
+				// Im Inneren:
+				int k=2;
+				while( ((*domain)[i][j+k] < 0) && (j+k) < xmax-1  ) {
+					(*domain)[i][j+k] = (*domain)[i][j+(k-1)] + h; 
+					k++;
+				}
+				j+=(k+1); //j steht jetzt auf 2ter äußerer Nullstelle
+				
+				// falls wir genau parallel einer Korngrenze laufen, vorwärtsiterieren bis zum ende:
+				while ((*domain)[i][j] > 0) j++;
+				
+				// jetzt bis zum Rand der Box sweepen
+				int l=0;
+				while( j+l+1 < xmax){
+					(*domain)[i][j+l+1] = (*domain)[i][j+l] - h;
+					l++;				
+				}
+			}									
+		}		
 	}
-		// x-direction backward
-	for (int i = ymin; i < ymax; i++) {
-		zero_found=0;
-		for (int j = xmax-1; j > xmin; j--) {
-			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {
-				zero_found+=1;
-			}
-			// calculate new distance candidate and assign if appropriate
-			if (zero_found==1){
-				double candidate = (*domain)[i][j] + h; 
-				if (abs(candidate) < abs((*domain)[i][j-1])) (*domain)[i][j-1] = candidate;
-			}
-			if (zero_found==2) {
-				double candidate = (*domain)[i][j] - h;
-				if (abs(candidate) < abs((*domain)[i][j-1])) (*domain)[i][j-1] = candidate;
-			}
-		}
-	}
+	cout << "xforward -- sucess" << endl;
 	
-	// y-direction forward
-	for (int j = xmin; j < xmax; j++) {
-		zero_found=0;
-		for (int i = ymin; i < ymax-1; i++) {	
-			// check for sign change
-			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
-				zero_found+= 1;
-			}
-			if (zero_found==1){
-			// calculate new distance candidate and assign if appropriate
-				double candidate = (*domain)[i][j] + h;
-				if (abs(candidate) < abs((*domain)[i+1][j])) (*domain)[i+1][j] = candidate;
-			}
-			if (zero_found==2) {
-				double candidate = (*domain)[i][j] - h;
-				if (abs(candidate) < abs((*domain)[i+1][j])) (*domain)[i+1][j] = candidate;
-			}
-			
-		}
-	}
-	
-	// y-direction backward
-	for (int j = xmin; j < xmax; j++) {
-		zero_found=0;
-		for (int i = ymax-1; i > ymin; i--) {	
-			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
-				zero_found+=1;
-			}
-			if (zero_found==1){
-				// calculate new distance candidate and assign if appropriate
-				double candidate = (*domain)[i][j] + h; // replace with the "a"-slope stuff...
-				if (abs(candidate) < abs((*domain)[i-1][j])) (*domain)[i-1][j] = candidate;
-			}
-			if (zero_found==2) {
-				double candidate = (*domain)[i][j] - h;
-				if (abs(candidate) < abs((*domain)[i-1][j])) (*domain)[i-1][j] = candidate;
-			}
-		}
-	}
-	
+// 		// x-direction backward
+// 	for (int i = ymin; i < ymax; i++) {
+// 		zero_found=0;
+// 		for (int j = xmax-1; j > xmin; j--) {
+// 			if ((*domain)[i][j] * (*domain)[i][j-1] < 0.0) {
+// 				zero_found+=1;
+// 			}
+// 			// calculate new distance candidate and assign if appropriate
+// 			if (zero_found==1){
+// 				double candidate = (*domain)[i][j] + h; 
+// 				if (abs(candidate) < abs((*domain)[i][j-1])) (*domain)[i][j-1] = candidate;
+// 			}
+// 			if (zero_found==2) {
+// 				double candidate = (*domain)[i][j] - h;
+// 				if (abs(candidate) < abs((*domain)[i][j-1])) (*domain)[i][j-1] = candidate;
+// 			}
+// 		}
+// 	}
+// 	cout << "xbackward -- sucess" << endl;
+// 	
+// 	// y-direction forward
+// 	for (int j = xmin; j < xmax; j++) {
+// 		zero_found=0;
+// 		for (int i = ymin; i < ymax-1; i++) {	
+// 			// check for sign change
+// 			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
+// 				zero_found+= 1;
+// 			}
+// 
+// 			if (zero_found==1){
+// 			// calculate new distance candidate and assign if appropriate
+// 				double candidate = (*domain)[i][j] + h;
+// 				if (abs(candidate) < abs((*domain)[i+1][j])) (*domain)[i+1][j] = candidate;
+// 				int k=2;
+// 				while((*domain)[i+k][j] < 0) (*domain)[i+k][j] = (*domain)[i+(k-1)][j] + h; 
+// 				i+=(k-1);
+// 			}
+// 			if (zero_found==2) {
+// 				double candidate = (*domain)[i][j] - h;
+// 				if (abs(candidate) < abs((*domain)[i+1][j])) (*domain)[i+1][j] = candidate;
+// 			}
+// 			
+// 		}
+// 	}
+// 	cout << "yforward -- sucess" << endl;
+// 	// y-direction backward
+// 	for (int j = xmin; j < xmax; j++) {
+// 		zero_found=0;
+// 		for (int i = ymax-1; i > ymin; i--) {	
+// 			if ((*domain)[i][j] * (*domain)[i-1][j] < 0.0) {                
+// 				zero_found+=1;
+// 			}
+// 			if (zero_found==1){
+// 				// calculate new distance candidate and assign if appropriate
+// 				double candidate = (*domain)[i][j] + h; // replace with the "a"-slope stuff...
+// 				if (abs(candidate) < abs((*domain)[i-1][j])) (*domain)[i-1][j] = candidate;
+// 			}
+// 			if (zero_found==2) {
+// 				double candidate = (*domain)[i][j] - h;
+// 				if (abs(candidate) < abs((*domain)[i-1][j])) (*domain)[i-1][j] = candidate;
+// 			}
+// 		}
+// 	}
+// 	cout << "ybackward -- sucess" << endl;
 
 	// copy temp to domain
 	/*int ii,jj,i,j;

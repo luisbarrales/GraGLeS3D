@@ -63,7 +63,7 @@ public:
 	bool discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int));
 	bool comparison(std::list<matrix> distances, int grid_blowup);
 	void save_matrix(const char* filename ); //schreibt datei für gnuplotskript
-	
+	void clear_domain(double value);
 
 	int get_m() const;
     int get_n() const;

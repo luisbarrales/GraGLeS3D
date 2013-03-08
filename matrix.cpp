@@ -523,7 +523,13 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 /*********************************************************************************/
 // Redistancing für alle Boxen -> greift auf LSbox::redistancing zu:
 /*********************************************************************************/
-        
+
+void matrix::clear_domain(double value){
+	for (int i = 0; i < m; i++) { // alle EintrÃ¤ge der Ergebnismatrix 0 setzen
+        for (int j = 0; j < n; j++) (*this)[i][j] = value;
+	}
+}
+
 void matrix::redistancing_for_all_boxes(double h, int grid_blowup){
 	vector<LSbox*>::iterator it;
 	for(it = grains.begin(); it != grains.end(); it++)
@@ -549,7 +555,7 @@ void matrix::redistancing(double h, int grid_blowup){
 	int m = get_m();
 	matrix *temp = new matrix(m,n,id);
 	
-	double limiter = INTERIMVAL;
+	double limiter = -INTERIMVAL;
 	double slope = 1;
 	// x-direction forward
 	for (int i = 0; i < m; i++) {
@@ -620,7 +626,7 @@ void matrix::redistancing_2(double h, int grid_blowup){
 	int m = get_m();
 	matrix *temp = new matrix(m,n,id);
 	
-	double limiter = INTERIMVAL;
+	double limiter = -INTERIMVAL;
 	double slope = 1;
 	
 	// temporary matrix
