@@ -193,8 +193,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 	stringstream plotfiles;
 	plotfiles.str(std::string());  
-
-
+	int nr_grains=0;
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
@@ -328,8 +327,10 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			cout << filename.str() << endl << endl;				
 			(*it).save_matrix(filename.str().c_str());
 		}
+		nr_grains += (*it).get_nr_of_grains();
 	}  
-	cout << "loop: "<< loop << " complete" << endl;
+	cout << "Timestep: "<< loop << " complete" << endl;
+	cout << "Number of remaining grains: "<< nr_grains << endl << endl;
 }
 
 /*******************************************************************************************/

@@ -68,6 +68,7 @@ public:
 	int get_m() const;
     int get_n() const;
 	int get_id() const;
+	int get_nr_of_grains();
 	
 	template <class T>
 	void mult_with_scalar(const T d){

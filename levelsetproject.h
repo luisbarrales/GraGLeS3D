@@ -10,7 +10,7 @@
 #define PI 3.14159265358979323846
 
 #define TIMESTEPS 50
-#define PRINTSTEP 1
+#define PRINTSTEP 5
 
 #define PARTICLES 30
 

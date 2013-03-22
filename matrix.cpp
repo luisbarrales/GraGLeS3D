@@ -234,14 +234,15 @@ vector<LSbox*> matrix::getBoxList() {
 
 void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 {
-
+	bool exist;
 	vector<LSbox*>::iterator it,it2;
     for(it = grains.begin(); it != grains.end(); it++)
     {
         // find zeros and new box size
-        (*it)->setZeros(h, grid_blowup);
+        exist = (*it)->setZeros(h, grid_blowup);
+		if(!exist) {grains.erase(it); it--;}
     }
-
+	
     // try to add boxes from buffer
     if (buffer.empty() == false) {
         for (it = buffer.begin(); it != buffer.end(); it++) {
@@ -816,4 +817,5 @@ void matrix::redistancing_2(double h, int grid_blowup){
 	int matrix::get_m() const { return m; };
 	int matrix::get_n() const { return n; };
 	int matrix::get_id() const { return id; };
+	int matrix::get_nr_of_grains() { return grains.size(); };
 	

@@ -110,7 +110,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 	return(*this);
 }
 
-void LSbox::setZeros(double h, int grid_blowup) {
+bool LSbox::setZeros(double h, int grid_blowup) {
 
     // clear current vector
     zeros.clear();
@@ -121,7 +121,7 @@ void LSbox::setZeros(double h, int grid_blowup) {
     char direction = 1; // x+
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
     int dist = ymax - ymin;
-
+	bool grain_exist = false;
     
     int i = ymin+ int(dist/2);
     // look for zero in row y
@@ -130,9 +130,14 @@ void LSbox::setZeros(double h, int grid_blowup) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
 			next_i =i; 		next_j = j+1;
+			grain_exist= true;
 			break;
         }
-    }
+	}
+	if (!grain_exist) {
+        cout << "grain "<< id << " disappears." << endl;
+		return false;
+	}
 // 	cout << "neue Abmessungen : " << endl;
 // 	cout << xmin << " || " << xmax << endl;
 // 	cout << ymin << " || " << ymax << endl << endl;
@@ -226,6 +231,7 @@ void LSbox::setZeros(double h, int grid_blowup) {
 // 	cout << "neue Abmessungen : " << endl;
 // 	cout << xmin << " || " << xmax << endl;
 // 	cout << ymin << " || " << ymax << endl << endl;
+	return true;
 
 }
 
