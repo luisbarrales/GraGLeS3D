@@ -177,7 +177,7 @@ int main() {
         for (it2 = grains.begin(); it2 != grains.end(); it2++) {
             filename << (*it2)->getID() << "_";
         }
-        filename << "\b.gnu";
+        filename << "\b"<< ".gnu";
         
         cout << filename.str() << endl << endl;
         
@@ -199,32 +199,27 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	// Convolution simulates grain growth
 	/*********************************************************************************/
 
-	for (it = domains.begin(); it !=domains.end(); it++){
-		
-		
-	//        if (DISCRETE_CONVOLUTION) (*it).discrete_convolution(dt, h, grid_blowup, fp);
-	//        else	
-	(*it).convolution(dt);
-		
-		// Output
-		
+	for (it = domains.begin(); it !=domains.end(); it++){	
+			
+		(*it).convolution(dt);
+			
+		// Output			
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 			filename.str(std::string());
 			filename << "Convolutedmatrix_";
 			vector<LSbox*> grains = (*it).getBoxList();
 			vector<LSbox*>::iterator it2;
+			filename << "T"<<loop<<"_";
 			for (it2 = grains.begin(); it2 != grains.end(); it2++) {
 				filename << (*it2)->getID() << "_";
 			}
-			filename << "\b.gnu";
+			filename << "\b"<< ".gnu";
 			
 			cout << filename.str() << endl << endl;
 			
 			(*it).save_matrix(filename.str().c_str());
 		}
-		
 	}
-	
 	
 	
 	/*********************************************************************************/
@@ -251,23 +246,19 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 									
 					vector<LSbox*> grains = (*it).getBoxList();
 					vector<LSbox*>::iterator it2;
+					filename << "T"<<loop<<"_";
 					for (it2 = grains.begin(); it2 != grains.end(); it2++) {
 						filename << (*it2)->getID() << "_";
 					}
-					filename << "\b.gnu";
+					filename << "\b"<< ".gnu";
 					
 					cout << filename.str() << endl << endl;
 					
 					(*it).save_matrix(filename.str().c_str());
 				}
-	// 		}
-		}  
+	}  
 			
-		
-		
-	
-		
-		
+// 	cout << "Comparison complete" << endl << endl;;
 	/*********************************************************************************/
 	// Redistancing Step
 	/*********************************************************************************/
@@ -310,33 +301,37 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	for (it = domains.begin(); it != domains.end(); it++) {
 		(*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
 	}
-	/****************************************************/
 	
+	/****************************************************/
 	for (it = domains.begin(); it != domains.end(); it++) {
 		//Nullstellenverfolgung:
-		cout <<"Rechne Redistancing auf Boxen: " << endl <<endl;
+// 		cout << "Rechne Redistancing auf Boxen der Domain: " << (*it).get_id() << endl << endl;
 		
 		// zugriff auf Boxen über die Domain "it"
 		// Intern können verschiedenRedistancing Routinen verwendet werden
-		(*it).clear_domain(INTERIMVAL);
-		(*it).redistancing_for_all_boxes(h, grid_blowup);
+		(*it).redistancing_2(h, grid_blowup);
+// 		(*it).clear_domain(INTERIMVAL);
+// 		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-				filename.str(std::string());
-				filename << "Redistanced_matrix_";
-								
-				vector<LSbox*> grains = (*it).getBoxList();
-				vector<LSbox*>::iterator it2;
-				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-					filename << (*it2)->getID() << "_";
-				}
-				
-				filename << "\b.gnu";				
-				cout << filename.str() << endl << endl;				
-				(*it).save_matrix(filename.str().c_str());
+			filename.str(std::string());
+			filename << "Redistanced_matrix_";
+							
+			vector<LSbox*> grains = (*it).getBoxList();
+			vector<LSbox*>::iterator it2;
+			filename << "T"<<loop<<"_";
+			for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+				filename << (*it2)->getID() << "_";
 			}
+			
+			filename << "\b"<< ".gnu";				
+			cout << filename.str() << endl << endl;				
+			(*it).save_matrix(filename.str().c_str());
+		}
 	}  
+	cout << "loop: "<< loop << " complete" << endl;
 }
+
 /*******************************************************************************************/
 // end of simulation
 /*******************************************************************************************/
@@ -351,7 +346,6 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	con.draw_cells_gnuplot("particles.gnu");
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 //	//utils::print_2dim_array( ID, m, m );
-
 	
  	free (ID);    
 	return 0;

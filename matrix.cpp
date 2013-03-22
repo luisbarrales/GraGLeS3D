@@ -235,13 +235,13 @@ vector<LSbox*> matrix::getBoxList() {
 void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 {
 
-	vector<LSbox*>::iterator it, it2;
+	vector<LSbox*>::iterator it,it2;
     for(it = grains.begin(); it != grains.end(); it++)
     {
         // find zeros and new box size
         (*it)->setZeros(h, grid_blowup);
     }
-/*
+
     // try to add boxes from buffer
     if (buffer.empty() == false) {
         for (it = buffer.begin(); it != buffer.end(); it++) {
@@ -256,6 +256,7 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
             if (insert) {
                 grains.push_back(*it);
 				(*it)->setDomain(this);
+				(*it)->copy_distances_to_domain();
                 buffer.erase(it); it--;
                 cout << ": success" << endl;
             } else {
@@ -271,14 +272,14 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
             // on intersect ad box to buffer and erase from grain list
             if ((*it)->checkIntersect(*it2)) {
                 cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl << flush;
-
+				(*it)->copy_distances();
                 buffer.push_back(*it);
                 grains.erase(it); it--;
                 break;
             }
         }
     }
-    */
+   
 }
 
 
@@ -286,239 +287,239 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 
 
 
-        /*********************************************************************************/
-		// FOURIER TRANSFORMATION + Helperfunctions
-		//
-        /*********************************************************************************/
-        
-        // array must be allocated before!
-        void matrix::matrix_to_array(double *u){
-            int n = get_n();
-            int m = get_m();
-            for (int i = 0; i < m; i++)
-                for (int j = 0; j < n; j++)
-                    u[i*m+j] = (*x[i])[j];
-        }
-        
-        void matrix::array_to_matrix(double *u){
-            m = get_m();
-            n = get_n();
-            for (int i = 0; i < m; i++)
-                for (int j = 0; j < n; j++)
-                    (*x[i])[j] = u[i*m+j];
-        }
-        
-        void matrix::makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
-        { /* creates plans for FFT and IFFT */
-            //double *u
-            int n = get_n();
-            int m = get_m();
-            *fftplan1 = fftw_plan_dft_r2c_2d(m,n,u,fftTemp,FFTW_ESTIMATE);
-            *fftplan2 = fftw_plan_dft_c2r_2d(m,n,fftTemp,u,FFTW_ESTIMATE);
-        }
-        
-        void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt)
-        {
-            /* Function returns in u the updated value of u as described below..
-             u -> (G_{dt})*u
-             Assumptions:
-             fftplan1 converts u to it's FT (in fftTemp), and
-             fftplan2 converts the FT (after pointwise multiplication with G)
-             back to a real-valued level set function at u.
-             Memory is already allocated in fftTemp
-             (necessary to create the plans) */
-            
-            int n = get_n();
-            int m = get_m();
-            int i, j;
-            int n2 = floor(n/2) + 1;
-            double nsq = (double) n * (double) n;
-            double k = 2.0 * PI / (double)n;
-            double G;
-            
-            fftw_execute(fftplan1);
-            
-            for(i=0;i<n2;i++)
-                for(j=0;j<n;j++){
-                    // 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
-                    
-                    G = 2.0*(2.0 - cos(k*i) - cos(k*j)) * nsq;
-                    G = 1.0/(1.0+dt*G) / nsq;
-                    //        USE this line for Richardson-type extrapolation
-                    //       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
-                    
-                    /* normalize G by n*n to pre-normalize convolution results */
-                    fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
-                    fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
-                }
-            fftw_execute(fftplan2);
-        }
-        
-        void matrix::convolution(const double dt){
-            int n = get_n();
-            int m = get_m();
-            double *u, *v;
-            
-            fftw_complex *fftTemp;
-            fftw_plan fwdPlan, bwdPlan;
-            matrix diff(m,n);
-            
-            fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
-            u = (double*)	fftw_malloc(m*n*sizeof(double));
-            v = (double*)	fftw_malloc(m*n*sizeof(double));
-            matrix_to_array(u);
-            makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
-            // 	utils::print_2dim_array(*fftTemp,1,m*n);
-            
-            //     matrix_to_array(v);
-            conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
-            
-            // 	for(int i=0; i< n*n; i++) {v[i]-=u[i]; cout << u[i] << " | ";}
-            // 	cout << endl <<endl << flush;
-            //  diff.matrix_to_array(v);
-            //  iff.save_matrix("diff.gnu");
-            
-            array_to_matrix(u);
-            fftw_destroy_plan(fwdPlan);
-            fftw_destroy_plan(bwdPlan);
-            
-        }
-        /*********************************************************************************/
-        /*********************************************************************************/
-        
-        
-        
-        
-        
-        /*********************************************************************************/
-        // discrete_convolution is a function to compute a discrete convolution by a grid_blowup times grid_blowup
-        // kernel in space coordinates. to handle the distancefunction correctly at the boundary we expand
-        // the domain by grid_blow gridpoints at each boundary.
-        /*********************************************************************************/
-        
-        // TO DO: umschreiben auf boxconzept
-        
-        // bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
-        //     int m= get_m();
-        //     int n= get_n();
-        //     matrix erg(m,n,id);
-        //     bool exist = false;
-        //     double conv_rad = grid_blowup/2;
-        //     double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
-        // 	const double outside_domain = -2.0;
-        //     //   double tube = double(DELTA)-conv_rad;
-        //     //   erg = *this;
-        //     for (int i=0; i< m; i++)
-        //         for (int j=0; j< n; j++)
-        //             for (int ii=-conv_rad;ii< conv_rad;ii++)
-        //                 for (int jj=-conv_rad;jj< conv_rad;jj++){
-        // //                     if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-        //                     if( ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup))) ) 	
-        // 						erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-        // 					else erg[i][j]= outside_domain;
-        //                     //since we get one positiv value, the grain still exists
-        //                     if(erg[i][j] > 0) exist = true;
-        //                     //			  if((*x[i])[j] > - DELTA) erg[i][j] += (dt *  1/(h*h) * (kernel(dt,m,i,j) * (*x[i-ii])[j-jj]));
-        //                 }
-        //     *this= erg;
-        // 	return(exist);
-        // }
-        
-        
-        
-        
-        /*********************************************************************************/
-		// five point formula for solving pde
-        /*********************************************************************************/
-        
-        // void matrix::five_point_formula(const double dt, const double dx){
-        //     int m= get_m();
-        //     matrix erg(m,m);
-        //     erg = *this;
-        //     for (int i=1;i< m-1;i++)
-        //         for (int j=1;j< m-1;j++)
-        //             if (erg[i][j] > -DELTA) erg[i][j] += (dt *  1/(dx*dx) * ((( *x[i+1])[j] - (2 * (*x[i])[j]) + (*x[i-1])[j] ) + (( *x[i])[j+1] - (2 * (*x[i])[j]) + (*x[i])[j-1] )));
-        //     *this= erg;
-        // }
-        
-        
-        /*********************************************************************************/
-		//maximum of two matrices
-        /*********************************************************************************/
-        
-        void matrix::maximum(const matrix &A, const matrix &B){
-            assert(A.n == B.n);
-            assert(A.m == B.m);
-            for (int i = 0; i < m; i++)
-                for (int j = 0; j < n; j++) {
-                    if (A[i][j] > B[i][j]) (*x[i])[j] = A[i][j];
-                    else (*x[i])[j] = B[i][j];
-                }
-        }
-        
-        int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglect){
-            
-            std::list<matrix>::iterator it;
-            int minID = -1;
-            double minVal = 100000; // just a value that can not be reached
-            
-            for(it = distances.begin(); it != distances.end(); it++){
-                if ((*it).id != neglect) {
-                    if (abs((*it)[m][n]) < minVal) {
-                        minVal = abs((*it)[m][n]);
-                        minID = (*it).id;
-                    }
-                }
-            }
-            
-            return minID;
-        }
-        
-        
-        /*********************************************************************************/
-		// Comparison Step
-		// Comparison step 0.5 *(A_k(x) - max A_i(x) | i!=k)*/
-        /*********************************************************************************/
-        
-        
-        
-        
-        bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
-            vector<LSbox*> buffer = this->grains;
-            std::list<matrix>::iterator it;
-            it = distances.begin();
-            // 	double boundary_value = -0.5;
-            int m = get_m();
-            int n = get_n();
-            matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
-            bool exist = false;
-            if (id == (*it).id) Max = *(++it);
-            else Max = *it;
-            
-            for (it = distances.begin(); it != distances.end(); it++ ){
-                if (id != (*it).id) {
-                    Max.maximum(Max,*it);
-                }
-                else Grain = *it;
-            }
-            
-            cur_Max = (Grain-Max);
-            cur_Max.mult_with_scalar(0.5);
-            cur_Max.save_matrix("Max.gnu");
-            *this = cur_Max;
-            
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-                        (*this)[i][j] = INTERIMVAL;
-                    }
-                    else if((*this)[i][j] >= 0) exist = true;
-                }
-            }
-            
-            this->grains = buffer;
-            return (exist);
-        }
+/*********************************************************************************/
+// FOURIER TRANSFORMATION + Helperfunctions
+//
+/*********************************************************************************/
+
+// array must be allocated before!
+void matrix::matrix_to_array(double *u){
+	int n = get_n();
+	int m = get_m();
+	for (int i = 0; i < m; i++)
+		for (int j = 0; j < n; j++)
+			u[i*m+j] = (*x[i])[j];
+}
+
+void matrix::array_to_matrix(double *u){
+	m = get_m();
+	n = get_n();
+	for (int i = 0; i < m; i++)
+		for (int j = 0; j < n; j++)
+			(*x[i])[j] = u[i*m+j];
+}
+
+void matrix::makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
+{ /* creates plans for FFT and IFFT */
+	//double *u
+	int n = get_n();
+	int m = get_m();
+	*fftplan1 = fftw_plan_dft_r2c_2d(m,n,u,fftTemp,FFTW_ESTIMATE);
+	*fftplan2 = fftw_plan_dft_c2r_2d(m,n,fftTemp,u,FFTW_ESTIMATE);
+}
+
+void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt)
+{
+	/* Function returns in u the updated value of u as described below..
+	u -> (G_{dt})*u
+	Assumptions:
+	fftplan1 converts u to it's FT (in fftTemp), and
+	fftplan2 converts the FT (after pointwise multiplication with G)
+	back to a real-valued level set function at u.
+	Memory is already allocated in fftTemp
+	(necessary to create the plans) */
+	
+	int n = get_n();
+	int m = get_m();
+	int i, j;
+	int n2 = floor(n/2) + 1;
+	double nsq = (double) n * (double) n;
+	double k = 2.0 * PI / (double)n;
+	double G;
+	
+	fftw_execute(fftplan1);
+	
+	for(i=0;i<n2;i++)
+		for(j=0;j<n;j++){
+			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
+			
+			G = 2.0*(2.0 - cos(k*i) - cos(k*j)) * nsq;
+			G = 1.0/(1.0+dt*G) / nsq;
+			//        USE this line for Richardson-type extrapolation
+			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
+			
+			/* normalize G by n*n to pre-normalize convolution results */
+			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+		}
+	fftw_execute(fftplan2);
+}
+
+void matrix::convolution(const double dt){
+	int n = get_n();
+	int m = get_m();
+	double *u, *v;
+	
+	fftw_complex *fftTemp;
+	fftw_plan fwdPlan, bwdPlan;
+	matrix diff(m,n);
+	
+	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+	u = (double*)	fftw_malloc(m*n*sizeof(double));
+	v = (double*)	fftw_malloc(m*n*sizeof(double));
+	matrix_to_array(u);
+	makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
+	// 	utils::print_2dim_array(*fftTemp,1,m*n);
+	
+	//     matrix_to_array(v);
+	conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
+	
+	// 	for(int i=0; i< n*n; i++) {v[i]-=u[i]; cout << u[i] << " | ";}
+	// 	cout << endl <<endl << flush;
+	//  diff.matrix_to_array(v);
+	//  iff.save_matrix("diff.gnu");
+	
+	array_to_matrix(u);
+	fftw_destroy_plan(fwdPlan);
+	fftw_destroy_plan(bwdPlan);
+	
+}
+/*********************************************************************************/
+/*********************************************************************************/
+
+
+
+
+
+/*********************************************************************************/
+// discrete_convolution is a function to compute a discrete convolution by a grid_blowup times grid_blowup
+// kernel in space coordinates. to handle the distancefunction correctly at the boundary we expand
+// the domain by grid_blow gridpoints at each boundary.
+/*********************************************************************************/
+
+// TO DO: umschreiben auf boxconzept
+
+// bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
+//     int m= get_m();
+//     int n= get_n();
+//     matrix erg(m,n,id);
+//     bool exist = false;
+//     double conv_rad = grid_blowup/2;
+//     double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
+// 	const double outside_domain = -2.0;
+//     //   double tube = double(DELTA)-conv_rad;
+//     //   erg = *this;
+//     for (int i=0; i< m; i++)
+//         for (int j=0; j< n; j++)
+//             for (int ii=-conv_rad;ii< conv_rad;ii++)
+//                 for (int jj=-conv_rad;jj< conv_rad;jj++){
+// //                     if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
+//                     if( ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup))) ) 	
+// 						erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
+// 					else erg[i][j]= outside_domain;
+//                     //since we get one positiv value, the grain still exists
+//                     if(erg[i][j] > 0) exist = true;
+//                     //			  if((*x[i])[j] > - DELTA) erg[i][j] += (dt *  1/(h*h) * (kernel(dt,m,i,j) * (*x[i-ii])[j-jj]));
+//                 }
+//     *this= erg;
+// 	return(exist);
+// }
+
+
+
+
+/*********************************************************************************/
+// five point formula for solving pde
+/*********************************************************************************/
+
+// void matrix::five_point_formula(const double dt, const double dx){
+//     int m= get_m();
+//     matrix erg(m,m);
+//     erg = *this;
+//     for (int i=1;i< m-1;i++)
+//         for (int j=1;j< m-1;j++)
+//             if (erg[i][j] > -DELTA) erg[i][j] += (dt *  1/(dx*dx) * ((( *x[i+1])[j] - (2 * (*x[i])[j]) + (*x[i-1])[j] ) + (( *x[i])[j+1] - (2 * (*x[i])[j]) + (*x[i])[j-1] )));
+//     *this= erg;
+// }
+
+
+/*********************************************************************************/
+//maximum of two matrices
+/*********************************************************************************/
+
+void matrix::maximum(const matrix &A, const matrix &B){
+	assert(A.n == B.n);
+	assert(A.m == B.m);
+	for (int i = 0; i < m; i++)
+		for (int j = 0; j < n; j++) {
+			if (A[i][j] > B[i][j]) (*x[i])[j] = A[i][j];
+			else (*x[i])[j] = B[i][j];
+		}
+}
+
+int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglect){
+	
+	std::list<matrix>::iterator it;
+	int minID = -1;
+	double minVal = 100000; // just a value that can not be reached
+	
+	for(it = distances.begin(); it != distances.end(); it++){
+		if ((*it).id != neglect) {
+			if (abs((*it)[m][n]) < minVal) {
+				minVal = abs((*it)[m][n]);
+				minID = (*it).id;
+			}
+		}
+	}
+	
+	return minID;
+}
+
+
+/*********************************************************************************/
+// Comparison Step
+// Comparison step 0.5 *(A_k(x) - max A_i(x) | i!=k)*/
+/*********************************************************************************/
+
+
+
+
+bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
+	vector<LSbox*> buffer = this->grains;
+	std::list<matrix>::iterator it;
+	it = distances.begin();
+	// 	double boundary_value = -0.5;
+	int m = get_m();
+	int n = get_n();
+	matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
+	bool exist = false;
+	if (id == (*it).id) Max = *(++it);
+	else Max = *it;
+	
+	for (it = distances.begin(); it != distances.end(); it++ ){
+		if (id != (*it).id) {
+			Max.maximum(Max,*it);
+		}
+		else Grain = *it;
+	}
+	
+	cur_Max = (Grain-Max);
+	cur_Max.mult_with_scalar(0.5);
+	cur_Max.save_matrix("Max.gnu");
+	*this = cur_Max;
+	
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
+				(*this)[i][j] = INTERIMVAL;
+			}
+			else if((*this)[i][j] >= 0) exist = true;
+		}
+	}
+	
+	this->grains = buffer;
+	return (exist);
+}
         
 /*********************************************************************************/
 // Redistancing für alle Boxen -> greift auf LSbox::redistancing zu:
@@ -529,6 +530,10 @@ void matrix::clear_domain(double value){
         for (int j = 0; j < n; j++) (*this)[i][j] = value;
 	}
 }
+
+
+
+
 
 void matrix::redistancing_for_all_boxes(double h, int grid_blowup){
 	vector<LSbox*>::iterator it;

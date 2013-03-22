@@ -11,8 +11,8 @@ class matrix;
 struct pointVal {
     int x,y;
     double val;
-    
-    pointVal(int xx, int yy, double aVal):x(xx), y(yy), val(aVal) {}
+	int direction;
+    pointVal(int yy, int xx, double aVal, int dir):x(xx), y(yy), val(aVal), direction(dir){}
 };
 
 //box is ambiguous, so L(evel)S(et)box...
@@ -20,6 +20,7 @@ class LSbox {
     int id;
     int xmin, xmax, ymin, ymax;
     vector<pointVal> zeros;
+	double* distance;
     matrix* domain;
 
 public:
@@ -27,14 +28,15 @@ public:
     ~LSbox();
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
-    void redistancing(double h, int grid_blowup /*, std::list<matrix> distances, double** borderSlopes, double** slopeField*/);
+    void copy_distances();
+	void copy_distances_to_domain();
+	void sweeping (double h, int start_i, int start_j, int direction);
+	void redistancing(double h, int grid_blowup /*, std::list<matrix> distances, double** borderSlopes, double** slopeField*/);
 	void setZeros(double h,  int grid_blowup);
-	void sweep(vector<pointVal> zero);
+	void sweep(pointVal zero, double h);
     int getID();
     void setDomain(matrix* aDomain);
-    bool checkIntersect(LSbox* box2);
-	
-    
+    bool checkIntersect(LSbox* box2);   
 };
 
 
