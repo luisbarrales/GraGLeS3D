@@ -203,7 +203,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		(*it).convolution(dt);
 			
 		// Output			
-		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+		if ( PLOTGNU && ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
 			filename.str(std::string());
 			filename << "Convolutedmatrix_";
 			vector<LSbox*> grains = (*it).getBoxList();
@@ -239,7 +239,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	// 			it--;
 	// 		}
 	// 		else {
-				if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+				if ( PLOTGNU && ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
 					filename.str(std::string());
 					filename << "Comparedmatrix_";
 									
@@ -312,7 +312,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // 		(*it).clear_domain(INTERIMVAL);
 // 		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
-		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+		if ( (PLOTGNU) && ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
 			filename.str(std::string());
 			filename << "Redistanced_matrix_";
 							
@@ -326,8 +326,18 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			filename << "\b"<< ".gnu";				
 			cout << filename.str() << endl << endl;				
 			(*it).save_matrix(filename.str().c_str());
+			
+			nr_grains += (*it).get_nr_of_grains();
+			if (GIFOUT) {
+				int imgnum = (loop/PRINTSTEP);
+				filename.str(std::string());
+				filename << "GrainNetwork";
+				if (imgnum < 100) filename << "0";
+				if (imgnum < 10) filename << "0";
+				filename << imgnum << ".png";
+				utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
+			} 
 		}
-		nr_grains += (*it).get_nr_of_grains();
 	}  
 	cout << "Timestep: "<< loop << " complete" << endl;
 	cout << "Number of remaining grains: "<< nr_grains << endl << endl;
@@ -337,11 +347,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // end of simulation
 /*******************************************************************************************/
 
-//    if (IMAGEOUT) {
-//        // make gif
-//        utils::PNGtoGIF("test.mp4");
-//    }   
-  
+
+  utils::PNGtoGIF("test.mp4");
 //    /*********************************************************************************/
 //    /******************************************************************************/
 	con.draw_cells_gnuplot("particles.gnu");
