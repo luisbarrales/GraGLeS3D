@@ -62,7 +62,7 @@ int main() {
     
     double *part_pos; // stores the centroids of the cells ; access by (3*Id, 3*ID +1, 3*ID +2)
     part_pos = (double*) calloc (3*particles,sizeof(double));
-    stringstream filename;
+    stringstream filename, plotfiles;
     
     std::list<matrix> domains, domains_copy;
     std::list<matrix>::iterator it, itc;
@@ -203,7 +203,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		(*it).convolution(dt);
 			
 		// Output			
-		if ( PLOTGNU && ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
+		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 			filename.str(std::string());
 			filename << "Convolutedmatrix_";
 			vector<LSbox*> grains = (*it).getBoxList();
@@ -239,7 +239,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	// 			it--;
 	// 		}
 	// 		else {
-				if ( PLOTGNU && ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
+				if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 					filename.str(std::string());
 					filename << "Comparedmatrix_";
 									
@@ -312,8 +312,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // 		(*it).clear_domain(INTERIMVAL);
 // 		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
-		if ( (PLOTGNU) && ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
+		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
 			filename.str(std::string());
+			plotfiles.str(std::string());
 			filename << "Redistanced_matrix_";
 							
 			vector<LSbox*> grains = (*it).getBoxList();
@@ -328,17 +329,23 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			(*it).save_matrix(filename.str().c_str());
 			
 			nr_grains += (*it).get_nr_of_grains();
-			if (GIFOUT) {
+				
+			if (PLOTGNU) {
+				plotfiles << " \""<<filename.str();
+				plotfiles << "\" matrix w l";
+				plotfiles << ",";
+				plotfiles << "\b";
 				int imgnum = (loop/PRINTSTEP);
 				filename.str(std::string());
 				filename << "GrainNetwork";
 				if (imgnum < 100) filename << "0";
 				if (imgnum < 10) filename << "0";
 				filename << imgnum << ".png";
-				utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
-			} 
+			}
 		}
-	}  
+		if (PLOTGNU) utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
+	}
+	
 	cout << "Timestep: "<< loop << " complete" << endl;
 	cout << "Number of remaining grains: "<< nr_grains << endl << endl;
 }
