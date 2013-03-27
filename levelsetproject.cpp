@@ -214,9 +214,10 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			}
 			filename << "\b"<< ".gnu";
 			
-			cout << filename.str() << endl << endl;
-			
-			(*it).save_matrix(filename.str().c_str());
+			if (SAFEFILES) {
+				(*it).save_matrix(filename.str().c_str());
+				cout << filename.str() << endl << endl;
+			}
 		}
 	}
 	
@@ -251,9 +252,10 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 					}
 					filename << "\b"<< ".gnu";
 					
-					cout << filename.str() << endl << endl;
-					
-					(*it).save_matrix(filename.str().c_str());
+					if (SAFEFILES) {
+						(*it).save_matrix(filename.str().c_str());
+						cout << filename.str() << endl << endl;
+					}
 				}
 	}  
 			
@@ -319,7 +321,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				filename << "Redistanced_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
 
 				if (SAFEFILES) {
-					(*itc).save_matrix(filename.str().c_str());
+					(*it).save_matrix(filename.str().c_str());
 					cout << filename.str() << endl << endl;
 				}
 				plotfiles << " \""<<filename.str();
