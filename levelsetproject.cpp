@@ -318,8 +318,14 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		
 		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
-				filename << "Redistanced_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
-
+				filename << "Redistanced_matrix_";
+					vector<LSbox*> grains = (*it).getBoxList();
+					vector<LSbox*>::iterator it2;
+					filename << "T"<<loop<<"_";
+					for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+						filename << (*it2)->getID() << "_";
+					}
+					filename << "\b"<< ".gnu";
 				if (SAFEFILES) {
 					(*it).save_matrix(filename.str().c_str());
 					cout << filename.str() << endl << endl;
