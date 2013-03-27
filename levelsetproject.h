@@ -18,7 +18,7 @@
 
 
 #define SAFEFILES true
-#define GIFOUT true
+#define IMAGEOUT true
 #define PLOTGNU true
 #define DISCRETE_CONVOLUTION false
 

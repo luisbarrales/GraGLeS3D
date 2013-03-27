@@ -21,7 +21,7 @@
  jedem Punkt 1. Wir werten dies Funktion nur auf eine eps-Schlauch um die zu beschreibende Oberflaeche aus und
  k√∂nnen so mehrere/viele Koerner in einem Gitter speichern.----------------------------------------------------------*/
 
-/*		Stand: Juni 2012 --------------------------------------------------------------------------------------------------*/
+/*		Stand: M�rz 2013 --------------------------------------------------------------------------------------------------*/
 
 /*		Autor: C. Miessen--------------------------------------------------------------------------------------------------*/
 
@@ -301,8 +301,10 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		(*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
 	}
 	
+	int length = domains.size();
+	int i;
 	/****************************************************/
-	for (it = domains.begin(); it != domains.end(); it++) {
+	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		//Nullstellenverfolgung:
 // 		cout << "Rechne Redistancing auf Boxen der Domain: " << (*it).get_id() << endl << endl;
 		
@@ -312,40 +314,38 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // 		(*it).clear_domain(INTERIMVAL);
 // 		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
-		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS)){
-			filename.str(std::string());
-			plotfiles.str(std::string());
-			filename << "Redistanced_matrix_";
-							
-			vector<LSbox*> grains = (*it).getBoxList();
-			vector<LSbox*>::iterator it2;
-			filename << "T"<<loop<<"_";
-			for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-				filename << (*it2)->getID() << "_";
-			}
-			
-			filename << "\b"<< ".gnu";				
-			cout << filename.str() << endl << endl;				
-			(*it).save_matrix(filename.str().c_str());
-			
-			nr_grains += (*it).get_nr_of_grains();
-				
-			if (PLOTGNU) {
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+				filename.str(std::string());
+				filename << "Redistanced_matrix" << (*itc).get_id() << "_"<< loop << ".gnu";
+
+				if (SAFEFILES) {
+					(*itc).save_matrix(filename.str().c_str());
+					cout << filename.str() << endl << endl;
+				}
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
-				plotfiles << ",";
-				plotfiles << "\b";
+				if(i!=(length-1)) plotfiles << ",";
+			}
+		}
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+			if (PLOTGNU) {
+			filename.str(std::string());
+			filename << "GrainNetwork" << "_"<< loop << ".gnu";
+			utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str());
+
+			}
+			
+			if (IMAGEOUT) {
 				int imgnum = (loop/PRINTSTEP);
 				filename.str(std::string());
 				filename << "GrainNetwork";
 				if (imgnum < 100) filename << "0";
 				if (imgnum < 10) filename << "0";
 				filename << imgnum << ".png";
+				utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
 			}
 		}
-		if (PLOTGNU) utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
-	}
-	
+			
 	cout << "Timestep: "<< loop << " complete" << endl;
 	cout << "Number of remaining grains: "<< nr_grains << endl << endl;
 }
