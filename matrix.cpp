@@ -240,7 +240,7 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
     {
         // find zeros and new box size
         exist = (*it)->setZeros(h, grid_blowup);
-		if(!exist) {grains.erase(it); it--;}
+		if(!exist) { grains.erase(it); it--; }
     }
 	
     // try to add boxes from buffer

@@ -28,15 +28,15 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
 			if (x1[0]/h < ymin) ymin = x1[0]/h;
             if (x2[0]/h < ymin) ymin = x2[0]/h;
             
-            if (x1[0]/h > ymax) ymax = (x1[0]/h) + 1;
-            if (x2[0]/h > ymax) ymax = (x2[0]/h) + 1;
+            if (x1[0]/h > ymax) ymax = (x1[0]/h);
+            if (x2[0]/h > ymax) ymax = (x2[0]/h);
 			
 			// check for "Spalten" Minima/Maxima
             if (x1[1]/h < xmin) xmin = x1[1]/h;
             if (x2[1]/h < xmin) xmin = x2[1]/h;
             
-            if (x1[1]/h > xmax) xmax = (x1[1]/h) + 1;
-            if (x2[1]/h > xmax) xmax = (x2[1]/h) + 1;
+            if (x1[1]/h > xmax) xmax = (x1[1]/h);
+            if (x2[1]/h > xmax) xmax = (x2[1]/h);
           
             
         }
@@ -63,8 +63,7 @@ int LSbox::getID() {
 
 LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
     int i,j,k;
-	
-		
+			
 	double d, dmin,lambda;
 	int m=domain->get_m();
 	int n=domain->get_n();
@@ -75,7 +74,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
 	    
 	for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
-        for (j=xmin;j< xmax;j++){
+        for (j=xmin;j<xmax;j++){
             dmin=1000.;
             p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
             

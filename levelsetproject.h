@@ -3,23 +3,21 @@
 
 #define DIM 2
 
-#define M 100 //gridpoints in each direction
+#define M 200 //gridpoints in each direction
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 50
+#define TIMESTEPS 30
 #define PRINTSTEP 5
-
-#define PARTICLES 30
+#define PARTICLES 50
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-
 #define SAFEFILES true
 #define IMAGEOUT true
-#define PLOTGNU true
+#define PLOTGNU false
 #define DISCRETE_CONVOLUTION false
 
 #pragma once
@@ -34,6 +32,8 @@
 #include <string.h>
 #include <algorithm>
 #include <fftw3.h>
+#include <time.h>  
+#include <boost/mpi.hpp>
 
 #include "voro++/include/voro++/voro++.hh"
 
