@@ -240,13 +240,16 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
     {
         // find zeros and new box size
         exist = (*it)->setZeros(h, grid_blowup);
-		if(!exist) { grains.erase(it); it--; }
+		if(!exist) { 
+			cout << "Grain " << (*it)->getID() << " disappears." << endl;
+			grains.erase(it); it--; 
+		}
     }
 	
     // try to add boxes from buffer
-    if (buffer.empty() == false) {
+    if (!buffer.empty()) {
         for (it = buffer.begin(); it != buffer.end(); it++) {
-            cout << "trying to add box " << (*it)->getID() << " to Domain " << id;
+            cerr << "trying to add box " << (*it)->getID() << " to Domain " << id;
             bool insert = true;
             for (it2 = grains.begin(); it2 != grains.end(); it2++) {
                 if ((*it)->checkIntersect(*it2)) {
@@ -258,6 +261,7 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
                 grains.push_back(*it);
 				(*it)->setDomain(this);
 				(*it)->copy_distances_to_domain();
+				(*it)->free_memory_distance();
                 buffer.erase(it); it--;
                 cout << ": success" << endl;
             } else {
@@ -272,7 +276,7 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
         for (it2 = it+1; it2 != grains.end(); it2++) {
             // on intersect ad box to buffer and erase from grain list
             if ((*it)->checkIntersect(*it2)) {
-                cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl << flush;
+                cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
 				(*it)->copy_distances();
                 buffer.push_back(*it);
                 grains.erase(it); it--;

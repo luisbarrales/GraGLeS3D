@@ -636,8 +636,8 @@ ELSE (_boost_IN_CACHE)
   # ------------------------------------------------------------------------
   
   SET(_boost_LIBRARIES_SEARCH_DIRS
-    /home/cm654063/Level\ Set\ Project/boost_1_53_0/lib
-    /home/cm654063/Level\ Set\ Project/boost_1_53_0
+    /home/cm654063/Level\ Set\ Project/lib
+    /home/cm654063/Level\ Set\ Project
     "$ENV{ProgramFiles}/boost/boost_${Boost_MAJOR_VERSION}_${Boost_MINOR_VERSION}_${Boost_SUBMINOR_VERSION}/lib"
     "$ENV{ProgramFiles}/boost"
     /sw/local/lib

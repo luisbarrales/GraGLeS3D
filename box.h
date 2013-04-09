@@ -36,7 +36,8 @@ public:
 	void sweep(pointVal zero, double h);
     int getID();
     void setDomain(matrix* aDomain);
-    bool checkIntersect(LSbox* box2);   
+    bool checkIntersect(LSbox* box2);   	
+	void free_memory_distance();
 };
 
 

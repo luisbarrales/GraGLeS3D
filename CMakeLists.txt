@@ -24,13 +24,13 @@ set(VORO++_DEFINITIONS "")
 #find_package(Voro++ REQUIRED)
 
 
-INCLUDE(FindBoost.cmake)
-find_package(Boost COMPONENTS serialization mpi REQUIRED)
+#INCLUDE(FindBoost.cmake)
+#find_package(Boost COMPONENTS serialization mpi REQUIRED)
 #find_package(Boost COMPONENTS serialization mpi REQUIRED)
 
-include_directories(${Boost_INCLUDE_PATH})
+#include_directories(${Boost_INCLUDE_PATH})
 include_directories(${VORO++_INCLUDE_DIRS})
-include_directories(${MPI_INCLUDE_PATH})
+#include_directories(${MPI_INCLUDE_PATH})
 
 link_directories(${Boost_LIBRARY_DIR})
 # dies hier hinzufügen...

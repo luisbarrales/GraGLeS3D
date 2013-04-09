@@ -276,6 +276,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	// Testet Boxen auf Konlikte
 	// Verschiebt "Konfliktboxen" in andere Domain
 	
+	
+	// Ist dieser Schritt in jedem Zeitschritt notwenig????
+	
 	vector<LSbox*> buffer;
 	for (it = domains.begin(); it != domains.end(); it++) {
 		//check domain it for intersecting grains

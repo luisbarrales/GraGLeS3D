@@ -10,8 +10,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
     xmax = 0; xmin = M; ymax = 0; ymin = M;
     vektor x1(2), x2(2);
     vector<double> vv;
+	distance = 0;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
-    distance = (double*) calloc ((ymax-ymin)*(xmax-xmin),sizeof(double));
     for(int ii=0;ii<c.p;ii++) {
         for(int jj=0;jj<c.nu[ii];jj++) {
             
@@ -45,8 +45,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
     xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
         
-    cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-       
+   cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+//    distance = (double*) calloc ((ymax-ymin)*(xmax-xmin),sizeof(double));    
 }
 
 LSbox::~LSbox() {
@@ -72,7 +72,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
     vector<double> vv;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
-	    
+	distance=NULL;
 	for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
         for (j=xmin;j<xmax;j++){
             dmin=1000.;
@@ -156,12 +156,12 @@ bool LSbox::setZeros(double h, int grid_blowup) {
         double zero = -val1 / i_slope;
 		double bufferVal = -zero; //* i_slope
 		int sweep_direction = direction;
-		if (val1 > 0) sweep_direction=  (sweep_direction+2)%4;
-        zeros.emplace_back(current_i, current_j, bufferVal, sweep_direction);
+// 		if (val1 > 0) sweep_direction=  (sweep_direction+2)%4;
+//         zeros.emplace_back(current_i, current_j, bufferVal, sweep_direction);
         // add to zero-list		
 		// add left and right point to zerolist, with the direction towards the zero!!
-        bufferVal = (-zero+h);
-        zeros.emplace_back(next_i, next_j, bufferVal, (sweep_direction+2)% 4 );
+//         bufferVal = (-zero+h);
+// 		   zeros.emplace_back(next_i, next_j, bufferVal, (sweep_direction+2)% 4 );
 		
 		// iterate forward
 		current_i = next_i;
@@ -230,26 +230,32 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 // 	cout << "neue Abmessungen : " << endl;
 // 	cout << xmin << " || " << xmax << endl;
 // 	cout << ymin << " || " << ymax << endl << endl;
+	
+	
 	return true;
 
 }
 
 void LSbox::copy_distances(){
-	for (int j = xmin; j < xmax; j++){
-		for (int i = ymin; i < ymax; i++){
-			distance[i*(xmax-xmin)+j]=(*domain)[i][j];
+ 	//double *buffer = new double[(ymax-ymin)*(xmax-xmin)];
+	//distance = buffer;
+	distance = (double*) calloc ((ymax-ymin)*(xmax-xmin),sizeof(double));    
+	for (int i = ymin; i < ymax; i++){
+		for (int j = xmin; j < xmax; j++){		
+			distance[(i-ymin)*(xmax-xmin)+(j-xmin)]=(*domain)[i][j];
 			(*domain)[i][j] = INTERIMVAL;
 		}
 	}
 }
 
 void LSbox::copy_distances_to_domain(){
-	for (int j = xmin; j < xmax; j++){
-		for (int i = ymin; i < ymax; i++){
-			(*domain)[i][j]=distance[i*(xmax-xmin)+j];
+	for (int i = ymin; i < ymax; i++){
+		for (int j = xmin; j < xmax; j++){
+			(*domain)[i][j]=distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 		}
 	}
 }
+
 
 
 bool LSbox::checkIntersect(LSbox* box2) {    
@@ -259,7 +265,11 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 
-
+void LSbox::free_memory_distance(){
+	free (distance);
+	distance=NULL;
+}
+	
 
 /*********************************************************************/
 /*************** Redistancing Helperfunctions ************************/
