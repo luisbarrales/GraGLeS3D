@@ -169,13 +169,13 @@ int main() {
     int j;
     for (it = domains.begin(), j = 0; it !=domains.end(); it++, j++){
         filename.str(std::string());
-        filename << "Distanzmatrix_";
+        filename << "Distanzmatrix";
         vector<LSbox*> grains = (*it).getBoxList();
         vector<LSbox*>::iterator it2;
         for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-            filename << (*it2)->getID() << "_";
+            filename << "_" <<(*it2)->getID();
         }
-        filename << "\b"<< ".gnu";    
+        filename << ".gnu";    
 		
         if (SAFEFILES){
         	cout << filename.str() << endl << endl;        
@@ -213,12 +213,11 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			filename << "Convolutedmatrix_";
 			vector<LSbox*> grains = (*it).getBoxList();
 			vector<LSbox*>::iterator it2;
-			filename << "T"<<loop<<"_";
+			filename << "T"<<loop;
 			for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-				filename << (*it2)->getID() << "_";
+				filename << "_"<<(*it2)->getID();
 			}
-			filename << "\b"<< ".gnu";
-			
+			filename << ".gnu";
 			if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
 				cout << filename.str() << endl << endl;
@@ -251,11 +250,11 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 									
 					vector<LSbox*> grains = (*it).getBoxList();
 					vector<LSbox*>::iterator it2;
-					filename << "T"<<loop<<"_";
+					filename << "T"<<loop;
 					for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-						filename << (*it2)->getID() << "_";
+						filename << "_"<<(*it2)->getID();
 					}
-					filename << "\b"<< ".gnu";
+					filename << ".gnu";
 					
 					if (SAFEFILES) {
 						(*it).save_matrix(filename.str().c_str());
@@ -282,7 +281,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	vector<LSbox*> buffer;
 	for (it = domains.begin(); it != domains.end(); it++) {
 		//check domain it for intersecting grains
-		(*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
+		bool nempty;  
+		nempty = (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
+		if(!nempty) {cerr << "Deleted domain " << (*it).get_id() << endl; domains.erase(it); it--;}
 	}
 	// check if buffer is empty
 	while(!buffer.empty()){
@@ -310,11 +311,11 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				filename << "Redistanced_matrix_";
 					vector<LSbox*> grains = (*it).getBoxList();
 					vector<LSbox*>::iterator it2;
-					filename << "T"<<loop<<"_";
+					filename << "T"<<loop;
 					for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-						filename << (*it2)->getID() << "_";
+						filename <<"_"<< (*it2)->getID();
 					}
-					filename << "\b"<< ".gnu";
+					filename << ".gnu";
 				if (SAFEFILES) {
 					(*it).save_matrix(filename.str().c_str());
 					cout << filename.str() << endl << endl;

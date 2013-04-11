@@ -39,7 +39,7 @@ public:
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
 	
 	// grain check: Erklärung anfügen!!
-    void grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
+    bool grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
 	bool addBox(LSbox* aBox);
     void redistancing_for_all_boxes(double h, int grid_blowup); // ruft boxweise auf
 	vector<LSbox*> getBoxList();
@@ -66,17 +66,12 @@ public:
 	void clear_domain(double value);
 
 	int get_m() const;
-    int get_n() const;
+	int get_n() const;
 	int get_id() const;
 	int get_nr_of_grains();
+	void mult_with_scalar(const double d);
 	
-	template <class T>
-	void mult_with_scalar(const T d){
-	  for (int i = 0; i < m; i++) 
-		for (int j = 0; j < n; j++) 
-		  (*x[i])[j] *= d;
-	}
-    
+
 };
 
 #endif

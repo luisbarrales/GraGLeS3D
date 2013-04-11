@@ -151,6 +151,12 @@ double matrix::entry(const int i, const int j){
     return((*x[i])[j]);
 }
 
+void matrix::mult_with_scalar(const double d){
+  for (int i = 0; i < m; i++) 
+	for (int j = 0; j < n; j++) 
+	  (*this)[i][j] *= d;
+}
+    
 
 matrix matrix::distancefunction(voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
     int i,j,k;
@@ -232,7 +238,7 @@ vector<LSbox*> matrix::getBoxList() {
 
 
 
-void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
+bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 {
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
@@ -261,7 +267,7 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
                 grains.push_back(*it);
 				(*it)->setDomain(this);
 				(*it)->copy_distances_to_domain();
-				(*it)->free_memory_distance();
+				//(*it)->free_memory_distance();
                 buffer.erase(it); it--;
                 cout << ": success" << endl;
             } else {
@@ -272,8 +278,10 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 
     
     // check for intersects
-    for (it = grains.begin(); it != grains.end()-1; it++) {
-        for (it2 = it+1; it2 != grains.end(); it2++) {
+ 
+    if (!grains.empty())
+    for (it = grains.begin(); it != grains.end()-1; ++it) {
+        for (it2 = it+1; it2 != grains.end(); ++it2) {
             // on intersect ad box to buffer and erase from grain list
             if ((*it)->checkIntersect(*it2)) {
                 cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
@@ -284,6 +292,8 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
             }
         }
     }
+    else return false;
+    return true;
    
 }
 

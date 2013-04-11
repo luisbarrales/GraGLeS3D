@@ -239,7 +239,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 void LSbox::copy_distances(){
  	//double *buffer = new double[(ymax-ymin)*(xmax-xmin)];
 	//distance = buffer;
-	distance = (double*) calloc ((ymax-ymin)*(xmax-xmin),sizeof(double));    
+	distance = new double [(ymax-ymin)*(xmax-xmin)];    
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){		
 			distance[(i-ymin)*(xmax-xmin)+(j-xmin)]=(*domain)[i][j];
@@ -254,6 +254,7 @@ void LSbox::copy_distances_to_domain(){
 			(*domain)[i][j]=distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 		}
 	}
+	//delete [] distance;
 }
 
 
@@ -265,10 +266,10 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 
-void LSbox::free_memory_distance(){
+/*void LSbox::free_memory_distance(){
 	free (distance);
 	distance=NULL;
-}
+}*/
 	
 
 /*********************************************************************/
