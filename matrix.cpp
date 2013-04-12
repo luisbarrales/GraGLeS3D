@@ -26,6 +26,7 @@ matrix::matrix(int m, int n, int id, double startval) : m(m), n(n), id(id) {
 matrix::~matrix() {
     for (int i=0;i<m;i++) delete x[i];
     delete [] x;
+// 	cout << "destroyed matrix with  id: "<< id << endl;
 }
 
 matrix::matrix(const matrix& v) : m(v.m), n(v.n), id(v.id) {
@@ -232,7 +233,7 @@ vector<LSbox*> matrix::getBoxList() {
 
 
 
-void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
+bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 {
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
@@ -240,16 +241,14 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
     {
         // find zeros and new box size
         exist = (*it)->setZeros(h, grid_blowup);
-		if(!exist) { 
-			cout << "Grain " << (*it)->getID() << " disappears." << endl;
-			grains.erase(it); it--; 
-		}
+		if(!exist) { delete (*it); grains.erase(it); it--; }
     }
+	
 	
     // try to add boxes from buffer
     if (!buffer.empty()) {
         for (it = buffer.begin(); it != buffer.end(); it++) {
-            cerr << "trying to add box " << (*it)->getID() << " to Domain " << id;
+            cout << "trying to add box " << (*it)->getID() << " to Domain " << id;
             bool insert = true;
             for (it2 = grains.begin(); it2 != grains.end(); it2++) {
                 if ((*it)->checkIntersect(*it2)) {
@@ -270,20 +269,26 @@ void matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
         }
     }
 
-    
-    // check for intersects
-    for (it = grains.begin(); it != grains.end()-1; it++) {
-        for (it2 = it+1; it2 != grains.end(); it2++) {
-            // on intersect ad box to buffer and erase from grain list
-            if ((*it)->checkIntersect(*it2)) {
-                cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
-				(*it)->copy_distances();
-                buffer.push_back(*it);
-                grains.erase(it); it--;
-                break;
-            }
-        }
-    }
+    if (!grains.empty()) {
+		// check for intersects
+		it = grains.begin();
+		while (it != grains.end()-1) {
+			for (it2 = it+1; it2 != grains.end(); ++it2) {
+				// on intersect ad box to buffer and erase from grain list
+				if ((*it)->checkIntersect(*it2)) {
+					cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
+					(*it)->copy_distances();
+					buffer.push_back(*it);
+					grains.erase(it); it--;
+					break;
+				}
+			}
+			it++;			
+		}
+	}
+	
+	if (!grains.empty()) return true;
+	else return false;
    
 }
 

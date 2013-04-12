@@ -32,7 +32,7 @@ public:
 	void copy_distances_to_domain();
 	void sweeping (double h, int start_i, int start_j, int direction);
 	void redistancing(double h, int grid_blowup /*, std::list<matrix> distances, double** borderSlopes, double** slopeField*/);
-	bool setZeros(double h,  int grid_blowup);
+	bool setZeros(double h, int grid_blowup);
 	void sweep(pointVal zero, double h);
     int getID();
     void setDomain(matrix* aDomain);
