@@ -1,0 +1,1064 @@
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[2]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[2]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[2]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[2]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+The system is: Linux - 2.6.32-279.19.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is Intel, found in "/home/cm654063/Level Set Project/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[2]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o -c "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx"
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec -rdynamic 
+gmake[2]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/local_rwth/bin/gmake "cmTryCompileExec/fast"
+gmake[1]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/local_rwth/bin/gmake -f CMakeFiles/cmTryCompileExec.dir/build.make CMakeFiles/cmTryCompileExec.dir/build
+gmake[2]: Entering directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report "/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp/CMakeFiles" 1
+Building CXX object CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc     -o CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec.dir/link.txt --verbose=1
+/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc        -fPIC CMakeFiles/cmTryCompileExec.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec -rdynamic 
+gmake[2]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/rwthfs/rz/cluster/home/cm654063/Level Set Project/build/CMakeFiles/CMakeTmp'
+
+
