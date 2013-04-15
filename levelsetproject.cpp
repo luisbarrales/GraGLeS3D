@@ -280,10 +280,16 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	
 	vector<LSbox*> buffer;
 	for (it = domains.begin(); it != domains.end(); it++) {
+		bool exist=true;
+		char buffer1;
 		//check domain it for intersecting grains
-		bool nempty;  
-		nempty = (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
-		if(!nempty) {cerr << "Deleted domain " << (*it).get_id() << endl; domains.erase(it); it--;}
+		exist = (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
+		if (!exist){
+			cout << (*it).get_id() <<"domain leer" << endl;
+// 			domains.erase(it); it--;
+// 			cin >> buffer1;
+		}
+		
 	}
 	// check if buffer is empty
 	while(!buffer.empty()){

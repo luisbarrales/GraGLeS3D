@@ -109,8 +109,128 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 	return(*this);
 }
 
-bool LSbox::setZeros(double h, int grid_blowup) {
 
+// bool LSbox::setZeros(double h, int grid_blowup) {
+//     
+//     // clear current vector
+//     zeros.clear();
+//     
+//     int first_i, first_j;
+//     int current_i, current_j;
+//     char direction = 1; // 0 y+  2 y-  1 x+  3 x-  (1 is firstDir)
+//     cout <<" search for zeros in box " << id << endl;
+// 	cout << "Abmessungen : " << endl;
+// 	cout << ymin << " || " << xmin << endl;
+// 	cout << ymax << " || " << xmax << endl << endl;
+//     // find first zero
+//     bool success = false;
+//     
+//             // look for zero in row y
+// 	int dist = ymax - ymin;
+// 	int y = ymin + int(dist /2);
+// 	for (int j = xmin; j < xmax; j++) {
+// 		if ((*domain)[y][j] * (*domain)[y][j+1] < 0) {
+// 			first_i = y; 	first_j = j; 
+//             current_i = y; 	current_j = j;
+// 			success = true;
+// 			break;
+// 		}
+// 	}
+// 	if (!success) {
+// 		int dist = xmax - xmin;
+// 		int x = xmin + int(dist /2);
+// 		for (int i = ymin; i < ymax; i++) {
+// 			if ((*domain)[i][x] * (*domain)[i+1][x] < 0) {
+// 				first_i = i; 	first_j = x; 
+// 				current_i = i; 	current_j = x;
+// 				success = true;
+// 				direction == 0;
+// 				break;
+// 			}
+// 		}
+// 	}
+//     if (success) cout<< "zero found at "<< first_i <<" || "<< first_j <<endl;    
+//     if (!success) {
+//         cout << "grain "<< id << " disappears." << endl;
+// 		return false;
+// 	}
+//      // begin zero-tracking and interpolations
+//     bool newZero = true;
+//     
+//     while (newZero) {
+//         // interpolate current zero
+//         int next_i, next_j;
+//         if (direction % 2 == 0) {
+//             if (direction == 0) next_i = current_i+1;
+//             else next_i = current_i-1;
+//             next_j = current_j;
+//         } else {
+//             if (direction == 1) next_j = current_j+1;
+//             else next_j = current_j-1;
+//             next_i = current_i;
+//         }
+// 
+//         double val1 = (*domain)[current_i][current_j];
+//         double val2 = (*domain)[next_i][next_j];
+// 
+//         double i_slope = (val2 - val1) / h;
+//         double zero = -val1 / i_slope;
+//         
+// 
+//         
+//         // add to zero-list
+//         double bufferVal = -zero;
+// //         zeros.emplace_back(currentx, currenty, bufferVal);
+//         bufferVal = (h-zero);
+// //         zeros.emplace_back(nextx, nexty, bufferVal);
+//         
+//        //         // check for size change
+//         if (current_j-grid_blowup < xmin) 		xmin = current_j - grid_blowup;
+//         else if (current_j > xmax-grid_blowup) 	xmax = current_j + grid_blowup;
+//         if (current_i < ymin+grid_blowup) 		ymin = current_i - grid_blowup;
+//         else if (current_i > ymax-grid_blowup) 	ymax = current_i + grid_blowup;
+//         
+//         // find next zero
+//         direction = (direction+3)%4; //left turn
+//  
+//         bool foundnext = false;
+//         for (int i = 0; i < 3; i++) {
+//             
+//             int next_i, next_j;
+//             if (direction % 2 == 0) {
+//                 if (direction == 0) next_i = current_i+1;
+//                 else next_i = current_i-1;
+//                 next_j = current_j;
+//             } else {
+//                 if (direction == 1) next_j = current_j+1;
+//                 else next_j = current_j-1;
+//                 next_i = current_i;
+//             }
+//             
+//             if ((*domain)[current_i][current_i] * (*domain)[next_i][next_j] <= 0) {
+//                 foundnext = true;
+//                 break;
+//             }
+//             
+//             direction = (direction+1)%4; // right turn
+//             current_j = next_j; current_i = next_i;
+//         }
+//         if (!foundnext) {
+//             break;
+//         }
+//         
+//         // check if completed round
+//         if (current_i == first_i && current_j == first_j) {
+//             newZero = false;
+//         }
+//     }
+//     cout << " neue Abmessungen : " << endl;
+// 	cout << ymin << " || " << xmin << endl;
+// 	cout << ymax << " || " << xmax << endl << endl;
+//     return true;
+// }
+bool LSbox::setZeros(double h, int grid_blowup) {
+	
     // clear current vector
     zeros.clear();
     
@@ -119,12 +239,16 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 	int next_i, next_j;
     char direction = 1; // x+
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
-    int dist = ymax - ymin;
+
 	bool grain_exist = false;
-    
-    int i = ymin+ int(dist/2);
+//     cout <<" search for zeros in box " << id << endl;
+// 	cout << "Abmessungen : " << endl;
+// 	cout << ymin << " || " << xmin << endl;
+// 	cout << ymax << " || " << xmax << endl << endl;
+	int dist = ymax - ymin;
+	int i = ymin+ int(dist/2);
     // look for zero in row y
-    for (int j = xmin; j < xmax; j++) {
+    for (int j = xmin; j < xmax-1; j++) {
         if ((*domain)[i][j] * (*domain)[i][j+1] <= 0) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
@@ -134,18 +258,34 @@ bool LSbox::setZeros(double h, int grid_blowup) {
         }
 	}
 	if (!grain_exist) {
-        cout << "grain "<< id << " disappears." << endl;
+		cout << "search in y-direction" << endl;
+		int dist = xmax - xmin;
+		int j = xmin+ int(dist/2);
+		for (int i = ymin; i < ymax-1; i++) {
+			if ((*domain)[i][j] * (*domain)[i+1][j] <= 0) {
+				first_i = i; 	first_j = j; 
+				current_i = i; 	current_j = j;
+				next_i =i+1; 		next_j = j;
+				grain_exist= true;
+				direction = 2;
+				cout << "boundary found"<< endl;
+				break;
+			}
+		}
+	}
+	if (!grain_exist) {
+		cout << "no boundary found in box "<<  id << endl;
 		return false;
 	}
-// 	cout << "neue Abmessungen : " << endl;
-// 	cout << xmin << " || " << xmax << endl;
-// 	cout << ymin << " || " << ymax << endl << endl;
+
 //     cout << "first zero: " << first_i << " || " << first_j << endl;
 
     // begin zero-tracking and interpolations
     bool newZero = true;
 	int sgn = -1; //(1 = left turn; -1 right turn)  
 
+	// reste the min and max:
+	xmax = 0; xmin = M; ymax = 0; ymin = M;
     while (newZero) {
 		
 		double val1 = (*domain)[current_i][current_j];
@@ -217,7 +357,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
         }
         
         // check if completed round
-        if (current_j == first_j && current_i == first_i && direction == 1) {
+        if (current_j == first_j && current_i == first_i) {
             newZero = false;
         }
     }
@@ -227,11 +367,11 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 	if (ymin < 0) ymin = 0;
 	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
 
+
 // 	cout << "neue Abmessungen : " << endl;
 // 	cout << xmin << " || " << xmax << endl;
 // 	cout << ymin << " || " << ymax << endl << endl;
-	
-	
+// 	
 	return true;
 
 }
