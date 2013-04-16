@@ -14,30 +14,6 @@
 # EXTERNAL cache entries
 ########################
 
-//Path to a file.
-Boost_INCLUDE_DIR:PATH=/usr/include
-
-//Boost library directory
-Boost_LIBRARY_DIRS:FILEPATH=/usr/lib
-
-//The Boost MPI library
-Boost_MPI_LIBRARY:FILEPATH=/home/cm654063/Level Set Project/boost_1_53_0/lib/libboost_mpi.so
-
-//Path to a library.
-Boost_MPI_LIBRARY_DEBUG:FILEPATH=Boost_MPI_LIBRARY_DEBUG-NOTFOUND
-
-//Path to a library.
-Boost_MPI_LIBRARY_RELEASE:FILEPATH=/home/cm654063/Level Set Project/boost_1_53_0/lib/libboost_mpi.so
-
-//The Boost SERIALIZATION library
-Boost_SERIALIZATION_LIBRARY:FILEPATH=/home/cm654063/Level Set Project/boost_1_53_0/stage/lib/libboost_serialization.so
-
-//Path to a library.
-Boost_SERIALIZATION_LIBRARY_DEBUG:FILEPATH=Boost_SERIALIZATION_LIBRARY_DEBUG-NOTFOUND
-
-//Path to a library.
-Boost_SERIALIZATION_LIBRARY_RELEASE:FILEPATH=/home/cm654063/Level Set Project/boost_1_53_0/lib/libboost_serialization.so
-
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
 
@@ -49,7 +25,7 @@ CMAKE_BUILD_TYPE:STRING=
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler.
-CMAKE_CXX_COMPILER:FILEPATH=/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc
+CMAKE_CXX_COMPILER:FILEPATH=/opt/intel/Compiler/13.1/0.146/rwthlnk/bin/intel64/icpc
 
 //Flags used by the compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=
@@ -67,6 +43,26 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 
 //Flags used by the compiler during Release with Debug Info builds.
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g
+
+//C compiler.
+CMAKE_C_COMPILER:FILEPATH=/opt/intel/Compiler/13.1/0.146/rwthlnk/bin/intel64/icc
+
+//Flags used by the compiler during all build types.
+CMAKE_C_FLAGS:STRING=
+
+//Flags used by the compiler during debug builds.
+CMAKE_C_FLAGS_DEBUG:STRING=-g
+
+//Flags used by the compiler during release minsize builds.
+CMAKE_C_FLAGS_MINSIZEREL:STRING=-Os -DNDEBUG
+
+//Flags used by the compiler during release builds (/MD /Ob1 /Oi
+// /Ot /Oy /Gs will produce slightly less optimized but smaller
+// files).
+CMAKE_C_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
+
+//Flags used by the compiler during Release with Debug Info builds.
+CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=-O2 -g
 
 //Flags used by the linker.
 CMAKE_EXE_LINKER_FLAGS:STRING=
@@ -155,73 +151,20 @@ LevelSet_IMM_BINARY_DIR:STATIC=/home/cm654063/Level Set Project/build
 //Value Computed by CMake
 LevelSet_IMM_SOURCE_DIR:STATIC=/home/cm654063/Level Set Project
 
-//Executable for running MPI programs.
-MPIEXEC:FILEPATH=/opt/MPI/bin/mpiexec
+//C++ compiler flags for OpenMP parallization
+OpenMP_CXX_FLAGS:STRING=-fopenmp
 
-//Maximum number of processors available to run MPI applications.
-MPIEXEC_MAX_NUMPROCS:STRING=2
-
-//Flag used by MPI to specify the number of processes for MPIEXEC;
-// the next option will be the number of processes.
-MPIEXEC_NUMPROC_FLAG:STRING=-np
-
-//These flags will come after all flags given to MPIEXEC.
-MPIEXEC_POSTFLAGS:STRING=
-
-//These flags will be directly before the executable that is being
-// run by MPIEXEC.
-MPIEXEC_PREFLAGS:STRING=
-
-//MPI compiler. Used only to detect MPI compilation flags.
-MPI_COMPILER:FILEPATH=/opt/MPI/openmpi-1.6.4/linux/intel/bin/mpic++
-
-//MPI compilation flags
-MPI_COMPILE_FLAGS:STRING=
-
-//Extra MPI libraries to link against
-MPI_EXTRA_LIBRARY:STRING=/opt/MPI/openmpi-1.6.4/linux/intel/lib/libmpi.so;/usr/lib/libosmcomp.so;/usr/lib/librdmacm.so;/usr/lib/libibverbs.so;/usr/lib/librt.so;/usr/lib/libnsl.so;/usr/lib/libutil.so;/opt/lsf/8.0/linux2.6-glibc2.3-x86_64/lib/libbat.so;/opt/lsf/8.0/linux2.6-glibc2.3-x86_64/lib/liblsf.so;/usr/lib/libdl.so;/usr/lib/libm.so;/usr/lib/libnuma.so;/usr/lib/librt.so;/usr/lib/libnsl.so;/usr/lib/libutil.so
-
-//MPI include path
-MPI_INCLUDE_PATH:STRING=/opt/MPI/openmpi-1.6.4/linux/intel/include/openmpi/opal/mca/hwloc/hwloc132/hwloc/include;/opt/MPI/openmpi-1.6.4/linux/intel/include;/opt/MPI/openmpi-1.6.4/linux/intel/include/openmpi;/opt/MPI/openmpi-1.6.4/linux/intel/lib
-
-//MPI library to link against
-MPI_LIBRARY:FILEPATH=MPI_LIBRARY-NOTFOUND
-
-//MPI linking flags
-MPI_LINK_FLAGS:STRING=-Wl,-rpath,/opt/lsf/8.0/linux2.6-glibc2.3-x86_64/lib -Wl,-rpath,/opt/MPI/openmpi-1.6.4/linux/intel/lib
+//C compiler flags for OpenMP parallization
+OpenMP_C_FLAGS:STRING=-fopenmp
 
 //Path to a program.
-XIAR:FILEPATH=/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/xiar
+XIAR:FILEPATH=/opt/intel/Compiler/13.1/0.146/rwthlnk/bin/intel64/xiar
 
 
 ########################
 # INTERNAL cache entries
 ########################
 
-//Advanced flag for variable: Boost_INCLUDE_DIR
-Boost_INCLUDE_DIR-ADVANCED:INTERNAL=1
-//Advanced flag for variable: Boost_LIBRARY_DIRS
-Boost_LIBRARY_DIRS-ADVANCED:INTERNAL=1
-//The library version string for boost libraries
-Boost_LIB_VERSION:INTERNAL=1_41
-//Whether the Boost MPI library found
-Boost_MPI_FOUND:INTERNAL=ON
-//Advanced flag for variable: Boost_MPI_LIBRARY
-Boost_MPI_LIBRARY-ADVANCED:INTERNAL=1
-//Advanced flag for variable: Boost_MPI_LIBRARY_DEBUG
-Boost_MPI_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: Boost_MPI_LIBRARY_RELEASE
-Boost_MPI_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
-//Whether the Boost SERIALIZATION library found
-Boost_SERIALIZATION_FOUND:INTERNAL=ON
-//Advanced flag for variable: Boost_SERIALIZATION_LIBRARY
-Boost_SERIALIZATION_LIBRARY-ADVANCED:INTERNAL=1
-//Advanced flag for variable: Boost_SERIALIZATION_LIBRARY_DEBUG
-Boost_SERIALIZATION_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: Boost_SERIALIZATION_LIBRARY_RELEASE
-Boost_SERIALIZATION_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
-//The version number for boost libraries
-Boost_VERSION:INTERNAL=104100
 //Advanced flag for variable: CMAKE_AR
 CMAKE_AR-ADVANCED:INTERNAL=1
 //Advanced flag for variable: CMAKE_BUILD_TOOL
@@ -257,8 +200,23 @@ CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //Advanced flag for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//Advanced flag for variable: CMAKE_C_COMPILER
+CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
+CMAKE_C_COMPILER_WORKS:INTERNAL=1
+//Advanced flag for variable: CMAKE_C_FLAGS
+CMAKE_C_FLAGS-ADVANCED:INTERNAL=1
+//Advanced flag for variable: CMAKE_C_FLAGS_DEBUG
+CMAKE_C_FLAGS_DEBUG-ADVANCED:INTERNAL=1
+//Advanced flag for variable: CMAKE_C_FLAGS_MINSIZEREL
+CMAKE_C_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
+//Advanced flag for variable: CMAKE_C_FLAGS_RELEASE
+CMAKE_C_FLAGS_RELEASE-ADVANCED:INTERNAL=1
+//Advanced flag for variable: CMAKE_C_FLAGS_RELWITHDEBINFO
+CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 CMAKE_DETERMINE_CXX_ABI_COMPILED:INTERNAL=TRUE
+//Result of TRY_COMPILE
+CMAKE_DETERMINE_C_ABI_COMPILED:INTERNAL=TRUE
 //Path to cache edit program executable.
 CMAKE_EDIT_COMMAND:INTERNAL=/usr/bin/ccmake
 //Executable file format
@@ -326,20 +284,14 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_USE_RELATIVE_PATHS-ADVANCED:INTERNAL=1
 //Advanced flag for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: MPIEXEC
-MPIEXEC-ADVANCED:INTERNAL=1
-//Advanced flag for variable: MPIEXEC_MAX_NUMPROCS
-MPIEXEC_MAX_NUMPROCS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: MPIEXEC_NUMPROC_FLAG
-MPIEXEC_NUMPROC_FLAG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: MPIEXEC_POSTFLAGS
-MPIEXEC_POSTFLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: MPIEXEC_PREFLAGS
-MPIEXEC_PREFLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: MPI_COMPILER
-MPI_COMPILER-ADVANCED:INTERNAL=1
-//Scratch variable for MPI detection
-MPI_LIB:INTERNAL=MPI_LIB-NOTFOUND
+//Details about finding OpenMP
+FIND_PACKAGE_MESSAGE_DETAILS_OpenMP:INTERNAL=[-fopenmp][-fopenmp]
+//Advanced flag for variable: OpenMP_CXX_FLAGS
+OpenMP_CXX_FLAGS-ADVANCED:INTERNAL=1
+//Advanced flag for variable: OpenMP_C_FLAGS
+OpenMP_C_FLAGS-ADVANCED:INTERNAL=1
+//Test OpenMP_FLAG_DETECTED
+OpenMP_FLAG_DETECTED:INTERNAL=1
 //Advanced flag for variable: XIAR
 XIAR-ADVANCED:INTERNAL=1
 

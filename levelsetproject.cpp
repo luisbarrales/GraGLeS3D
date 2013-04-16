@@ -202,11 +202,14 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
-
+	omp_set_num_threads(domains.size());
+	# pragma omp parallel for private (it)
 	for (it = domains.begin(); it !=domains.end(); it++){	
-			
+		cout << "I compute domain "<< (*it).get_id() << " in " << omp_get_thread_num() << endl;
 		(*it).convolution(dt);
-			
+	}
+		
+	for (it = domains.begin(); it !=domains.end(); it++){
 		// Output			
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 			filename.str(std::string());
@@ -315,13 +318,14 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Redistanced_matrix_";
-					vector<LSbox*> grains = (*it).getBoxList();
-					vector<LSbox*>::iterator it2;
-					filename << "T"<<loop;
-					for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+				filename << it->get_id() << "_";
+				vector<LSbox*> grains = (*it).getBoxList();
+				vector<LSbox*>::iterator it2;
+				filename << "T"<<loop;
+				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
 						filename <<"_"<< (*it2)->getID();
-					}
-					filename << ".gnu";
+				}
+				filename << ".gnu";
 				if (SAFEFILES) {
 					(*it).save_matrix(filename.str().c_str());
 					cout << filename.str() << endl << endl;

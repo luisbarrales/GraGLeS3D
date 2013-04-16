@@ -1,4 +1,4 @@
-SET(CMAKE_CXX_COMPILER "/opt/intel/Compiler/12.1/6.361/rwthlnk/bin/intel64/icpc")
+SET(CMAKE_CXX_COMPILER "/opt/intel/Compiler/13.1/0.146/rwthlnk/bin/intel64/icpc")
 SET(CMAKE_CXX_COMPILER_ARG1 "")
 SET(CMAKE_CXX_COMPILER_ID "Intel")
 SET(CMAKE_CXX_PLATFORM_ID "Linux")

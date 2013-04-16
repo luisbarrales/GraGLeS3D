@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 
-project(LevelSet_IMM CXX)
+project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
@@ -17,8 +17,13 @@ set(VORO++_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/voro++/)
 set(VORO++_LIBRARIES ${CMAKE_SOURCE_DIR}/voro++/lib/libvoro++.a)
 set(VORO++_DEFINITIONS "")
 
+find_package(OpenMP REQUIRED)
 
-
+if(OPENMP_FOUND)
+message("OPENMP FOUND")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 #die nächste Zeile sollte eigentlich funktionieren, tut es aber nicht, da die lokale Installation von voro++ die FindVoro++.cmake unnötigt macht,und die Pfade lokale zum Source bleiben (jaja, kann man ändern).
 #find_package(Voro++ REQUIRED)

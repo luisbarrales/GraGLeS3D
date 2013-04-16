@@ -34,7 +34,7 @@
 #include <fftw3.h>
 #include <time.h>  
 // #include <boost/mpi.hpp>
-// #include <omp.h>
+#include <omp.h>
 // #include <mpi.h>
 // #include <boost/mpi/environment.hpp>
 // #include <boost/mpi/communicator.hpp>

@@ -53,6 +53,8 @@ fftw3.h
 -
 time.h
 -
+omp.h
+-
 voro++/include/voro++/voro++.hh
 /home/cm654063/Level Set Project/voro++/include/voro++/voro++.hh
 utilities.h
