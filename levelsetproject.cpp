@@ -202,10 +202,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
-	omp_set_num_threads(domains.size());
-	# pragma omp parallel for private (it)
+
 	for (it = domains.begin(); it !=domains.end(); it++){	
-		cout << "I compute domain "<< (*it).get_id() << " in " << omp_get_thread_num() << endl;
 		(*it).convolution(dt);
 	}
 		
@@ -303,7 +301,25 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	/****************************************************/
 	
 	
+	
 	int length = domains.size();
+	omp_set_dynamic(0);
+	omp_set_num_threads(length);
+	#pragma omp parallel
+	#pragma omp single
+	{
+	for (auto it = domains.begin(); it != domains.end(); it++) {
+		#pragma omp task firstprivate(it)
+		{
+		(*it).redistancing_2(h, grid_blowup);
+		cout << "I compute domain "<< (*it).get_id() << " in " << omp_get_thread_num() << " --- "<< omp_get_num_threads() << endl;;
+		}
+		}
+	#pragma omp taskwait
+	}
+
+	
+	
 	nr_grains=0;
 	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		//Nullstellenverfolgung:
