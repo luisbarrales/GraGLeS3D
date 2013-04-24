@@ -1,21 +1,22 @@
 #!/usr/bin/env zsh
 
 ### Job name
-#BSUB -J Levelset
+#BSUB -J LevelSet01
 
 ### File / path where STDOUT will be written, the %J is the job id
-#BSUB -o Levelset.%J
+
+#BSUB -o %J/stdout.txt
 
 ### (OFF) Different file for STDERR, if not to be merged with STDOUT
-#BSUB -e Levelset.e%J
+#BSUB -e %J/stderr.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute,
 ### that means for 15 minutes you could also use this: 00:15
-#BSUB -W 0:15					
+#BSUB -W 15					
 
 ### Request vitual memory you need for your job in MB
-#BSUB -M 16000
+#BSUB -M 1000
 
 ### (OFF) Specify your mail address
 #BSUB -u miessen@imm.rwth-aachen.de
@@ -31,15 +32,17 @@
 ###BSUB -R "select[hpcwork]"
 
 ### Use esub for OpenMP
-#BSUB -a openmp  
-#BSUB -R span[hosts=1]
+#BSUB -a openmp -n 1
+#BSUB -R "span[hosts=1]"
 
-### Request the number of compute slots you want to use
-###BSUB -n 2
 
+# export OMP_NUM_THREADS=1
 ###export VT_MAX_FLUSHES=0
 ###export VT_BUFFER_SIZE=1024
 
 
 ###Execute the application
-Levelset_IMM
+set J=01
+mkdir $J
+cd $J/
+../LevelSet_IMM

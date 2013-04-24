@@ -44,6 +44,7 @@ CMAKE_BINARY_DIR = "/home/cm654063/Level Set Project/build"
 
 CMakeFiles/clearAll:
 	/usr/bin/cmake -E remove *.png *.gnu
+	/usr/bin/cmake -E remove .co*
 	/usr/bin/cmake -E echo rm\ *.png\ *.gnu
 
 clearAll: CMakeFiles/clearAll
