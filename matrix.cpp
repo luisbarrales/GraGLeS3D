@@ -432,33 +432,29 @@ void matrix::convolution(const double dt){
 // the domain by grid_blow gridpoints at each boundary.
 /*********************************************************************************/
 
-// TO DO: umschreiben auf boxconzept
+TO DO: umschreiben auf boxconzept
 
-// bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
-//     int m= get_m();
-//     int n= get_n();
-//     matrix erg(m,n,id);
-//     bool exist = false;
-//     double conv_rad = grid_blowup/2;
-//     double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
-// 	const double outside_domain = -2.0;
-//     //   double tube = double(DELTA)-conv_rad;
-//     //   erg = *this;
-//     for (int i=0; i< m; i++)
-//         for (int j=0; j< n; j++)
-//             for (int ii=-conv_rad;ii< conv_rad;ii++)
-//                 for (int jj=-conv_rad;jj< conv_rad;jj++){
-// //                     if((*x[i])[j] > - tube  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-//                     if( ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup))) ) 	
-// 						erg[i][j] += (kernel(dt,m,ii,jj) * (*x[i-ii])[j-jj]);
-// 					else erg[i][j]= outside_domain;
-//                     //since we get one positiv value, the grain still exists
-//                     if(erg[i][j] > 0) exist = true;
-//                     //			  if((*x[i])[j] > - DELTA) erg[i][j] += (dt *  1/(h*h) * (kernel(dt,m,i,j) * (*x[i-ii])[j-jj]));
-//                 }
-//     *this= erg;
-// 	return(exist);
-// }
+bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
+    int m= get_m();
+    int n= get_n();
+    matrix erg(m,n,id);
+    bool exist = false;
+    double conv_rad = grid_blowup/2;
+    double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
+	const double outside_domain = -2.0;
+    //   double tube = double(DELTA)-conv_rad;
+    //   erg = *this;
+    for (int i=0; i< m; i++)
+        for (int j=0; j< n; j++)
+			if((*x[i])[j] > - DELTA  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) {		
+// 				berechne krümmung im punkt i,j (kappa)
+// 				vn= mu + gamma*kappa
+// 				x[i][j]= vn* dt + x[i][j]
+            }
+            
+    *this= erg;
+	return(exist);
+}
 
 
 
