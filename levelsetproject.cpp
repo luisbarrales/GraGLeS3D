@@ -88,7 +88,7 @@ int main() {
     //program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << PARTICLES << endl;
-    cout << "FFT: " << DISCRETE_CONVOLUTION << endl;
+    cout << "FFT: " << !DISCRETE_CONVOLUTION << endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << M << endl << endl;
