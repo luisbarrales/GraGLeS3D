@@ -432,7 +432,7 @@ void matrix::convolution(const double dt){
 // the domain by grid_blow gridpoints at each boundary.
 /*********************************************************************************/
 
-TO DO: umschreiben auf boxconzept
+//TO DO: umschreiben auf boxconzept
 
 bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
     int m= get_m();

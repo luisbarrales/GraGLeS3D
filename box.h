@@ -38,6 +38,8 @@ public:
     void setDomain(matrix* aDomain);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
+    double curvature (int x, int y, double h);
+    void euler_forward();
 };
 
 
