@@ -39,10 +39,10 @@ RM = /usr/bin/cmake -E remove -f
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/cm654063/Level Set Project"
+CMAKE_SOURCE_DIR = /home/pm036929/Levelset
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/cm654063/Level Set Project/build"
+CMAKE_BINARY_DIR = /home/pm036929/Levelset/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -69,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/cm654063/Level Set Project/build/CMakeFiles" "/home/cm654063/Level Set Project/build/CMakeFiles/progress.make"
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pm036929/Levelset/build/CMakeFiles /home/pm036929/Levelset/build/CMakeFiles/progress.make
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/cm654063/Level Set Project/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pm036929/Levelset/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
