@@ -64,6 +64,7 @@ public:
 	bool comparison(std::list<matrix> distances, int grid_blowup);
 	void save_matrix(const char* filename ); //schreibt datei für gnuplotskript
 	void clear_domain(double value);
+	void euler(double dt, double h);
 
 	int get_m() const;
 	int get_n() const;

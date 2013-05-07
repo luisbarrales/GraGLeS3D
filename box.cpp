@@ -538,9 +538,15 @@ double LSbox::curvature(int x, int y, double h){
     return ((phixx*phiy*phiy-2*phix*phiy*phixy+phiyy*phix*phix)/sqrt(((phix*phix+phiy*phiy)*(phix*phix+phiy*phiy)*(phix*phix+phiy*phiy))));
 }      
 
-void LSbox::euler_forward(){
-  
-  
+void LSbox::euler_forward(double dt, double h){
+	double kappa, v_n;
+	for (int i = ymin+1; i < ymax-1; i++){
+		for (int j = xmin+1; j < xmax-1; j++){
+			kappa = curvature(i,j,h);
+			v_n = kappa;
+			(*domain)[i][j] += (dt*v_n);
+		}
+	}
 }
       
       

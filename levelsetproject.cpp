@@ -88,7 +88,7 @@ int main() {
     //program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << PARTICLES << endl;
-    cout << "FFT: " << !DISCRETE_CONVOLUTION << endl;
+    if (!EULER ) cout << "FFT "<< endl; else cout << "EULER FORWARD "<< endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << M << endl << endl;
@@ -202,9 +202,15 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
-
-	for (it = domains.begin(); it !=domains.end(); it++){	
-		(*it).convolution(dt);
+	if(!EULER){
+		for (it = domains.begin(); it !=domains.end(); it++){	
+			(*it).convolution(dt);
+		}
+	}
+	else {
+		for (it = domains.begin(); it !=domains.end(); it++){	
+		 (*it).euler(dt,h);
+		}
 	}
 		
 	for (it = domains.begin(); it !=domains.end(); it++){

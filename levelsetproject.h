@@ -9,7 +9,7 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 500
+#define TIMESTEPS 50
 #define PRINTSTEP 5
 #define PARTICLES 50
 
@@ -18,7 +18,7 @@
 #define SAFEFILES true
 #define IMAGEOUT true
 #define PLOTGNU false
-#define DISCRETE_CONVOLUTION false
+#define EULER false
 
 #pragma once
 #include <vector>

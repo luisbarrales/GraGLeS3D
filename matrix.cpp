@@ -318,7 +318,14 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 }
 
 
+void matrix::euler(double dt, double h){
+	vector<LSbox*>::iterator it;
+    for(it = grains.begin(); it != grains.end(); it++)
+    {
+       (*it)->euler_forward(dt, h);
+    }
 
+}
 
 
 
