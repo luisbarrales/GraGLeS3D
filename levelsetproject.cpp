@@ -50,9 +50,10 @@ int main() {
 	/***************/
     // Init
     /***************/
-    
+    char buffer;
     const int particles = int(PARTICLES);
-    const double dt = 1.0/double(M*M);
+    double dt = 1.0/double(M*M);
+	double dt_e = dt/2 ;
     
     double x,y,z,rx,ry,rz;
     int m = M, current_cell, cell_id;
@@ -105,6 +106,25 @@ int main() {
         z=0;
         con.put(i,x,y,z);
     }
+    
+    // generate random or deterministic surface tension coefficients
+	double *ST;
+	ST = (double*) calloc (PARTICLES*PARTICLES,sizeof(double));
+	const double MIN = 0.6;
+	const double MAX = 1.0;
+
+	for(int i=0; i < PARTICLES; i++)
+		for(int j=0; j < PARTICLES; j++){			
+			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
+			ST[i+(PARTICLES*j)] = zahl;
+			ST[j+(PARTICLES*i)] = zahl;
+		}
+		
+	/*utils::print_2dim_array(ST, PARTICLES, PARTICLES);
+	
+	*/cin >> buffer;
+
+	
     
     // 	Output the Voronoi cells to a file, in the gnuplot format
     con.draw_cells_gnuplot("random_points_v.gnu");
@@ -193,26 +213,32 @@ int main() {
 // MAIN LOOP
 /*********************************************************************************/
 
+vector<int> nr_grains(TIMESTEPS);
 
 for(int loop=0; loop <= TIMESTEPS; loop++){
 
 	stringstream plotfiles;
 	plotfiles.str(std::string());  
-	int nr_grains=0;
+	
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
-	if(!EULER){
+	/*if(!EULER){
 		for (it = domains.begin(); it !=domains.end(); it++){	
 			(*it).convolution(dt);
 		}
 	}
 	else {
 		for (it = domains.begin(); it !=domains.end(); it++){	
-		 (*it).euler(dt,h);
+		 (*it).euler(dt_e,h);
 		}
+	}*/
+	// ACHTUNG hier kopieren wir die ganze LISTE!
+	domains_copy=domains;
+	
+	for (it = domains.begin(); it !=domains.end(); it++){	
+		(*it).convolution(dt);
 	}
-		
 	for (it = domains.begin(); it !=domains.end(); it++){
 		// Output			
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
@@ -231,6 +257,19 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			}
 		}
 	}
+	
+	/*********************************************************************************/
+	// Velocity Corrector Step: 
+	/*********************************************************************************/
+	// compute the differenz between domains and domains copy. we want to correct the motion by mean curvature by
+	// a surface suspension factor.
+	
+	if(loop > 0){
+		for (it = domains.begin(), itc= domains_copy.begin(); it != domains.end(); it++, itc++)
+			(*it).energy_correction(*it, *itc, ST);	
+	}	
+	
+	
 	
 	
 	/*********************************************************************************/
@@ -326,7 +365,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 	
 	
-	nr_grains=0;
+	
 	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		(*it).redistancing_2(h, grid_blowup);
 		//Nullstellenverfolgung:
@@ -337,7 +376,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		(*it).redistancing_2(h, grid_blowup);
 // 		(*it).clear_domain(INTERIMVAL);
 // 		(*it).redistancing_for_all_boxes(h, grid_blowup);
-		nr_grains+=(*it).get_nr_of_grains();
+		nr_grains[loop]+=(*it).get_nr_of_grains();
+		
 		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
 				filename << "Redistanced_matrix_";
@@ -376,13 +416,18 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		}
 			
 	cout << "Timestep: "<< loop << " complete" << endl;
-	cout << "Number of remaining grains: "<< nr_grains << endl << endl;
+	cout << "Number of remaining grains: "<< nr_grains[loop] << endl << endl;
+	
 }
 
 /*******************************************************************************************/
 // end of simulation
 /*******************************************************************************************/
-
+	ofstream myfile;
+	myfile.open ("kinetics.txt");
+	for(int i=0; i< TIMESTEPS; i++)
+		myfile << nr_grains[i] << "\t";
+	myfile.close();
 
 	utils::PNGtoGIF("test.mp4");
 	cout << "number of distanzmatrices: "<< domains.size() << endl;

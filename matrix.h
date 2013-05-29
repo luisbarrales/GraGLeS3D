@@ -30,14 +30,14 @@ public:
 	
 	double& operator=(const matrix& A);
     matrix	operator+(const matrix& A);
-    matrix	operator-(const matrix& A);
+    matrix	operator-(matrix& A);
     matrix	operator*(const matrix& A);
     vektor	operator*(const vektor& v);
     matrix	operator/(matrix& A);
 	double entry(const int i, const int j);
 
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
-	
+	matrix energy_correction(matrix &A, matrix &B, double *ST);
 	// grain check: Erklärung anfügen!!
     bool grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
 	bool addBox(LSbox* aBox);

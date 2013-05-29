@@ -530,12 +530,16 @@ void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distance
 double LSbox::curvature(int x, int y, double h){	
 //     Returns the curvature in the point x,y.
     double phix,phiy, phixx, phiyy,phixy;
-    phix	=	((*domain)[y][x+1]-(*domain)[y][x-1])/2*h;
-    phiy	=	((*domain)[y+1][x]-(*domain)[y-1][x])/2*h;
-    phixx	=	((*domain)[y][x-1]-2*(*domain)[y][x]+(*domain)[y][x+1])/(h*h);
-    phiyy	=	((*domain)[y-1][x]-2*(*domain)[y][x]+(*domain)[y+1][x])/(h*h);
+    phix	=	((*domain)[y][x+1]-(*domain)[y][x-1])/(2*h);
+    phiy	=	((*domain)[y+1][x]-(*domain)[y-1][x])/(2*h);
+    phixx	=	((*domain)[y][x-1]-(2*(*domain)[y][x])+(*domain)[y][x+1])/(h*h);
+    phiyy	=	((*domain)[y-1][x]-(2*(*domain)[y][x])+(*domain)[y+1][x])/(h*h);
     phixy	=	((*domain)[y-1][x-1]+(*domain)[y+1][x+1]-(*domain)[y-1][x+1]+(*domain)[y+1][x-1])/(4*h*h);	
-    return ((phixx*phiy*phiy-2*phix*phiy*phixy+phiyy*phix*phix)/sqrt(((phix*phix+phiy*phiy)*(phix*phix+phiy*phiy)*(phix*phix+phiy*phiy))));
+	double kappa = ((phixx*phiy*phiy)-(2*phix*phiy*phixy)+(phiyy*phix*phix))/sqrt( ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) + h);
+// 	double N = ((phiyy*phiy*phiy)+(2*phix*phiy*phixy)+(phixx*phix*phix))/sqrt( ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) );
+	double laplace = (phixx + phiyy);// sqrt((phix*phix) + (phiy*phiy) + h);
+//     return(kappa);
+	return (laplace);
 }      
 
 void LSbox::euler_forward(double dt, double h){
@@ -544,7 +548,7 @@ void LSbox::euler_forward(double dt, double h){
 		for (int j = xmin+1; j < xmax-1; j++){
 			kappa = curvature(i,j,h);
 			v_n = kappa;
-			(*domain)[i][j] += (dt*v_n);
+			(*domain)[i][j] = (dt*v_n) + (*domain)[i][j];
 		}
 	}
 }

@@ -75,7 +75,7 @@ matrix matrix::operator+(const matrix& A){
 
 
 // "-" Operator
-matrix matrix::operator-(const matrix& A){
+matrix matrix::operator-(matrix& A){
     matrix C(m,n);
 	C.grains = this->grains;
 	C.id = id;
@@ -428,6 +428,33 @@ void matrix::convolution(const double dt){
 }
 /*********************************************************************************/
 /*********************************************************************************/
+
+
+/*********************************************************************************/
+// berechenung der differenz von ausgangslage und bewegter distanzfunktion
+// punktweise repräsentiert die distanz, die krümmung, denn kraft = masse * beschleunigung
+// die masse ist normiert also 1, die breschleunigung ist kappa. die arbeit ist also (delta d * kappa)
+/*********************************************************************************/
+
+matrix matrix::energy_correction(matrix &A, matrix &B, double *ST){
+	assert(A.n == B.n);
+	assert(A.m == B.m);
+	matrix temp(m,n); 
+	// boxweise rechnen:
+	// boxen sollen dazu neighbor informationen enthalten
+	
+	temp = A;
+	temp =temp-B;
+	
+	//for (int i = 0; i < m; i++)
+	//	for (int j = 0; j < n; j++) {
+// 	wie komme ich an die korrekten ID???
+// 		temp[i,j] = temp[i,j] * ST[A.id + PARTICLES* B.id];
+			
+	//	}
+	return (temp);
+}
+
 
 
 

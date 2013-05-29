@@ -3,22 +3,22 @@
 
 #define DIM 2
 
-#define M 100 //gridpoints in each direction
+#define M 250 //gridpoints in each direction
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-#define TIMESTEPS 50
-#define PRINTSTEP 5
-#define PARTICLES 50
+#define TIMESTEPS 10
+#define PRINTSTEP 1
+#define PARTICLES 4
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
 #define SAFEFILES true
 #define IMAGEOUT true
-#define PLOTGNU false
-#define EULER false
+#define PLOTGNU true
+#define EULER true
 
 #pragma once
 #include <vector>
