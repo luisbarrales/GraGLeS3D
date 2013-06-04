@@ -22,11 +22,14 @@ class LSbox {
     vector<pointVal> zeros;
 	double* distance;
     matrix* domain;
+    
 
 public:
     LSbox();
     ~LSbox();
+    vector<LSbox*> neighbors;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
+//     void determineNeighbors()
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
     void copy_distances();
 	void copy_distances_to_domain();
@@ -36,6 +39,8 @@ public:
 	void sweep(pointVal zero, double h);
     int getID();
     void setDomain(matrix* aDomain);
+    void comparison();
+      void maximum(const matrix &A, const matrix &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
     double curvature (int x, int y, double h);

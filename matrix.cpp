@@ -75,7 +75,7 @@ matrix matrix::operator+(const matrix& A){
 
 
 // "-" Operator
-matrix matrix::operator-(const matrix& A){
+matrix matrix::operator-(matrix& A){
     matrix C(m,n);
 	C.grains = this->grains;
 	C.id = id;
@@ -430,6 +430,33 @@ void matrix::convolution(const double dt){
 /*********************************************************************************/
 
 
+/*********************************************************************************/
+// berechenung der differenz von ausgangslage und bewegter distanzfunktion
+// punktweise repräsentiert die distanz, die krümmung, denn kraft = masse * beschleunigung
+// die masse ist normiert also 1, die breschleunigung ist kappa. die arbeit ist also (delta d * kappa)
+/*********************************************************************************/
+
+matrix matrix::energy_correction(matrix &A, matrix &B, double *ST){
+	assert(A.n == B.n);
+	assert(A.m == B.m);
+	matrix temp(m,n); 
+	// boxweise rechnen:
+	// boxen sollen dazu neighbor informationen enthalten
+	
+	temp = A;
+	temp =temp-B;
+	
+	//for (int i = 0; i < m; i++)
+	//	for (int j = 0; j < n; j++) {
+// 	wie komme ich an die korrekten ID???
+// 		temp[i,j] = temp[i,j] * ST[A.id + PARTICLES* B.id];
+			
+	//	}
+	return (temp);
+}
+
+
+
 
 
 
@@ -522,15 +549,19 @@ int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglec
 
 
 
-bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
-	vector<LSbox*> buffer = this->grains;
+void matrix::comparison(std::list<matrix> distances, int grid_blowup){
+	// vector<LSbox*> buffer = this->grains;
+	// Copying neccessary? already existing in the copy of the distances
+
 	std::list<matrix>::iterator it;
+	std::list<matrix>::iterator it_current_grain;
 	it = distances.begin();
 	// 	double boundary_value = -0.5;
 	int m = get_m();
 	int n = get_n();
-	matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
-	bool exist = false;
+	matrix Max(m,n);
+// 	bool exist = false;
+	
 	if (id == (*it).id) Max = *(++it);
 	else Max = *it;
 	
@@ -538,25 +569,25 @@ bool matrix::comparison(std::list<matrix> distances, int grid_blowup){
 		if (id != (*it).id) {
 			Max.maximum(Max,*it);
 		}
-		else Grain = *it;
+		else it_current_grain = it;
 	}
 	
-	cur_Max = (Grain-Max);
-	cur_Max.mult_with_scalar(0.5);
-	cur_Max.save_matrix("Max.gnu");
-	*this = cur_Max;
+	Max = ((*it_current_grain)-Max);
+	Max.mult_with_scalar(0.5);
+	Max.save_matrix("Max.gnu");
+	*this = Max;
 	
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
 				(*this)[i][j] = INTERIMVAL;
 			}
-			else if((*this)[i][j] >= 0) exist = true;
+// 			else if((*this)[i][j] >= 0) exist = true;
 		}
 	}
 	
-	this->grains = buffer;
-	return (exist);
+// 	this->grains == buffer;
+// 	return (exist);
 }
         
 /*********************************************************************************/

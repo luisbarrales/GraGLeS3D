@@ -10,6 +10,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
     xmax = 0; xmin = M; ymax = 0; ymin = M;
     vektor x1(2), x2(2);
     vector<double> vv;
+    
 	distance = 0;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
     for(int ii=0;ii<c.p;ii++) {
@@ -405,6 +406,78 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
+bool LSbox::comparison(std::list<matrix> distances, int grid_blowup){
+	//LSbox*
+	std::list<matrix>::iterator it;
+	std::list<matrix>::iterator it2;
+        double max;
+	for(it = neighbors.begin(); it != neighbors.end(); it++){
+            for(it2 = (*it)->neighbors.begin(); it2 != (*it)->neighbors.end(); it++){
+                for (int i = ymin; i < ymax; i++){
+                    for (int j = xmin; j < xmax; j++){
+ //                           distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+                    }
+                }
+	  }
+	}
+
+  
+  /*	vector<LSbox*> buffer = neighbors;
+  
+	// 	Copying neccessary? A copy of the distances already exists. ToDO
+		  for(it2c = (*it2)->neighbors.begin(); it2c != (*it2)->neighbors.end(); it2c++){
+		    for(it2c = (*it2)->neighbors.begin(); it2c != (*it2)->neighbors.end(); it2c++){
+
+	
+		it = neighbors.begin();
+	// 	double boundary_value = -0.5;
+	int m = (*domain).get_m();
+	int n = (*domain).get_n();
+	
+	matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
+	
+	bool exist = false;
+	
+	if (id == (*it).id) Max = *(++it);
+	else Max = *it;
+	
+	for (it = distances.begin(); it != distances.end(); it++ ){
+		  if (id != (*it).id) {
+			  Max.maximum(Max,*it);
+		  }
+		  else Grain = *it;	
+	  for(it2 = (*it).neighbors.begin();it2 != (*it).neighbors.end(); it2++)
+		{
+
+		  
+		  if (id != (*it2).id) {
+			  Max.maximum(Max,*it);
+		  }
+		  else Grain = *it;
+		
+		}
+		
+	}
+	
+	cur_Max = (Grain-Max);
+	cur_Max.mult_with_scalar(0.5);
+	cur_Max.save_matrix("Max.gnu");
+	*this = cur_Max;
+	
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
+				(*this)[i][j] = INTERIMVAL;
+			}
+			else if((*this)[i][j] >= 0) exist = true;
+		}*/
+return true;
+	
+	
+// 	this->grains = buffer;
+// 	return (exist);
+}
+
 
 /*void LSbox::free_memory_distance(){
 	free (distance);
@@ -439,6 +512,7 @@ bool LSbox::checkIntersect(LSbox* box2) {
 // 	
 // 	switch (sweep_direction) {
 // 		case 0 :   signk = 1; break; 
+// 		B
 // 		case 1 :   signl = 1; break; 
 // 		case 2 :   signk = -1; break; 
 // 		case 3 :   signl = -1; break; 
@@ -460,14 +534,23 @@ bool LSbox::checkIntersect(LSbox* box2) {
 // 	}
 // 	
 // }
+void LSbox::maximum(const matrix &A, const matrix &B){
+// 	assert(A.n == B.n);
+// 	assert(A.m == B.m);
+// 	for (int i = 0; i < m; i++)
+// 		for (int j = 0; j < n; j++) {
+// 			if (A[i][j] > B[i][j]) (*x[i])[j] = A[i][j];
+// 			else (*x[i])[j] = B[i][j];
+// 		}
+}
 
 void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 	// directions 0 = y-  // 1= x+ //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 	int signk=0, signl=0, k=start_i, l=start_j;
 	switch (direction) {
 		case 0 :   signk = -1; break; 
-		case 1 :   signl = 1; break; 
-		case 2 :   signk = 1; break; 
+		case 1 :   signl =  1; break; 
+		case 2 :   signk =  1; break; 
 		case 3 :   signl = -1; break; 
 	}
 	int sgn = 1;
@@ -525,17 +608,22 @@ void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distance
 		sweeping(h, i, xmin, 1);
 		sweeping(h, i, xmax-1, 3);
 	}
+B
 }
 
 double LSbox::curvature(int x, int y, double h){	
 //     Returns the curvature in the point x,y.
     double phix,phiy, phixx, phiyy,phixy;
-    phix	=	((*domain)[y][x+1]-(*domain)[y][x-1])/2*h;
-    phiy	=	((*domain)[y+1][x]-(*domain)[y-1][x])/2*h;
-    phixx	=	((*domain)[y][x-1]-2*(*domain)[y][x]+(*domain)[y][x+1])/(h*h);
-    phiyy	=	((*domain)[y-1][x]-2*(*domain)[y][x]+(*domain)[y+1][x])/(h*h);
+    phix	=	((*domain)[y][x+1]-(*domain)[y][x-1])/(2*h);
+    phiy	=	((*domain)[y+1][x]-(*domain)[y-1][x])/(2*h);
+    phixx	=	((*domain)[y][x-1]-(2*(*domain)[y][x])+(*domain)[y][x+1])/(h*h);
+    phiyy	=	((*domain)[y-1][x]-(2*(*domain)[y][x])+(*domain)[y+1][x])/(h*h);
     phixy	=	((*domain)[y-1][x-1]+(*domain)[y+1][x+1]-(*domain)[y-1][x+1]+(*domain)[y+1][x-1])/(4*h*h);	
-    return ((phixx*phiy*phiy-2*phix*phiy*phixy+phiyy*phix*phix)/sqrt(((phix*phix+phiy*phiy)*(phix*phix+phiy*phiy)*(phix*phix+phiy*phiy))));
+	double kappa = ((phixx*phiy*phiy)-(2*phix*phiy*phixy)+(phiyy*phix*phix))/sqrt( ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) + h);
+// 	double N = ((phiyy*phiy*phiy)+(2*phix*phiy*phixy)+(phixx*phix*phix))/sqrt( ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) * ((phix*phix)+(phiy*phiy)) );
+	double laplace = (phixx + phiyy);// sqrt((phix*phix) + (phiy*phiy) + h);
+//     return(kappa);
+	return (laplace);
 }      
 
 void LSbox::euler_forward(double dt, double h){
@@ -544,10 +632,11 @@ void LSbox::euler_forward(double dt, double h){
 		for (int j = xmin+1; j < xmax-1; j++){
 			kappa = curvature(i,j,h);
 			v_n = kappa;
-			(*domain)[i][j] += (dt*v_n);
+			(*domain)[i][j] = (dt*v_n) + (*domain)[i][j];
 		}
 	}
 }
       
       
+B
   
