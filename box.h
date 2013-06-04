@@ -28,6 +28,7 @@ public:
     LSbox();
     ~LSbox();
     vector<LSbox*> neighbors;
+	vector<LSbox*> neighbors_2order;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
 //     void determineNeighbors()
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
@@ -37,10 +38,10 @@ public:
 	void redistancing(double h, int grid_blowup /*, std::list<matrix> distances, double** borderSlopes, double** slopeField*/);
 	bool setZeros(double h, int grid_blowup);
 	void sweep(pointVal zero, double h);
-    int getID();
+    int  getID();
     void setDomain(matrix* aDomain);
     void comparison();
-      void maximum(const matrix &A, const matrix &B);
+    void maximum(const matrix &A, const matrix &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
     double curvature (int x, int y, double h);

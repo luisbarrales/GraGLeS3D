@@ -397,7 +397,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt){
+void matrix::convolution(const double dt, const LSbox **ID){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -421,6 +421,14 @@ void matrix::convolution(const double dt){
 	//  diff.matrix_to_array(v);
 	//  iff.save_matrix("diff.gnu");
 	
+	/*********************************************************************************/
+	// Velocity Corrector Step: 
+	/*********************************************************************************/
+	// hier soll energiecorrection gerechnet werden.
+	// in der matrix steht die ursprünglich distanzfunktion, in dem arry die gefaltete
+	// energy_correction();	
+	// funktion muss umgeschrieben werden
+	
 	array_to_matrix(u);
 	fftw_destroy_plan(fwdPlan);
 	fftw_destroy_plan(bwdPlan);
@@ -436,7 +444,7 @@ void matrix::convolution(const double dt){
 // die masse ist normiert also 1, die breschleunigung ist kappa. die arbeit ist also (delta d * kappa)
 /*********************************************************************************/
 
-matrix matrix::energy_correction(matrix &A, matrix &B, double *ST){
+matrix matrix::energy_correction(const LSbox **ID){
 	assert(A.n == B.n);
 	assert(A.m == B.m);
 	matrix temp(m,n); 

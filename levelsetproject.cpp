@@ -78,8 +78,10 @@ int main() {
     const int grid_blowup = int(((double)DELTA / h)+1); // number of grid points to extract the domain at each boundary
     
     int resized_m = m + (2*grid_blowup); //resize m
-    int *ID; // array to asign a cell id to each grid point
-    ID = (int*) calloc ((resized_m)*(resized_m),sizeof(int));
+    LSbox **ID; // array to asign a cell id to each grid point
+    ID = new LSbox*[2];
+	ID[0] = new LSbox[resized_m*resized_m];
+	ID[1] = new LSbox[resized_m*resized_m];
     
     double  (*fp)(double,int, int, int); // function pointer
     fp = &kernel;
@@ -208,33 +210,25 @@ int main() {
 
 // Determine the box' neighbors 
 
- for (it = domains.begin(); it !=domains.end(); it++)
-	    {
-               vector<LSbox*> grains = (*it).getBoxList();
-	       vector<LSbox*> grainstoComp;
-	       
-		for (itc=it;itc!=domains.end();itc++){
-		  
-		   grainstoComp = itc->getBoxList();
-		    
-		  for (it2=grains.begin();it2!=grains.end();it2++){
-		      
-		      for(it2c=grainstoComp.begin();it2c!=grainstoComp.end();it2c++){
+for (it = domains.begin(); it !=domains.end(); it++){
+	vector<LSbox*> grains = (*it).getBoxList();
+	vector<LSbox*> grainstoComp;
 
-			if ((*it2)->getID()!=(*it2c)->getID()){
-			  
-			  if((*it2)->checkIntersect(*it2c)){
-			    
-			      (*it2) ->	neighbors.push_back(*it2c);
-			      (*it2c)->	neighbors.push_back(*it2);
- 			    cout <<"Grain: "<< (*(*it2)).getID() << " with Grain: " << (*(*it2c)).getID()<<endl;
-			  }
+	for (itc=it;itc!=domains.end();itc++){
+		grainstoComp = itc->getBoxList();
+		for (it2=grains.begin();it2!=grains.end();it2++){
+			for(it2c=grainstoComp.begin();it2c!=grainstoComp.end();it2c++){
+				if ((*it2)->getID()!=(*it2c)->getID()){
+					if((*it2)->checkIntersect(*it2c)){
+						(*it2) ->	neighbors.push_back(*it2c);
+						(*it2c)->	neighbors.push_back(*it2);
+						cout <<"Grain: "<< (*(*it2)).getID() << " with Grain: " << (*(*it2c)).getID()<<endl;
+					}
+				}
 			}
-		      }
-		    }
 		}
-		
-            }
+	}
+}
 
 
 	
@@ -287,19 +281,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		}
 	}
 	
-	/*********************************************************************************/
-	// Velocity Corrector Step: 
-	/*********************************************************************************/
-	// compute the differenz between domains and domains copy. we want to correct the motion by mean curvature by
-	// a surface suspension factor.
-	
-	if(loop > 0){
-		for (it = domains.begin(), itc= domains_copy.begin(); it != domains.end(); it++, itc++)
-			(*it).energy_correction(*it, *itc, ST);	
-	}	
-	
-	
-	
+
 	
 	/*********************************************************************************/
 	// Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
@@ -338,12 +320,17 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	      /*********************************************************************************/
 	      // Comparison Step on boxes
 	      /*********************************************************************************/	
-	      for (it = domains.begin(); it != domains.end(); it++){		     
-		grains = (*it).getBoxList();		  
-		for (it2 = grains.begin(); it2 != grains.end(); it2++){
-		  (*grains).comparison();
-		}
-	      }
+			for (it = domains.begin(); it != domains.end(); it++){		     
+				grains = (*it).getBoxList();
+				for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
+					for (it2 = grains.begin(); it2 != grains.end(); it2++){
+						(*it2).comparison((*it_domain));
+					}
+				}
+				for (it2 = grains.begin(); it2 != grains.end(); it2++){
+					(*it2).copy_distances_to_domain();
+				}
+			}
 	    }
 	    
 	    
@@ -359,7 +346,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	// 			it--;
 	// 		}
 	// 		else {
-/*
+*/
 
 			
 

@@ -395,7 +395,8 @@ void LSbox::copy_distances_to_domain(){
 			(*domain)[i][j]=distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 		}
 	}
-	//delete [] distance;
+	delete [] distance;
+	distance = NULL;
 }
 
 
@@ -406,20 +407,73 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
-bool LSbox::comparison(std::list<matrix> distances, int grid_blowup){
+bool LSbox::comparison(matrix &domain_copy){
 	//LSbox*
-	std::list<matrix>::iterator it;
-	std::list<matrix>::iterator it2;
-        double max;
+	std::vector<LSbox*>::iterator it;
+	std::vector<LSbox*>::iterator it_nn;
+	double max;
+	if(distance == NULL) distance = new double [(ymax-ymin)*(xmax-xmin)];    	
 	for(it = neighbors.begin(); it != neighbors.end(); it++){
-            for(it2 = (*it)->neighbors.begin(); it2 != (*it)->neighbors.end(); it++){
-                for (int i = ymin; i < ymax; i++){
-                    for (int j = xmin; j < xmax; j++){
- //                           distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
-                    }
-                }
-	  }
+	// wird hier die domain unter umständen in den cache geladen??
+		if(domain_copy.get_id() == (*(*it).domain).get_id()){ 
+			if(checkintersect(*it)){
+				int x_min_new, x_max_new, y_min_new, y_may_new;
+				if(xmin < (*it).xmin) {
+					x_min_new = (*it).xmin;
+					x_max_new = xmax;
+				} else {
+					x_min_new = xmin;
+					x_max_new = (*it).xmax;
+				}
+				
+				if(ymin < (*it).ymin) {
+					y_min_new = (*it).ymin;
+					y_max_new = ymax;
+				} else {
+					y_min_new = ymin;
+					y_max_new = (*it).ymax;
+				}	
+				
+				for (int i = ymin_new; i < ymax_new; i++){
+					for (int j = xmin_new; j < xmax_new; j++){
+						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = max(distance[(i-ymin)*(xmax-xmin)+(j-xmin)],domain_copy[i][j]);
+					}
+				}
+			}
+			else neighbors_2order.insert(neighbors_2order.end(),(*it).neighbors.begin(),(*it).neighbors.end());
+		}
 	}
+	
+	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){
+		if(domain_copy.get_id() == (*(*it_nn).domain).get_id()){
+			if (checkintersect(*it_nn)){
+				neighbors.pushback(*it_nn);
+				int x_min_new, x_max_new, y_min_new, y_may_new;
+				if(xmin < (*it).xmin) {
+					x_min_new = (*it).xmin;
+					x_max_new = xmax;
+				} else {
+					x_min_new = xmin;
+					x_max_new = (*it).xmax;
+				}
+				
+				if(ymin < (*it).ymin) {
+					y_min_new = (*it).ymin;
+					y_max_new = ymax;
+				} else {
+					y_min_new = ymin;
+					y_max_new = (*it).ymax;
+				}	
+				for (int i = ymin_new; i < ymax_new; i++){
+					for (int j = xmin_new; j < xmax_new; j++){
+						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = max(distance[(i-ymin)*(xmax-xmin)+(j-xmin)],domain_copy[i][j]);
+					}
+				}
+				neighbors_2order.erase(it_nn); it_nn--;
+			}
+		}
+	}
+}
 
   
   /*	vector<LSbox*> buffer = neighbors;
@@ -608,7 +662,6 @@ void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distance
 		sweeping(h, i, xmin, 1);
 		sweeping(h, i, xmax-1, 3);
 	}
-B
 }
 
 double LSbox::curvature(int x, int y, double h){	
@@ -637,6 +690,4 @@ void LSbox::euler_forward(double dt, double h){
 	}
 }
       
-      
-B
-  
+    
