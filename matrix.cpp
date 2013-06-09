@@ -159,7 +159,7 @@ void matrix::mult_with_scalar(const double d){
 }
     
 
-matrix matrix::distancefunction(voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
+matrix matrix::distancefunction(voronoicell_neighbor& c, LSbox ***&ID_mat, double *part_pos, int grid_blowup, double h){
     int i,j,k;
 	double d, dmin,lambda;
 	int m=get_m();
@@ -194,7 +194,7 @@ matrix matrix::distancefunction(voronoicell_neighbor& c, int *ID_mat, double *pa
                         if((0. < lambda) && (lambda < 1.)) 	d= (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 					    d= (p-x2).laenge();
                         
-                        if(id==ID_mat[i*m +j] && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+                        if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
                         else d= -abs(d);
                         
                         if(abs(d)< abs(dmin)) dmin=d;
@@ -397,7 +397,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt, const LSbox **ID){
+void matrix::convolution(const double dt, LSbox ***&ID){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -424,12 +424,13 @@ void matrix::convolution(const double dt, const LSbox **ID){
 	/*********************************************************************************/
 	// Velocity Corrector Step: 
 	/*********************************************************************************/
-	// hier soll energiecorrection gerechnet werden.
+	// hier soll energycorrection gerechnet werden.
 	// in der matrix steht die ursprünglich distanzfunktion, in dem arry die gefaltete
 	// energy_correction();	
 	// funktion muss umgeschrieben werden
 	
 	array_to_matrix(u);
+	
 	fftw_destroy_plan(fwdPlan);
 	fftw_destroy_plan(bwdPlan);
 	
@@ -444,10 +445,10 @@ void matrix::convolution(const double dt, const LSbox **ID){
 // die masse ist normiert also 1, die breschleunigung ist kappa. die arbeit ist also (delta d * kappa)
 /*********************************************************************************/
 
-matrix matrix::energy_correction(const LSbox **ID){
-	assert(A.n == B.n);
+matrix matrix::energy_correction(const LSbox ***&ID){
+/*	assert(A.n == B.n);
 	assert(A.m == B.m);
-	matrix temp(m,n); 
+	
 	// boxweise rechnen:
 	// boxen sollen dazu neighbor informationen enthalten
 	
@@ -460,6 +461,8 @@ matrix matrix::energy_correction(const LSbox **ID){
 // 		temp[i,j] = temp[i,j] * ST[A.id + PARTICLES* B.id];
 			
 	//	}
+	*/
+	matrix temp(m,n); 
 	return (temp);
 }
 

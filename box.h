@@ -31,7 +31,7 @@ public:
 	vector<LSbox*> neighbors_2order;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
 //     void determineNeighbors()
-    LSbox distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h);
+    LSbox distancefunction(voro::voronoicell_neighbor& c, LSbox ***&ID_mat, double *part_pos, int grid_blowup, double h);
     void copy_distances();
 	void copy_distances_to_domain();
 	void sweeping (double h, int start_i, int start_j, int direction);
@@ -40,7 +40,8 @@ public:
 	void sweep(pointVal zero, double h);
     int  getID();
     void setDomain(matrix* aDomain);
-    void comparison();
+    void comparison(const matrix &domain_copy);
+      void comparison_set_to_domain();
     void maximum(const matrix &A, const matrix &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();

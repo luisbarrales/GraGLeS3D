@@ -62,7 +62,7 @@ int LSbox::getID() {
 }
 
 
-LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double *part_pos, int grid_blowup, double h){
+LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, LSbox ***&ID_mat, double *part_pos, int grid_blowup, double h){
     int i,j,k;
 			
 	double d, dmin,lambda;
@@ -70,7 +70,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
 	int n=domain->get_n();
 
 	vektor u(2), a(2), p(2), x1(2), x2(2);
-    vector<double> vv;
+	vector<double> vv;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
 	distance=NULL;
@@ -95,10 +95,11 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *ID_mat, double
                         if(lambda <= 0.) 					    d= (p-x1).laenge();
                         if((0. < lambda) && (lambda < 1.)) 		d= (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 					    d= (p-x2).laenge();
-                        
-                        if(id==ID_mat[i*m +j] && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+                        if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
                         else d= -abs(d);
-                        
+			cout << "ID klappt" << endl;
+			char buffer;
+                        cin >> buffer ;
                         if(abs(d)< abs(dmin)) dmin=d;
                     }
                 }
@@ -399,6 +400,15 @@ void LSbox::copy_distances_to_domain(){
 	distance = NULL;
 }
 
+void LSbox::comparison_set_to_domain(){
+	for (int i = ymin; i < ymax; i++){
+		for (int j = xmin; j < xmax; j++){
+			(*domain)[i][j]=(*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+		}
+	}
+	delete [] distance;
+	distance = NULL;
+}
 
 
 bool LSbox::checkIntersect(LSbox* box2) {    
@@ -407,7 +417,7 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
-bool LSbox::comparison(matrix &domain_copy){
+void LSbox::comparison(const matrix &domain_copy){
 	//LSbox*
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
@@ -415,122 +425,69 @@ bool LSbox::comparison(matrix &domain_copy){
 	if(distance == NULL) distance = new double [(ymax-ymin)*(xmax-xmin)];    	
 	for(it = neighbors.begin(); it != neighbors.end(); it++){
 	// wird hier die domain unter umständen in den cache geladen??
-		if(domain_copy.get_id() == (*(*it).domain).get_id()){ 
-			if(checkintersect(*it)){
-				int x_min_new, x_max_new, y_min_new, y_may_new;
-				if(xmin < (*it).xmin) {
-					x_min_new = (*it).xmin;
+		if(domain_copy.get_id() == (*(**it).domain).get_id()){ 
+			if(checkIntersect(*it)){
+				int x_min_new, x_max_new, y_min_new, y_max_new;
+				if(xmin < (**it).xmin) {
+					x_min_new = (**it).xmin;
 					x_max_new = xmax;
 				} else {
 					x_min_new = xmin;
-					x_max_new = (*it).xmax;
+					x_max_new = (**it).xmax;
 				}
 				
-				if(ymin < (*it).ymin) {
-					y_min_new = (*it).ymin;
+				if(ymin < (**it).ymin) {
+					y_min_new = (**it).ymin;
 					y_max_new = ymax;
 				} else {
 					y_min_new = ymin;
-					y_max_new = (*it).ymax;
+					y_max_new = (**it).ymax;
 				}	
 				
-				for (int i = ymin_new; i < ymax_new; i++){
-					for (int j = xmin_new; j < xmax_new; j++){
-						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = max(distance[(i-ymin)*(xmax-xmin)+(j-xmin)],domain_copy[i][j]);
+				for (int i = y_min_new; i < y_max_new; i++){
+					for (int j = x_min_new; j < x_max_new; j++){
+						distance[(i-y_min_new)*(x_max_new-x_min_new)+(j-x_min_new)] = std::max(distance[(i-y_min_new)*(x_max_new-x_min_new)+(j-x_min_new)],domain_copy[i][j]);
 					}
 				}
 			}
-			else neighbors_2order.insert(neighbors_2order.end(),(*it).neighbors.begin(),(*it).neighbors.end());
+			else neighbors_2order.insert(neighbors_2order.end(),(**it).neighbors.begin(),(**it).neighbors.end());
 		}
 	}
 	
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){
-		if(domain_copy.get_id() == (*(*it_nn).domain).get_id()){
-			if (checkintersect(*it_nn)){
-				neighbors.pushback(*it_nn);
-				int x_min_new, x_max_new, y_min_new, y_may_new;
-				if(xmin < (*it).xmin) {
-					x_min_new = (*it).xmin;
+		if(domain_copy.get_id() == (*(**it_nn).domain).get_id()){
+			if (checkIntersect(*it_nn)){
+				neighbors.push_back(*it_nn);
+				int x_min_new, x_max_new, y_min_new, y_max_new;
+				if(xmin < (**it).xmin) {
+					x_min_new = (**it).xmin;
 					x_max_new = xmax;
 				} else {
 					x_min_new = xmin;
-					x_max_new = (*it).xmax;
+					x_max_new = (**it).xmax;
 				}
 				
-				if(ymin < (*it).ymin) {
-					y_min_new = (*it).ymin;
+				if(ymin < (**it).ymin) {
+					y_min_new = (**it).ymin;
 					y_max_new = ymax;
 				} else {
 					y_min_new = ymin;
-					y_max_new = (*it).ymax;
+					y_max_new = (**it).ymax;
 				}	
-				for (int i = ymin_new; i < ymax_new; i++){
-					for (int j = xmin_new; j < xmax_new; j++){
-						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = max(distance[(i-ymin)*(xmax-xmin)+(j-xmin)],domain_copy[i][j]);
+				for (int i = y_min_new; i < y_max_new; i++){
+					for (int j = x_min_new; j < x_max_new; j++){
+						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = std::max(distance[(i-ymin)*(xmax-xmin)+(j-xmin)],domain_copy[i][j]);
 					}
 				}
 				neighbors_2order.erase(it_nn); it_nn--;
 			}
+			else {neighbors_2order.erase(it_nn); it_nn--;}
 		}
 	}
+// 	return true; 
 }
 
   
-  /*	vector<LSbox*> buffer = neighbors;
-  
-	// 	Copying neccessary? A copy of the distances already exists. ToDO
-		  for(it2c = (*it2)->neighbors.begin(); it2c != (*it2)->neighbors.end(); it2c++){
-		    for(it2c = (*it2)->neighbors.begin(); it2c != (*it2)->neighbors.end(); it2c++){
-
-	
-		it = neighbors.begin();
-	// 	double boundary_value = -0.5;
-	int m = (*domain).get_m();
-	int n = (*domain).get_n();
-	
-	matrix Max(m,n), cur_Max(m,n,id), Grain(m,n);
-	
-	bool exist = false;
-	
-	if (id == (*it).id) Max = *(++it);
-	else Max = *it;
-	
-	for (it = distances.begin(); it != distances.end(); it++ ){
-		  if (id != (*it).id) {
-			  Max.maximum(Max,*it);
-		  }
-		  else Grain = *it;	
-	  for(it2 = (*it).neighbors.begin();it2 != (*it).neighbors.end(); it2++)
-		{
-
-		  
-		  if (id != (*it2).id) {
-			  Max.maximum(Max,*it);
-		  }
-		  else Grain = *it;
-		
-		}
-		
-	}
-	
-	cur_Max = (Grain-Max);
-	cur_Max.mult_with_scalar(0.5);
-	cur_Max.save_matrix("Max.gnu");
-	*this = cur_Max;
-	
-	for (int i = 0; i < m; i++) {
-		for (int j = 0; j < n; j++) {
-			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-				(*this)[i][j] = INTERIMVAL;
-			}
-			else if((*this)[i][j] >= 0) exist = true;
-		}*/
-return true;
-	
-	
-// 	this->grains = buffer;
-// 	return (exist);
-}
 
 
 /*void LSbox::free_memory_distance(){

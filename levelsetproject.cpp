@@ -65,9 +65,9 @@ int main() {
     stringstream filename, plotfiles;
     
     std::list<matrix> domains, domains_copy;
-    std::list<matrix>::iterator it, itc;
-    std::vector<LSbox*>::iterator it2;
-    std::vector<LSbox*>::iterator it2c;
+    std::list<matrix>::iterator it, itc, it_domain;
+    vector<LSbox*> grains;
+    vector<LSbox*>::iterator it2,it2c;
     
     voronoicell_neighbor c;
     
@@ -78,11 +78,12 @@ int main() {
     const int grid_blowup = int(((double)DELTA / h)+1); // number of grid points to extract the domain at each boundary
     
     int resized_m = m + (2*grid_blowup); //resize m
-    LSbox **ID; // array to asign a cell id to each grid point
-    ID = new LSbox*[2];
-	ID[0] = new LSbox[resized_m*resized_m];
-	ID[1] = new LSbox[resized_m*resized_m];
+    LSbox ***ID; // array to asign a cell id to each grid point
     
+    ID = new LSbox**[2];
+	ID[0] = new LSbox*[resized_m*resized_m];
+	ID[1] = new LSbox*[resized_m*resized_m];
+        
     double  (*fp)(double,int, int, int); // function pointer
     fp = &kernel;
     
@@ -135,17 +136,19 @@ int main() {
     con.draw_cells_gnuplot("random_points_v.gnu");
     
     // find cell information fpr each grid point
+    int gridIDs[m][m];
     for(int i=0; i < m; i++) for(int j=0; j < m; j++){
         x=double(i*h);y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-            ID[(i+grid_blowup)*resized_m + (j+grid_blowup)]=cell_id;
             part_pos[3*cell_id]=rx;
             part_pos[3*cell_id+1]=ry;
             part_pos[3*cell_id+2]=rz;
+	    gridIDs[i][j]=cell_id;
         }
         else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }
-    utils::save_2dim_array( ID, resized_m, resized_m , "IDmatrix.gnu");
+    // UMSTELLEN?!!!!
+//     utils::save_2dim_array( ID, resized_m, resized_m , "IDmatrix.gnu");
     
 	con.draw_cells_gnuplot("particles.gnu");
 	
@@ -183,8 +186,9 @@ int main() {
 	    } else cout << "success" << endl;
 		    
 	    // calculate distances
+	    
 	    newBox->distancefunction(c, ID, part_pos, grid_blowup, h);        
-	  
+
 	  } while(vl.inc());
 
 /*********************************************************************************/
@@ -193,8 +197,7 @@ int main() {
     for (it = domains.begin(), j = 0; it !=domains.end(); it++, j++){
         filename.str(std::string());
         filename << "Distanzmatrix";
-        vector<LSbox*> grains = (*it).getBoxList();
-        vector<LSbox*>::iterator it2;
+	grains = (*it).getBoxList();
         for (it2 = grains.begin(); it2 != grains.end(); it2++) {
             filename << "_" <<(*it2)->getID();
         }
@@ -214,7 +217,7 @@ for (it = domains.begin(); it !=domains.end(); it++){
 	vector<LSbox*> grains = (*it).getBoxList();
 	vector<LSbox*> grainstoComp;
 
-	for (itc=it;itc!=domains.end();itc++){
+	for (itc=it++;itc!=domains.end();itc++){
 		grainstoComp = itc->getBoxList();
 		for (it2=grains.begin();it2!=grains.end();it2++){
 			for(it2c=grainstoComp.begin();it2c!=grainstoComp.end();it2c++){
@@ -260,7 +263,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	domains_copy=domains;
 	
 	for (it = domains.begin(); it !=domains.end(); it++){	
-		(*it).convolution(dt);
+		(*it).convolution(dt, ID);
 	}
 	for (it = domains.begin(); it !=domains.end(); it++){
 		// Output			
@@ -320,15 +323,18 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	      /*********************************************************************************/
 	      // Comparison Step on boxes
 	      /*********************************************************************************/	
-			for (it = domains.begin(); it != domains.end(); it++){		     
+			    vector<LSbox*>::iterator it2;
+			    vector<LSbox*> grains;	
+			    for (it = domains.begin(); it != domains.end(); it++){		     
 				grains = (*it).getBoxList();
 				for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 					for (it2 = grains.begin(); it2 != grains.end(); it2++){
-						(*it2).comparison((*it_domain));
+						(*it2)->comparison((*it_domain));
 					}
 				}
 				for (it2 = grains.begin(); it2 != grains.end(); it2++){
-					(*it2).copy_distances_to_domain();
+					(**it2).comparison_set_to_domain();
+// 					(*it2).copy_distances_to_domain();
 				}
 			}
 	    }
@@ -421,6 +427,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				}
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
+				int length = domains.size();
 				if(i!=(length-1)) plotfiles << ",";
 			}
 		}
