@@ -12,7 +12,7 @@ SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/pm036929/Levelset/utilities.cpp" "/home/pm036929/Levelset/build/CMakeFiles/LevelSet_IMM.dir/utilities.cpp.o"
   "/home/pm036929/Levelset/vektor.cpp" "/home/pm036929/Levelset/build/CMakeFiles/LevelSet_IMM.dir/vektor.cpp.o"
   )
-SET(CMAKE_CXX_COMPILER_ID "Intel")
+SET(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Targets to which this target links.
 SET(CMAKE_TARGET_LINKED_INFO_FILES

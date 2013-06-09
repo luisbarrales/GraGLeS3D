@@ -10,6 +10,7 @@ set(MY_SOURCES box.cpp functions.cpp levelsetproject.cpp matrix.cpp outOfBoundsE
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS "-fno-stack-protector")
 
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 
 set(VORO++_FOUND true)

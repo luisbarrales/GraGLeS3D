@@ -194,8 +194,8 @@ matrix matrix::distancefunction(voronoicell_neighbor& c, LSbox ***&ID_mat, doubl
                         if((0. < lambda) && (lambda < 1.)) 	d= (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 					    d= (p-x2).laenge();
                         
-                        if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
-                        else d= -abs(d);
+//                         if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+//                         else d= -abs(d);
                         
                         if(abs(d)< abs(dmin)) dmin=d;
                     }
@@ -397,7 +397,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt, LSbox ***&ID){
+void matrix::convolution(const double dt, LSbox ***ID){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -410,6 +410,9 @@ void matrix::convolution(const double dt, LSbox ***&ID){
 	u = (double*)	fftw_malloc(m*n*sizeof(double));
 	v = (double*)	fftw_malloc(m*n*sizeof(double));
 	matrix_to_array(u);
+	char buffer;
+// 	cout << "here2 " << endl;
+// 	cin>> buffer;
 	makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
 	// 	utils::print_2dim_array(*fftTemp,1,m*n);
 	

@@ -95,11 +95,11 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, LSbox ***&ID_mat, d
                         if(lambda <= 0.) 					    d= (p-x1).laenge();
                         if((0. < lambda) && (lambda < 1.)) 		d= (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 					    d= (p-x2).laenge();
-                        if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
-                        else d= -abs(d);
-			cout << "ID klappt" << endl;
-			char buffer;
-                        cin >> buffer ;
+//                         if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+//                         else d= -abs(d);
+// 			cout << "ID klappt" << endl;
+// 			char buffer;
+//                         cin >> buffer ;
                         if(abs(d)< abs(dmin)) dmin=d;
                     }
                 }
@@ -238,7 +238,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
     
     int first_i, first_j;
     int current_i, current_j;
-	int next_i, next_j;
+    int next_i, next_j;
     char direction = 1; // x+
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 
@@ -263,7 +263,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 		cout << "search in y-direction" << endl;
 		int dist = xmax - xmin;
 		int j = xmin+ int(dist/2);
-		for (int i = ymin; i < ymax-1; i++) {
+		for (int i = ymin; i < ymax-1; i++) {	
 			if ((*domain)[i][j] * (*domain)[i+1][j] <= 0) {
 				first_i = i; 	first_j = j; 
 				current_i = i; 	current_j = j;
@@ -286,7 +286,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
     bool newZero = true;
 	int sgn = -1; //(1 = left turn; -1 right turn)  
 
-	// reste the min and max:
+	// reste the min and:
 	xmax = 0; xmin = M; ymax = 0; ymin = M;
     while (newZero) {
 		
@@ -403,11 +403,11 @@ void LSbox::copy_distances_to_domain(){
 void LSbox::comparison_set_to_domain(){
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
-			(*domain)[i][j]=(*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+  			(*domain)[i][j]=(*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 		}
 	}
-	delete [] distance;
-	distance = NULL;
+ 	delete [] distance;
+ 	distance = NULL;
 }
 
 
@@ -459,20 +459,21 @@ void LSbox::comparison(const matrix &domain_copy){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
-				if(xmin < (**it).xmin) {
-					x_min_new = (**it).xmin;
+				if(xmin < (**it_nn).xmin) {
+				  //it oder it_nn 
+					x_min_new = (**it_nn).xmin;
 					x_max_new = xmax;
 				} else {
 					x_min_new = xmin;
-					x_max_new = (**it).xmax;
+					x_max_new = (**it_nn).xmax;
 				}
 				
-				if(ymin < (**it).ymin) {
-					y_min_new = (**it).ymin;
+				if(ymin < (**it_nn).ymin) {
+					y_min_new = (**it_nn).ymin;
 					y_max_new = ymax;
 				} else {
 					y_min_new = ymin;
-					y_max_new = (**it).ymax;
+					y_max_new = (**it_nn).ymax;
 				}	
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
