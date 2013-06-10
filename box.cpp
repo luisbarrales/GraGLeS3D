@@ -403,7 +403,7 @@ void LSbox::copy_distances_to_domain(){
 void LSbox::comparison_set_to_domain(){
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
-  			(*domain)[i][j]=(*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+  			(*domain)[i][j]=0.5*((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 		}
 	}
  	delete [] distance;

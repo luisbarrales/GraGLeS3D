@@ -233,7 +233,7 @@ for (it = domains.begin(); it !=domains.end(); it++){
 	}
 }
 
-
+cout << "start main loop: \n"; 
 	
 /*********************************************************************************/
 // MAIN LOOP
@@ -245,7 +245,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 	stringstream plotfiles;
 	plotfiles.str(std::string());  
-	
+
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
@@ -260,13 +260,14 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		}
 	}*/
 	// ACHTUNG hier kopieren wir die ganze LISTE!
+	cout << " convolution sart";
 	domains_copy=domains;
 	if (loop!=0){
 	  
 	  for (it = domains.begin(); it !=domains.end(); it++){	
 		  (*it).convolution(dt, ID);
 	  }
-
+	
 	  for (it = domains.begin(); it !=domains.end(); it++){
 		  // Output			
 		  if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
@@ -289,64 +290,66 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	}
 	
 
-	
+
 	/*********************************************************************************/
 	// Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
 	/*********************************************************************************/
 	// Create a list for storing the new distances after comparison
 
-	    /*********************************************************************************/
-	    // Comparison Step with domains
-	    /*********************************************************************************/
-	    if(DOMAINCOMPARISON==true){
-		  domains_copy = domains;
+	/*********************************************************************************/
+	// Comparison Step with domains
+	/*********************************************************************************/
+	if(DOMAINCOMPARISON==true){
+		domains_copy = domains;		
 		for (it = domains.begin(); it != domains.end(); it++){		  
-		  (*it).comparison(domains_copy, grid_blowup);
-			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-			  vector<LSbox*>::iterator it2;
-			  vector<LSbox*> grains;    
-			  
-			  filename.str(std::string());
-			  filename << "Comparedmatrix_"<< "T"<<loop;;
-			  grains = (*it).getBoxList();
-			 
-			  for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-			    filename << "_"<<(*it2)->getID();
-			  }
-			  
-			  filename << ".gnu";
-			  if (SAFEFILES) {
-			    (*it).save_matrix(filename.str().c_str());
-			    cout << filename.str() << endl << endl;
-			  }
-			}
+			(*it).comparison(domains_copy, grid_blowup);
 		}
-	    }
-	    
-	    else {
-	      /*********************************************************************************/
-	      // Comparison Step on boxes
-	      /*********************************************************************************/	
-			    vector<LSbox*>::iterator it2;
-			    vector<LSbox*> grains;	
-			    domains_copy = domains;
-			    for (it = domains.begin(); it != domains.end(); it++){		     
-				grains = (*it).getBoxList();
-				for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
-					for (it2 = grains.begin(); it2 != grains.end(); it2++){
-					  (*it2)->comparison((*it_domain));
-					}
+	}
+	
+	else {
+		/*********************************************************************************/
+		// Comparison Step on boxes
+		/*********************************************************************************/	
+		vector<LSbox*>::iterator it2;
+		vector<LSbox*> grains;	
+		domains_copy = domains;
+		for (it = domains.begin(); it != domains.end(); it++){		     
+			grains = (*it).getBoxList();
+			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
+				for (it2 = grains.begin(); it2 != grains.end(); it2++){
+					(*it2)->comparison(*it_domain);
 				}
-				  for (it2 = grains.begin(); it2 != grains.end(); it2++){
-					(**it2).comparison_set_to_domain();
-// 					(*it2).copy_distances_to_domain();
-				}
-				cout << " here Comp"<< (*it).get_id() << endl;
-				cin >> buffer2;
 			}
-	    }
-	    
-	    
+			for (it2 = grains.begin(); it2 != grains.end(); it2++){
+				(**it2).comparison_set_to_domain();
+	// 			(*it2).copy_distances_to_domain();
+			}
+			cout << " here Comp"<< (*it).get_id() << endl;
+			cin >> buffer2;
+		}
+	}
+	if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+		
+		for (it = domains.begin(); it != domains.end(); it++){
+				vector<LSbox*>::iterator it2;
+				vector<LSbox*> grains;    
+				
+				filename.str(std::string());
+				filename << "Comparedmatrix_"<< "T"<<loop;;
+				grains = (*it).getBoxList();
+				
+				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+				filename << "_"<<(*it2)->getID();
+				}
+				
+				filename << ".gnu";
+				if (SAFEFILES) {
+				(*it).save_matrix(filename.str().c_str());
+				cout << filename.str() << endl << endl;
+				}
+		}
+	}
+
 /*************** 			Auskommentierter Code von Comparison ************/
 /*			bool exist = false;
 			exist = (*it).comparison(domains_copy, grid_blowup);
