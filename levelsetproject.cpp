@@ -219,23 +219,25 @@ int main() {
 // Determine the box' neighbors 
 
 cout << "determine neighbors: \n" << endl;
+
 for (it = domains.begin(); it !=domains.end(); it++){
-	vector<LSbox*> grains = (*it).getBoxList();
+	vector<LSbox*> grains = it->getBoxList();
 	vector<LSbox*> grainstoComp;
 	vector<LSbox*> ::iterator itl, itlc;
 	cout <<"\nwork in progress for domain: " << (*it).get_id() << endl;
-	
-	for (itc=it++; itc!=domains.end(); itc++){
+	itc = it++;
+	it--;
+	for (itc; itc!=domains.end(); itc++){
 		grainstoComp = itc->getBoxList();
 		
-		for (itl=grains.begin(); itl!=grains.end(); itl++){
+		for (itl = grains.begin(); itl != grains.end(); itl++){
 			
-			for(itlc=grainstoComp.begin(); itlc!=grainstoComp.end(); itlc++){
+			for(itlc = grainstoComp.begin(); itlc != grainstoComp.end(); itlc++){
 				
-				if ((*itlc)->getID()!=(*itl)->getID()){ // wozu ist diese abfrage?
+				if ((*itlc)->getID()!=(*itl)->getID()){ // wozu ist diese abfrage? --- Damit die Boxen nicht Nachbarn von sich selbst sind
 					if((*itl)->checkIntersect(*itlc)){
-// 						(*itl)->neighbors.push_back(*it2c);
-// 						(*it2c)->neighbors.push_back(*itl);
+						(*itl)->neighbors.push_back(*itlc);
+						(*itlc)->neighbors.push_back(*itl);
 // 						cout <<"Grain: "<< (*(*it2)).getID() << " with Grain: " << (*(*it2c)).getID()<<endl;
 					}
 				}

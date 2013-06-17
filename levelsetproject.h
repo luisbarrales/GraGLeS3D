@@ -10,7 +10,7 @@
 #define PI 3.14159265358979323846
 
 
-#define TIMESTEPS 1
+#define TIMESTEPS 15
 #define PRINTSTEP 1
 #define PARTICLES 5
 
@@ -18,7 +18,7 @@
 
 #define SAFEFILES true
 #define IMAGEOUT true
-#define PLOTGNU true
+#define PLOTGNU false
 #define EULER true
 #define DOMAINCOMPARISON false
 

@@ -303,7 +303,8 @@ void LSbox::comparison(const matrix &domain_copy){
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
-	if(distance == NULL) distance = new double [(ymax-ymin)*(xmax-xmin)]; 
+	if(distance == NULL) distance = new double [(ymax-ymin)*(xmax-xmin)];
+	std::fill_n(distance,(ymax-ymin)*(xmax-xmin), 0); //IMPORTANT!
 	
 	if(neighbors.empty()) return;
 	
