@@ -159,7 +159,7 @@ void matrix::mult_with_scalar(const double d){
 }
     
 
-matrix matrix::distancefunction(voronoicell_neighbor& c, LSbox ***&ID_mat, double *part_pos, int grid_blowup, double h){
+matrix matrix::distancefunction(voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h){
     int i,j,k;
 	double d, dmin,lambda;
 	int m=get_m();
@@ -193,9 +193,9 @@ matrix matrix::distancefunction(voronoicell_neighbor& c, LSbox ***&ID_mat, doubl
                         if(lambda <= 0.) 					    d= (p-x1).laenge();
                         if((0. < lambda) && (lambda < 1.)) 	d= (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 					    d= (p-x2).laenge();
-                        
-//                         if(id==(ID_mat[0][i*m +j])->getID() && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
-//                         else d= -abs(d);
+//                     (ID_mat[0][i*m +j])->getID()    
+                        if(id==gridIDs[i*m +j] && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+                        else d= -abs(d);
                         
                         if(abs(d)< abs(dmin)) dmin=d;
                     }
@@ -278,26 +278,8 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
     
     // check for intersects
  
-    if (!grains.empty())
-    for (it = grains.begin(); it != grains.end()-1; ++it) {
-        for (it2 = it+1; it2 != grains.end(); ++it2) {
-            // on intersect ad box to buffer and erase from grain list
-            if ((*it)->checkIntersect(*it2)) {
-                cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
-				(*it)->copy_distances();
-                buffer.push_back(*it);
-                grains.erase(it); it--;
-                break;
-            }
-        }
-    }
-    else return false;
-    return true;
-/*
-    if (!grains.empty()) {
-		// check for intersects
-		it = grains.begin();
-		while (it != grains.end()-1) {
+    if (!grains.empty()) 
+		for (it = grains.begin(); it != grains.end()-1; ++it) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
 				// on intersect ad box to buffer and erase from grain list
 				if ((*it)->checkIntersect(*it2)) {
@@ -308,13 +290,10 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 					break;
 				}
 			}
-			it++;			
 		}
-	}
-	
-	if (!grains.empty()) return true;
-	else return false;
-*/   
+    else return false; // falls grains.empty() == true
+    return true;
+
 }
 
 
@@ -411,18 +390,8 @@ void matrix::convolution(const double dt, LSbox ***ID){
 	v = (double*)	fftw_malloc(m*n*sizeof(double));
 	matrix_to_array(u);
 	char buffer;
-// 	cout << "here2 " << endl;
-// 	cin>> buffer;
 	makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
-	// 	utils::print_2dim_array(*fftTemp,1,m*n);
-	
-	//     matrix_to_array(v);
 	conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
-	
-	// 	for(int i=0; i< n*n; i++) {v[i]-=u[i]; cout << u[i] << " | ";}
-	// 	cout << endl <<endl << flush;
-	//  diff.matrix_to_array(v);
-	//  iff.save_matrix("diff.gnu");
 	
 	/*********************************************************************************/
 	// Velocity Corrector Step: 
@@ -482,6 +451,9 @@ matrix matrix::energy_correction(const LSbox ***&ID){
 
 //TO DO: umschreiben auf boxconzept
 
+
+// Status: Funktion unvollständig!!
+
 bool matrix::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
     int m= get_m();
     int n= get_n();
@@ -504,22 +476,6 @@ bool matrix::discrete_convolution(const double dt, const double h, const int gri
 	return(exist);
 }
 
-
-
-
-/*********************************************************************************/
-// five point formula for solving pde
-/*********************************************************************************/
-
-// void matrix::five_point_formula(const double dt, const double dx){
-//     int m= get_m();
-//     matrix erg(m,m);
-//     erg = *this;
-//     for (int i=1;i< m-1;i++)
-//         for (int j=1;j< m-1;j++)
-//             if (erg[i][j] > -DELTA) erg[i][j] += (dt *  1/(dx*dx) * ((( *x[i+1])[j] - (2 * (*x[i])[j]) + (*x[i-1])[j] ) + (( *x[i])[j+1] - (2 * (*x[i])[j]) + (*x[i])[j-1] )));
-//     *this= erg;
-// }
 
 
 /*********************************************************************************/
@@ -560,35 +516,24 @@ int matrix::minimumInPoint(std::list<matrix> distances, int m, int n, int neglec
 // Comparison step 0.5 *(A_k(x) - max A_i(x) | i!=k)*/
 /*********************************************************************************/
 
-
-
-
 void matrix::comparison(std::list<matrix> distances, int grid_blowup){
-	// vector<LSbox*> buffer = this->grains;
-	// Copying neccessary? already existing in the copy of the distances
-
-	std::list<matrix>::iterator it;
+	std::list<matrix>::iterator it = distances.begin();
 	std::list<matrix>::iterator it_current_grain;
-	it = distances.begin();
-	// 	double boundary_value = -0.5;
+	
 	int m = get_m();
 	int n = get_n();
 	matrix Max(m,n);
-// 	bool exist = false;
-	
+
 	if (id == (*it).id) Max = *(++it);
 	else Max = *it;
 	
 	for (it = distances.begin(); it != distances.end(); it++ ){
-		if (id != (*it).id) {
-			Max.maximum(Max,*it);
-		}
+		if (id != (*it).id) Max.maximum(Max,*it);
 		else it_current_grain = it;
 	}
 	
 	Max = ((*it_current_grain)-Max);
 	Max.mult_with_scalar(0.5);
-	Max.save_matrix("Max.gnu");
 	*this = Max;
 	
 	for (int i = 0; i < m; i++) {
@@ -596,12 +541,8 @@ void matrix::comparison(std::list<matrix> distances, int grid_blowup){
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
 				(*this)[i][j] = INTERIMVAL;
 			}
-// 			else if((*this)[i][j] >= 0) exist = true;
 		}
 	}
-	
-// 	this->grains == buffer;
-// 	return (exist);
 }
         
 /*********************************************************************************/
@@ -613,9 +554,6 @@ void matrix::clear_domain(double value){
         for (int j = 0; j < n; j++) (*this)[i][j] = value;
 	}
 }
-
-
-
 
 
 void matrix::redistancing_for_all_boxes(double h, int grid_blowup){
@@ -707,6 +645,9 @@ void matrix::redistancing(double h, int grid_blowup){
 
 // this version needs only to runs over the grid
 // therefor we always look in two directions
+
+
+// BESTE VARIANTE!!!
 /*********************************************************************************/
         
 void matrix::redistancing_2(double h, int grid_blowup){
@@ -785,119 +726,108 @@ void matrix::redistancing_2(double h, int grid_blowup){
 // 		computed the distances with a slopefactor
 /*********************************************************************************/
 
-	void matrix::redistancing_advanced(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField) {
-		int n = get_n();
-		int m = get_m();
-		matrix *temp = new matrix(m,n,id);
-		
-		double limiter = DELTA;
-		double slope = 1;
-					
-		// x-direction forward
-		for (int i = 0; i < m; i++) {
-			slope = 1;
-			for (int j = 0; j < n-1; j++) {
-				if (j==0) (*temp)[i][j] = -limiter;
-				(*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
+void matrix::redistancing_advanced(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField) {
+	int n = get_n();
+	int m = get_m();
+	matrix *temp = new matrix(m,n,id);
+	
+	double limiter = DELTA;
+	double slope = 1;
 				
-				// check for sign change
-				if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
-					// find grain with minimal distance to [i][j]
-					int rightID = (*this).id;
-					int leftID = minimumInPoint(distances, i, j, rightID);
-					slope = borderSlopes[leftID][rightID];
-					
-					if (slope == 0) slope = 1;
-					
-					// interpolate
-					double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
-					double zero = -(*this)[i][j] / i_slope;
-					if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
-				}
-				// calculate new distance candidate and assign if appropriate
-				double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slope); 
-				if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
+	// x-direction forward
+	for (int i = 0; i < m; i++) {
+		slope = 1;
+		for (int j = 0; j < n-1; j++) {
+			if (j==0) (*temp)[i][j] = -limiter;
+			(*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
+			
+			// check for sign change
+			if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
+				// find grain with minimal distance to [i][j]
+				int rightID = (*this).id;
+				int leftID = minimumInPoint(distances, i, j, rightID);
+				slope = borderSlopes[leftID][rightID];				
+				if (slope == 0) slope = 1;				
+				// interpolate
+				double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
+				double zero = -(*this)[i][j] / i_slope;
+				if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 			}
+			// calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slope); 
+			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
 		}
-		
-		// y-direction forward
-		for (int j = 0; j < n; j++) {
-			slope = 1;
-			for (int i = 0; i < m-1; i++) {
-				
-				// check for sign change
-				if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {
-					// find grain with minimal distance to [i][j]
-					int bottomID = (*this).id;
-					int topID = minimumInPoint(distances, i, j, bottomID);
-					slope = borderSlopes[topID][bottomID];
-					
-					if (slope == 0) slope = 1;
-					
-					// interpolate
-					double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
-					double zero = -(*this)[i][j] / i_slope;
-					if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
-				}
-				// calculate new distance candidate and assign if appropriate
-				double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h * slope);
-				if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
+	}
+	
+	// y-direction forward
+	for (int j = 0; j < n; j++) {
+		slope = 1;
+		for (int i = 0; i < m-1; i++) {			
+			// check for sign change
+			if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {
+				// find grain with minimal distance to [i][j]
+				int bottomID = (*this).id;
+				int topID = minimumInPoint(distances, i, j, bottomID);
+				slope = borderSlopes[topID][bottomID];				
+				if (slope == 0) slope = 1;				
+				// interpolate
+				double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+				double zero = -(*this)[i][j] / i_slope;
+				if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 			}
+			// calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h * slope);
+			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
 		}
-		
-		// x-direction backward
-		for (int i = 0; i < m; i++) {
-			slope = 1;
-			for (int j = n-1; j > 0; j--) {
+	}
+	
+	// x-direction backward
+	for (int i = 0; i < m; i++) {
+		slope = 1;
+		for (int j = n-1; j > 0; j--) {			
+			// check for sign change
+			if ((*this)[i][j] * (*this)[i][j-1] < 0.0) {
+				// find grain with minimal distance to [i][j]
+				int leftID = (*this).id;
+				int rightID = minimumInPoint(distances, i, j, leftID);
+				slope = borderSlopes[leftID][rightID];
 				
-				// check for sign change
-				if ((*this)[i][j] * (*this)[i][j-1] < 0.0) {
-					// find grain with minimal distance to [i][j]
-					int leftID = (*this).id;
-					int rightID = minimumInPoint(distances, i, j, leftID);
-					slope = borderSlopes[leftID][rightID];
-					
-					if (slope == 0) slope = 1;
-				}
-				
-				
-				
-				// calculate new distance candidate and assign if appropriate
-				double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slope); // replace with the "a"-slope stuff...
-				if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
-			}
+				if (slope == 0) slope = 1;
+			}			
+			// calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slope); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
 		}
-		
-		
-		// y-direction backward
-		for (int j = 0; j < n; j++) {
-			slope = 1;
-			for (int i = m-1; i > 0; i--) {
-				
-				// check for sign change
-				if ((*this)[i][j] * (*this)[i-1][j] < 0.0) {
-					// find grain with minimal distance to [i][j]
-					int topID = (*this).id;
-					int bottomID = minimumInPoint(distances, i, j, topID);
-					slope = borderSlopes[topID][bottomID];
-					
-					if (slope == 0) slope = 1;
-				}
-				
-				// calculate new distance candidate and assign if appropriate
-				double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h * slope); // replace with the "a"-slope stuff...
-				if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
-			}
-		}
-		
-		*this = *temp;
-		delete temp;
 	}
 	
 	
+	// y-direction backward
+	for (int j = 0; j < n; j++) {
+		slope = 1;
+		for (int i = m-1; i > 0; i--) {			
+			// check for sign change
+			if ((*this)[i][j] * (*this)[i-1][j] < 0.0) {
+				// find grain with minimal distance to [i][j]
+				int topID = (*this).id;
+				int bottomID = minimumInPoint(distances, i, j, topID);
+				slope = borderSlopes[topID][bottomID];
+				
+				if (slope == 0) slope = 1;
+			}			
+			// calculate new distance candidate and assign if appropriate
+			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h * slope); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
+		}
+	}
 	
-	int matrix::get_m() const { return m; };
-	int matrix::get_n() const { return n; };
-	int matrix::get_id() const { return id; };
-	int matrix::get_nr_of_grains() { return grains.size(); };
+	*this = *temp;
+	delete temp;
+}
+	
+	
+	
+int matrix::get_m() const { return m; };
+int matrix::get_n() const { return n; };
+int matrix::get_id() const { return id; };
+int matrix::get_nr_of_grains() { return grains.size(); };
 	

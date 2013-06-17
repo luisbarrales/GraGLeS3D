@@ -36,7 +36,7 @@ public:
     matrix	operator/(matrix& A);
 	double entry(const int i, const int j);
 
-	matrix distancefunction(voro::voronoicell_neighbor& c, LSbox ***&ID_mat, double *part_pos, int grid_blowup, double h);
+	matrix distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
 	matrix energy_correction(const LSbox ***&ST);
 	// grain check: Erklärung anfügen!!
     bool grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
@@ -56,10 +56,7 @@ public:
     void redistancing_advanced(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
     void redistancing(double h, int grid_blowup);
 	void redistancing_2(double h, int grid_blowup);
-	void fastSweepingStepX(int mPos, int nPos, double h, char sign );
-    void fastSweepingStepY(int mPos, int nPos, double h, char sign );
-    
-	void five_point_formula(const double dt, const double dx);
+
 	bool discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int));
 	void comparison(std::list<matrix> distances, int grid_blowup);
 	void save_matrix(const char* filename ); //schreibt datei für gnuplotskript

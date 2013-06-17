@@ -77,7 +77,7 @@ int main() {
     const double h = 1.0/double(m); // there are m-2*gridbloup grid points in each direction in the domain
     const int grid_blowup = int(((double)DELTA / h)+1); // number of grid points to extract the domain at each boundary
     
-    int resized_m = m + (2*grid_blowup); //resize m
+    int resized_m = m + (2*grid_blowup); 
     LSbox ***ID; // array to asign a cell id to each grid point
     
     ID = new LSbox**[2];
@@ -94,7 +94,7 @@ int main() {
     //program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << PARTICLES << endl;
-    if (!EULER ) cout << "FFT "<< endl; else cout << "EULER FORWARD "<< endl;
+//     if (!EULER ) cout << "FFT "<< endl; else cout << "EULER FORWARD "<< endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << M << endl << endl;
@@ -125,34 +125,33 @@ int main() {
 			ST[j+(PARTICLES*i)] = zahl;
 		}
 		
-	/*utils::print_2dim_array(ST, PARTICLES, PARTICLES);
-	
-// 	*/
-// 	cin >> buffer;
-
-	
+	//utils::print_2dim_array(ST, PARTICLES, PARTICLES)
     
     // 	Output the Voronoi cells to a file, in the gnuplot format
     con.draw_cells_gnuplot("random_points_v.gnu");
     
     // find cell information fpr each grid point
-    int gridIDs[m][m];
+    int *gridIDs;
+	gridIDs = (int*) calloc (resized_m*resized_m,sizeof(int)); //new int[resized_m*resized_m];
     for(int i=0; i < m; i++) for(int j=0; j < m; j++){
         x=double(i*h);y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-            part_pos[3*cell_id]=rx;
-            part_pos[3*cell_id+1]=ry;
-            part_pos[3*cell_id+2]=rz;
-	    gridIDs[i][j]=cell_id;
+			cell_id= cell_id+1;
+			part_pos[3*(cell_id-1)]=rx;
+            part_pos[3*(cell_id-1)+1]=ry;
+            part_pos[3*(cell_id-1)+2]=rz;
+			gridIDs[(i+grid_blowup)*resized_m + j + grid_blowup]= cell_id;
         }
         else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }
     // UMSTELLEN?!!!!
-//     utils::save_2dim_array( ID, resized_m, resized_m , "IDmatrix.gnu");
+//     utils::save_2dim_array( gridIDs, resized_m, resized_m , "IDmatrix.gnu");
     
 	con.draw_cells_gnuplot("particles.gnu");
 	
 	
+// 	utils::print_2dim_array(gridIDs,resized_m,resized_m);
+
 /*********************************************************************************/
 // Initialisation: Voronoizellen -> Box
 /*********************************************************************************/
@@ -163,10 +162,11 @@ int main() {
 	  do {
 	    // compute the current cell, taken out of the container
 	    con.compute_cell(c,vl);
-	    cell_order[particles-1-i]=vl.pid();
+	    cell_order[particles-1-i]=(vl.pid()+1);
 	    
 	    // create a new Box for the current cell
-	    LSbox* newBox = new LSbox(vl.pid(), c, part_pos, grid_blowup, h);
+		int box_id = vl.pid()+1;
+	    LSbox* newBox = new LSbox(box_id, c, part_pos, grid_blowup, h);
 	    // find domain for new box
 	    bool foundDomain = false;
 	    cout << "trying to add a box -- ";
@@ -179,7 +179,7 @@ int main() {
 	  
 	    if (!foundDomain) {
 		// create domain
-		cout << "failed: creating new domain" << endl;
+		cout << "failed; creating new domain:" << endl;
 			    domains.emplace_back(resized_m,resized_m, i,INTERIMVAL);  // = push_back
 			    i++;
 		domains.back().addBox(newBox);            
@@ -187,17 +187,21 @@ int main() {
 		    
 	    // calculate distances
 	    
-	    newBox->distancefunction(c, ID, part_pos, grid_blowup, h);        
+	    newBox->distancefunction(c, gridIDs, part_pos, grid_blowup, h);        
 
 	  } while(vl.inc());
+
 
 /*********************************************************************************/
 
     int j;
     for (it = domains.begin(), j = 0; it !=domains.end(); it++, j++){
+// 		vector<LSbox*> grains = (*it).getBoxList();
+// 		for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(); }
+		
         filename.str(std::string());
         filename << "Distanzmatrix";
-	grains = (*it).getBoxList();
+		grains = (*it).getBoxList();
         for (it2 = grains.begin(); it2 != grains.end(); it2++) {
             filename << "_" <<(*it2)->getID();
         }
@@ -211,34 +215,52 @@ int main() {
 /*********************************************************************************/
 
 
+
 // Determine the box' neighbors 
 
+cout << "determine neighbors: \n" << endl;
 for (it = domains.begin(); it !=domains.end(); it++){
 	vector<LSbox*> grains = (*it).getBoxList();
 	vector<LSbox*> grainstoComp;
-
-	for (itc=it++;itc!=domains.end();itc++){
+	vector<LSbox*> ::iterator itl, itlc;
+	cout <<"\nwork in progress for domain: " << (*it).get_id() << endl;
+	
+	for (itc=it++; itc!=domains.end(); itc++){
 		grainstoComp = itc->getBoxList();
-		for (it2=grains.begin();it2!=grains.end();it2++){
-			for(it2c=grainstoComp.begin();it2c!=grainstoComp.end();it2c++){
-				if ((*it2)->getID()!=(*it2c)->getID()){
-					if((*it2)->checkIntersect(*it2c)){
-						(*it2) ->	neighbors.push_back(*it2c);
-						(*it2c)->	neighbors.push_back(*it2);
+		
+		for (itl=grains.begin(); itl!=grains.end(); itl++){
+			
+			for(itlc=grainstoComp.begin(); itlc!=grainstoComp.end(); itlc++){
+				
+				if ((*itlc)->getID()!=(*itl)->getID()){ // wozu ist diese abfrage?
+					if((*itl)->checkIntersect(*itlc)){
+// 						(*itl)->neighbors.push_back(*it2c);
+// 						(*it2c)->neighbors.push_back(*itl);
 // 						cout <<"Grain: "<< (*(*it2)).getID() << " with Grain: " << (*(*it2c)).getID()<<endl;
 					}
 				}
+				
 			}
+			
 		}
+		
 	}
+	
+	for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(); }
 }
 
-cout << "start main loop: \n"; 
+cout << "\n \nready!" << endl;
+	
+	
+	
+	
+	
 	
 /*********************************************************************************/
 // MAIN LOOP
 /*********************************************************************************/
-
+cout << "start main loop: \n"; 
+	
 vector<int> nr_grains(TIMESTEPS);
 
 for(int loop=0; loop <= TIMESTEPS; loop++){
@@ -249,52 +271,42 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	/*********************************************************************************/
 	// Convolution simulates grain growth
 	/*********************************************************************************/
-	/*if(!EULER){
-		for (it = domains.begin(); it !=domains.end(); it++){	
-			(*it).convolution(dt);
-		}
-	}
-	else {
-		for (it = domains.begin(); it !=domains.end(); it++){	
-		 (*it).euler(dt_e,h);
-		}
-	}*/
+	
 	// ACHTUNG hier kopieren wir die ganze LISTE!
-	cout << " convolution sart";
+	cout << "convolution start \n";
 	domains_copy=domains;
-	if (loop!=0){
+	if (loop!=10){
 	  
-	  for (it = domains.begin(); it !=domains.end(); it++){	
-		  (*it).convolution(dt, ID);
-	  }
-	
-	  for (it = domains.begin(); it !=domains.end(); it++){
-		  // Output			
-		  if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-			  filename.str(std::string());
-			  filename << "Convolutedmatrix_";
-			  vector<LSbox*> grains = (*it).getBoxList();
-			  vector<LSbox*>::iterator it2;
-			  filename << "T"<<loop;
-			  for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-				  filename << "_"<<(*it2)->getID();
-			  }
-			  filename << ".gnu";
-			  if (SAFEFILES) {
-				  (*it).save_matrix(filename.str().c_str());
-				  cout << filename.str() << endl << endl;
-			  }
-		  }
-	  }
+		for (it = domains.begin(); it !=domains.end(); it++){	
+			(*it).convolution(dt, ID);
+		}
 
+		// Output	
+		for (it = domains.begin(); it !=domains.end(); it++){		
+			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+				filename.str(std::string());
+				filename << "Convolutedmatrix_";
+				vector<LSbox*> grains = (*it).getBoxList();
+				vector<LSbox*>::iterator it2;
+				filename << "T"<<loop;
+				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+					filename << "_"<<(*it2)->getID();
+				}
+				filename << ".gnu";
+				if (SAFEFILES) {
+					(*it).save_matrix(filename.str().c_str());
+					cout << filename.str() << endl << endl;
+				}
+			}
+		}
 	}
 	
 
 
-	/*********************************************************************************/
-	// Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
-	/*********************************************************************************/
-	// Create a list for storing the new distances after comparison
+/*************************************************************************************/
+// Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
+/*************************************************************************************/
+
 
 	/*********************************************************************************/
 	// Comparison Step with domains
@@ -303,41 +315,15 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		domains_copy = domains;		
 		for (it = domains.begin(); it != domains.end(); it++){		  
 			(*it).comparison(domains_copy, grid_blowup);
-		}
-	}
-	
-	else {
-		/*********************************************************************************/
-		// Comparison Step on boxes
-		/*********************************************************************************/	
-		vector<LSbox*>::iterator it2;
-		vector<LSbox*> grains;	
-		domains_copy = domains;
-		for (it = domains.begin(); it != domains.end(); it++){		     
-			grains = (*it).getBoxList();
-			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
-				for (it2 = grains.begin(); it2 != grains.end(); it2++){
-					(*it2)->comparison(*it_domain);
-				}
-			}
-			for (it2 = grains.begin(); it2 != grains.end(); it2++){
-				(**it2).comparison_set_to_domain();
-	// 			(*it2).copy_distances_to_domain();
-			}
-			cout << " here Comp"<< (*it).get_id() << endl;
-			cin >> buffer2;
-		}
-	}
-	if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-		
-		for (it = domains.begin(); it != domains.end(); it++){
-				vector<LSbox*>::iterator it2;
-				vector<LSbox*> grains;    
+			
+			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				
-				filename.str(std::string());
-				filename << "Comparedmatrix_"<< "T"<<loop;;
+				vector<LSbox*>::iterator it2;
+				vector<LSbox*> grains;				
 				grains = (*it).getBoxList();
 				
+				filename.str(std::string());
+				filename << "Comparedmatrix_"<< "T"<<loop;
 				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
 				filename << "_"<<(*it2)->getID();
 				}
@@ -346,23 +332,48 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
 				cout << filename.str() << endl << endl;
-				}
+				}		
+			}
 		}
 	}
-
-/*************** 			Auskommentierter Code von Comparison ************/
-/*			bool exist = false;
-			exist = (*it).comparison(domains_copy, grid_blowup);
+	
+	else {
+		/*********************************************************************************/
+		// Comparison Step on boxes
+		/*********************************************************************************/	
 		
-	// 		if (exist == false) {
-	// 			cout << "now we delete domain: "<< (*itc).get_id() << endl << endl;
-	// 			itc = compared_domains.erase(itc);
-	// 			itc--;
-	// 			it = domains.erase(it);
-	// 			it--;
-	// 		}
-	// 		else {
-*/
+		vector<LSbox*> grains;	
+		vector<LSbox*>::iterator it2;
+		domains_copy = domains;
+		for (it = domains.begin(); it != domains.end(); it++){		     
+			grains = (*it).getBoxList();
+			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
+				// 
+				for (it2 = grains.begin(); it2 != grains.end(); it2++){
+					(*it2)->comparison(*it_domain);
+				}
+			}
+			
+			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+				filename.str(std::string());
+				filename << "Comparedmatrix_"<< "T"<<loop;
+			}
+			for (it2 = grains.begin(); it2 != grains.end(); it2++){
+				if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) filename << "_"<<(*it2)->getID();
+				(**it2).comparison_set_to_domain();
+	// 			(*it2).copy_distances_to_domain();
+			}
+			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+				filename << ".gnu";
+				if (SAFEFILES) {
+				(*it).save_matrix(filename.str().c_str());
+				cout << filename.str() << endl << endl;
+				}
+			}
+		}
+	}
+	
+
 
 			
 
@@ -376,10 +387,13 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	// Speichert Nullstellen als NNZ-OBjekt in jeder Box
 	// Testet Boxen auf Konlikte
 	// Verschiebt "Konfliktboxen" in andere Domain
-	
-	
+		
 	// Ist dieser Schritt in jedem Zeitschritt notwenig????
 	
+	
+	/*****************************************************************/
+	// checking for existence ++ resizing the boxes ++ swaping grains
+	/*****************************************************************/
 	vector<LSbox*> buffer;
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
@@ -399,13 +413,13 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		domains.emplace_back(resized_m,resized_m, i,INTERIMVAL);
 		domains.back().grainCheck(h, grid_blowup, buffer);
 	}
+	
+	
+	
+	
 	/****************************************************/
-	
-	
-	
-
-	
-	
+	// fast sweeping
+	/****************************************************/
 	
 	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		//Nullstellenverfolgung:
@@ -414,10 +428,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		// Intern können verschiedenRedistancing Routinen verwendet werden
 
 		(*it).redistancing_2(h, grid_blowup);		
-		(*it).redistancing_2(h, grid_blowup);
-		//doppelt?
-		// (*it).clear_domain(INTERIMVAL);
-		// (*it).redistancing_for_all_boxes(h, grid_blowup);
+
 		nr_grains[loop]+=(*it).get_nr_of_grains();
 		
 		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
@@ -485,7 +496,10 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 /*******************************************************************************************/
 // end of simulation
+// Endausgabe
 /*******************************************************************************************/
+	
+
 	ofstream myfile;
 	myfile.open ("kinetics.txt");
 	for(int i=0; i< TIMESTEPS; i++)
@@ -496,6 +510,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 //	//utils::print_2dim_array( ID, m, m );
 	
- 	free (ID);    
+ 	free (gridIDs);  
+	delete [] ID[0];
+	delete [] ID[1];
+	
 	return 0;
 }
