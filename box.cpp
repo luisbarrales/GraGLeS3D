@@ -303,8 +303,9 @@ void LSbox::comparison(const matrix &domain_copy){
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
-	if(distance == NULL) distance = new double [(ymax-ymin)*(xmax-xmin)];
-	std::fill_n(distance,(ymax-ymin)*(xmax-xmin), 0); //IMPORTANT!
+	if(distance == NULL) 
+	{distance = new double [(ymax-ymin)*(xmax-xmin)];
+	std::fill_n(distance,(ymax-ymin)*(xmax-xmin), 0); //IMPORTANT!}
 	
 	if(neighbors.empty()) return;
 	
@@ -332,7 +333,8 @@ void LSbox::comparison(const matrix &domain_copy){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 							if (distance[(i-y_min_new)*(x_max_new-x_min_new)+(j-x_min_new)] < domain_copy[i][j]) 
-								distance[(i-y_min_new)*(x_max_new-x_min_new)+(j-x_min_new)] = domain_copy[i][j];
+							  //klappt das mit dem x min xmax?? Versuch mit 2d feld??
+								distance[(i-y_min_new)*(x_max_new-x_min_new)+(j-x_min_new)] =  domain_copy[i][j];
 					}
 				}
 			}
