@@ -377,7 +377,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	
 
 
-			
+	cout << "Comparison Complete" << endl;		
 
 //*********************************************************************************/
 // Redistancing Step
@@ -399,7 +399,6 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	vector<LSbox*> buffer;
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
-		char buffer1;
 		//check domain it for intersecting grains
 		exist = (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
 		if (!exist){
