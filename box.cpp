@@ -73,29 +73,28 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
 	distance=NULL;
 	for (i=ymin;i<ymax;i++){ // Â¸ber gitter iterieren
-        for (j=xmin;j<xmax;j++){
+	  for (j=xmin;j<xmax;j++){
             dmin=1000.;
             p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
             
-            for(int ii=0;ii<c.p;ii++) {
-                for(int jj=0;jj<c.nu[ii];jj++) {
+            for(int ii = 0;ii < c.p; ii++) {
+                for(int jj = 0;jj < c.nu[ii]; jj++) {
                     
                     k=c.ed[ii][jj];
                     
-                    x1[0]=vv[3*ii];x1[1]=vv[3*ii+1];
-                    x2[0]=vv[3*k]; x2[1]=vv[3*k+1];
+                    x1[0] = vv[3*ii]; x1[1] = vv[3*ii+1];
+                    x2[0] = vv[3*k];  x2[1] = vv[3*k+1];
                     
-                    if (x1!=x2){
-                        a=x1;
+                    if (x1 != x2){
+                        a = x1;
                         u = x2-x1;
-                        lambda=((p-a)*u)/(u*u);
+                        lambda=((p-a)*u)/(u*u); 
                         
-                        if(lambda <= 0.) 					    d= (p-x1).laenge();
-                        if((0. < lambda) && (lambda < 1.)) 		d= (p-(a+(u*lambda))).laenge();
-                        if(lambda >= 1.) 					    d= (p-x2).laenge();
-						
-						if((id==gridIDs[i*m +j]) && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
-                        else d= -abs(d);
+                        if(lambda <= 0.) 				d = (p-x1).laenge();
+                        if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
+                        if(lambda >= 1.) 				d = (p-x2).laenge();
+			if((id == gridIDs[i*m +j]) && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+			else d= -abs(d);
 // 			cout << "ID klappt" << endl;
 // 			char buffer;
 //                         cin >> buffer ;
@@ -304,15 +303,17 @@ void LSbox::comparison(const matrix &domain_copy){
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
 	if(distance == NULL) {
-		distance = new double [(ymax-ymin)*(xmax-xmin)];
-		std::fill_n(distance,(ymax-ymin)*(xmax-xmin), double(INTERIMVAL)); //IMPORTANT!
+	  distance = new double [(ymax-ymin)*(xmax-xmin)];
+	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
 	}
-	
+
 	if(neighbors.empty()) return;
+	neighbors_2order.clear(); // why does an error occur without this line? limited size?
 	
 	for(it = neighbors.begin(); it != neighbors.end(); it++){
-	// wird hier die domain unter umständen in den cache geladen??
-		if(domain_copy.get_id() == (*(**it).domain).get_id()){ 
+// 	  if((*it)==NULL) cerr << "Box == NULL"<< endl;
+		// wird hier die domain unter umständen in den cache geladen??
+		if(domain_copy.get_id() == (*(**it).domain).get_id()&& id != (**it).getID()){ 
 			if(checkIntersect(*it)){
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				if(xmin < (**it).xmin) {
@@ -334,22 +335,23 @@ void LSbox::comparison(const matrix &domain_copy){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 							if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
-							  //klappt das mit dem x min xmax?? Versuch mit 2d feld??
-								distance[(i-ymin)*(xmax-xmin)+(j-xmin)] =  domain_copy[i][j];
+							    distance[(i-ymin)*(xmax-xmin)+(j-xmin)] =  domain_copy[i][j];
 					}
+					
 				}
 			}
-			else neighbors_2order.insert(neighbors_2order.end(),(**it).neighbors.begin(),(**it).neighbors.end());
+ 			else neighbors_2order.insert(neighbors_2order.end(),(**it).neighbors.begin(),(**it).neighbors.end());
+// 			else cout <<"would add to nn"<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl; 
 		}
 	}
 	
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){
-		if(domain_copy.get_id() == (*(**it_nn).domain).get_id()){
+		if((domain_copy.get_id() == (*(**it_nn).domain).get_id())&& (id != (**it_nn).getID())){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				if(xmin < (**it_nn).xmin) {
-				  //it oder it_nn 
+// 				  it oder it_nn 
 					x_min_new = (**it_nn).xmin;
 					x_max_new = xmax;
 				} else {

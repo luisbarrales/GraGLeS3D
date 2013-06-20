@@ -47,7 +47,7 @@ double kernel(double dt,int m, int i ,int j){
 using namespace voro;
 
 int main() {
-	/***************/
+    /***************/
     // Init
     /***************/
     char buffer2;
@@ -118,23 +118,24 @@ int main() {
 	const double MIN = 0.6;
 	const double MAX = 1.0;
 
-	for(int i=0; i < PARTICLES; i++)
+	for(int i=0; i < PARTICLES; i++){
 		for(int j=0; j < PARTICLES; j++){			
 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
 			ST[i+(PARTICLES*j)] = zahl;
 			ST[j+(PARTICLES*i)] = zahl;
 		}
+	}
 		
 	//utils::print_2dim_array(ST, PARTICLES, PARTICLES)
-    
-    // 	Output the Voronoi cells to a file, in the gnuplot format
-    con.draw_cells_gnuplot("random_points_v.gnu");
+	// 	Output the Voronoi cells to a file, in the gnuplot format
+	con.draw_cells_gnuplot("random_points_v.gnu");
     
     // find cell information fpr each grid point
     int *gridIDs;
-	gridIDs = (int*) calloc (resized_m*resized_m,sizeof(int)); //new int[resized_m*resized_m];
-    for(int i=0; i < m; i++) for(int j=0; j < m; j++){
-        x=double(i*h);y=double(j*h); // only point within the domain
+	gridIDs = new int [resized_m*resized_m]; //new int[resized_m*resized_m];
+    for(int i=0; i < m; i++) for(int j= 0; j < m; j++){
+        x=double(i*h); 
+	y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
 			cell_id= cell_id+1;
 			part_pos[3*(cell_id-1)]=rx;
@@ -347,6 +348,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		vector<LSbox*> grains;	
 		vector<LSbox*>::iterator it2;
 		domains_copy = domains;
+		char buffer1;
 		for (it = domains.begin(); it != domains.end(); it++){		     
 			grains = (*it).getBoxList();
 			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
@@ -355,6 +357,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 					(*it2)->comparison(*it_domain);
 				}
 			}
+ 			
 			
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename.str(std::string());
@@ -363,7 +366,6 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			for (it2 = grains.begin(); it2 != grains.end(); it2++){
 				if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) filename << "_"<<(*it2)->getID();
 				(**it2).comparison_set_to_domain();
-	// 			(*it2).copy_distances_to_domain();
 			}
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename << ".gnu";
@@ -372,6 +374,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				cout << filename.str() << endl << endl;
 				}
 			}
+			it->set_border_to_INTERIMVAL(grid_blowup);
+
 		}
 	}
 	
@@ -400,10 +404,13 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
 		//check domain it for intersecting grains
+// 		cerr << "GrainCheck" ;
+// 			cin >> buffer1;
 		exist = (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
 		if (!exist){
 			cout << (*it).get_id() <<"domain leer" << endl;
 // 			domains.erase(it); it--;
+// 			cerr << "GrainCheck" ;
 // 			cin >> buffer1;
 		}
 		
@@ -511,9 +518,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 //	//utils::print_2dim_array( ID, m, m );
 	
- 	free (gridIDs);  
-	delete [] ID[0];
-	delete [] ID[1];
-	
+ 	delete	[] gridIDs;  
+	delete	[] ID[0];
+	delete 	[] ID[1];
+	delete 	[] ID;
 	return 0;
 }

@@ -241,13 +241,21 @@ vector<LSbox*> matrix::getBoxList() {
 
 bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
 {
+  char buffer1;
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
     for(it = grains.begin(); it != grains.end(); it++)
     {
         // find zeros and new box size
-        exist = (*it)->setZeros(h, grid_blowup);
+	
+// 	cerr 	<< "setZeros start" << id<< (**it).getID() ;
+// 	cin 	>> buffer1;
+   
+	exist = (*it)->setZeros(h, grid_blowup);
 		if(!exist) { delete (*it); grains.erase(it); it--; }
+   
+//    cerr 	<< "setZeros end" ;
+// 	cin 	>> buffer1;
     }
 	
 	
@@ -537,6 +545,17 @@ void matrix::comparison(std::list<matrix> distances, int grid_blowup){
 	*this = Max;
 	
 	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
+				(*this)[i][j] = INTERIMVAL;
+			}
+		}
+	}
+}
+
+void matrix::set_border_to_INTERIMVAL(int grid_blowup)
+{
+  for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
 				(*this)[i][j] = INTERIMVAL;

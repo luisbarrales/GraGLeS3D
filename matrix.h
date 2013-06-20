@@ -59,6 +59,7 @@ public:
 
 	bool discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int));
 	void comparison(std::list<matrix> distances, int grid_blowup);
+	void set_border_to_INTERIMVAL(int grid_blowup);
 	void save_matrix(const char* filename ); //schreibt datei für gnuplotskript
 	void clear_domain(double value);
 	void euler(double dt, double h);
