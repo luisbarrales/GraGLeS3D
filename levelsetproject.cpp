@@ -252,7 +252,7 @@ for (it = domains.begin(); it !=domains.end(); it++){
 	for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(); }
 }
 
-cout << "\n \nready!" << endl;
+
 	
 	
 	
@@ -262,9 +262,9 @@ cout << "\n \nready!" << endl;
 /*********************************************************************************/
 // MAIN LOOP
 /*********************************************************************************/
-cout << "start main loop: \n"; 
+cout << "start main loop: \n\n"; 
 	
-vector<int> nr_grains(TIMESTEPS);
+vector<int> nr_grains(TIMESTEPS+1);
 
 for(int loop=0; loop <= TIMESTEPS; loop++){
 
@@ -276,7 +276,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	/*********************************************************************************/
 	
 	// ACHTUNG hier kopieren wir die ganze LISTE!
-	cout << "convolution start \n";
+
 	domains_copy=domains;
 	if (loop!=10){
 	  
@@ -357,6 +357,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 					(*it2)->comparison(*it_domain);
 				}
 			}
+			
  			
 			
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
@@ -367,6 +368,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) filename << "_"<<(*it2)->getID();
 				(**it2).comparison_set_to_domain();
 			}
+			it->set_border_to_INTERIMVAL(grid_blowup);
+			
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
 				filename << ".gnu";
 				if (SAFEFILES) {
@@ -374,14 +377,11 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				cout << filename.str() << endl << endl;
 				}
 			}
-			it->set_border_to_INTERIMVAL(grid_blowup);
-
 		}
 	}
 	
 
 
-	cout << "Comparison Complete" << endl;		
 
 //*********************************************************************************/
 // Redistancing Step

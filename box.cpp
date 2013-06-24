@@ -316,21 +316,20 @@ void LSbox::comparison(const matrix &domain_copy){
 		if(domain_copy.get_id() == (*(**it).domain).get_id()&& id != (**it).getID()){ 
 			if(checkIntersect(*it)){
 				int x_min_new, x_max_new, y_min_new, y_max_new;
-				if(xmin < (**it).xmin) {
-					x_min_new = (**it).xmin;
-					x_max_new = xmax;
-				} else {
-					x_min_new = xmin;
-					x_max_new = (**it).xmax;
-				}
 				
-				if(ymin < (**it).ymin) {
-					y_min_new = (**it).ymin;
-					y_max_new = ymax;
-				} else {
-					y_min_new = ymin;
-					y_max_new = (**it).ymax;
-				}	
+				if(xmin < (**it).xmin) x_min_new = (**it).xmin;
+					else x_min_new = xmin;
+				
+				if(xmax > (**it).xmax) x_max_new = (**it).xmax;
+					else x_max_new = xmax;
+								
+				if(ymin < (**it).ymin) y_min_new = (**it).ymin;
+					else y_min_new = ymin;
+					
+				if(ymax > (**it).ymax)	y_max_new = (**it).ymax;
+					else y_max_new = ymax;
+					
+				cout << " xmin, xmax, ymin, ymax :" << x_min_new << " || "<< x_max_new << " || " << y_min_new << " || " << y_max_new << endl;
 				
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
@@ -340,8 +339,10 @@ void LSbox::comparison(const matrix &domain_copy){
 					
 				}
 			}
- 			else neighbors_2order.insert(neighbors_2order.end(),(**it).neighbors.begin(),(**it).neighbors.end());
-// 			else cout <<"would add to nn"<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl; 
+ 			else { 
+				neighbors_2order.insert(neighbors_2order.end(),(**it).neighbors.begin(),(**it).neighbors.end());
+			    cout <<"would add to nn"<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl; 
+			}
 		}
 	}
 	
@@ -350,22 +351,19 @@ void LSbox::comparison(const matrix &domain_copy){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
-				if(xmin < (**it_nn).xmin) {
-// 				  it oder it_nn 
-					x_min_new = (**it_nn).xmin;
-					x_max_new = xmax;
-				} else {
-					x_min_new = xmin;
-					x_max_new = (**it_nn).xmax;
-				}
 				
-				if(ymin < (**it_nn).ymin) {
-					y_min_new = (**it_nn).ymin;
-					y_max_new = ymax;
-				} else {
-					y_min_new = ymin;
-					y_max_new = (**it_nn).ymax;
-				}	
+				if(xmin < (**it_nn).xmin) x_min_new = (**it_nn).xmin;
+					else x_min_new = xmin;
+				
+				if(xmax > (**it_nn).xmax) x_max_new = (**it_nn).xmax;
+					else x_max_new = xmax;
+								
+				if(ymin < (**it_nn).ymin) y_min_new = (**it_nn).ymin;
+					else y_min_new = ymin;
+					
+				if(ymax > (**it_nn).ymax)	y_max_new = (**it_nn).ymax;
+					else y_max_new = ymax;
+					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
@@ -377,8 +375,6 @@ void LSbox::comparison(const matrix &domain_copy){
 			else {neighbors_2order.erase(it_nn); it_nn--;}
 		}
 	}
-
-// 	return true; 
 }
 
   
