@@ -34,7 +34,7 @@ public:
     void copy_distances();
 	void copy_distances_to_domain();
 	void sweeping (double h, int start_i, int start_j, int direction);
-	void redistancing(double h, int grid_blowup 
+	void redistancing(double h, int grid_blowup );
 	void setZeros(double h, int grid_blowup);
 	void sweep(pointVal zero, double h);
     int  getID();
