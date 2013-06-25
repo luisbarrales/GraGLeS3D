@@ -10,7 +10,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
     xmax = 0; xmin = M; ymax = 0; ymin = M;
     vektor x1(2), x2(2);
     vector<double> vv;
-    
+    exist = true;
 	distance = NULL;
 	c.vertices(part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
     for(int ii=0;ii<c.p;ii++) {
@@ -109,7 +109,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
 	return(*this);
 }
 
-bool LSbox::setZeros(double h, int grid_blowup) {
+void LSbox::setZeros(double h, int grid_blowup) {
 	
     // clear current vector
     zeros.clear();
@@ -120,7 +120,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
     char direction = 1; // x+
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 
-	bool grain_exist = false;
+	exist = false;
 //  cout <<" search for zeros in box " << id << endl;
 // 	cout << "Abmessungen : " << endl;
 // 	cout << ymin << " || " << xmin << endl;
@@ -134,11 +134,11 @@ bool LSbox::setZeros(double h, int grid_blowup) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
 			next_i =i; 		next_j = j+1;
-			grain_exist= true;
+			exist= true;
 			break;
         }
 	}
-	if (!grain_exist) {
+	if (!exist) {
 		cout << "search in y-direction" << endl;
 		int dist = xmax - xmin;
 		int j = xmin+ int(dist/2);
@@ -147,16 +147,17 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 				first_i = i; 	first_j = j; 
 				current_i = i; 	current_j = j;
 				next_i =i+1; 		next_j = j;
-				grain_exist= true;
+				exist= true;
 				direction = 2;
 				cout << "boundary found"<< endl;
 				break;
 			}
 		}
 	}
-	if (!grain_exist) {
+	if (!exist) {
 		cout << "no boundary found in box "<<  id << endl;
-		return false;
+		exist = false;
+		return;
 	}
 
 //     cout << "first zero: " << first_i << " || " << first_j << endl;
@@ -253,7 +254,7 @@ bool LSbox::setZeros(double h, int grid_blowup) {
 // 	cout << xmin << " || " << xmax << endl;
 // 	cout << ymin << " || " << ymax << endl << endl;
 // 	
-	return true;
+	return;
 
 }
 
@@ -306,48 +307,50 @@ void LSbox::comparison(const matrix &domain_copy){
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
 	}
+	
 
-	if(neighbors.empty()) return;
-	neighbors_2order.clear(); // why does an error occur without this line? limited size?
-	
-	for(it = neighbors.begin(); it != neighbors.end(); it++){
-// 	  if((*it)==NULL) cerr << "Box == NULL"<< endl;
 		// wird hier die domain unter umständen in den cache geladen??
-		if(domain_copy.get_id() == (*(**it).domain).get_id()&& id != (**it).getID()){ 
-			if(checkIntersect(*it)){
-				int x_min_new, x_max_new, y_min_new, y_max_new;
-				
-				if(xmin < (**it).xmin) x_min_new = (**it).xmin;
-					else x_min_new = xmin;
-				
-				if(xmax > (**it).xmax) x_max_new = (**it).xmax;
-					else x_max_new = xmax;
-								
-				if(ymin < (**it).ymin) y_min_new = (**it).ymin;
-					else y_min_new = ymin;
-					
-				if(ymax > (**it).ymax)	y_max_new = (**it).ymax;
-					else y_max_new = ymax;
-					
-				cout << " xmin, xmax, ymin, ymax :" << x_min_new << " || "<< x_max_new << " || " << y_min_new << " || " << y_max_new << endl;
-				
-				for (int i = y_min_new; i < y_max_new; i++){
-					for (int j = x_min_new; j < x_max_new; j++){
-							if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
-							    distance[(i-ymin)*(xmax-xmin)+(j-xmin)] =  domain_copy[i][j];
-					}
-					
-				}
-			}
- 			else { 
-				neighbors_2order.insert(neighbors_2order.end(),(**it).neighbors.begin(),(**it).neighbors.end());
-			    cout <<"would add to nn"<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl; 
-			}
-		}
-	}
+// 		if(domain_copy.get_id() == (*(**it).domain).get_id()&& id != (**it).getID()){ 
+// 			cout << "try to test box for existance! "<< (**it).exist << endl;
+// 			
+// 			if( ((**it).exist == true) && (checkIntersect(*it)) ){
+// 					int x_min_new, x_max_new, y_min_new, y_max_new;
+// 					
+// 					if(xmin < (**it).xmin) x_min_new = (**it).xmin;
+// 						else x_min_new = xmin;
+// 					
+// 					if(xmax > (**it).xmax) x_max_new = (**it).xmax;
+// 						else x_max_new = xmax;
+// 									
+// 					if(ymin < (**it).ymin) y_min_new = (**it).ymin;
+// 						else y_min_new = ymin;
+// 						
+// 					if(ymax > (**it).ymax)	y_max_new = (**it).ymax;
+// 						else y_max_new = ymax;
+// 						
+// 					cout << " xmin, xmax, ymin, ymax :" << x_min_new << " || "<< x_max_new << " || " << y_min_new << " || " << y_max_new << endl;
+// 					
+// 					for (int i = y_min_new; i < y_max_new; i++){
+// 						for (int j = x_min_new; j < x_max_new; j++){
+// 								if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
+// 									distance[(i-ymin)*(xmax-xmin)+(j-xmin)] =  domain_copy[i][j];
+// 						}
+// 						
+// 					}
+// 				}
+//  			else { 
+// 				cout << "try to delete reference to grain "<< endl;
+// 				neighbors.erase(it); it--; // delete the pointer to the box (*it) 
+// 			}
+// 		}
+// 	}
+// 	
+// 	cout << "start to compare the 2order neighbors"<< endl;
+	plot_box(false);
+
 	
-	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){
-		if((domain_copy.get_id() == (*(**it_nn).domain).get_id())&& (id != (**it_nn).getID())){
+	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){		
+		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && (id != (**it_nn).getID()) ){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
@@ -377,8 +380,22 @@ void LSbox::comparison(const matrix &domain_copy){
 	}
 }
 
-  
 
+void LSbox::add_n2o(){
+	neighbors_2order = neighbors;
+	vector<LSbox*> ::iterator it_com, it_n2o, it;
+	bool just_in;						
+	for(it = neighbors.begin(); it != neighbors.end(); it++){		
+		for( it_n2o = (**it).neighbors.begin(); it_n2o != (**it).neighbors.end(); it_n2o++){
+			just_in = false;
+			for(it_com = neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
+				if(*it_n2o == *it_com) just_in = true;
+			}
+			if(just_in == false) neighbors_2order.push_back(*it_n2o);
+		}
+	}
+	neighbors.clear();
+}					
 
 /*void LSbox::free_memory_distance(){
 	free (distance);
@@ -537,11 +554,11 @@ void LSbox::euler_forward(double dt, double h){
 	}
 }
       
-void LSbox::plot_box(){
+void LSbox::plot_box(bool distanceplot){
 	cout <<" \nGrain  Info: " << endl;
 	cout << " ID :" <<id << endl;
     cout << " xmin, xmax, ymin, ymax :" << xmin << " || "<< xmax << " || " << ymin << " || " << ymax << endl;
-    if (distance !=NULL) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
+    if (distance !=NULL && distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 		else cout << " no distance values in storage!" << endl;
     cout << " Box is in Domain: " << domain->get_id() << endl;
 	
@@ -553,5 +570,14 @@ void LSbox::plot_box(){
 		}
 		cout << endl;
 	} else cout << " neighbors unknown " << endl;
+	
+	if(neighbors_2order.empty()!=true){
+		cout << " List of 2order Neighbors : ";
+		vector<LSbox*> :: iterator it;
+		for (it = neighbors_2order.begin(); it != neighbors_2order.end(); it++){
+			cout << (*it)->getID() << " || ";
+		}
+		cout << endl;
+	} else cout << " neighbors_2order unknown " << endl;
 	
 }

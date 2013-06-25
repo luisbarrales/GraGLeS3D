@@ -244,18 +244,17 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
   char buffer1;
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
-    for(it = grains.begin(); it != grains.end(); it++)
-    {
-        // find zeros and new box size
-	
-// 	cerr 	<< "setZeros start" << id<< (**it).getID() ;
-// 	cin 	>> buffer1;
-   
-	exist = (*it)->setZeros(h, grid_blowup);
-		if(!exist) { delete (*it); grains.erase(it); it--; }
-   
-//    cerr 	<< "setZeros end" ;
-// 	cin 	>> buffer1;
+    for(it = grains.begin(); it != grains.end(); it++){
+		if((**it).get_status()==false) {
+			// the grain has disappeared the timestep before
+			//now we can clean up the memory
+			delete (*it); grains.erase(it); it--;
+		}
+		
+		// test if the grain diappears in the current timestep
+		// if false, we must update the neighbors in the next comparison step
+		// this needs us to keep the object!!!
+		(*it)->setZeros(h, grid_blowup);
     }
 	
 	

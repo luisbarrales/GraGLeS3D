@@ -249,7 +249,7 @@ for (it = domains.begin(); it !=domains.end(); it++){
 		
 	}
 	
-	for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(); }
+	for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(false); }
 }
 
 
@@ -351,9 +351,10 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		char buffer1;
 		for (it = domains.begin(); it != domains.end(); it++){		     
 			grains = (*it).getBoxList();
+						
 			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
-				// 
-				for (it2 = grains.begin(); it2 != grains.end(); it2++){
+				for (it2 = grains.begin(); it2 != grains.end(); it2++){		
+					if(it_domain == domains_copy.begin()){ (**it2).add_n2o(); }
 					(*it2)->comparison(*it_domain);
 				}
 			}
