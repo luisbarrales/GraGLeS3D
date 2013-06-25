@@ -47,7 +47,6 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
 	ymax += 2*grid_blowup;
         
    cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-//    distance = (double*) calloc ((ymax-ymin)*(xmax-xmin),sizeof(double));    
 }
 
 LSbox::~LSbox() {
@@ -121,10 +120,6 @@ void LSbox::setZeros(double h, int grid_blowup) {
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 
 	exist = false;
-//  cout <<" search for zeros in box " << id << endl;
-// 	cout << "Abmessungen : " << endl;
-// 	cout << ymin << " || " << xmin << endl;
-// 	cout << ymax << " || " << xmax << endl << endl;
 	
 	int dist = ymax - ymin;
 	int i = ymin+ int(dist/2);
@@ -159,8 +154,6 @@ void LSbox::setZeros(double h, int grid_blowup) {
 		exist = false;
 		return;
 	}
-
-//     cout << "first zero: " << first_i << " || " << first_j << endl;
 
     // begin zero-tracking and interpolations
     bool newZero = true;
@@ -249,13 +242,7 @@ void LSbox::setZeros(double h, int grid_blowup) {
 	if (ymin < 0) ymin = 0;
 	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
 
-
-// 	cout << "neue Abmessungen : " << endl;
-// 	cout << xmin << " || " << xmax << endl;
-// 	cout << ymin << " || " << ymax << endl << endl;
-// 	
 	return;
-
 }
 
 void LSbox::copy_distances(){
@@ -307,47 +294,8 @@ void LSbox::comparison(const matrix &domain_copy){
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
 	}
-	
 
-		// wird hier die domain unter umständen in den cache geladen??
-// 		if(domain_copy.get_id() == (*(**it).domain).get_id()&& id != (**it).getID()){ 
-// 			cout << "try to test box for existance! "<< (**it).exist << endl;
-// 			
-// 			if( ((**it).exist == true) && (checkIntersect(*it)) ){
-// 					int x_min_new, x_max_new, y_min_new, y_max_new;
-// 					
-// 					if(xmin < (**it).xmin) x_min_new = (**it).xmin;
-// 						else x_min_new = xmin;
-// 					
-// 					if(xmax > (**it).xmax) x_max_new = (**it).xmax;
-// 						else x_max_new = xmax;
-// 									
-// 					if(ymin < (**it).ymin) y_min_new = (**it).ymin;
-// 						else y_min_new = ymin;
-// 						
-// 					if(ymax > (**it).ymax)	y_max_new = (**it).ymax;
-// 						else y_max_new = ymax;
-// 						
-// 					cout << " xmin, xmax, ymin, ymax :" << x_min_new << " || "<< x_max_new << " || " << y_min_new << " || " << y_max_new << endl;
-// 					
-// 					for (int i = y_min_new; i < y_max_new; i++){
-// 						for (int j = x_min_new; j < x_max_new; j++){
-// 								if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
-// 									distance[(i-ymin)*(xmax-xmin)+(j-xmin)] =  domain_copy[i][j];
-// 						}
-// 						
-// 					}
-// 				}
-//  			else { 
-// 				cout << "try to delete reference to grain "<< endl;
-// 				neighbors.erase(it); it--; // delete the pointer to the box (*it) 
-// 			}
-// 		}
-// 	}
-// 	
-// 	cout << "start to compare the 2order neighbors"<< endl;
 	plot_box(false);
-
 	
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && (id != (**it_nn).getID()) ){
@@ -396,6 +344,9 @@ void LSbox::add_n2o(){
 	}
 	neighbors.clear();
 }					
+
+
+
 
 /*void LSbox::free_memory_distance(){
 	free (distance);

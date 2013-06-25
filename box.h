@@ -30,12 +30,11 @@ public:
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
-//     void determineNeighbors()
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
     void copy_distances();
 	void copy_distances_to_domain();
 	void sweeping (double h, int start_i, int start_j, int direction);
-	void redistancing(double h, int grid_blowup /*, std::list<matrix> distances, double** borderSlopes, double** slopeField*/);
+	void redistancing(double h, int grid_blowup 
 	void setZeros(double h, int grid_blowup);
 	void sweep(pointVal zero, double h);
     int  getID();

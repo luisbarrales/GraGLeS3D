@@ -21,6 +21,7 @@
 #define PLOTGNU false
 #define EULER true
 #define DOMAINCOMPARISON false
+#define DRAW_PARTICLES false
 
 #pragma once
 #include <vector>
