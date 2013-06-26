@@ -152,6 +152,7 @@ void LSbox::setZeros(double h, int grid_blowup) {
 	if (!exist) {
 		cout << "no boundary found in box "<<  id << endl;
 		exist = false;
+		cout << "set exist status to false: " << exist << endl;
 		return;
 	}
 
@@ -294,11 +295,10 @@ void LSbox::comparison(const matrix &domain_copy){
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
 	}
-
-	plot_box(false);
+// 	plot_box(false);
 	
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){		
-		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && (id != (**it_nn).getID()) ){
+		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && (id != (**it_nn).getID()) && ((**it_nn).get_status() == true )){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;

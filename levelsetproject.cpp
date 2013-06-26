@@ -228,13 +228,11 @@ int main() {
 /*********************************************************************************/
 // Determine the box' neighbors 
 
-cout << "determine neighbors: \n" << endl;
-
 for (it = domains.begin(); it !=domains.end(); it++){
 	vector<LSbox*> grains = it->getBoxList();
 	vector<LSbox*> grainstoComp;
 	vector<LSbox*> ::iterator itl, itlc;
-	cout <<"\nwork in progress for domain: " << (*it).get_id() << endl;
+	cout <<"determine Neighbors for domain: " << (*it).get_id() << endl;
 	itc = it++;
 	it--;
 	for (itc; itc!=domains.end(); itc++){
@@ -257,7 +255,7 @@ for (it = domains.begin(); it !=domains.end(); it++){
 		
 	}
 	
-	for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(false); }
+// 	for(it2c=grains.begin();it2c!=grains.end();it2c++){ (*it2c)->plot_box(false); }
 }
 
 /*********************************************************************************/
@@ -300,7 +298,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			filename << ".gnu";
 			if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
-				cout << filename.str() << endl << endl;
+// 				cout << filename.str() << endl << endl;
 			}
 		}
 	}
@@ -334,7 +332,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				filename << ".gnu";
 				if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
-				cout << filename.str() << endl << endl;
+// 				cout << filename.str() << endl << endl;
 				}		
 			}
 		}
@@ -374,7 +372,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				filename << ".gnu";
 				if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
-				cout << filename.str() << endl << endl;
+// 				cout << filename.str() << endl << endl;
 				}
 			}
 		}
@@ -448,7 +446,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				filename << ".gnu";
 				if (SAFEFILES) {
 					(*it).save_matrix(filename.str().c_str());
-					cout << filename.str() << endl << endl;
+// 					cout << filename.str() << endl << endl;
 				}
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
@@ -477,7 +475,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		
 	/************************************************************************************/
 			
-	cout << "Timestep: "<< loop << " complete" << endl;
+	cout << "Timestep: "<< loop << " complete. " ;
 	cout << "Number of remaining grains: "<< nr_grains[loop] << endl << endl;
 }
 

@@ -239,16 +239,18 @@ vector<LSbox*> matrix::getBoxList() {
 
 
 
-bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer)
-{
-  char buffer1;
+bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
+	char buffer1;
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
     for(it = grains.begin(); it != grains.end(); it++){
 		if((**it).get_status()==false) {
+			cout << "try to delete grain " << (**it).get_id() << " in domain "<< id << endl;
 			// the grain has disappeared the timestep before
 			//now we can clean up the memory
 			delete (*it); grains.erase(it); it--;
+			cout << "successful delete" << endl;
+			cout << (**it).get_id() << endl;;
 		}
 		
 		// test if the grain diappears in the current timestep

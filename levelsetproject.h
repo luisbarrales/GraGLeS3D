@@ -10,9 +10,9 @@
 #define PI 3.14159265358979323846
 
 
-#define TIMESTEPS 5
+#define TIMESTEPS 50
 #define PRINTSTEP 1
-#define PARTICLES 5
+#define PARTICLES 50
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
