@@ -243,20 +243,22 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 	char buffer1;
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
-    for(it = grains.begin(); it != grains.end(); it++){
+    for(it = grains.begin(); it != grains.end();){
 		if((**it).get_status()==false) {
 			cout << "try to delete grain " << (**it).get_id() << " in domain "<< id << endl;
 			// the grain has disappeared the timestep before
 			//now we can clean up the memory
-			delete (*it); grains.erase(it); it--;
+			int buffer =(**it).get_id();
+			delete (*it); grains.erase(it);
 			cout << "successful delete" << endl;
-			cout << (**it).get_id() << endl;;
+			cout << buffer  << endl;
+			(*it)->setZeros(h, grid_blowup);
 		}
+		else {(**it).setZeros(h,grid_blowup); it++;}
 		
 		// test if the grain diappears in the current timestep
 		// if false, we must update the neighbors in the next comparison step
 		// this needs us to keep the object!!!
-		(*it)->setZeros(h, grid_blowup);
     }
 	
 	
