@@ -318,6 +318,7 @@ void LSbox::comparison(const matrix &domain_copy){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
+								// ID
 								distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
 					}
 				}
