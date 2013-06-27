@@ -51,7 +51,7 @@ public:
 	void makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 
 	void conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt);
-	void convolution(double dt, LSbox *** ID);
+	void convolution(double dt);
 	
     void redistancing_advanced(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
     void redistancing(double h, int grid_blowup);

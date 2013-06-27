@@ -252,7 +252,7 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 			delete (*it); grains.erase(it);
 			cout << "successful delete" << endl;
 			cout << buffer  << endl;
-			(*it)->setZeros(h, grid_blowup);
+			
 		}
 		else {(**it).setZeros(h,grid_blowup); it++;}
 		
@@ -264,7 +264,7 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 	
     // try to add boxes from buffer
     if (!buffer.empty()) {
-        for (it = buffer.begin(); it != buffer.end(); it++) {
+        for (it = buffer.begin(); it != buffer.end(); ) {
             cout << "trying to add box " << (*it)->getID() << " to Domain " << id;
             bool insert = true;
             for (it2 = grains.begin(); it2 != grains.end(); it2++) {
@@ -278,9 +278,10 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 				(*it)->setDomain(this);
 				(*it)->copy_distances_to_domain();
 				//(*it)->free_memory_distance();
-                buffer.erase(it); it--;
+                buffer.erase(it);
                 cout << ": success" << endl;
             } else {
+		it++;
                 cout << ": failed" << endl;
             }
         }
@@ -290,16 +291,17 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
     // check for intersects
  
     if (!grains.empty()) 
-		for (it = grains.begin(); it != grains.end()-1; ++it) {
+		for (it = grains.begin(); it != grains.end()-1;) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
 				// on intersect ad box to buffer and erase from grain list
 				if ((*it)->checkIntersect(*it2)) {
 					cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
 					(*it)->copy_distances();
 					buffer.push_back(*it);
-					grains.erase(it); it--;
+					grains.erase(it); 
 					break;
 				}
+				else it++;
 			}
 		}
     else return false; // falls grains.empty() == true
@@ -387,7 +389,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt, LSbox ***ID){
+void matrix::convolution(const double dt){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -400,7 +402,6 @@ void matrix::convolution(const double dt, LSbox ***ID){
 	u = (double*)	fftw_malloc(m*n*sizeof(double));
 	v = (double*)	fftw_malloc(m*n*sizeof(double));
 	matrix_to_array(u);
-	char buffer;
 	makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
 	conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
 	

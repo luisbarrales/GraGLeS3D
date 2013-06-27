@@ -293,11 +293,11 @@ void LSbox::comparison(const matrix &domain_copy){
 	double max;
 	if(distance == NULL) {
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
-	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
+	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!
 	}
 // 	plot_box(false);
 	
-	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){		
+	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && (id != (**it_nn).getID()) && ((**it_nn).get_status() == true )){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
@@ -321,10 +321,11 @@ void LSbox::comparison(const matrix &domain_copy){
 								distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
 					}
 				}
-				neighbors_2order.erase(it_nn); it_nn--;
 			}
-			else {neighbors_2order.erase(it_nn); it_nn--;}
+			
+			neighbors_2order.erase(it_nn);
 		}
+		else it_nn++;
 	}
 }
 
