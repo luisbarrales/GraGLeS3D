@@ -317,7 +317,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		for (it = domains.begin(); it != domains.end(); it++){		  
 			(*it).comparison(domains_copy, grid_blowup);
 			
-			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 				
 				vector<LSbox*>::iterator it2;
 				vector<LSbox*> grains;				
@@ -352,27 +352,24 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 						
 			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 				for (it2 = grains.begin(); it2 != grains.end(); it2++){		
-					if(it_domain == domains_copy.begin()){ (**it2).add_n2o(); }
-					(*it2)->comparison(*it_domain);
+					if(it_domain == domains_copy.begin()){ (**it2).add_n2o(); } // copy them once for each grain in the first cycle
+					(*it2)->comparison(*it_domain, loop);
 				}
 			} 			
-			
-			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
-				filename.str(std::string());
-				filename << "Comparedmatrix_"<< "T"<<loop;
-			}
-			
+			filename.str(std::string());
+			filename << "Comparedmatrix_"<< "T"<<loop;
+						
 			for (it2 = grains.begin(); it2 != grains.end(); it2++){
-				if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) filename << "_"<<(*it2)->getID();
+				filename << "_"<<(*it2)->getID();
 				(**it2).comparison_set_to_domain();
 			}
 			it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
 			
-			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 				filename << ".gnu";
 				if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
-// 				cout << filename.str() << endl << endl;
+				cout << filename.str() << endl << endl;
 				}
 			}
 		}
@@ -433,7 +430,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 		nr_grains[loop]+=(*it).get_nr_of_grains();
 		
-		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 				filename.str(std::string());
 				filename << "Redistanced_matrix_";
 				filename << it->get_id() << "_";
@@ -446,7 +443,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				filename << ".gnu";
 				if (SAFEFILES) {
 					(*it).save_matrix(filename.str().c_str());
-// 					cout << filename.str() << endl << endl;
+ 					cout << filename.str() << endl << endl;
 				}
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
@@ -454,7 +451,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 				if(i!=(length-1)) plotfiles << ",";
 			}
 		}
-		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW ){
 			if (PLOTGNU) {
 				filename.str(std::string());
 				filename << "GrainNetwork" << "_"<< loop << ".gnu";

@@ -248,11 +248,8 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 			cout << "try to delete grain " << (**it).get_id() << " in domain "<< id << endl;
 			// the grain has disappeared the timestep before
 			//now we can clean up the memory
-			int buffer =(**it).get_id();
 			delete (*it); grains.erase(it);
 			cout << "successful delete" << endl;
-			cout << buffer  << endl;
-			(*it)->setZeros(h, grid_blowup);
 		}
 		else {(**it).setZeros(h,grid_blowup); it++;}
 		
@@ -264,7 +261,7 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 	
     // try to add boxes from buffer
     if (!buffer.empty()) {
-        for (it = buffer.begin(); it != buffer.end(); it++) {
+        for (it = buffer.begin(); it != buffer.end(); ) {
             cout << "trying to add box " << (*it)->getID() << " to Domain " << id;
             bool insert = true;
             for (it2 = grains.begin(); it2 != grains.end(); it2++) {
@@ -278,9 +275,10 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 				(*it)->setDomain(this);
 				(*it)->copy_distances_to_domain();
 				//(*it)->free_memory_distance();
-                buffer.erase(it); it--;
+                buffer.erase(it); 
                 cout << ": success" << endl;
             } else {
+				it++;
                 cout << ": failed" << endl;
             }
         }
@@ -290,16 +288,17 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
     // check for intersects
  
     if (!grains.empty()) 
-		for (it = grains.begin(); it != grains.end()-1; ++it) {
+		for (it = grains.begin(); it != grains.end()-1;) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
 				// on intersect ad box to buffer and erase from grain list
 				if ((*it)->checkIntersect(*it2)) {
 					cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
 					(*it)->copy_distances();
 					buffer.push_back(*it);
-					grains.erase(it); it--;
+					grains.erase(it); 
 					break;
 				}
+				if(it2 != grains.end()) it++;
 			}
 		}
     else return false; // falls grains.empty() == true

@@ -39,7 +39,7 @@ public:
 	void sweep(pointVal zero, double h);
     int  getID();
     void setDomain(matrix* aDomain);
-    void comparison(const matrix &domain_copy);
+    void comparison(const matrix &domain_copy, int loop);
     void comparison_set_to_domain();
     void add_n2o();
 	void maximum(const matrix &A, const matrix &B);

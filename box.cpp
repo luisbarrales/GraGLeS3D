@@ -286,7 +286,7 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
-void LSbox::comparison(const matrix &domain_copy){
+void LSbox::comparison(const matrix &domain_copy, int loop){
 	//LSbox*
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
@@ -295,10 +295,10 @@ void LSbox::comparison(const matrix &domain_copy){
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
 	}
-// 	plot_box(false);
+	if(loop == PRINTNOW) plot_box(false);
 	
-	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){		
-		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && (id != (**it_nn).getID()) && ((**it_nn).get_status() == true )){
+	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
+		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
@@ -318,14 +318,13 @@ void LSbox::comparison(const matrix &domain_copy){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
-								// ID
-								distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
+							distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
 					}
 				}
-				neighbors_2order.erase(it_nn); it_nn--;
 			}
-			else {neighbors_2order.erase(it_nn); it_nn--;}
+			neighbors_2order.erase(it_nn);			
 		}
+		else it_nn++;
 	}
 }
 
@@ -338,7 +337,7 @@ void LSbox::add_n2o(){
 		for( it_n2o = (**it).neighbors.begin(); it_n2o != (**it).neighbors.end(); it_n2o++){
 			just_in = false;
 			for(it_com = neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
-				if(*it_n2o == *it_com) just_in = true;
+				if(*it_n2o == *it_com || this == *it_n2o) just_in = true;
 			}
 			if(just_in == false) neighbors_2order.push_back(*it_n2o);
 		}
