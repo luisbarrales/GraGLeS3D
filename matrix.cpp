@@ -239,7 +239,7 @@ vector<LSbox*> matrix::getBoxList() {
 
 
 
-bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
+bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int loop){
 	char buffer1;
 	bool exist;
 	vector<LSbox*>::iterator it,it2;
@@ -251,7 +251,7 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 			delete (*it); grains.erase(it);
 			cout << "successful delete" << endl;
 		}
-		else {(**it).setZeros(h,grid_blowup); it++;}
+		else {(**it).setZeros(h,grid_blowup, loop); it++;}
 		
 		// test if the grain diappears in the current timestep
 		// if false, we must update the neighbors in the next comparison step
@@ -286,8 +286,7 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer){
 
     
     // check for intersects
- 
-    if (!grains.empty()) 
+     if (!grains.empty()) 
 		for (it = grains.begin(); it != grains.end()-1;) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
 				// on intersect ad box to buffer and erase from grain list

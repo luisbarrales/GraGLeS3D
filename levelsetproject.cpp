@@ -286,7 +286,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 	// Output	
 	for (it = domains.begin(); it !=domains.end(); it++){		
-		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS){
+		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 			filename.str(std::string());
 			filename << "Convolutedmatrix_";
 			vector<LSbox*> grains = (*it).getBoxList();
@@ -398,7 +398,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
 		//check domain it for intersecting grains
-		exist = (*it).grainCheck(h, grid_blowup, buffer); // h Gitterabstand
+		exist = (*it).grainCheck(h, grid_blowup, buffer, loop); // h Gitterabstand
 		if (!exist){
 			cout << (*it).get_id() <<"domain leer" << endl;
 // 			domains.erase(it); it--;
@@ -411,7 +411,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	while(!buffer.empty()){
 		cout << "created a new domain" << endl;
 		domains.emplace_back(resized_m,resized_m, i,INTERIMVAL);
-		domains.back().grainCheck(h, grid_blowup, buffer);
+		domains.back().grainCheck(h, grid_blowup, buffer, loop);
 	}
 	
 	/*****************************************************************/

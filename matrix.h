@@ -39,7 +39,7 @@ public:
 	matrix distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
 	matrix energy_correction(const LSbox ***&ST);
 	// grain check: Erklärung anfügen!!
-    bool grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer);
+    bool grainCheck(double h,  int grid_blowup, vector<LSbox*>& buffer, int loop);
 	bool addBox(LSbox* aBox);
     void redistancing_for_all_boxes(double h, int grid_blowup); // ruft boxweise auf
 	vector<LSbox*> getBoxList();

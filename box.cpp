@@ -108,8 +108,8 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
 	return(*this);
 }
 
-void LSbox::setZeros(double h, int grid_blowup) {
-	
+void LSbox::setZeros(double h, int grid_blowup, int loop) {
+	if(loop == PRINTNOW) plot_box(false);
     // clear current vector
     zeros.clear();
     
@@ -295,8 +295,6 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
 	}
-	if(loop == PRINTNOW) plot_box(false);
-	
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){
 			if (checkIntersect(*it_nn)){
@@ -312,7 +310,7 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 				if(ymin < (**it_nn).ymin) y_min_new = (**it_nn).ymin;
 					else y_min_new = ymin;
 					
-				if(ymax > (**it_nn).ymax)	y_max_new = (**it_nn).ymax;
+				if(ymax > (**it_nn).ymax) y_max_new = (**it_nn).ymax;
 					else y_max_new = ymax;
 					
 				for (int i = y_min_new; i < y_max_new; i++){
