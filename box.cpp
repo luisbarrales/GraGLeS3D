@@ -298,6 +298,8 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){
 			if (checkIntersect(*it_nn)){
+			  if ((*(**it_nn).domain).get_id()==domain->get_id()) cout << "GRAINS IN THE SAME DOMAIN !!!!!!!!!!!!!!!!! " << (**it_nn).get_id()<<","<<get_id()<<endl << endl;
+  
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				

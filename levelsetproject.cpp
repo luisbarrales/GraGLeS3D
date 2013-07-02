@@ -416,11 +416,15 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		}
 		
 	}
+	i=domains.size()-1;
 	// check if buffer is empty
 	while(!buffer.empty()){
+		i++;
 		cout << "created a new domain" << endl;
 		domains.emplace_back(resized_m,resized_m, i,INTERIMVAL);
 		domains.back().grainCheck(h, grid_blowup, buffer, loop);
+	
+		
 	}
 	
 	/*****************************************************************/

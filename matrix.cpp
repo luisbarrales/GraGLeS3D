@@ -285,21 +285,26 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int l
         }
     }
 
-    
+    bool del = false;
     // check for intersects
     if (!grains.empty()) 
+		
 		for (it = grains.begin(); it != grains.end()-1;) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
-				// on intersect ad box to buffer and erase from grain list
+				// on intersect add box to buffer and erase from grain list
+				
 				if ((*it)->checkIntersect(*it2)) {
 					cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
 					(*it)->copy_distances();
 					buffer.push_back(*it);
 					grains.erase(it); 
+					del = true;
 					break;
 				}
-				if(it2 != grains.end()) it++;
+// 				if(it2 != grains.end()) it++;
 			}
+			if (!del) it++;
+			del=false;
 		}
     else return false; // falls grains.empty() == true
     return true;
