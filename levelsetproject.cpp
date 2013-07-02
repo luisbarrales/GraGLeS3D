@@ -63,7 +63,7 @@ int main() {
     int cell_order[particles]; // stores the order of computed cells (vl.pid())
     
     double *part_pos; // stores the centroids of the cells ; access by (3*Id, 3*ID +1, 3*ID +2)
-    part_pos = (double*) calloc (3*particles,sizeof(double));
+    part_pos = new double[3*particles];
     stringstream filename, plotfiles;
     
     std::list<matrix> domains, domains_copy;
@@ -123,8 +123,9 @@ int main() {
 /**********************************************************/
 // generate random or deterministic surface tension coefficients
 
-	double *ST;
-	ST = (double*) calloc (PARTICLES*PARTICLES,sizeof(double));
+ 	double *ST;
+	ST = new double [PARTICLES*PARTICLES];
+	  std::fill_n(ST,PARTICLES*PARTICLES,0);
 	const double MIN = 0.6;
 	const double MAX = 1.0;
 
@@ -222,6 +223,8 @@ int main() {
 		}
     }
     
+    delete [] part_pos;
+    
 /*********************************************************************************/
 
 
@@ -279,11 +282,16 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	
 	// ACHTUNG hier kopieren wir die ganze LISTE!
 	domains_copy=domains;
+      cout << "convolution start" << endl;
+// 	char buffer2;
+// 	cin >> buffer2;
 
 	for (it = domains.begin(); it !=domains.end(); it++){	
-		(*it).convolution(dt, ID);
+		(*it).convolution(dt);
 	}
-
+// 	cout << "convolution done" << endl;
+// // 	cin >> buffer2;
+	
 	// Output	
 	for (it = domains.begin(); it !=domains.end(); it++){		
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
@@ -308,7 +316,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 /*************************************************************************************/
 // Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
-	
+// 	cout << "convolution done" << endl;
+// 	cin >> buffer2;
 	if(DOMAINCOMPARISON==true){
 		/*********************************************************************************/
 		// Comparison Step with domains
@@ -494,6 +503,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 //	//utils::print_2dim_array( ID, m, m );
 	
+	delete  [] ST;
  	delete	[] gridIDs;  
 	delete	[] ID[0];
 	delete 	[] ID[1];

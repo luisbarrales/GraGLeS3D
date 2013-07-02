@@ -293,7 +293,7 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	double max;
 	if(distance == NULL) {
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
-	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!}
+	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!
 	}
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){
@@ -320,7 +320,7 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 					}
 				}
 			}
-			neighbors_2order.erase(it_nn);			
+			neighbors_2order.erase(it_nn);
 		}
 		else it_nn++;
 	}

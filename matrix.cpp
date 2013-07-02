@@ -275,7 +275,8 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int l
 				(*it)->setDomain(this);
 				(*it)->copy_distances_to_domain();
 				//(*it)->free_memory_distance();
-                buffer.erase(it); 
+
+                buffer.erase(it);
                 cout << ": success" << endl;
             } else {
 				it++;
@@ -286,7 +287,7 @@ bool matrix::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int l
 
     
     // check for intersects
-     if (!grains.empty()) 
+    if (!grains.empty()) 
 		for (it = grains.begin(); it != grains.end()-1;) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
 				// on intersect ad box to buffer and erase from grain list
@@ -385,7 +386,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt, LSbox ***ID){
+void matrix::convolution(const double dt){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -398,7 +399,6 @@ void matrix::convolution(const double dt, LSbox ***ID){
 	u = (double*)	fftw_malloc(m*n*sizeof(double));
 	v = (double*)	fftw_malloc(m*n*sizeof(double));
 	matrix_to_array(u);
-	char buffer;
 	makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
 	conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
 	

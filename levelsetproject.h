@@ -19,7 +19,7 @@
 
 #define SAFEFILES true
 #define IMAGEOUT true
-#define PLOTGNU false
+#define PLOTGNU true
 #define EULER true
 #define DOMAINCOMPARISON false
 #define DRAW_PARTICLES false
