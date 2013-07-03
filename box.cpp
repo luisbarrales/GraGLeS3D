@@ -8,6 +8,9 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
     
     // determine size of grain
     xmax = 0; xmin = M; ymax = 0; ymin = M;
+	
+
+    
     vektor x1(2), x2(2);
     vector<double> vv;
     exist = true;
@@ -43,7 +46,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
         }
     }
     
-    xmax += 2*grid_blowup;
+	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
         
    cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
@@ -268,10 +271,14 @@ void LSbox::copy_distances_to_domain(){
 	distance = NULL;
 }
 
-void LSbox::comparison_set_to_domain(){
+void LSbox::comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup){
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
   			(*domain)[i][j]=0.5*((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+			if ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0){
+			  ID[0][(i+grid_blowup)*resized_m + j + grid_blowup] = this;
+			  ID[1][(i+grid_blowup)*resized_m + j + grid_blowup] = IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)];
+			}
 		}
 	}
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
@@ -281,7 +288,6 @@ void LSbox::comparison_set_to_domain(){
 
 
 bool LSbox::checkIntersect(LSbox* box2) {    
-    //if (xmin <= box2->xmax && xmax >= box2->xmin && ymin <= box2->ymax && ymax >= box2->ymin) return true;
     if ((xmin > box2->xmax || xmax < box2->xmin || ymin > box2->ymax || ymax < box2->ymin)) return false;
     return true;
 }
@@ -292,6 +298,7 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
 	if(distance == NULL) {
+	  IDLocal=new LSbox*[(xmax-xmin)*(ymax-ymin)];
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!
 	}
@@ -317,8 +324,11 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
-						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]) 
-							distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
+						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]){ 
+						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
+						IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
+						// (i+grid_blowup)*resized_m + j + grid_blowup
+						}
 					}
 				}
 			}

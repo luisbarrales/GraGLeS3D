@@ -11,6 +11,8 @@ matrix::matrix(int m, int n) : m(m), n(n) {
     x=new vektor*[m];
     for (int i=0;i<m;i++) x[i]=new vektor(n);
 }
+//keine ID übergabe erforderlich?
+
 matrix::matrix(int m, int n, int id) : m(m), n(n), id(id) {
 	x=new vektor*[m];
     for (int i=0;i<m;i++) x[i]=new vektor(n);

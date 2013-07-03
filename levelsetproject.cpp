@@ -247,8 +247,8 @@ for (it = domains.begin(); it !=domains.end(); it++){
 				
 				if ((*itlc)->getID()!=(*itl)->getID()){ // wozu ist diese abfrage? --- Damit die Boxen nicht Nachbarn von sich selbst sind
 					if((*itl)->checkIntersect(*itlc)){
-						(*itl)->neighbors.push_back(*itlc);
-						(*itlc)->neighbors.push_back(*itl);
+						(*itl)	->neighbors.push_back(*itlc);
+						(*itlc)	->neighbors.push_back(*itl);
 					}
 				}
 				
@@ -362,7 +362,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 				for (it2 = grains.begin(); it2 != grains.end(); it2++){		
 					if(it_domain == domains_copy.begin()){ (**it2).add_n2o(); } // copy them once for each grain in the first cycle
-					(*it2)->comparison(*it_domain, loop);
+					(*it2)->comparison(*it_domain, loop ); //Check if whole ID array necessary
 				}
 			} 			
 			filename.str(std::string());
@@ -370,7 +370,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 						
 			for (it2 = grains.begin(); it2 != grains.end(); it2++){
 				filename << "_"<<(*it2)->getID();
-				(**it2).comparison_set_to_domain();
+				(**it2).comparison_set_to_domain(ID, resized_m, grid_blowup);
 			}
 			it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
 			
