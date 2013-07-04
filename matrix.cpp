@@ -393,14 +393,15 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt){
+void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
+	double vn, vnn;
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
-	matrix diff(m,n);
+// 	matrix diff(m,n);
 	
 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
 	u = (double*)	fftw_malloc(m*n*sizeof(double));
@@ -408,20 +409,30 @@ void matrix::convolution(const double dt){
 	matrix_to_array(u);
 	makeFFTPlans(u, fftTemp,&fwdPlan,&bwdPlan);
 	conv_generator(u,fftTemp,fwdPlan,bwdPlan,dt);
+	array_to_matrix(u);
+	fftw_destroy_plan(fwdPlan);
+	fftw_destroy_plan(bwdPlan);
 	
 	/*********************************************************************************/
 	// Velocity Corrector Step: 
 	/*********************************************************************************/
 	// hier soll energycorrection gerechnet werden.
 	// in der matrix steht die ursprünglich distanzfunktion, in dem arry die gefaltete
-	// energy_correction();	
+	if(!ISOTROPIC){
+		for (int i = 0; i < m; i++){
+			for (int j = 0; j < n; j++) {
+				if( ID[0][i*m +j] != zeroBox ){
+					vn = ((*this)[i][j] -ref[i][j] ) / dt;
+// 					cout << vn << "  ";
+					vnn = vn * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ];
+// 					cout << vnn << endl;
+					(*this)[i][j] = ref[i][j] + (vnn*dt);
+				}
+			}
+		}
+	}
+	// 	energy_correction(ID, ref, grid_blowup);	
 	// funktion muss umgeschrieben werden
-	
-	array_to_matrix(u);
-	
-	fftw_destroy_plan(fwdPlan);
-	fftw_destroy_plan(bwdPlan);
-	
 }
 /*********************************************************************************/
 /*********************************************************************************/
@@ -433,26 +444,20 @@ void matrix::convolution(const double dt){
 // die masse ist normiert also 1, die breschleunigung ist kappa. die arbeit ist also (delta d * kappa)
 /*********************************************************************************/
 
-matrix matrix::energy_correction(const LSbox ***&ID){
-/*	assert(A.n == B.n);
-	assert(A.m == B.m);
-	
-	// boxweise rechnen:
-	// boxen sollen dazu neighbor informationen enthalten
-	
-	temp = A;
-	temp =temp-B;
-	
-	//for (int i = 0; i < m; i++)
-	//	for (int j = 0; j < n; j++) {
-// 	wie komme ich an die korrekten ID???
-// 		temp[i,j] = temp[i,j] * ST[A.id + PARTICLES* B.id];
-			
-	//	}
-	*/
-	matrix temp(m,n); 
-	return (temp);
-}
+// matrix matrix::energy_correction(const LSbox ***&ID, ST, matrix &ref, int grid_blowup){
+// 	
+// 	for (int i = 0; i < m; i++)
+// 		for (int j = 0; j < n; j++) {
+// 			v = (ref[i][j] - (*this)[i][j] )/dt;
+// 			v = v * ST[ ID[0][(i+grid_blowup)*m + j + grid_blowup]+ (PARTICLES* ID[1][(i+grid_blowup)*m + j + grid_blowup]) ];
+// 			v = v *dt;
+// 			(*this)[i][j]) = ref[i][j] + v;
+// 		}
+// 	}
+// 	
+// 	matrix temp(m,n); 
+// 	return (temp);
+// }
 
 
 

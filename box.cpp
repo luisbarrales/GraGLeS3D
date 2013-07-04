@@ -1,7 +1,6 @@
 #include "box.h"
 
-LSbox::LSbox() {
-    
+LSbox::LSbox() {    
 }
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h):id(aID) {
@@ -276,8 +275,8 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup
 		for (int j = xmin; j < xmax; j++){
   			(*domain)[i][j]=0.5*((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			if ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0){
-			  ID[0][(i+grid_blowup)*resized_m + j + grid_blowup] = this;
-			  ID[1][(i+grid_blowup)*resized_m + j + grid_blowup] = IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)];
+			  ID[0][(i*resized_m) + j] = this;
+			  ID[1][(i*resized_m) + j] = IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)];
 			}
 		}
 	}
@@ -301,6 +300,7 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	  IDLocal=new LSbox*[(xmax-xmin)*(ymax-ymin)];
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!
+	  std::fill_n(IDLocal,(ymax-ymin)*(xmax-xmin), this);
 	}
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){

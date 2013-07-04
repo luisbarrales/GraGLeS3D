@@ -85,6 +85,9 @@ int main() {
     ID = new LSbox**[2];
 	ID[0] = new LSbox*[resized_m*resized_m];
 	ID[1] = new LSbox*[resized_m*resized_m];
+	LSbox* zeroBox = new LSbox();
+	std::fill_n(ID[0],resized_m*resized_m,zeroBox);
+	std::fill_n(ID[1],resized_m*resized_m,zeroBox);
         
     double  (*fp)(double,int, int, int); // function pointer
     fp = &kernel;
@@ -93,6 +96,10 @@ int main() {
     c_loop_all vl(con);
 	
 	vector<int> nr_grains(TIMESTEPS+1);
+	
+	double *ST;
+	ST = new double [PARTICLES*PARTICLES];
+	std::fill_n(ST,PARTICLES*PARTICLES,0);
 
 /**********************************************************/
 
@@ -107,37 +114,90 @@ int main() {
     cout << endl << "******* start simulation: *******" << endl << endl;
 	
     
-/**********************************************************/
-// Randomly add particles into the container
-   
-    for(int i=0;i<particles;i++) {
-        x=utils::rnd();
-        y=utils::rnd();
-        z=0;
-        con.put(i,x,y,z);
-    }
-    
-/**********************************************************/
+
 
 
 /**********************************************************/
-// generate random or deterministic surface tension coefficients
+// Triple Punkt Analyse
 
- 	double *ST;
-	ST = new double [PARTICLES*PARTICLES];
-	  std::fill_n(ST,PARTICLES*PARTICLES,0);
+if(TRIPLEPUNKT){
+	double x[3],y[3],zahl[3];
+	
+	x[0]= 0.15; x[1]= 0.5; x[2]= 0.7;
+	y[0]= 0.15; y[1]= 0.8; y[2]= 0.5;
+	zahl[0]=0.5; zahl[1]=1; zahl[2]=0.6;
+	
+	
+	double z=0.0;
+	for(int i=0;i<3;i++) {
+        con.put(i,x[i],y[i],z);
+		
+		for(int j=0;j<=i;j++) {
+			if(i==j) ST[j+(3*i)] = 1.0;
+			else{
+			ST[i+(3*j)] = zahl[i-1+j];
+			ST[j+(3*i)] = zahl[i-1+j];
+			
+			}
+		}
+		utils::print_2dim_array(ST,3,3);
+	}
+/**********************************************************/
+	// generate random or deterministic surface tension coefficients
+
+ 	
+// 	const double MIN = 0.6;
+// 	const double MAX = 1.5;
+// 
+// 	for(int i=0; i < 3; i++){
+// 		con.put(i,x[i],y[i],z);
+// 		for(int j=0; j < 3; j++){			
+// 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
+// 			ST[i+(PARTICLES*j)] = zahl;
+// // 			ST[j+(PARTICLES*i)] = zahl;
+// 			if(i==j) ST[j+(PARTICLES*i)] = 1.0;
+// 		}
+// 	}
+// 			utils::print_2dim_array(ST,3,3);
+	/**********************************************************/
+//    }
+}
+else{
+	
+	/**********************************************************/
+	// Randomly add particles into the container
+	
+		for(int i=0;i<particles;i++) {
+			x=utils::rnd();
+			y=utils::rnd();
+			z=0;
+			con.put(i,x,y,z);
+		}
+		
+	/**********************************************************/
+	/**********************************************************/
+	// generate random or deterministic surface tension coefficients
+
+ 	
 	const double MIN = 0.6;
-	const double MAX = 1.0;
+	const double MAX = 1.5;
 
 	for(int i=0; i < PARTICLES; i++){
 		for(int j=0; j < PARTICLES; j++){			
 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
 			ST[i+(PARTICLES*j)] = zahl;
-			ST[j+(PARTICLES*i)] = zahl;
+// 			ST[j+(PARTICLES*i)] = zahl;
+			if(i==j) ST[j+(PARTICLES*i)] = 1.0;
 		}
 	}
-	
-/**********************************************************/
+	/**********************************************************/
+
+}
+
+
+
+
+
 
 
 /**********************************************************/
@@ -153,9 +213,10 @@ int main() {
 
     int *gridIDs;
 	gridIDs = new int [resized_m*resized_m]; //new int[resized_m*resized_m];
+	std::fill_n(gridIDs,resized_m*resized_m, 0); 
     for(int i=0; i < m; i++) for(int j= 0; j < m; j++){
         x=double(i*h); 
-	y=double(j*h); // only point within the domain
+		y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
 			cell_id= cell_id+1;
 			part_pos[3*(cell_id-1)]=rx;
@@ -282,12 +343,12 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	
 	// ACHTUNG hier kopieren wir die ganze LISTE!
 	domains_copy=domains;
-      cout << "convolution start" << endl;
+    cout << "convolution start" << endl;
 // 	char buffer2;
 // 	cin >> buffer2;
-
-	for (it = domains.begin(); it !=domains.end(); it++){	
-		(*it).convolution(dt);
+	
+	for (it = domains.begin(), itc=domains_copy.begin(); it !=domains.end(); it++, itc++){	
+		(*it).convolution(dt,ST,ID,(*itc), zeroBox);
 	}
 // 	cout << "convolution done" << endl;
 // // 	cin >> buffer2;
@@ -495,8 +556,11 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // end of simulation
 // Endausgabe
 /*******************************************************************************************/
+	for(int i=0; i < m; i++) for(int j= 0; j < m; j++){
+		gridIDs[(i+grid_blowup)*resized_m + j + grid_blowup] = ID[1][(i+grid_blowup)*resized_m + j + grid_blowup]->get_id();
+	}	
+	utils::save_2dim_array( gridIDs, resized_m, resized_m, "ID_Feld" );	
 	
-
 	ofstream myfile;
 	myfile.open ("kinetics.txt");
 	for(int i=0; i< TIMESTEPS; i++)
