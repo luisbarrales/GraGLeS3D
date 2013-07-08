@@ -82,12 +82,14 @@ int main() {
     int resized_m = m + (2*grid_blowup); 
     LSbox ***ID; // array to asign a cell id to each grid point
     
-    ID = new LSbox**[2];
+    ID = new LSbox**[3];
 	ID[0] = new LSbox*[resized_m*resized_m];
 	ID[1] = new LSbox*[resized_m*resized_m];
+	ID[2] = new LSbox*[resized_m*resized_m];
 	LSbox* zeroBox = new LSbox();
 	std::fill_n(ID[0],resized_m*resized_m,zeroBox);
 	std::fill_n(ID[1],resized_m*resized_m,zeroBox);
+	std::fill_n(ID[2],resized_m*resized_m,zeroBox);
         
     double  (*fp)(double,int, int, int); // function pointer
     fp = &kernel;
@@ -121,27 +123,32 @@ int main() {
 // Triple Punkt Analyse
 
 if(TRIPLEPUNKT){
-	double x[3],y[3],zahl[3];
+
+	double x[4],y[4],zahl[6];
 	
-	x[0]= 0.15; x[1]= 0.5; x[2]= 0.7;
-	y[0]= 0.15; y[1]= 0.8; y[2]= 0.5;
-	zahl[0]=0.5; zahl[1]=1; zahl[2]=0.6;
+	x[0]= 0.5; x[1]= 0.2; x[2]= 0.8; x[3]=0.5;
+	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
+	zahl[0]=1; zahl[1]=1; zahl[2]=0.1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
 	
 	
 	double z=0.0;
-	for(int i=0;i<3;i++) {
+	for(int i=0;i<4;i++) {
         con.put(i,x[i],y[i],z);
 		
 		for(int j=0;j<=i;j++) {
-			if(i==j) ST[j+(3*i)] = 1.0;
+			if(i==j) ST[j+(4*i)] = 1.0;
 			else{
-			ST[i+(3*j)] = zahl[i-1+j];
-			ST[j+(3*i)] = zahl[i-1+j];
+			ST[i+(4*j)] = zahl[i-1+j];
+			ST[j+(4*i)] = zahl[i-1+j];
 			
 			}
-		}
-		utils::print_2dim_array(ST,3,3);
+// 			if (i==1 && j ==2) { 
+// 				ST[i+(4*j)] = 0.1;
+// 				ST[j+(4*i)] = 0.1;
+// 			}
+		}		
 	}
+	utils::print_2dim_array(ST,4,4);
 /**********************************************************/
 	// generate random or deterministic surface tension coefficients
 
@@ -183,15 +190,19 @@ else{
 	const double MAX = 1.5;
 
 	for(int i=0; i < PARTICLES; i++){
-		for(int j=0; j < PARTICLES; j++){			
+		for(int j=0; j <=i; j++){			
 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
-			ST[i+(PARTICLES*j)] = zahl;
-// 			ST[j+(PARTICLES*i)] = zahl;
+			if (i==6 && j ==5) { 
+				ST[i+(PARTICLES*j)] = 0.1;
+				ST[j+(PARTICLES*i)] = 0.1;
+			}
+			ST[i+(PARTICLES*j)] = 1.0;//zahl;
+			ST[j+(PARTICLES*i)] = 1,0;//zahl;
 			if(i==j) ST[j+(PARTICLES*i)] = 1.0;
 		}
 	}
 	/**********************************************************/
-
+	utils::print_2dim_array(ST,PARTICLES,PARTICLES);
 }
 
 
@@ -348,10 +359,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // 	cin >> buffer2;
 	
 	for (it = domains.begin(), itc=domains_copy.begin(); it !=domains.end(); it++, itc++){	
-		(*it).convolution(dt,ST,ID,(*itc), zeroBox);
+		(*it).convolution(dt,ST,ID,(*itc), zeroBox, grid_blowup);
 	}
-// 	cout << "convolution done" << endl;
-// // 	cin >> buffer2;
+
 	
 	// Output	
 	for (it = domains.begin(); it !=domains.end(); it++){		
@@ -367,7 +377,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			filename << ".gnu";
 			if (SAFEFILES) {
 				(*it).save_matrix(filename.str().c_str());
-// 				cout << filename.str() << endl << endl;
+				cout << filename.str() << endl << endl;
 			}
 		}
 	}

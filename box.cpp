@@ -267,6 +267,8 @@ void LSbox::copy_distances_to_domain(){
 		}
 	}
 	delete [] distance;
+	delete [] IDLocal[0];
+	delete [] IDLocal[1];
 	distance = NULL;
 }
 
@@ -276,7 +278,8 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup
   			(*domain)[i][j]=0.5*((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			if ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0){
 			  ID[0][(i*resized_m) + j] = this;
-			  ID[1][(i*resized_m) + j] = IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)];
+			  ID[1][(i*resized_m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+			  ID[2][(i*resized_m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
 			}
 		}
 	}
@@ -297,10 +300,12 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
 	if(distance == NULL) {
-	  IDLocal=new LSbox*[(xmax-xmin)*(ymax-ymin)];
+	  IDLocal[0]=new LSbox*[(xmax-xmin)*(ymax-ymin)];
+	  IDLocal[1]=new LSbox*[(xmax-xmin)*(ymax-ymin)];
 	  distance = new double [(ymax-ymin)*(xmax-xmin)];
 	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!
-	  std::fill_n(IDLocal,(ymax-ymin)*(xmax-xmin), this);
+	  std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
+	  std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
 	}
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){
@@ -326,7 +331,9 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 					for (int j = x_min_new; j < x_max_new; j++){
 						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]){ 
 						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
-						IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
+						IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+						IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
+
 						// (i+grid_blowup)*resized_m + j + grid_blowup
 						}
 					}

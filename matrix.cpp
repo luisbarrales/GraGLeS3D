@@ -393,7 +393,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox){
+void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox, int grid_blowup){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -424,10 +424,15 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 				if( ID[0][i*m +j] != zeroBox ){
 					vn = ((*this)[i][j] -ref[i][j] ) / dt;
 // 					cout << vn << "  ";
-					vnn = vn * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ];
+					vnn = vn * ( ((1/(1+fabs((*ID[1][i*m +j]->domain)[i][j])))* ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ] )+ 
+					( (1/(1+fabs((*ID[2][i*m +j]->domain)[i][j]))) * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[2][i*m +j]->get_id()-1)) ] ) );
 // 					cout << vnn << endl;
 					(*this)[i][j] = ref[i][j] + (vnn*dt);
 				}
+				
+				if (FIX_BOUNDARY) 
+					if(ID[0][i*m +j] == zeroBox || i== grid_blowup || j ==grid_blowup || i == m-grid_blowup || j== n-grid_blowup )
+						(*this)[i][j] = ref[i][j];
 			}
 		}
 	}

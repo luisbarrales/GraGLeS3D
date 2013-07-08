@@ -3,20 +3,21 @@
 
 #define DIM 2
 
-#define M 100 //gridpoints in each direction
+#define M 200 //gridpoints in each direction
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
 
-#define TIMESTEPS 5
-#define PRINTSTEP 200
+#define TIMESTEPS 2000
+#define PRINTSTEP 100
 #define PRINTNOW 1000
-#define PARTICLES 3
+#define PARTICLES 4
 
 #define ISOTROPIC false
-#define TRIPLEPUNKT true 
+#define TRIPLEPUNKT true
+#define FIX_BOUNDARY false
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 

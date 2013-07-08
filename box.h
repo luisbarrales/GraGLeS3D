@@ -23,9 +23,10 @@ class LSbox {
 	double* distance;
     matrix* domain;
 	bool exist;
-    LSbox **IDLocal; 	// local array to asign a cell id to each grid point
+    LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     
 public:
+	friend class matrix;
     LSbox();
     ~LSbox();
     vector<LSbox*> neighbors;
