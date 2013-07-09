@@ -436,6 +436,15 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 			}
 		}
 	}
+	
+	if (FIX_BOUNDARY) {
+		for (int i = 0; i < m; i++){
+			for (int j = 0; j < n; j++) {
+					if( i<= (2*grid_blowup) || j <= (2*grid_blowup) || i >= m-(2*grid_blowup) || j>= n-(2*grid_blowup) )
+						(*this)[i][j] = ref[i][j];
+			}
+		}
+	}
 	// 	energy_correction(ID, ref, grid_blowup);	
 	// funktion muss umgeschrieben werden
 }

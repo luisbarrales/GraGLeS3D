@@ -128,11 +128,11 @@ if(TRIPLEPUNKT){
 	
 	x[0]= 0.5; x[1]= 0.2; x[2]= 0.8; x[3]=0.5;
 	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
-	zahl[0]=1; zahl[1]=1; zahl[2]=0.1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
+	zahl[0]=0.1; zahl[1]=0.1; zahl[2]=1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
 	
 	
 	double z=0.0;
-	for(int i=0;i<4;i++) {
+	for(int i=0;i<3;i++) {
         con.put(i,x[i],y[i],z);
 		
 		for(int j=0;j<=i;j++) {
