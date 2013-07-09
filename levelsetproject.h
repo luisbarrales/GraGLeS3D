@@ -17,7 +17,7 @@
 
 #define ISOTROPIC false
 #define TRIPLEPUNKT true
-#define FIX_BOUNDARY false
+#define FIX_BOUNDARY true
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 

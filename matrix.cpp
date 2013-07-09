@@ -431,7 +431,7 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 				}
 				
 				if (FIX_BOUNDARY) 
-					if(ID[0][i*m +j] == zeroBox || i== grid_blowup || j ==grid_blowup || i == m-grid_blowup || j== n-grid_blowup )
+					if(ID[0][i*m +j] == zeroBox || i<= (2*grid_blowup) || j <= (2*grid_blowup) || i >= m-(2*grid_blowup) || j>= n-(2*grid_blowup) )
 						(*this)[i][j] = ref[i][j];
 			}
 		}
