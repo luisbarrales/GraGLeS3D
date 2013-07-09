@@ -98,6 +98,7 @@ int main() {
     c_loop_all vl(con);
 	
 	vector<int> nr_grains(TIMESTEPS+1);
+	vector<LSbox*> buffer;
 	
 	double *ST;
 	ST = new double [PARTICLES*PARTICLES];
@@ -128,11 +129,11 @@ if(TRIPLEPUNKT){
 	
 	x[0]= 0.5; x[1]= 0.2; x[2]= 0.8; x[3]=0.5;
 	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
-	zahl[0]=0.1; zahl[1]=0.1; zahl[2]=1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
+	zahl[0]=2; zahl[1]=2; zahl[2]=1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
 	
 	
 	double z=0.0;
-	for(int i=0;i<3;i++) {
+	for(int i=0;i<4;i++) {
         con.put(i,x[i],y[i],z);
 		
 		for(int j=0;j<=i;j++) {
@@ -384,7 +385,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 /*********************************************************************************/	
 
-
+cout << "comparison start" << endl;
 /*************************************************************************************/
 // Comparison Step: step 0.5 *(A_k(x) - max A_i(x) | i!=k)
 // 	cout << "convolution done" << endl;
@@ -438,13 +439,13 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			} 			
 			filename.str(std::string());
 			filename << "Comparedmatrix_"<< "T"<<loop;
-						
+			cout << "set to dpomain" << endl;
 			for (it2 = grains.begin(); it2 != grains.end(); it2++){
 				filename << "_"<<(*it2)->getID();
 				(**it2).comparison_set_to_domain(ID, resized_m, grid_blowup);
 			}
 			it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
-			
+			cout << "huhuh" << endl;	
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 				filename << ".gnu";
 				if (SAFEFILES) {
@@ -460,7 +461,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 //************************************************************************************/
 // Redistancing Step
-
+cout << "redist start" << endl;	
 	/*****************************************************************/
 	// Nullstellenverfolgung:
 	// Speichert Nullstellen als NNZ-OBjekt in jeder Box
@@ -473,8 +474,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	
 	/*****************************************************************/
 	// checking for existence ++ resizing the boxes ++ swaping grains
-	
-	vector<LSbox*> buffer;
+	char buffer1;
+
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
 		//check domain it for intersecting grains
@@ -483,7 +484,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			cout << (*it).get_id() <<"domain leer" << endl;
 // 			domains.erase(it); it--;
 // 			cerr << "GrainCheck" ;
-// 			cin >> buffer1;
+			cin >> buffer1;
 		}
 		
 	}
@@ -492,6 +493,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	while(!buffer.empty()){
 		i++;
 		cout << "created a new domain" << endl;
+		cin >> buffer1;
 		domains.emplace_back(resized_m,resized_m, i,INTERIMVAL);
 		domains.back().grainCheck(h, grid_blowup, buffer, loop);
 	
@@ -500,7 +502,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 	
 	/*****************************************************************/
 	
-	
+cout << "redist start" << endl;	
 	/*****************************************************************/
 	// fast sweeping
 	
@@ -585,6 +587,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
  	delete	[] gridIDs;  
 	delete	[] ID[0];
 	delete 	[] ID[1];
+	delete 	[] ID[2];
 	delete 	[] ID;
 	return 0;
 }

@@ -267,8 +267,6 @@ void LSbox::copy_distances_to_domain(){
 		}
 	}
 	delete [] distance;
-	delete [] IDLocal[0];
-	delete [] IDLocal[1];
 	distance = NULL;
 }
 
@@ -285,6 +283,8 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup
 	}
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
  	delete [] distance;
+	delete [] IDLocal[0];
+	delete [] IDLocal[1];
  	distance = NULL;
 }
 
