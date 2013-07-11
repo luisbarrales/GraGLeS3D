@@ -412,7 +412,9 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 	array_to_matrix(u);
 	fftw_destroy_plan(fwdPlan);
 	fftw_destroy_plan(bwdPlan);
-	
+	fftw_free (u);
+	fftw_free (v);
+	fftw_free (fftTemp);
 	/*********************************************************************************/
 	// Velocity Corrector Step: 
 	/*********************************************************************************/
@@ -425,7 +427,7 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 					vn = ((*this)[i][j] -ref[i][j] ) / dt;
 // 					cout << vn << "  ";
 					vnn = vn * ( ((1/(1+fabs((*ID[1][i*m +j]->domain)[i][j])))* ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ] )+ 
-					( (1/(1+fabs((*ID[2][i*m +j]->domain)[i][j]))) * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[2][i*m +j]->get_id()-1)) ] ) );
+					( (1/(1+fabs((*ID[2][i*m +j]->domain)[i][j]))) * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[2][i*m +j]->get_id()-1)) ] ) ) /2;
 // 					cout << vnn << endl;
 					(*this)[i][j] = ref[i][j] + (vnn*dt);
 				}

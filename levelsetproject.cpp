@@ -131,6 +131,7 @@ if(TRIPLEPUNKT){
 	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
 	zahl[0]=2; zahl[1]=2; zahl[2]=1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
 	
+// 	zahl[0]=1; zahl[1]=1; zahl[2]=1; zahl[3]=1, zahl[4]=1, zahl[5]=1;
 	
 	double z=0.0;
 	for(int i=0;i<4;i++) {
@@ -193,12 +194,12 @@ else{
 	for(int i=0; i < PARTICLES; i++){
 		for(int j=0; j <=i; j++){			
 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
-			if (i==6 && j ==5) { 
-				ST[i+(PARTICLES*j)] = 0.1;
-				ST[j+(PARTICLES*i)] = 0.1;
-			}
-			ST[i+(PARTICLES*j)] = 1.0;//zahl;
-			ST[j+(PARTICLES*i)] = 1,0;//zahl;
+// 			if (i==6 && j ==5) { 
+// 				ST[i+(PARTICLES*j)] = 0.1;
+// 				ST[j+(PARTICLES*i)] = 0.1;
+// 			}
+			ST[i+(PARTICLES*j)] = zahl;
+			ST[j+(PARTICLES*i)] = zahl;
 			if(i==j) ST[j+(PARTICLES*i)] = 1.0;
 		}
 	}
@@ -382,7 +383,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			}
 		}
 	}
-
+	domains_copy.clear();
 /*********************************************************************************/	
 
 cout << "comparison start" << endl;
@@ -432,20 +433,24 @@ cout << "comparison start" << endl;
 			grains = (*it).getBoxList();
 						
 			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
-				for (it2 = grains.begin(); it2 != grains.end(); it2++){		
-					if(it_domain == domains_copy.begin()){ (**it2).add_n2o(); } // copy them once for each grain in the first cycle
+				for (it2 = grains.begin(); it2 != grains.end(); it2++){	
+					if( (**it2).get_status() == true ){
+					if( it_domain == domains_copy.begin() ){ (**it2).add_n2o(); } // copy them once for each grain in the first cycle
 					(*it2)->comparison(*it_domain, loop ); //Check if whole ID array necessary
+					}
 				}
 			} 			
 			filename.str(std::string());
 			filename << "Comparedmatrix_"<< "T"<<loop;
-			cout << "set to dpomain" << endl;
+// 			cout << "set to dpomain" << endl;
 			for (it2 = grains.begin(); it2 != grains.end(); it2++){
 				filename << "_"<<(*it2)->getID();
+				if( (**it2).get_status() == true ){
 				(**it2).comparison_set_to_domain(ID, resized_m, grid_blowup);
+				}
 			}
 			it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
-			cout << "huhuh" << endl;	
+// 			cout << "huhuh" << endl;	
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 				filename << ".gnu";
 				if (SAFEFILES) {
@@ -475,7 +480,7 @@ cout << "redist start" << endl;
 	/*****************************************************************/
 	// checking for existence ++ resizing the boxes ++ swaping grains
 	char buffer1;
-
+// 	if(loop >104)		cin >> buffer1;
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
 		//check domain it for intersecting grains
@@ -484,7 +489,7 @@ cout << "redist start" << endl;
 			cout << (*it).get_id() <<"domain leer" << endl;
 // 			domains.erase(it); it--;
 // 			cerr << "GrainCheck" ;
-			cin >> buffer1;
+// 			cin >> buffer1;
 		}
 		
 	}
@@ -493,7 +498,7 @@ cout << "redist start" << endl;
 	while(!buffer.empty()){
 		i++;
 		cout << "created a new domain" << endl;
-		cin >> buffer1;
+// 		cin >> buffer1;
 		domains.emplace_back(resized_m,resized_m, i,INTERIMVAL);
 		domains.back().grainCheck(h, grid_blowup, buffer, loop);
 	
@@ -502,9 +507,10 @@ cout << "redist start" << endl;
 	
 	/*****************************************************************/
 	
-cout << "redist start" << endl;	
+// cout << "redist start" << endl;	
 	/*****************************************************************/
 	// fast sweeping
+	domains_copy.clear();
 	
 	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		//Nullstellenverfolgung:

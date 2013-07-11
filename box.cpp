@@ -308,7 +308,8 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	  std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
 	}
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
-		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) && ((**it_nn).get_status() == true )){
+		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) ){
+			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
 			  if ((*(**it_nn).domain).get_id()==domain->get_id()) cout << "GRAINS IN THE SAME DOMAIN !!!!!!!!!!!!!!!!! " << (**it_nn).get_id()<<","<<get_id()<<endl << endl;
   
@@ -339,8 +340,11 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 					}
 				}
 			}
-			neighbors_2order.erase(it_nn);
+			
+		
 		}
+		neighbors_2order.erase(it_nn);
+	}
 		else it_nn++;
 	}
 }
