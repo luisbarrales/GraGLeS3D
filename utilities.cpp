@@ -57,7 +57,7 @@ namespace utils {
     
     
     void PNGtoGIF(const char *fileName) {
-        FILE *pipe = popen ( "rm GrainNetwork.gif tempGrainNetwork.mp4; ../ffmpeg -i GrainNetwork%03d.png tempGrainNetwork.mp4; ../ffmpeg -i tempGrainNetwork.mp4 -pix_fmt rgb24 -s 640x480 GrainNetwork.gif; rm tempGrainNetwork.mp4;", "r" );
+        FILE *pipe = popen ( "rm GrainNetwork.gif tempGrainNetwork.mp4; ../ffmpeg -i GrainNetwork%05d.png tempGrainNetwork.mp4; ../ffmpeg -i tempGrainNetwork.mp4 -pix_fmt rgb24 -s 640x480 GrainNetwork.gif; rm tempGrainNetwork.mp4;", "r" );
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
         pclose ( pipe );
 

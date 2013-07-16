@@ -129,7 +129,7 @@ if(TRIPLEPUNKT){
 	
 	x[0]= 0.5; x[1]= 0.2; x[2]= 0.8; x[3]=0.5;
 	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
-	zahl[0]=2; zahl[1]=2; zahl[2]=1; zahl[3]=0.1, zahl[4]=0.1, zahl[5]=0.1;
+	zahl[0]=1.; zahl[1]=1.; zahl[2]=0.1; zahl[3]=1., zahl[4]=1., zahl[5]=1.;
 	
 // 	zahl[0]=1; zahl[1]=1; zahl[2]=1; zahl[3]=1, zahl[4]=1, zahl[5]=1;
 	
@@ -553,6 +553,8 @@ cout << "redist start" << endl;
 				int imgnum = (loop/PRINTSTEP);
 				filename.str(std::string());
 				filename << "GrainNetwork";
+				if (imgnum < 10000) filename << "0";
+				if (imgnum < 1000) filename << "0";
 				if (imgnum < 100) filename << "0";
 				if (imgnum < 10) filename << "0";
 				filename << imgnum << ".png";
@@ -587,7 +589,7 @@ cout << "redist start" << endl;
 
 	utils::PNGtoGIF("test.mp4");
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
-//	//utils::print_2dim_array( ID, m, m );
+//	utils::print_2dim_array( ID, m, m );
 	
 	delete  [] ST;
  	delete	[] gridIDs;  
