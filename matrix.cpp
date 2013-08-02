@@ -421,20 +421,23 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 	// hier soll energycorrection gerechnet werden.
 	// in der matrix steht die ursprünglich distanzfunktion, in dem arry die gefaltete
 	if(!ISOTROPIC){
-		for (int i = 0; i < m; i++){
-			for (int j = 0; j < n; j++) {
-				if( ID[0][i*m +j] != zeroBox ){
-					vn = ((*this)[i][j] -ref[i][j] ) / dt;
-// 					cout << vn << "  ";
-					vnn = vn * ( ((1/(1+fabs((*ID[1][i*m +j]->domain)[i][j])))* ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ] )+ 
-					( (1/(1+fabs((*ID[2][i*m +j]->domain)[i][j]))) * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[2][i*m +j]->get_id()-1)) ] ) ) /2;
-// 					cout << vnn << endl;
-					(*this)[i][j] = ref[i][j] + (vnn*dt);
+		vector<LSbox*>::iterator it;
+		for(it = grains.begin(); it != grains.end(); it++){
+			for (int i = (**it).ymin; i < (**it).ymax; i++){
+				for (int j = (**it).xmin; j < (**it).xmax; j++) {
+					if( ID[0][i*m +j] != zeroBox ){
+						vn = ((*this)[i][j] -ref[i][j] ) / dt;
+	// 					cout << vn << "  ";
+						vnn = vn * ( ((1/(1+fabs((*ID[1][i*m +j]->domain)[i][j])))* ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ] )+ 
+						( (1/(1+fabs((*ID[2][i*m +j]->domain)[i][j]))) * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[2][i*m +j]->get_id()-1)) ] ) ) /2;
+	// 					cout << vnn << endl;
+						(*this)[i][j] = ref[i][j] + (vnn*dt);
+					}
+					
+					if (FIX_BOUNDARY) 
+						if(ID[0][i*m +j] == zeroBox || i<= (2*grid_blowup) || j <= (2*grid_blowup) || i >= m-(2*grid_blowup) || j>= n-(2*grid_blowup) )
+							(*this)[i][j] = ref[i][j];
 				}
-				
-				if (FIX_BOUNDARY) 
-					if(ID[0][i*m +j] == zeroBox || i<= (2*grid_blowup) || j <= (2*grid_blowup) || i >= m-(2*grid_blowup) || j>= n-(2*grid_blowup) )
-						(*this)[i][j] = ref[i][j];
 			}
 		}
 	}

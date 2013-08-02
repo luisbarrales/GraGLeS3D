@@ -204,7 +204,7 @@ else{
 		}
 	}
 	/**********************************************************/
-	utils::print_2dim_array(ST,PARTICLES,PARTICLES);
+// 	utils::print_2dim_array(ST,PARTICLES,PARTICLES);
 }
 
 
@@ -435,8 +435,9 @@ cout << "comparison start" << endl;
 			for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 				for (it2 = grains.begin(); it2 != grains.end(); it2++){	
 					if( (**it2).get_status() == true ){
-					if( it_domain == domains_copy.begin() ){ (**it2).add_n2o(); } // copy them once for each grain in the first cycle
-					(*it2)->comparison(*it_domain, loop ); //Check if whole ID array necessary
+						if( it_domain == domains_copy.begin() )
+							{ (**it2).add_n2o(); } // copy them once for each grain in the first cycle
+						(*it2)->comparison(*it_domain, loop ); 
 					}
 				}
 			} 			

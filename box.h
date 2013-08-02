@@ -7,6 +7,12 @@
 using namespace std;
 
 class matrix;
+class LSbox;
+
+struct neighbor{
+	LSbox* who;
+	double sigma;
+};
 
 struct pointVal {
     int x,y;
@@ -29,6 +35,7 @@ public:
 	friend class matrix;
     LSbox();
     ~LSbox();
+	vector<neighbor> weights;
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
