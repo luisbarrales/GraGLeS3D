@@ -43,7 +43,6 @@ double kernel(double dt,int m, int i ,int j){
 }
 
 
-
 using namespace voro;
 
 int main() {
@@ -90,7 +89,10 @@ int main() {
 	std::fill_n(ID[0],resized_m*resized_m,zeroBox);
 	std::fill_n(ID[1],resized_m*resized_m,zeroBox);
 	std::fill_n(ID[2],resized_m*resized_m,zeroBox);
-        
+	
+// 	weights = vector<int>***[PARTICLES];
+//  weights weightsmap();
+	        
     double  (*fp)(double,int, int, int); // function pointer
     fp = &kernel;
     

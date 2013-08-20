@@ -29,6 +29,7 @@
 #define DRAW_PARTICLES false
 
 #pragma once
+#include <map>
 #include <vector>
 #include <assert.h>
 #include <cmath>
@@ -55,7 +56,7 @@
 #include "box.h"
 #include "matrix.h"
 #include "functions.h"
-
+#include "weightmap.h"
 
 #endif
 

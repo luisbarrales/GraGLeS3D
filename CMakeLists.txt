@@ -5,7 +5,7 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES box.cpp functions.cpp levelsetproject.cpp matrix.cpp outOfBoundsException.cpp utilities.cpp vektor.cpp)
+set(MY_SOURCES box.cpp functions.cpp levelsetproject.cpp matrix.cpp outOfBoundsException.cpp utilities.cpp vektor.cpp weightmap.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS "-fno-stack-protector")

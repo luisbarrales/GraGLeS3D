@@ -1,7 +1,6 @@
 #include "box.h"
 
-LSbox::LSbox() {    
-}
+LSbox::LSbox() {}
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h):id(aID) {
     
@@ -525,7 +524,8 @@ void LSbox::euler_forward(double dt, double h){
 		}
 	}
 }
-      
+
+
 void LSbox::plot_box(bool distanceplot){
 	cout <<" \nGrain  Info: " << endl;
 	cout << " ID :" <<id << endl;
@@ -553,3 +553,6 @@ void LSbox::plot_box(bool distanceplot){
 	} else cout << " neighbors_2order unknown " << endl;
 	
 }
+
+
+
