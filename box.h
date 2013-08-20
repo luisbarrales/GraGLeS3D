@@ -58,7 +58,7 @@ public:
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
 	inline bool get_status() { return exist;}
-	inline int get_id() { return getID(); }
+	inline int get_id() { return id; }
 };
 
 

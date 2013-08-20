@@ -428,14 +428,13 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
 						
-// 						rep = weightmap.find_representer(ID,i,j);
-// 						weights = weightmap.load_tupel(rep);
+
+						double weight = weightmap.load_weights(ST, ID,i,j);
 
 
 						vn = ((*this)[i][j] -ref[i][j] ) / dt;
 	// 					cout << vn << "  ";
-						vnn = vn * ( ((1/(1+fabs((*ID[1][i*m +j]->domain)[i][j])))* ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[1][i*m +j]->get_id()-1)) ] )+ 
-						( (1/(1+fabs((*ID[2][i*m +j]->domain)[i][j]))) * ST[ (ID[0][i*m +j]->get_id()-1) + (PARTICLES* (ID[2][i*m +j]->get_id()-1)) ] ) ) /2;
+						vnn = vn * weight;
 	// 					cout << vnn << endl;
 						(*this)[i][j] = ref[i][j] + (vnn*dt);
 					}
