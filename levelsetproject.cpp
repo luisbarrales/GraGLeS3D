@@ -132,7 +132,7 @@ if(TRIPLEPUNKT){
 	
 	x[0]= 0.5; x[1]= 0.2; x[2]= 0.8; x[3]=0.5;
 	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
-	zahl[0]=1.; zahl[1]=1.; zahl[2]=0.1; zahl[3]=1., zahl[4]=1., zahl[5]=1.;
+	zahl[0]=.3; zahl[1]=.5; zahl[2]=0.1; zahl[3]=1., zahl[4]=1., zahl[5]=1.;
 	
 // 	zahl[0]=1; zahl[1]=1; zahl[2]=1; zahl[3]=1, zahl[4]=1, zahl[5]=1;
 	
@@ -154,6 +154,9 @@ if(TRIPLEPUNKT){
 		}		
 	}
 	utils::print_2dim_array(ST,4,4);
+	
+	char b;
+	cin >> b;
 /**********************************************************/
 	// generate random or deterministic surface tension coefficients
 

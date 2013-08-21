@@ -421,17 +421,15 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 	// hier soll energycorrection gerechnet werden.
 	// in der matrix steht die ursprünglich distanzfunktion, in dem arry die gefaltete
 	if(!ISOTROPIC){
-		int* rep = new int[3];
+// 		int* rep = new int[3];
 		vector<LSbox*>::iterator it;
 		for(it = grains.begin(); it != grains.end(); it++){
 			for (int i = (**it).ymin; i < (**it).ymax; i++){
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
-						
 
-						double weight = my_weights.load_weights(ST, ID,i,j);
-
-
+						double weight = my_weights.load_weights(int(M)+(2*grid_blowup), ST, ID,i,j);
+// 						cout << weight << endl;
 						vn = ((*this)[i][j] -ref[i][j] ) / dt;
 	// 					cout << vn << "  ";
 						vnn = vn * weight;

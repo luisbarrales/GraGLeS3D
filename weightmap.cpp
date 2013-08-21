@@ -5,9 +5,9 @@ weightmap::~weightmap(){}
 
 
 
-LSbox** weightmap::find_representer(LSbox ***ID,int i, int j){
+LSbox** weightmap::find_representer(int length, LSbox ***ID,int i, int j){
 	LSbox** rep = new LSbox* [3];
-	int length = sqrt(sizeof(ID[0])/sizeof(ID[0][0]));
+	
 	if( ID[0][i*length +j]->get_id() < ID[1][i*length +j]->get_id() ){
 		rep[0]=ID[0][i*length +j];
 		rep[2]=ID[1][i*length +j];
@@ -53,8 +53,8 @@ void weightmap::add_weights(int* ids, inner_map::iterator it2, double* sigma){
 
 
 
-double weightmap::load_weights(double* ST, LSbox*** ID, int i, int j){
-	LSbox** rep = find_representer(ID,i,j);	
+double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j){
+	LSbox** rep = find_representer(length,ID,i,j);	
 	double* sigma;
 	outer_map::iterator it;
 	inner_map::iterator it2;
@@ -62,7 +62,7 @@ double weightmap::load_weights(double* ST, LSbox*** ID, int i, int j){
 	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};
 	
 	it = weights_table.find(ids[0]);
-	if (it == weights_table.end() ){
+	if (it == weights_table.end() ){		
 		sigma = compute_weights(ST, ids);
 		add_weights(ids, sigma);
 	}
@@ -74,12 +74,18 @@ double weightmap::load_weights(double* ST, LSbox*** ID, int i, int j){
 		}
 		else{
 			it3= (*(*it2).second).find(ids[2]);
-			sigma = compute_weights(ST, ids);
-			add_weights(ids, it2, sigma);
+			if(it3 == (*(*it2).second).end()){
+				sigma = compute_weights(ST, ids);
+				add_weights(ids, it2, sigma);
+			}
+			else { sigma = (*it3).second;
+			cout << "read map :";
+			utils::print_2dim_array(ids,1,3);
+			utils::print_2dim_array(sigma,1,3);
+			}
 		}
 	}
 // 	if exist
-	int length = sqrt(sizeof(ID[0])/sizeof(ID[0][0]));
 	int ii=0;
 	while(ids[ii] != ID[0][i*length+j]->get_id()){
 		ii++;
@@ -94,10 +100,21 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 	gamma[0] = ST[ (ids[0]-1) + (PARTICLES* ( ids[1]-1) ) ];
 	gamma[1] = ST[ (ids[0]-1) + (PARTICLES* ( ids[2]-1) ) ];
 	gamma[2] = ST[ (ids[1]-1) + (PARTICLES* ( ids[2]-1) ) ];
+	
+	
 	// wähle gamma oder lade aus ST-Feld
 	sigma[0]= 	gamma[0] + gamma[1] - gamma[2];
 	sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 	sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
+	
+	if( sigma[0]!= 1.0 ) {
+		cout << "copute weights" << endl;
+		utils::print_2dim_array(gamma,1,3);
+		utils::print_2dim_array(ids,1,3);
+		utils::print_2dim_array(sigma,1,3);
+		char c;
+		cin >> c;
+	}
 // 	if exist
 
 // speichere sigma
