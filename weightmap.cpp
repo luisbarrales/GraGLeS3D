@@ -79,17 +79,19 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 				add_weights(ids, it2, sigma);
 			}
 			else { sigma = (*it3).second;
-			cout << "read map :";
-			utils::print_2dim_array(ids,1,3);
-			utils::print_2dim_array(sigma,1,3);
+// 			cout << "read map :";
+// 			utils::print_2dim_array(ids,1,3);
+// 			utils::print_2dim_array(sigma,1,3);
 			}
 		}
 	}
 // 	if exist
 	int ii=0;
-	while(ids[ii] != ID[0][i*length+j]->get_id()){
+	int id = ID[0][i*length+j]->get_id();
+	while(ids[ii] != id ){
 		ii++;
 	}
+// 	cout << sigma[0] << endl;
 	return sigma[ii];
 	
 }
@@ -97,26 +99,29 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 double* weightmap::compute_weights(double *ST,  int* ids){
 	double* sigma = new double[3];
 	double gamma[3];
-	gamma[0] = ST[ (ids[0]-1) + (PARTICLES* ( ids[1]-1) ) ];
-	gamma[1] = ST[ (ids[0]-1) + (PARTICLES* ( ids[2]-1) ) ];
-	gamma[2] = ST[ (ids[1]-1) + (PARTICLES* ( ids[2]-1) ) ];
 	
-	
-	// wähle gamma oder lade aus ST-Feld
-	sigma[0]= 	gamma[0] + gamma[1] - gamma[2];
-	sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
-	sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
-	
-	if( sigma[0]!= 1.0 ) {
-		cout << "copute weights" << endl;
-		utils::print_2dim_array(gamma,1,3);
-		utils::print_2dim_array(ids,1,3);
-		utils::print_2dim_array(sigma,1,3);
-		char c;
-		cin >> c;
+	if (ids[0] == ids[1]  ||  ids[1] == ids[2]){
+		sigma[0]= 1.0;
+		sigma[1]= 1.0;
+		sigma[2]= 1.0;	
 	}
-// 	if exist
+	else{
+		gamma[0] = ST[ (ids[0]-1) + (PARTICLES* ( ids[1]-1) ) ];
+		gamma[1] = ST[ (ids[0]-1) + (PARTICLES* ( ids[2]-1) ) ];
+		gamma[2] = ST[ (ids[1]-1) + (PARTICLES* ( ids[2]-1) ) ];
+		
+		
+		// wähle gamma oder lade aus ST-Feld
+		sigma[0]= 	gamma[0] + gamma[1] - gamma[2];
+		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
+		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
+	}
+	cout << "copute weights" << endl;
+// 	utils::print_2dim_array(gamma,1,3);
+	utils::print_2dim_array(ids,1,3);
+	utils::print_2dim_array(sigma,1,3);
+	char c;
+	cin >> c;
 
-// speichere sigma
 	return sigma;
 }

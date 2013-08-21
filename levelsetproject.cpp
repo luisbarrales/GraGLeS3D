@@ -79,6 +79,7 @@ int main() {
     const int grid_blowup = int(((double)DELTA / h)+1); // number of grid points to extract the domain at each boundary
     
     int resized_m = m + (2*grid_blowup); 
+
     LSbox ***ID; // array to asign a cell id to each grid point
     
     ID = new LSbox**[3];
@@ -115,7 +116,7 @@ int main() {
     cout << "Number of Grains: " << PARTICLES << endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
     cout << "Timestepwidth " << dt << endl;
-    cout << "Number of Gridpoints: " << M << endl << endl;
+    cout << "Number of Gridpoints: " << resized_m << endl << endl;
     
     cout << endl << "******* start simulation: *******" << endl << endl;
 	
@@ -132,7 +133,7 @@ if(TRIPLEPUNKT){
 	
 	x[0]= 0.5; x[1]= 0.2; x[2]= 0.8; x[3]=0.5;
 	y[0]= 0.15; y[1]= 0.7; y[2]= 0.7; y[3]= 0.7;
-	zahl[0]=.3; zahl[1]=.5; zahl[2]=0.1; zahl[3]=1., zahl[4]=1., zahl[5]=1.;
+	zahl[0]=1.; zahl[1]=1.; zahl[2]=0.1; zahl[3]=1., zahl[4]=1., zahl[5]=1.;
 	
 // 	zahl[0]=1; zahl[1]=1; zahl[2]=1; zahl[3]=1, zahl[4]=1, zahl[5]=1;
 	
