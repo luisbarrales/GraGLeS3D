@@ -393,7 +393,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	fftw_execute(fftplan2);
 }
 
-void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox, int grid_blowup){
+void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox, int grid_blowup, weightmap& my_weights){
 	int n = get_n();
 	int m = get_m();
 	double *u, *v;
@@ -429,7 +429,7 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 					if( ID[0][i*m +j] != zeroBox ){
 						
 
-						double weight = weightmap.load_weights(ST, ID,i,j);
+						double weight = my_weights.load_weights(ST, ID,i,j);
 
 
 						vn = ((*this)[i][j] -ref[i][j] ) / dt;

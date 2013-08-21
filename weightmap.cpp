@@ -3,6 +3,8 @@
 weightmap::weightmap(){}
 weightmap::~weightmap(){}
 
+
+
 LSbox** weightmap::find_representer(LSbox ***ID,int i, int j){
 	LSbox** rep = new LSbox* [3];
 	int length = sqrt(sizeof(ID[0])/sizeof(ID[0][0]));
@@ -30,60 +32,63 @@ LSbox** weightmap::find_representer(LSbox ***ID,int i, int j){
 	return rep;
 }
 
-void weightmap::add_weights(int& ids, double* sigma){
-	map<int, map<int, double*>* >* temp = new map<int, map<int, double*>* > ;
-	maptable[ids[0]] = temp;
-	(*temp)[ids[1]] = new map<int, double*>;
+
+
+void weightmap::add_weights(int* ids, double* sigma){
+	inner_map* temp = new inner_map;	
+	weights_table[ids[0]] = temp;
+	(*temp)[ids[1]] = new storage_map;
 	(*(*temp)[ids[1]])[ids[2]] = sigma;
 }
 
-void weightmap::add_weights(int& ids, map<int, map<int, map<int, double*>* >* > :: iterator it, double* sigma){
-	(**it)[ids[1]] = new map<int, double*>;
-	(*(**it)[ids[1]])[ids[2]] = sigma;
+
+void weightmap::add_weights(int* ids, outer_map::iterator it, double* sigma){
+	(*(*it).second)[ids[1]] = new storage_map;
+	(*(*(*it).second)[ids[1]])[ids[2]] = sigma;
 }
 
-void weightmap::add_weights(int& ids, map<int, map<int, double*>* >* :: iterator it2, double* sigma){
-	(**it2)[ids[2]] = sigma;
+void weightmap::add_weights(int* ids, inner_map::iterator it2, double* sigma){
+	(*(*it2).second)[ids[2]] = sigma;
 }
 
 
 
-double weightmap::load_weights(double* ST, int*** ID, int i, int j){
+double weightmap::load_weights(double* ST, LSbox*** ID, int i, int j){
 	LSbox** rep = find_representer(ID,i,j);	
 	double* sigma;
-	map<int, map<int, map<int, double*>* >* > :: iterator it;
-	map<int, map<int, double*>* >* :: iterator it2;
-	map<int, double*>* :: iterator it3;
-	double ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};
+	outer_map::iterator it;
+	inner_map::iterator it2;
+	storage_map::iterator it3;
+	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};
 	
-	it = maptable.find(ids[0]);
-	if (it == maptable.end() ){
+	it = weights_table.find(ids[0]);
+	if (it == weights_table.end() ){
 		sigma = compute_weights(ST, ids);
 		add_weights(ids, sigma);
 	}
 	else {
-		it2 = **it.find(ids[1]);
-		if (it2 == **it.end() ){
+		it2 = (*(*it).second).find(ids[1]);
+		if (it2 == (*(*it).second).end() ){
 			sigma = compute_weights(ST, ids);
 			add_weights (ids, it, sigma);
 		}
 		else{
-			it3= **it2.find(ids[2]);
+			it3= (*(*it2).second).find(ids[2]);
 			sigma = compute_weights(ST, ids);
 			add_weights(ids, it2, sigma);
 		}
 	}
 // 	if exist
 	int length = sqrt(sizeof(ID[0])/sizeof(ID[0][0]));
-	int i=0;
-	while(ids[i] != ID[0][i*length+j].get_id()){
-		i++;
+	int ii=0;
+	while(ids[ii] != ID[0][i*length+j]->get_id()){
+		ii++;
 	}
-	return sigma[i];
+	return sigma[ii];
 	
 }
 
-double* weightmap::compute_weights(double *ST, LSbox** rep){
+double* weightmap::compute_weights(double *ST,  int* ids){
 	double* sigma = new double[3];
 	double gamma[3];
 	gamma[0] = ST[ (ids[0]-1) + (PARTICLES* ( ids[1]-1) ) ];

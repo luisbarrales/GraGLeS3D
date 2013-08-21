@@ -90,6 +90,7 @@ int main() {
 	std::fill_n(ID[1],resized_m*resized_m,zeroBox);
 	std::fill_n(ID[2],resized_m*resized_m,zeroBox);
 	
+	weightmap my_weights;
 // 	weights = vector<int>***[PARTICLES];
 //  weights weightsmap();
 	        
@@ -363,7 +364,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 // 	cin >> buffer2;
 	
 	for (it = domains.begin(), itc=domains_copy.begin(); it !=domains.end(); it++, itc++){	
-		(*it).convolution(dt,ST,ID,(*itc), zeroBox, grid_blowup);
+		(*it).convolution(dt,ST,ID,(*itc), zeroBox, grid_blowup, my_weights);
 	}
 
 	

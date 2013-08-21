@@ -7,7 +7,7 @@ using namespace std;
 
 class vektor;
 class LSbox;
-class particle_information;
+class weightmap;
 
 class matrix{
     int m,n,id;
@@ -51,7 +51,7 @@ public:
 	void makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 
 	void conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt);
-	void convolution(double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox, int grid_blowup);
+	void convolution(double dt, double *ST, LSbox ***ID, matrix &ref, LSbox* zeroBox, int grid_blowup, weightmap& my_weights);
 	
     void redistancing_advanced(double h, int grid_blowup, std::list<matrix> distances, double** borderSlopes, double** slopeField);
     void redistancing(double h, int grid_blowup);
