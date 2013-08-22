@@ -434,12 +434,15 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 // 		int* rep = new int[3];
 		vector<LSbox*>::iterator it;
 		for(it = grains.begin(); it != grains.end(); it++){
+// 			bool out=false;
 			for (int i = (**it).ymin; i < (**it).ymax; i++){
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
 
 						double weight = my_weights.load_weights(m, ST, ID,i,j);
-// 						cout << weight << endl;
+						
+// 						if (out == false ) cout << ID[0][i*m +j] ->get_id() <<" || "<< weight << endl;
+// 						if (ID[0][i*m +j] ->get_id() == (**it).id) out = true;
 						vn = ((*this)[i][j] -ref[i][j] ) / dt;
 	// 					cout << vn << "  ";
 						vnn = vn * weight;

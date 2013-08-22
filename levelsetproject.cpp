@@ -76,7 +76,7 @@ int main() {
     if (randbedingung == false) m = int(M)-1;
     
     const double h = 1.0/double(m); // there are m-2*gridbloup grid points in each direction in the domain
-    const int grid_blowup = int(((double)DELTA / h)+1); // number of grid points to extract the domain at each boundary
+    const int grid_blowup = 2*int(((double)DELTA / h)+1); // number of grid points to extract the domain at each boundary
     
     int resized_m = m + (2*grid_blowup); 
 
@@ -584,6 +584,8 @@ cout << "redist start" << endl;
 // end of simulation
 // Endausgabe
 /*******************************************************************************************/
+	my_weights.plot_weightmap(resized_m, ID, ST, zeroBox);
+	
 	for(int i=0; i < m; i++) for(int j= 0; j < m; j++){
 		gridIDs[(i+grid_blowup)*resized_m + j + grid_blowup] = ID[1][(i+grid_blowup)*resized_m + j + grid_blowup]->get_id();
 	}	

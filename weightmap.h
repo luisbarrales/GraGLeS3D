@@ -21,6 +21,7 @@ class weightmap{
 	void add_weights(int* ids, double* sigma);
 	void add_weights(int* ids, outer_map::iterator it, double* sigma);
 	void add_weights(int* ids, inner_map::iterator it2, double* sigma);
+	void plot_weightmap(int length, LSbox*** ID, double* ST, LSbox * zeroBox);
 };
 
 #endif

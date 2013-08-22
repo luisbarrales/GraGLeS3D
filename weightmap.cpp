@@ -116,12 +116,22 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
 	}
-	cout << "copute weights" << endl;
-// 	utils::print_2dim_array(gamma,1,3);
-	utils::print_2dim_array(ids,1,3);
-	utils::print_2dim_array(sigma,1,3);
-	char c;
-	cin >> c;
 
 	return sigma;
+}
+
+void weightmap::plot_weightmap(int length, LSbox*** ID, double* ST, LSbox* zeroBox){
+	matrix *temp = new matrix(length,length);
+	double weight;
+	for(int i=0; i<length; i++)
+		for(int j=0; j<length; j++){
+			if( ID[0][i*length +j] != zeroBox ){
+				weight = load_weights(length,ST,ID,i,j);
+// 				cout << weight << endl;
+				(*temp)[i][j] = weight;
+			}
+			else (*temp)[i][j]=0.0;
+		}
+		(*temp).save_matrix("weights.gnu");
+		delete [] temp;
 }
