@@ -156,8 +156,8 @@ if(TRIPLEPUNKT){
 	}
 	utils::print_2dim_array(ST,4,4);
 	
-	char b;
-	cin >> b;
+// 	char b;
+// 	cin >> b;
 /**********************************************************/
 	// generate random or deterministic surface tension coefficients
 

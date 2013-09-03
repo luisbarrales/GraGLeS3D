@@ -53,7 +53,7 @@ void weightmap::add_weights(int* ids, inner_map::iterator it2, double* sigma){
 
 
 
-double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j){
+double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j, int id){
 	LSbox** rep = find_representer(length,ID,i,j);	
 	double* sigma;
 	outer_map::iterator it;
@@ -87,7 +87,6 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 	}
 // 	if exist
 	int ii=0;
-	int id = ID[0][i*length+j]->get_id();
 	while(ids[ii] != id ){
 		ii++;
 	}
@@ -122,16 +121,31 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 
 void weightmap::plot_weightmap(int length, LSbox*** ID, double* ST, LSbox* zeroBox){
 	matrix *temp = new matrix(length,length);
+	matrix *id_0 = new matrix(length,length);
+	matrix *id_1 = new matrix(length,length);
+	matrix *id_2 = new matrix(length,length);
 	double weight;
 	for(int i=0; i<length; i++)
 		for(int j=0; j<length; j++){
 			if( ID[0][i*length +j] != zeroBox ){
-				weight = load_weights(length,ST,ID,i,j);
+				weight = load_weights(length,ST,ID,i,j, ID[0][i*length +j]->get_id() );
 // 				cout << weight << endl;
-				(*temp)[i][j] = weight;
+				if( weight != 1.0 )(*temp)[i][j] = weight;
+				else (*temp)[i][j] = 0.0;
+				(*id_0)[i][j]= ID[0][i*length+j]->get_id();
+				(*id_1)[i][j]= ID[1][i*length+j]->get_id();
+				(*id_2)[i][j]= ID[2][i*length+j]->get_id();
 			}
 			else (*temp)[i][j]=0.0;
 		}
+		(*id_0).save_matrix("id_0.gnu");
+		(*id_1).save_matrix("id_1.gnu");
+		(*id_2).save_matrix("id_2.gnu");
 		(*temp).save_matrix("weights.gnu");
-		delete [] temp;
+		
+		delete temp;
+		delete id_0;
+		delete id_1;
+		delete id_2;
+		
 }

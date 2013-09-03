@@ -266,6 +266,8 @@ void LSbox::copy_distances_to_domain(){
 		}
 	}
 	delete [] distance;
+	delete [] IDLocal[0];
+	delete [] IDLocal[1];
 	distance = NULL;
 }
 
@@ -273,9 +275,15 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
   			(*domain)[i][j]=0.5*((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0){
+			if ((*domain)[i][j]- distance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0){
 			  ID[0][(i*resized_m) + j] = this;
 			  ID[1][(i*resized_m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+			  ID[2][(i*resized_m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
+			}
+			else {
+// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
+			  ID[0][(i*resized_m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+			  ID[1][(i*resized_m) + j] = this;
 			  ID[2][(i*resized_m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
 			}
 		}
@@ -295,6 +303,7 @@ bool LSbox::checkIntersect(LSbox* box2) {
 
 void LSbox::comparison(const matrix &domain_copy, int loop){
 	//LSbox*
+	matrix *temp = new matrix(ymax-ymin, xmax-xmin, 0, 10.0);
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
@@ -329,12 +338,14 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
-						if (distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]){ 
-						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
-						IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-						IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
-
-						// (i+grid_blowup)*resized_m + j + grid_blowup
+						if(distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]){ 
+							distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
+							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+							IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
+						}
+						else if( distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (*temp)[i-ymin][j-xmin]){
+							(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;						
 						}
 					}
 				}
@@ -346,6 +357,8 @@ void LSbox::comparison(const matrix &domain_copy, int loop){
 	}
 		else it_nn++;
 	}
+	
+	delete temp;
 }
 
 

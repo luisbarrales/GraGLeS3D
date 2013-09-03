@@ -439,7 +439,7 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
 
-						double weight = my_weights.load_weights(m, ST, ID,i,j);
+						double weight = my_weights.load_weights(m, ST, ID,i,j,(**it).get_id());
 						
 // 						if (out == false ) cout << ID[0][i*m +j] ->get_id() <<" || "<< weight << endl;
 // 						if (ID[0][i*m +j] ->get_id() == (**it).id) out = true;
