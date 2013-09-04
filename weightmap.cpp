@@ -5,9 +5,8 @@ weightmap::~weightmap(){}
 
 
 
-LSbox** weightmap::find_representer(int length, LSbox ***ID,int i, int j){
-	LSbox** rep = new LSbox* [3];
-	
+void weightmap::find_representer(LSbox** rep, int length, LSbox ***ID,int i, int j){
+		
 	if( ID[0][i*length +j]->get_id() < ID[1][i*length +j]->get_id() ){
 		rep[0]=ID[0][i*length +j];
 		rep[2]=ID[1][i*length +j];
@@ -29,7 +28,6 @@ LSbox** weightmap::find_representer(int length, LSbox ***ID,int i, int j){
 			rep[1]=ID[2][i*length +j];
 		}
 	}
-	return rep;
 }
 
 
@@ -54,43 +52,59 @@ void weightmap::add_weights(int* ids, inner_map::iterator it2, double* sigma){
 
 
 double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j, int id){
-	LSbox** rep = find_representer(length,ID,i,j);	
+	LSbox** rep= new LSbox* [3];
+	find_representer(rep, length,ID,i,j);	
 	double* sigma;
 	outer_map::iterator it;
 	inner_map::iterator it2;
 	storage_map::iterator it3;
 	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};
 	
-	it = weights_table.find(ids[0]);
-	if (it == weights_table.end() ){		
-		sigma = compute_weights(ST, ids);
-		add_weights(ids, sigma);
+	if(ids[0]==ids[1] || ids[1]==ids[2]) {
+		delete [] rep;
+		return 1.0;
 	}
-	else {
-		it2 = (*(*it).second).find(ids[1]);
-		if (it2 == (*(*it).second).end() ){
+		
+	else{		
+		it = weights_table.find(ids[0]);
+		if (it == weights_table.end() ){		
 			sigma = compute_weights(ST, ids);
-			add_weights (ids, it, sigma);
+			add_weights(ids, sigma);
 		}
-		else{
-			it3= (*(*it2).second).find(ids[2]);
-			if(it3 == (*(*it2).second).end()){
+		else {
+			it2 = (*(*it).second).find(ids[1]);
+			if (it2 == (*(*it).second).end() ){
 				sigma = compute_weights(ST, ids);
-				add_weights(ids, it2, sigma);
+				add_weights (ids, it, sigma);
 			}
-			else { sigma = (*it3).second;
-// 			cout << "read map :";
-// 			utils::print_2dim_array(ids,1,3);
-// 			utils::print_2dim_array(sigma,1,3);
+			else{
+				it3= (*(*it2).second).find(ids[2]);
+				if(it3 == (*(*it2).second).end()){
+					sigma = compute_weights(ST, ids);
+					cout << "entry  not exist "<< endl; 
+					utils::print_2dim_array(ids,1,3);
+					utils::print_2dim_array(sigma,1,3);
+					add_weights(ids, it2, sigma);
+				}
+				else { 
+					sigma = (*it3).second;
+	// 			char d;
+	// 			cerr << "read map :";
+	// 			cin>> d;
+	// 			utils::print_2dim_array(ids,1,3);
+	// 			utils::print_2dim_array(sigma,1,3);
+				}
 			}
 		}
+	// 	if exist
 	}
-// 	if exist
 	int ii=0;
 	while(ids[ii] != id ){
 		ii++;
 	}
 // 	cout << sigma[0] << endl;
+
+	delete [] rep;
 	return sigma[ii];
 	
 }

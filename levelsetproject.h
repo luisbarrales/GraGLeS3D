@@ -13,10 +13,10 @@
 #define TIMESTEPS 1000
 #define PRINTSTEP 100
 #define PRINTNOW 1000
-#define PARTICLES 4
+#define PARTICLES 5000
 
 #define ISOTROPIC false
-#define TRIPLEPUNKT true
+#define TRIPLEPUNKT false
 #define FIX_BOUNDARY false
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)

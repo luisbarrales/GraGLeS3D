@@ -15,7 +15,7 @@ class weightmap{
 	friend class LSbox;
 	weightmap();
 	~weightmap();
-	LSbox** find_representer(int length, LSbox ***ID,int i, int j);
+	void find_representer(LSbox** rep, int length, LSbox ***ID,int i, int j);
 	double load_weights(int length, double *ST, LSbox*** ID, int i, int j, int id);
 	double* compute_weights( double* ST, int* ids);
 	void add_weights(int* ids, double* sigma);

@@ -266,8 +266,6 @@ void LSbox::copy_distances_to_domain(){
 		}
 	}
 	delete [] distance;
-	delete [] IDLocal[0];
-	delete [] IDLocal[1];
 	distance = NULL;
 }
 
