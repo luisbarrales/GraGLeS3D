@@ -438,16 +438,14 @@ void matrix::convolution(const double dt, double *ST, LSbox ***ID, matrix &ref, 
 			for (int i = (**it).ymin; i < (**it).ymax; i++){
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
-
-						double weight = my_weights.load_weights(m, ST, ID,i,j,(**it).get_id());
-						
-// 						if (out == false ) cout << ID[0][i*m +j] ->get_id() <<" || "<< weight << endl;
-// 						if (ID[0][i*m +j] ->get_id() == (**it).id) out = true;
-						vn = ((*this)[i][j] -ref[i][j] ) / dt;
-	// 					cout << vn << "  ";
-						vnn = vn * weight;
-	// 					cout << vnn << endl;
-						(*this)[i][j] = ref[i][j] + (vnn*dt);
+						if (ID[0][i*m +j]!=ID[1][i*m +j] && ID[1][i*m +j]!=ID[2][i*m +j]){
+						  double weight = my_weights.load_weights(m, ST, ID,i,j,(**it).get_id());
+  // 							if (out == false ) cout << ID[0][i*m +j] ->get_id() <<" || "<< weight << endl;
+  // 							if (ID[0][i*m +j] ->get_id() == (**it).id) out = true;
+						  vn = ((*this)[i][j] -ref[i][j] ) / dt;
+						  vnn = vn * weight;
+						  (*this)[i][j] = ref[i][j] + (vnn*dt);
+						}
 					}
 					
 					if (FIX_BOUNDARY) 
