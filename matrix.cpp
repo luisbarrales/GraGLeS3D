@@ -371,18 +371,20 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 	int m = get_m();
 	int i, j;
 	int n2 = floor(n/2) + 1;
-	double nsq = (double) n * (double) n;
-	double k = 2.0 * PI / (double)n;
+	double nsq = n *  n;
+	double k = 2.0 * PI / n;
 	double G;
 	
 	fftw_execute(fftplan1);
 	
 	for(i=0;i<n2;i++)
+	{
+	  double coski=cos(k*i);
 		for(j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
 			
-			G = 2.0*(2.0 - cos(k*i) - cos(k*j)) * nsq;
-			G = 1.0/(1.0+dt*G) / nsq;
+			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+			G = 1.0/(1.0+G*dt) / nsq;
 			//        USE this line for Richardson-type extrapolation
 			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			
@@ -390,6 +392,7 @@ void matrix::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1
 			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
 			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
 		}
+	}
 	fftw_execute(fftplan2);
 }
 
