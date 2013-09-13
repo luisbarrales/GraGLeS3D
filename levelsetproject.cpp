@@ -65,8 +65,8 @@ int main() {
     part_pos = new double[3*particles];
     stringstream filename, plotfiles;
     
-    std::list<matrix> domains, domains_copy;
-    std::list<matrix>::iterator it, itc, it_domain;
+    std::list<domainCl> domains, domains_copy;
+    std::list<domainCl>::iterator it, itc, it_domain;
     vector<LSbox*> grains;
     vector<LSbox*>::iterator it2,it2c;
     
@@ -300,7 +300,7 @@ else{
 		
         if (SAFEFILES){
         	cout << filename.str() << endl << endl;        
-			(*it).save_matrix(filename.str().c_str());
+			(*it).save_domainCl(filename.str().c_str());
 		}
     }
     
@@ -385,7 +385,7 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 			}
 			filename << ".gnu";
 			if (SAFEFILES) {
-				(*it).save_matrix(filename.str().c_str());
+				(*it).save_domainCl(filename.str().c_str());
 				cout << filename.str() << endl << endl;
 			}
 		}
@@ -420,7 +420,7 @@ cout << "comparison start" << endl;
 				
 				filename << ".gnu";
 				if (SAFEFILES) {
-				(*it).save_matrix(filename.str().c_str());
+				(*it).save_domainCl(filename.str().c_str());
 // 				cout << filename.str() << endl << endl;
 				}		
 			}
@@ -462,7 +462,7 @@ cout << "comparison start" << endl;
 			if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 				filename << ".gnu";
 				if (SAFEFILES) {
-				(*it).save_matrix(filename.str().c_str());
+				(*it).save_domainCl(filename.str().c_str());
 				cout << filename.str() << endl << endl;
 				}
 			}
@@ -542,7 +542,7 @@ cout << "redist start" << endl;
 				}
 				filename << ".gnu";
 				if (SAFEFILES) {
-					(*it).save_matrix(filename.str().c_str());
+					(*it).save_domainCl(filename.str().c_str());
  					cout << filename.str() << endl << endl;
 				}
 				plotfiles << " \""<<filename.str();

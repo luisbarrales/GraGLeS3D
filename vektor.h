@@ -5,18 +5,18 @@
 
 using namespace std;
 
-class matrix;
-class particle_information;
+ class domainCl;
+// class particle_information;
 
-class vektor {
-	int n;
-    double *x;
+class vektor{
+	int	n;
+	double	*x;
 
-public:
+  public:
 	/*****************************************************************************/
 	//friends
 	/*****************************************************************************/
-    friend class matrix;
+    friend class domainCl;
 	
 	/*****************************************************************************/
 	// friend functions
@@ -30,31 +30,31 @@ public:
 	/*****************************************************************************/
 	vektor(int n);
 	vektor(int n, double startval);
-    ~vektor();
-    vektor(const vektor& v);
-	
+	vektor(const vektor& v);
+	~vektor();
+	 
 	/*****************************************************************************/
 	// overloaded operators
 	/*****************************************************************************/
-    double& operator[](int i);
-    const double& operator[](int i) const;
-    double& operator=(const vektor& w);
-    vektor  operator+(const vektor& w);
-    vektor  operator-(const vektor& w);
-    double  operator*(const vektor& w); // skalarprodukt
+    double& 		operator[]	(int i);
+    const double& 	operator[]	(int i) const;
+    double& 		operator=	(const vektor& w);
+    vektor  		operator+	(const vektor& w);
+    vektor  		operator-	(const vektor& w);
+    double  		operator*	(const vektor& w); // skalarprodukt
 	
 	template <class T>
 	vektor operator*(const T d){
 	  vektor erg(n);
-	  for(int i=0; i<n; i++) erg[i]=d*x[i];
+	  for(int i=0; i<n; i++) 
+	    erg[i]=d*x[i];
 	  return(erg);
 	} // skalar multiplikation vektor* skalar = vektor
 	
-    vektor  operator*(const matrix& A);
-    vektor  operator/(matrix& A);
+	vektor  operator*(const domainCl& A);
+	vektor  operator/(domainCl& A);
 	bool 	operator==(const vektor& w);
 	bool 	operator!=(const vektor& w);
-	
 	
 	/*****************************************************************************/
 	// class functions
@@ -64,13 +64,15 @@ public:
 		x[i]/=laenge;
 	}
 	inline double laenge(){
-	  double sum=0.0; 
+	  double sum = 0; 
 	  for(int i=0; i<n; i++) sum+=(x[i]*x[i]);
 	  return(sqrt(sum));
 	}
 	
 	
-	inline void Normiere() {skaliere(laenge());}
+	inline void Normiere() {
+	  skaliere(laenge());
+	}
 
 	vektor XProdukt(const vektor& v, const vektor& w);
 	int get_n() const;

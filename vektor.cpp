@@ -2,7 +2,6 @@
  
 using namespace std;
 
-
 vektor::vektor(int n) : n(n) {
         x=new double[n];
         for (int i=0;i<n;i++) x[i]=0;
@@ -13,7 +12,9 @@ vektor::vektor(int n, double startval) : n(n) {
         for (int i=0;i<n;i++) x[i]=startval;
     }
 
-vektor::~vektor() { delete [] x; }
+vektor::~vektor() {
+  delete [] x; 
+}
 
 vektor::vektor(const vektor& v) : n(v.n) {
         x=new double[n];
@@ -28,19 +29,12 @@ vektor::vektor(const vektor& v) : n(v.n) {
 
 
 double& vektor::operator[](int i) {
-    if (0<= i < n) return x[i];
-    else {
-        outOfBoundsException e(i, i);
-        cout << "invalid index " << e.what() << endl;
-    }
+  return x[i];
+    
 }
 
 const double& vektor::operator[](int i) const {
-    if (0<= i < n) return x[i];
-    else {
-        outOfBoundsException e(i, i);
-        cout << "invalid index " << e.what() << endl;
-    }
+  return x[i];
 }
 
     // "=" Operator Zuweisung
@@ -68,7 +62,7 @@ vektor vektor::operator-(const vektor& w){
 }
 
     // Vektor * Matrix
-vektor vektor::operator*(const matrix& A){
+vektor vektor::operator*(const domainCl& A){
     vektor erg(n);
     assert(n == A.m);
     for (int i = 0; i < n; i++) erg[i] = 0; // alle Einträge der Ergebnismatrix 0 setzen
@@ -79,10 +73,11 @@ vektor vektor::operator*(const matrix& A){
 }
 
     // Vektor/ Matrix
-vektor vektor::operator/(matrix& A){
+vektor vektor::operator/(domainCl& A){
     vektor erg(n);
     assert(n == A.n);
-    for (int i = 0; i < n; i++) erg[i] = 0; // alle Einträge der Ergebnismatrix 0 setzen
+    for (int i = 0; i < n; i++) 
+      erg[i] = 0; // alle Einträge der Ergebnismatrix 0 setzen
     LUDecomp(A.n, A);
     vektor y(n);
     FSubst(A.n, A, *this, y);
@@ -151,16 +146,16 @@ double vektor::operator*(const vektor& w){ // kein "&" hinter double
 vektor vektor::XProdukt(const vektor& v, const vektor& w){ 
 	assert(v.n==w.n && ( n == 2 || n == 3 ));
 	if(n==2){
-		x[1]= v.x[0]-w.x[0];
-		x[0]= -(v.x[1]-w.x[1]);
-		Normiere();
-		}
+	  x[1]= v.x[0]-w.x[0];
+	  x[0]= -(v.x[1]-w.x[1]);
+	  Normiere();
+	}
 	if(n==3){
-		x[0] = v.x[1]*w.x[2] - v.x[2]*w.x[1];
-		x[1] = v.x[2]*w.x[0] - v.x[0]*w.x[2];
-		x[2] = v.x[0]*w.x[1] - v.x[1]*w.x[0];
-		Normiere();
-		}
+	  x[0] = v.x[1]*w.x[2] - v.x[2]*w.x[1];
+	  x[1] = v.x[2]*w.x[0] - v.x[0]*w.x[2];
+	  x[2] = v.x[0]*w.x[1] - v.x[1]*w.x[0];
+	  Normiere();
+	}
 }
 
 

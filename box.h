@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class matrix;
+class domainCl;
 class LSbox;
 
 struct neighbor{
@@ -27,12 +27,12 @@ class LSbox {
     int xmin, xmax, ymin, ymax;
     vector<pointVal> zeros;
 	double* distance;
-    matrix* domain;
+    domainCl* domain;
 	bool exist;
     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     
 public:
-	friend class matrix;
+	friend class domainCl;
     LSbox();
     ~LSbox();
 	vector<neighbor> weights;
@@ -47,11 +47,11 @@ public:
 	void setZeros(double h, int grid_blowup, int loop);
 	void sweep(pointVal zero, double h);
     int  getID();
-    void setDomain(matrix* aDomain);
-    void comparison(const matrix &domain_copy, int loop );
+    void setDomain(domainCl* aDomain);
+    void comparison(const domainCl &domain_copy, int loop );
     void comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup);
     void add_n2o();
-	void maximum(const matrix &A, const matrix &B);
+	void maximum(const domainCl &A, const domainCl &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
     double curvature (int x, int y, double h);

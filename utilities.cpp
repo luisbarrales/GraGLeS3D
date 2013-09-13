@@ -16,12 +16,12 @@ namespace utils {
         strcat( string_gnupl_command, "set contour; ");
         strcat( string_gnupl_command, "set cntrparam levels 0;");
         strcat( string_gnupl_command, "unset surface;");
-		strcat( string_gnupl_command, "set view map;");
+	strcat( string_gnupl_command, "set view map;");
         strcat( string_gnupl_command, "splot ");
         strcat( string_gnupl_command, plotfiles);
         strcat( string_gnupl_command, "; ");
-        // 	cout << plotfiles;
-        // 	cout << string_gnupl_command << flush;
+        // cout << plotfiles;
+        // cout << string_gnupl_command << flush;
         FILE *pipe = popen ( "gnuplot", "w" );             // Instanz von Gnuplot
         fprintf ( pipe, "%s\n", string_gnupl_command );    // Füllen der Rohrpost zu Gnuplot
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
@@ -43,7 +43,7 @@ namespace utils {
         strcat( string_gnupl_command, "set contour; ");
         strcat( string_gnupl_command, "set cntrparam levels 0;");
         strcat( string_gnupl_command, "unset surface;");
-		strcat( string_gnupl_command, "set view map;");
+	strcat( string_gnupl_command, "set view map;");
         strcat( string_gnupl_command, "set terminal png;");
         strcat( string_gnupl_command, "splot ");
         strcat( string_gnupl_command, plotfiles);

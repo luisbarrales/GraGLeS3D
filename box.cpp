@@ -53,7 +53,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
 LSbox::~LSbox() {
 }
 
-void LSbox::setDomain(matrix* aDomain) {
+void LSbox::setDomain(domainCl* aDomain) {
     domain = aDomain;
 }
 
@@ -69,7 +69,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
 	int n=domain->get_n();
 	vektor u(2), a(2), p(2), x1(2), x2(2);
 	vector<double> vv;
-	c.vertices(part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
+	c.vertices (part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
 	distance=NULL;
 	for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
@@ -299,9 +299,9 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
-void LSbox::comparison(const matrix &domain_copy, int loop){
+void LSbox::comparison(const domainCl &domain_copy, int loop){
 	//LSbox*
-	matrix *temp = new matrix(ymax-ymin, xmax-xmin, 0, 10.0);
+	domainCl *temp = new domainCl(ymax-ymin, xmax-xmin, 0, 10.0);
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
@@ -434,7 +434,7 @@ void LSbox::add_n2o(){
 // 	}
 // 	
 // }
-void LSbox::maximum(const matrix &A, const matrix &B){
+void LSbox::maximum(const domainCl &A, const domainCl &B){
 // 	assert(A.n == B.n);
 // 	assert(A.m == B.m);
 // 	for (int i = 0; i < m; i++)
@@ -487,7 +487,7 @@ void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 }
 
 
-void LSbox::redistancing(double h, int grid_blowup /*,std::list<matrix> distances, double** borderSlopes, double** slopeField*/) {
+void LSbox::redistancing(double h, int grid_blowup /*,std::list<domainCl> distances, double** borderSlopes, double** slopeField*/) {
 	
 	cout << "Berechne Redist fuer Box: "<< id << endl;	
 // 	write zeros to domain:

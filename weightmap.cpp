@@ -130,10 +130,10 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 }
 
 void weightmap::plot_weightmap(int length, LSbox*** ID, double* ST, LSbox* zeroBox){
-	matrix *temp = new matrix(length,length);
-	matrix *id_0 = new matrix(length,length);
-	matrix *id_1 = new matrix(length,length);
-	matrix *id_2 = new matrix(length,length);
+	domainCl *temp = new domainCl(length,length);
+	domainCl *id_0 = new domainCl(length,length);
+	domainCl *id_1 = new domainCl(length,length);
+	domainCl *id_2 = new domainCl(length,length);
 	double weight;
 	for(int i=0; i<length; i++)
 		for(int j=0; j<length; j++){
@@ -148,10 +148,10 @@ void weightmap::plot_weightmap(int length, LSbox*** ID, double* ST, LSbox* zeroB
 			}
 			else (*temp)[i][j]=0.0;
 		}
-		(*id_0).save_matrix("id_0.gnu");
-		(*id_1).save_matrix("id_1.gnu");
-		(*id_2).save_matrix("id_2.gnu");
-		(*temp).save_matrix("weights.gnu");
+		(*id_0).save_domainCl("id_0.gnu");
+		(*id_1).save_domainCl("id_1.gnu");
+		(*id_2).save_domainCl("id_2.gnu");
+		(*temp).save_domainCl("weights.gnu");
 		
 		delete temp;
 		delete id_0;
