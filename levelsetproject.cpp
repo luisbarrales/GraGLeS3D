@@ -360,9 +360,12 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 /*********************************************************************************/
 // Convolution simulates grain growth
-	
+	cout << "DOMAIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!____________________________";
+	cout <<endl;
+	cerr << (*it--)[100][100];
 	// ACHTUNG hier kopieren wir die ganze LISTE!
-	domains_copy=domains;
+
+// 	domains_copy=domains;
     cout << "convolution start" << endl;
 // 	char buffer2;
 // 	cin >> buffer2;

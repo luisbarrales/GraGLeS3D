@@ -50,23 +50,20 @@ domainCl::domainCl(const domainCl& v) : m(v.m), n(v.n), id(v.id) {
 
 double* domainCl::operator[](int i) {
     if (0<= i < m) 
-    {return x[i];
-      std::cout << "save";
+    {std::cerr << "save";
+      return x[i];
+      
     }
-    else {
-        outOfBoundsException e(i, i);
-        cout << "invalid index " << e.what() << endl;
-    }
+    
 
   
 }
 
 const double* domainCl::operator[](int i) const {
-    if (0<= i < m) return x[i];
-       else {
-        outOfBoundsException e(i, i);
-        cout << "invalid index " << e.what() << endl;
-    }
+    if (0<= i < m) 
+   {return x[i];
+      std::cerr << "save";
+    }    
      
 }
 // double& domainCl::operator()(int x,int y)  {
