@@ -360,15 +360,9 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 
 /*********************************************************************************/
 // Convolution simulates grain growth
-	cout << "DOMAIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!____________________________";
-	cout <<endl;
-	cerr << (*it--)[100][100];
-	// ACHTUNG hier kopieren wir die ganze LISTE!
-
-// 	domains_copy=domains;
+	
+	domains_copy=domains;
     cout << "convolution start" << endl;
-// 	char buffer2;
-// 	cin >> buffer2;
 	
 	for (it = domains.begin(), itc=domains_copy.begin(); it !=domains.end(); it++, itc++){	
 		(*it).convolution(dt,ST,ID,(*itc), zeroBox, grid_blowup, my_weights);
@@ -394,6 +388,8 @@ for(int loop=0; loop <= TIMESTEPS; loop++){
 		}
 	}
 	domains_copy.clear();
+	
+// 	domains_copy CLEAR?!
 /*********************************************************************************/	
 
 cout << "comparison start" << endl;

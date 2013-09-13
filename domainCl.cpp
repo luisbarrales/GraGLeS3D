@@ -8,11 +8,11 @@ domainCl::domainCl(){}
 
 domainCl::domainCl(int m, int n) : m(m), n(n) {
       
-    id=0;
-    val = (double*) fftw_malloc ( m*n*sizeof (double)); 
-    x= new double*[m];
-    for (int i=0;i<m;i++) x[i]=&val[i*n];
-
+    id	=	0;
+    val	=	(double*) fftw_malloc ( m*n*sizeof (double)); 
+    x	= new double*[m];
+    for (int i=0;i<m;i++) 
+      x[i]=&val[i*n];
   
 }
 
@@ -20,15 +20,17 @@ domainCl::domainCl(int m, int n) : m(m), n(n) {
 
 domainCl::domainCl(int m, int n, int id) : m(m), n(n), id(id) {
     val = (double*) fftw_malloc ( m*n*sizeof(double)); 
-    x=new double*[m];
-    for (int i=0;i<m;i++) x[i]=&val[i*n];
+    x	=  new double*[m];
+    for (int i=0;i<m;i++) 
+      x[i]=&val[i*n];
 }
 
 domainCl::domainCl(int m, int n, int id, double startval) : m(m), n(n), id(id) {
     val = (double*) fftw_malloc ( m*n*sizeof(double)); 
-    x=new double*[m];
+    x	= new double*[m];
     std::fill_n(val, m*n, startval);
-    for (int i=0;i<m;i++) x[i]=&val[i*n];
+    for (int i=0;i<m;i++) 
+      x[i]=&val[i*n];
 }
 
 
@@ -41,18 +43,24 @@ domainCl::~domainCl() {
 }
 
 domainCl::domainCl(const domainCl& v) : m(v.m), n(v.n), id(v.id) {
-      
-    for (int i=0;i<m-1;i++) {
-      for (int j=0;j<n-1;j++)
-	val[i+j]=v[i][j];
-    }
+ cerr << "m " ;
+  val = (double*) fftw_malloc ( m*n*sizeof(double)); 
+  x	=  new double*[m];
+    for (int i=0;i<m;i++) 
+      x[i]=&val[i*n];
+
+  for (int i=0;i<m;i++) {
+      for (int j = 0; j < n; j++)
+      {
+	val[i*n+j] = v[i][j];
+      }
+	
+      }
 }
 
 double* domainCl::operator[](int i) {
-    if (0<= i < m) 
-    {std::cerr << "save";
+    if (0 <= i < m) {
       return x[i];
-      
     }
     
 
@@ -60,9 +68,8 @@ double* domainCl::operator[](int i) {
 }
 
 const double* domainCl::operator[](int i) const {
-    if (0<= i < m) 
-   {return x[i];
-      std::cerr << "save";
+    if (0<= i < m) {
+      return x[i];
     }    
      
 }
@@ -76,9 +83,13 @@ const double* domainCl::operator[](int i) const {
 
 // "=" Operator
 double& domainCl::operator=(const domainCl& A){
+  cerr << "here" << endl;
     if (this != &A) {
         assert(m == A.m && n == A.n);
-        for (int i = 0; i < m; i++) *x[i] = *(A.x[i]);
+	for (int i=0;i<m-1;i++) {
+	  for (int j=0;j<n-1;j++)
+	  val[i+j]=A[i][j];
+	}
     }
 }
 
