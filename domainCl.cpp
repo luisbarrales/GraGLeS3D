@@ -326,14 +326,6 @@ bool domainCl::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int
 }
 
 
-void domainCl::euler(double dt, double h){
-	vector<LSbox*>::iterator it;
-    for(it = grains.begin(); it != grains.end(); it++)
-    {
-       (*it)->euler_forward(dt, h);
-    }
-
-}
 
 
 
@@ -341,23 +333,6 @@ void domainCl::euler(double dt, double h){
 // FOURIER TRANSFORMATION + Helperfunctions
 //
 /*********************************************************************************/
-
-// array must be allocated before!
-void domainCl::domainCl_to_array(double *u){
-// 	int n = get_n();
-// 	int m = get_m();
-// 	for (int i = 0; i < m; i++)
-// 		for (int j = 0; j < n; j++)
-// 			u[i*m+j] = (*x[i])[j];
-}
-
-void domainCl::array_to_domainCl(double *u){
-// 	m = get_m();
-// 	n = get_n();
-// 	for (int i = 0; i < m; i++)
-// 		for (int j = 0; j < n; j++)
-// 			(*x[i])[j] = u[i*m+j];
-}
 
 void domainCl::makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
 { /* creates plans for FFT and IFFT */
@@ -455,9 +430,9 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 						  double weight = my_weights.load_weights(m, ST, ID,i,j,(**it).get_id());
   // 							if (out == false ) cout << ID[0][i*m +j] ->get_id() <<" || "<< weight << endl;
   // 							if (ID[0][i*m +j] ->get_id() == (**it).id) out = true;
-						  vn = ((*this)[i][j] -ref[i][j] ) / dt;
-						  vnn = vn * weight;
-						  (*this)[i][j] = ref[i][j] + (vnn*dt);
+// 						  vn = ((*this)[i][j] -ref[i][j] ) / dt;
+// 						  vnn = vn * weight;
+						  (*this)[i][j] = ref[i][j] + ((*this)[i][j] -ref[i][j])*weight;
 						}
 					}
 					
@@ -477,8 +452,6 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 			}
 		}
 	}
-	// 	energy_correction(ID, ref, grid_blowup);	
-	// funktion muss umgeschrieben werden
 }
 /*********************************************************************************/
 /*********************************************************************************/
@@ -516,32 +489,6 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 // the domain by grid_blow gridpoints at each boundary.
 /*********************************************************************************/
 
-//TO DO: umschreiben auf boxconzept
-
-
-// Status: Funktion unvollständig!!
-
-bool domainCl::discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int)){
-    int m= get_m();
-    int n= get_n();
-    domainCl erg(m,n,id);
-    bool exist = false;
-    double conv_rad = grid_blowup/2;
-    double tube = double(DELTA)+(h*grid_blowup); // sinnlos oder? vergrößert ja den schlauch?? was war hier meine idee?
-	const double outside_domain = -2.0;
-    //   double tube = double(DELTA)-conv_rad;
-    //   erg = *this;
-    for (int i=0; i< m; i++)
-        for (int j=0; j< n; j++)
-			if(x[i][j] > - DELTA  && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (n- grid_blowup)))) {		
-// 				berechne krümmung im punkt i,j (kappa)
-// 				vn= mu + gamma*kappa
-// 				x[i][j]= vn* dt + x[i][j]
-            }
-            
-    *this= erg;
-	return(exist);
-}
 
 
 
@@ -596,7 +543,7 @@ void domainCl::comparison(std::list<domainCl> distances, int grid_blowup){
 	
 	for (it = distances.begin(); it != distances.end(); it++ ){
 		if (id != (*it).id) Max.maximum(Max,*it);
-		else it_current_grain = it;
+		 else it_current_grain = it;
 	}
 	
 	Max = ((*it_current_grain)-Max);
@@ -628,9 +575,7 @@ void domainCl::set_border_to_INTERIMVAL(int grid_blowup)
 /*********************************************************************************/
 
 void domainCl::clear_domain(double value){
-	for (int i = 0; i < m; i++) { // alle EintrÃ¤ge der ErgebnisdomainCl 0 setzen
-        for (int j = 0; j < n; j++) (*this)[i][j] = value;
-	}
+	std::fill_n(val, m*n, value);
 }
 
 

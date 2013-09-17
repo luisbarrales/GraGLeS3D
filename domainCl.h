@@ -13,6 +13,7 @@ class domainCl{
     int m,n,id;
     double **x;
     double *val;
+    fftw_complex *fftTemp;
     vector<LSbox*> grains;
 	
 public:
@@ -47,8 +48,6 @@ public:
     
 	void maximum(const domainCl &A, const domainCl &B);
     int  minimumInPoint(std::list<domainCl> distances, int m, int n, int neglect);
-	void domainCl_to_array(double *u);
-	void array_to_domainCl(double *u);
 	void makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 
 	void conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt);
@@ -58,7 +57,6 @@ public:
     void redistancing(double h, int grid_blowup);
 	void redistancing_2(double h, int grid_blowup);
 
-	bool discrete_convolution(const double dt, const double h, const int grid_blowup, double (*kernel)(double,int,int,int));
 	void comparison(std::list<domainCl> distances, int grid_blowup);
 	void set_border_to_INTERIMVAL(int grid_blowup);
 	void save_domainCl(const char* filename ); //schreibt datei für gnuplotskript
