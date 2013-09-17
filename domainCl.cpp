@@ -26,7 +26,7 @@ domainCl::domainCl(int m, int n, int id) : m(m), n(n), id(id) {
     val = (double*) fftw_malloc ( m*n*sizeof(double)); 
     x	=  new double*[m];
     for (int i=0;i<m;i++) 
-      x[i]=&val[i*n];
+      x[i]	=	&val[i*n];
 }
 
 domainCl::domainCl(int m, int n, int id, double startval) : m(m), n(n), id(id) {
@@ -34,7 +34,7 @@ domainCl::domainCl(int m, int n, int id, double startval) : m(m), n(n), id(id) {
     x	= new double*[m];
     std::fill_n(val, m*n, startval);
     for (int i=0;i<m;i++) 
-      x[i]=&val[i*n];
+      x[i]	=	&val[i*n];
 }
 
 
@@ -51,19 +51,18 @@ domainCl::~domainCl() {
 }
 
 domainCl::domainCl(const domainCl& v) : m(v.m), n(v.n), id(v.id) {
- cerr << "m " ;
-  val = (double*) fftw_malloc ( m*n*sizeof(double)); 
-  x	=  new double*[m];
+//  cerr << "m " ;
+    val = (double*) fftw_malloc ( m*n*sizeof(double)); 
+    x	=  new double*[m];
     for (int i=0;i<m;i++) 
       x[i]=&val[i*n];
 
-  for (int i=0;i<m;i++) {
-      for (int j = 0; j < n; j++)
-      {
+    for (int i=0;i<m;i++) {
+      for (int j = 0; j < n; j++){
 	val[i*n+j] = v[i][j];
       }
 	
-      }
+    }
 }
 
 double* domainCl::operator[](int i) {
@@ -76,7 +75,7 @@ double* domainCl::operator[](int i) {
 }
 
 const double* domainCl::operator[](int i) const {
-    if (0<= i < m) {
+    if (0	<= i < m) {
       return x[i];
     }    
      
@@ -94,9 +93,9 @@ double& domainCl::operator=(const domainCl& A){
 //   cerr << "here" << endl;
     if (this != &A) {
         assert(m == A.m && n == A.n);
-	for (int i=0;i<m-1;i++) {
-	  for (int j=0;j<n-1;j++)
-	  val[i+j]=A[i][j];
+	for (int i=0;i<m;i++) {
+	  for (int j=0;j<n;j++)
+	    val[i*n+j]=A[i][j];
 	}
     }
 }
@@ -133,11 +132,14 @@ double& domainCl::operator=(const domainCl& A){
 
 
 ostream& operator<<(ostream &os, const domainCl& A) {
-//     int i;
-// 	for(i=0; i< (A.m); i++){
-// 		os << *A.x[i] << endl;
-// 	}
-//     return os;
+    int i;
+	for(i=0; i< (A.m); i++){
+	  for (int j=0; j< A.n; j++){
+		os << A.val[i*A.n+j]<< "\t";
+	  }
+	  os << endl;
+	}
+    return os;
 }
 
 void domainCl::save_domainCl(const char* filename){
@@ -173,15 +175,16 @@ domainCl domainCl::distancefunction(voronoicell_neighbor& c, int *gridIDs, doubl
 	int n=get_n();
 	
 	vektor u(2), a(2), p(2), x1(2), x2(2);
-    vector<double> vv;
+	vector<double> vv;
 	c.vertices(part_pos[3*id],part_pos[3*id+1],part_pos[3*id+2],vv);
 	
 	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
 	
-	for (i=0;i< m;i++){ // über gitter iterieren
+      for (i=0;i< m;i++){ // über gitter iterieren
         for (j=0;j< n;j++){
             dmin=1000.;
-            p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;
+            p[0]=(i-grid_blowup)*h; 
+	    p[1]=(j-grid_blowup)*h;
             
             
             for(int ii=0;ii<c.p;ii++) {
@@ -197,11 +200,15 @@ domainCl domainCl::distancefunction(voronoicell_neighbor& c, int *gridIDs, doubl
                         u = x2-x1;
                         lambda=((p-a)*u)/(u*u);
                         
-                        if(lambda <= 0.) 					    d= (p-x1).laenge();
-                        if((0. < lambda) && (lambda < 1.)) 	d= (p-(a+(u*lambda))).laenge();
-                        if(lambda >= 1.) 					    d= (p-x2).laenge();
+                        if(lambda <= 0)
+			  d= (p-x1).laenge();
+                        if((0. < lambda) && (lambda < 1.)) 	
+			  d= (p-(a+(u*lambda))).laenge();
+                        if(lambda >= 1.) 					    
+			  d= (p-x2).laenge();
 //                     (ID_mat[0][i*m +j])->getID()    
-                        if(id==gridIDs[i*m +j] && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+                        if(id==gridIDs[i*m +j] && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) 
+			  d=abs(d);
                         else d= -abs(d);
                         
                         if(abs(d)< abs(dmin)) dmin=d;

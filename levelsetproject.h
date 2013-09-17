@@ -10,10 +10,10 @@
 #define PI 3.14159265358979323846
 
 
-#define TIMESTEPS 100
-#define PRINTSTEP 100
+#define TIMESTEPS 10
+#define PRINTSTEP 1
 #define PRINTNOW 1000
-#define PARTICLES 20
+#define PARTICLES 10
 
 #define ISOTROPIC false
 #define TRIPLEPUNKT false
