@@ -306,10 +306,10 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 	std::vector<LSbox*>::iterator it_nn;
 	double max;
 	if(distance == NULL) {
-	  IDLocal[0]=new LSbox*[(xmax-xmin)*(ymax-ymin)];
-	  IDLocal[1]=new LSbox*[(xmax-xmin)*(ymax-ymin)];
-	  distance = new double [(ymax-ymin)*(xmax-xmin)];
-	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); //IMPORTANT!
+	  IDLocal[0]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
+	  IDLocal[1]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
+	  distance 	= 	new double [(ymax-ymin)*(xmax-xmin)];
+	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); // Neccesary for the comparison
 	  std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
 	  std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
 	}

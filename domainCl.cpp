@@ -4,7 +4,11 @@ using namespace std;
 using namespace voro;
 
 
-domainCl::domainCl(){}
+domainCl::domainCl()
+{
+  val	=	(double*) fftw_malloc ( m*n*sizeof (double)); 
+    x	= new double*[m];
+}
 
 domainCl::domainCl(int m, int n) : m(m), n(n) {
       
@@ -36,9 +40,13 @@ domainCl::domainCl(int m, int n, int id, double startval) : m(m), n(n), id(id) {
 
 
 domainCl::~domainCl() {
-    for (int i=0;i<m;i++) delete x[i];
-    delete [] x;
-    fftw_free(val);
+     for (int i = 0 ;i < m; i++) 
+     {	
+//        cerr << " M_:::: " << i << endl;
+//        delete x[i];
+     }
+     delete [] x;
+     fftw_free(val);
     // 	cout << "destroyed domainCl with  id: "<< id << endl;
 }
 
@@ -83,7 +91,7 @@ const double* domainCl::operator[](int i) const {
 
 // "=" Operator
 double& domainCl::operator=(const domainCl& A){
-  cerr << "here" << endl;
+//   cerr << "here" << endl;
     if (this != &A) {
         assert(m == A.m && n == A.n);
 	for (int i=0;i<m-1;i++) {
