@@ -1,7 +1,7 @@
 #ifndef FUNCTIONS_h
 #define FUNCTIONS_h
 
-#include "levelsetproject.h"
+#include "ggLS.h"
 class vektor;
 
 // LU Decomposition of A=L*U with partial pivoting

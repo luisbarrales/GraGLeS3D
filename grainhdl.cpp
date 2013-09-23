@@ -245,12 +245,12 @@ void grainhdl::generateRandomEnergy(){
  
  
 void grainhdl::convolution(){
+	std::list<matrix>::iterator it;
 	domains_copy=domains;
 	for (it = domains.begin(), itc=domains_copy.begin(); it !=domains.end(); it++, itc++){	
 		(*it).convolution(dt,ST,ID,(*itc), zeroBox, grid_blowup, my_weights);
 	}
 	if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW) save_conv_step();
-	domains_copy.clear();
 }
  
  
@@ -302,6 +302,7 @@ void grainhdl::comparison_domain(){
 
 void grainhdl::comparison_box(){
 	vector<LSbox*>::iterator it2;
+    vector<LSbox*>::iterator it2c;
 	domains_copy = domains;
 	char buffer1;
 	for (it = domains.begin(); it != domains.end(); it++){		     
@@ -426,7 +427,7 @@ void grainhdl::run_sim(){
 	for(int loop=0; loop <= TIMESTEPS; loop++){
 		
 		convolution();
-	
+// 		domains.clear();
 		switch (compare_mod){
 			case 1: comparison_box();
 			case 2: comparison_domain();

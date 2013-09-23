@@ -1,7 +1,8 @@
 #ifndef GRAINHDL_h
 #define GRAINHDL_h
 
-#include levelsetproject.h
+#include "ggLS.h"
+
 using namespace voro;
 using namespace std;
 
@@ -20,8 +21,7 @@ class grainhdl{
 	int Mode;
 	
 	int *gridIDs;
-	ID = new LSbox**[3];
-	
+		
 	weightmap my_weights;
 	
 	
@@ -35,7 +35,7 @@ class grainhdl{
 	double *ST;
 	double *part_pos;
 	
-	vector<LSbox*> grains;gridpoint
+	vector<LSbox*> grains;
     vector<LSbox*>::iterator it2,it2c;
 	
 	public:
@@ -62,3 +62,4 @@ class grainhdl{
 	inline int ngridpoints() { return ngridpoints; }
 
 };
+#endif

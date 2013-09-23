@@ -1,6 +1,6 @@
 #ifndef WEIGHTMAP_H
 #define WEIGHTMAP_H
-#include "levelsetproject.h"
+#include "ggLS.h"
 
 typedef std::map<int, double* > storage_map;
 typedef std::map<int, storage_map* > inner_map;

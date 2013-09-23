@@ -1,13 +1,14 @@
 #ifndef domainCl_h
 #define domainCl_h
 
-#include "levelsetproject.h"
+#include "ggLS.h"
 
 using namespace std;
 
 // class vektor;
 class LSbox;
 class weightmap;
+class grainhdl;
 
 class domainCl{
     int m,n,id;

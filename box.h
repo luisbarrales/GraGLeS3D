@@ -2,12 +2,13 @@
 #define BOX_H
 
 #include <vector>
-#include "levelsetproject.h"
+#include "ggLS.h"
 
 using namespace std;
 
 class domainCl;
 class LSbox;
+class grainhdl;
 
 struct neighbor{
 	LSbox* who;
@@ -32,7 +33,7 @@ class LSbox {
     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
 	float phi1;
-	float PHI
+	float PHI;
 	float phi2;
 	    
 public:
