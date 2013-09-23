@@ -23,14 +23,18 @@ struct pointVal {
 
 //box is ambiguous, so L(evel)S(et)box...
 class LSbox {
-    int id;
+    unsigned int id;
     int xmin, xmax, ymin, ymax;
     vector<pointVal> zeros;
 	double* distance;
     domainCl* domain;
 	bool exist;
     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
-    
+    int nvertices;
+	float phi1;
+	float PHI
+	float phi2;
+	    
 public:
 	friend class domainCl;
     LSbox();
@@ -39,6 +43,8 @@ public:
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
+	LSbox(int id, int nvertex, float* vertices, float phi1, float PHI, float phi2, int grid_blowup, double h);
+	LSbox distancefunction(int* gridIDs, int nvertex, float* vertices, int grid_blowup, double h, grainhdl* owner);
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
     void copy_distances();
 	void copy_distances_to_domain();

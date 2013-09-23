@@ -2,13 +2,12 @@
 
 LSbox::LSbox() {}
 
-LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h):id(aID) {
+LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h):id(aID), phi1(0), PHI(0), phi2(0), nvertices(0) {
     
     // determine size of grain
-    xmax = 0; xmin = M; ymax = 0; ymin = M;
+	xmax = 0; xmin = (*domain).owner->ngridpoints(); 
+	ymax = 0; ymin = xmin;
 	
-
-    
     vektor x1(2), x2(2);
     vector<double> vv;
     exist = true;
@@ -50,6 +49,54 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
    cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
+
+LSbox::LSbox(int id, int nvertex, float* vertices, float phi1, float PHI, float phi2, int grid_blowup, double h, grainhdl* owner):id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex){
+    
+    // determine size of grain
+    xmax = 0; xmin = owner->ngridpoints(); 
+	ymax = 0; ymin = xmin;
+	    
+    vektor x1(2), x2(2);
+    exist = true;
+	distance = NULL;
+     for {unsigned int k=0; k < nvertex, k++){       
+            x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+            x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
+            
+			//	for convention: 
+			//	x[i][j]:
+			//	i = Zeilenindex(y-direction)   
+			// 	j = Spaltenindex(x-direction)
+			
+			// check for "Zeilen" Minima/Maxima
+			if (x1[0]/h < ymin) ymin = x1[0]/h;
+            if (x2[0]/h < ymin) ymin = x2[0]/h;
+            
+            if (x1[0]/h > ymax) ymax = (x1[0]/h);
+            if (x2[0]/h > ymax) ymax = (x2[0]/h);
+			
+			// check for "Spalten" Minima/Maxima
+            if (x1[1]/h < xmin) xmin = x1[1]/h;
+            if (x2[1]/h < xmin) xmin = x2[1]/h;
+            
+            if (x1[1]/h > xmax) xmax = (x1[1]/h);
+            if (x2[1]/h > xmax) xmax = (x2[1]/h);
+          
+            
+        }
+    }
+    
+	xmax += 2*grid_blowup;
+	ymax += 2*grid_blowup;
+        
+   cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+
+}
+
+
+
+
+
 LSbox::~LSbox() {
 }
 
@@ -59,6 +106,45 @@ void LSbox::setDomain(domainCl* aDomain) {
 
 int LSbox::getID() {
     return id;
+}
+LSbox LSbox::distancefunction(int* gridIDs, int nvertex, float* vertices, int grid_blowup, double h){
+	int i,j,k;
+	double d, dmin,lambda;
+	int m=domain->get_m();
+	int n=domain->get_n();
+	vektor u(2), a(2), p(2), x1(2), x2(2);
+
+	for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
+	  for (j=xmin;j<xmax;j++){
+            dmin=1000.;
+            p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
+            
+            for(int k=0; k < nvertices, k++) {
+                
+				x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+				x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
+				
+				if (x1 != x2){
+					a = x1;
+					u = x2-x1;
+					lambda=((p-a)*u)/(u*u); 
+					
+					if(lambda <= 0.) 				d = (p-x1).laenge();
+					if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
+					if(lambda >= 1.) 				d = (p-x2).laenge();
+					if((id == gridIDs[i*m +j]) && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+					else d= -abs(d);
+		// 			cout << "ID klappt" << endl;
+		// 			char buffer;
+		//                         cin >> buffer ;
+					if(abs(d)< abs(dmin)) dmin=d;
+				}
+            }
+
+            (*domain)[i][j]= dmin;
+        }
+	}
+	return(*this);
 }
 
 
@@ -93,12 +179,12 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
                         if(lambda <= 0.) 				d = (p-x1).laenge();
                         if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
                         if(lambda >= 1.) 				d = (p-x2).laenge();
-			if((id == gridIDs[i*m +j]) && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
-			else d= -abs(d);
-// 			cout << "ID klappt" << endl;
-// 			char buffer;
-//                         cin >> buffer ;
-                        if(abs(d)< abs(dmin)) dmin=d;
+						if((id == gridIDs[i*m +j]) && ((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) d=abs(d);
+						else d= -abs(d);
+			// 			cout << "ID klappt" << endl;
+			// 			char buffer;
+			//                         cin >> buffer ;
+						if(abs(d)< abs(dmin)) dmin=d;
                     }
                 }
             }
