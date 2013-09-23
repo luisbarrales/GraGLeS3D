@@ -15,6 +15,8 @@ class domainCl{
     double *val;
     fftw_complex *fftTemp;
     vector<LSbox*> grains;
+	grainhdl* owner;
+	
 	
 public:
     friend class vektor;
@@ -24,6 +26,7 @@ public:
     domainCl(int m, int n);
 	domainCl(int m, int n, int id);
 	domainCl(int m, int n, int id, double startval);
+	domainCl(int m, int n, int id, double startval, grainhdl* owner);
 	~domainCl();
     domainCl(const domainCl& v);
 	

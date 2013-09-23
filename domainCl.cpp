@@ -37,7 +37,13 @@ domainCl::domainCl(int m, int n, int id, double startval) : m(m), n(n), id(id) {
       x[i]	=	&val[i*n];
 }
 
-
+domainCl::domainCl(int m, int n, int id, double startval, grainhdl* owner) : m(m), n(n), id(id), owner(owner) {
+    val = (double*) fftw_malloc ( m*n*sizeof(double)); 
+    x	= new double*[m];
+    std::fill_n(val, m*n, startval);
+    for (int i=0;i<m;i++) 
+      x[i]	=	&val[i*n];
+}
 
 domainCl::~domainCl() {
      for (int i = 0 ;i < m; i++) 

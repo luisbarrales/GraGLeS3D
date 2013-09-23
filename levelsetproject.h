@@ -53,6 +53,7 @@
 #include "domainCl.h"
 #include "functions.h"
 #include "weightmap.h"
+#include "grainhdl.h"
 
 #endif
 
