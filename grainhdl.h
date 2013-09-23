@@ -25,18 +25,15 @@ class grainhdl{
 	weightmap my_weights;
 	
 	
-	std::list<matrix> domains, domains_copy;
-    std::list<matrix>::iterator it, itc, it_domain;
-	
+	std::list<matrix> domains;
+	std::list<matrix>domains_copy;
+    	
 	vector<int> nr_grains(TIMESTEPS+1);
 	vector<LSbox*> buffer;
 	
 	LSbox ***ID;
 	double *ST;
 	double *part_pos;
-	
-	vector<LSbox*> grains;
-    vector<LSbox*>::iterator it2,it2c;
 	
 	public:
 	
