@@ -35,6 +35,7 @@ class LSbox {
 	float phi1;
 	float PHI;
 	float phi2;
+	grainhdl* handler;
 	    
 public:
 	friend class domainCl;
@@ -43,9 +44,9 @@ public:
 	vector<neighbor> weights;
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
-    LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h);
-	LSbox(int id, int nvertex, float* vertices, float phi1, float PHI, float phi2, int grid_blowup, double h);
-	LSbox distancefunction(int* gridIDs, int nvertex, float* vertices, int grid_blowup, double h, grainhdl* owner);
+    LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h, grainhdl* owner);
+	LSbox(int id, int nvertex, float* vertices, float phi1, float PHI, float phi2, int grid_blowup, double h, grainhdl* owner);
+	LSbox distancefunction(int nvertex, float* vertices, int grid_blowup, double h);
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
     void copy_distances();
 	void copy_distances_to_domain();

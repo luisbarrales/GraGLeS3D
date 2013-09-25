@@ -1,4 +1,4 @@
-#include "levelsetproject.h"
+#include "ggLS.h"
 
 using namespace voro;
 

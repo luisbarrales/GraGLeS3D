@@ -55,7 +55,7 @@ target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} ${Boost
 
 ADD_CUSTOM_TARGET (clearAll
 	COMMAND ${CMAKE_COMMAND} -E remove *.png *.gnu
-	COMMAND ${CMAKE_COMMAND} -E remove .co*
-	COMMAND ${CMAKE_COMMAND} -E echo "rm *.png *.gnu"
+	#COMMAND ${CMAKE_COMMAND} -E remove .co*
+	COMMAND ${CMAKE_COMMAND} -E echo "rm *.png *.gnu "
 )
 
