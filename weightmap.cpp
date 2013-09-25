@@ -31,7 +31,6 @@ void weightmap::find_representer(LSbox** rep, int length, LSbox ***ID,int i, int
 }
 
 
-
 void weightmap::add_weights(int* ids, double* sigma){
 	inner_map* temp = new inner_map;	
 	weights_table[ids[0]] = temp;
@@ -58,48 +57,40 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 	outer_map::iterator it;
 	inner_map::iterator it2;
 	storage_map::iterator it3;
-	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};
 	
-	
-		
-	      it = weights_table.find(ids[0]);
-	      if (it == weights_table.end() ){		
-		      sigma = compute_weights(ST, ids);
-		      add_weights(ids, sigma);
-	      }
-	      else {
-		      it2 = (*(*it).second).find(ids[1]);
-		      if (it2 == (*(*it).second).end() ){
-			      sigma = compute_weights(ST, ids);
-			      add_weights (ids, it, sigma);
-		      }
-		      else{
-			      it3= (*(*it2).second).find(ids[2]);
-			      if(it3 == (*(*it2).second).end()){
-				      sigma = compute_weights(ST, ids);
-				      cout << "entry  not exist "<< endl; 
-				      utils::print_2dim_array(ids,1,3);
-				      utils::print_2dim_array(sigma,1,3);
-				      add_weights(ids, it2, sigma);
-			      }
-			      else { 
-				      sigma = (*it3).second;
-      // 			char d;
-      // 			cerr << "read map :";
-      // 			cin>> d;
-      // 			utils::print_2dim_array(ids,1,3);
-      // 			utils::print_2dim_array(sigma,1,3);
-			      }
-		      }
-	      
-	// 	if exist
-	      }
+	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};		
+		if(ids[0]==ids[1] || ids[1]==ids[2]) return 1.0;
+		else{
+			it = weights_table.find(ids[0]);
+			if (it == weights_table.end() ){		
+				sigma = compute_weights(ST, ids);
+				add_weights(ids, sigma);
+			}
+			else {
+				it2 = (*(*it).second).find(ids[1]);
+				if (it2 == (*(*it).second).end() ){
+					sigma = compute_weights(ST, ids);
+					add_weights (ids, it, sigma);
+				}
+				else{
+					it3= (*(*it2).second).find(ids[2]);
+					if(it3 == (*(*it2).second).end()){
+						sigma = compute_weights(ST, ids);
+						cout << "entry  not exist "<< endl; 
+						utils::print_2dim_array(ids,1,3);
+						utils::print_2dim_array(sigma,1,3);
+						add_weights(ids, it2, sigma);
+					}
+					else { 
+						sigma = (*it3).second;
+					}
+				}
+			}
+		}
 	int ii=0;
 	while(ids[ii] != id ){
 		ii++;
 	}
-// 	cout << sigma[0] << endl;
-
 	delete [] rep;
 	return sigma[ii];
 	

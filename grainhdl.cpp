@@ -13,7 +13,7 @@ void grainhdl::setSimulationParameter(){
 	realDomainSize= M-1;
 	compare_mod =1; //1 für box, 2 für domain
 	
-	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
+	Mode = 1; // 2 für lesen;  für erzeugen der mikrostrukture
 	
 	h = 1.0/double(realDomainSize); 
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
@@ -300,7 +300,8 @@ void grainhdl::comparison_domain(){
 	std::list<domainCl>::iterator it;
 	stringstream filename;
 	vector<LSbox*>::iterator it2;
-	vector<LSbox*> grains;		
+	vector<LSbox*> grains;	
+	
 	domains_copy = domains;		
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
@@ -329,8 +330,9 @@ void grainhdl::comparison_box(){
 	std::list<domainCl>::iterator it, it_domain;
 	vector<LSbox*>::iterator itLS;
 //     vector<LSbox*>::iterator itLSc;
+
 	domains_copy = domains;
-	char buffer1;
+	
 	for (it = domains.begin(); it != domains.end(); it++){		     
 		vector<LSbox*> grains = (*it).getBoxList();
 					
@@ -367,6 +369,7 @@ void grainhdl::comparison_box(){
 
 void grainhdl::swap_grains(){
 	std::list<domainCl>::iterator it;
+	vector<LSbox*> buffer;
 	for (it = domains.begin(); it != domains.end(); it++) {
 		bool exist=true;
 		//check domain it for intersecting grains
@@ -397,6 +400,7 @@ void grainhdl::redistancing(){
 	std::list<domainCl>::iterator it;
 	int i;
 	nr_grains.push_back(0);
+	
 	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		//Nullstellenverfolgung:
 		//cout << "Rechne Redistancing auf Boxen der Domain: " << (*it).get_id() << endl << endl;
@@ -452,6 +456,7 @@ void grainhdl::redistancing(){
  
  
 void grainhdl::run_sim(){
+	find_neighbors();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
 // 		domains_copy.clear();
@@ -484,6 +489,38 @@ void grainhdl::save_sim(){
 	utils::PNGtoGIF("test.mp4");
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
+
+
+
+void grainhdl::find_neighbors(){
+	std::list<domainCl>::iterator it,itc;
+	
+	for (it = domains.begin(); it !=domains.end(); it++){
+		vector<LSbox*> grains = it->getBoxList();
+		vector<LSbox*> grainstoComp;
+		vector<LSbox*> ::iterator itl, itlc;
+		cout <<"determine Neighbors for domain: " << (*it).get_id() << endl;
+		itc = it++;
+		it--;
+		for (itc; itc!=domains.end(); itc++){
+			grainstoComp = itc->getBoxList();			
+			for (itl = grains.begin(); itl != grains.end(); itl++){				
+				for(itlc = grainstoComp.begin(); itlc != grainstoComp.end(); itlc++){					
+					if ((*itlc)->getID()!=(*itl)->getID()){ // wozu ist diese abfrage? --- Damit die Boxen nicht Nachbarn von sich selbst sind
+						if((*itl)->checkIntersect(*itlc)){
+							(*itl)	->neighbors.push_back(*itlc);
+							(*itlc)	->neighbors.push_back(*itl);
+						}
+					}
+					
+				}
+				
+			}
+			
+		}
+	}
+}
+
  
 void grainhdl::clear_mem() {
 	delete  [] ST;

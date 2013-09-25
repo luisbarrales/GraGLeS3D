@@ -32,7 +32,6 @@ class grainhdl{
 	std::list<domainCl> domains_copy;
     	
 	vector<int> nr_grains;
-	vector<LSbox*> buffer;
 	
 	LSbox ***ID;
 	double *ST;
@@ -49,6 +48,7 @@ class grainhdl{
 	void VOROMicrostructure();
 	void readMicrostructurefromVertex();
 	
+	void find_neighbors();
 	 
 	void convolution();
 	void save_conv_step();
