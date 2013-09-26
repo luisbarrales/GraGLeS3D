@@ -193,6 +193,34 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
             (*domain)[i][j]= dmin;
         }
 	}
+	for (int i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
+		int j=xmin;
+		while( (*domain)[i][j] > h || j<xmax ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			j++;
+		}
+		j=xmax;
+		while( (*domain)[i][j] > h || j>=xmin ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			j--;
+		}
+		
+	}
+	for (int j=xmin;j<xmax;i++){ // ¸ber gitter iterieren
+		int i=ymin;
+		while( (*domain)[i][j] > h || i<ymax ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			i++;
+		}
+		i=ymax;
+		while( (*domain)[i][j] > h || i>=ymin ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			i--;
+		}
+		
+	}
+	
+	
 	return(*this);
 }
 

@@ -266,7 +266,7 @@ void grainhdl::readMicrostructurefromVertex(){
         filename << "Distanzmatrix";
 		grains = (*it).getBoxList();
         for (itg = grains.begin(); itg != grains.end(); itg++) {
-            filename << "_" <<(*itg)->getID();
+			filename << "_" <<(*itg)->getID();
         }
         filename << ".gnu";    
 		
