@@ -145,6 +145,32 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
             (*domain)[i][j]= dmin;
         }
 	}
+	for (int i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
+		int j=ymin;
+		while( (*domain)[i][j] > h && j<ymax ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			j++;
+		}
+		j=ymax;
+		while( (*domain)[i][j] > h && j>=ymin ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			j--;
+		}
+		
+	}
+	for (int j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
+		int i=xmin;
+		while( (*domain)[i][j] > h && i<xmax ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			i++;
+		}
+		i=xmax;
+		while( (*domain)[i][j] > h && i>=xmin ) {
+			(*domain)[i][j] = - (*domain)[i][j];	  
+			i--;
+		}
+		
+	}
 	return(*this);
 }
 
@@ -193,34 +219,6 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
             (*domain)[i][j]= dmin;
         }
 	}
-	for (int i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
-		int j=xmin;
-		while( (*domain)[i][j] > h || j<xmax ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
-			j++;
-		}
-		j=xmax;
-		while( (*domain)[i][j] > h || j>=xmin ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
-			j--;
-		}
-		
-	}
-	for (int j=xmin;j<xmax;i++){ // ¸ber gitter iterieren
-		int i=ymin;
-		while( (*domain)[i][j] > h || i<ymax ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
-			i++;
-		}
-		i=ymax;
-		while( (*domain)[i][j] > h || i>=ymin ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
-			i--;
-		}
-		
-	}
-	
-	
 	return(*this);
 }
 
