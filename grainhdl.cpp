@@ -11,11 +11,14 @@ void grainhdl::setSimulationParameter(){
 // 	readInit();
 	ngrains= PARTICLES;
 	realDomainSize= M-1;
-	compare_mod =1; //1 für box, 2 für domain
 	
+	dt = 1.0/double(M*M);
+	h = 1.0/double(realDomainSize);
+	
+	compare_mod =1; //1 für box, 2 für domain	
 	Mode = 1; // 2 für lesen;  für erzeugen der mikrostrukture
 	
-	h = 1.0/double(realDomainSize); 
+	 
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	
@@ -108,7 +111,7 @@ void grainhdl::VOROMicrostructure(){
 		
 	/**********************************************************/
 		
-    for(unsigned int i=0; i < realDomainSize; i++) for(unsigned int j= 0; j < realDomainSize; j++){
+    for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
         x=double(i*h); 
 		y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
@@ -193,7 +196,7 @@ void grainhdl::readMicrostructurefromVertex(){
 	cout << "ngrains : " << ngrains << endl;;
 	
 	
-	for(unsigned int i=0; i<ngrains; i++){
+	for(int i=0; i<ngrains; i++){
 		
 		fscanf(levelset, "%ld\t %d\t %f\t %f\t%f\n", &id, &nvertex, &phi1, &PHI, &phi2);
 		vertices = new float [nvertex * 4];
@@ -296,6 +299,7 @@ void grainhdl::save_conv_step(){
 	}	
 }
 
+
 void grainhdl::comparison_domain(){
 	std::list<domainCl>::iterator it;
 	stringstream filename;
@@ -330,11 +334,12 @@ void grainhdl::comparison_box(){
 	std::list<domainCl>::iterator it, it_domain;
 	vector<LSbox*>::iterator itLS;
 //     vector<LSbox*>::iterator itLSc;
+	vector<LSbox*> grains;
 
 	domains_copy = domains;
 	
 	for (it = domains.begin(); it != domains.end(); it++){		     
-		vector<LSbox*> grains = (*it).getBoxList();
+		grains = (*it).getBoxList();
 					
 		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 			for (itLS = grains.begin(); itLS != grains.end(); itLS++){	
@@ -387,7 +392,7 @@ void grainhdl::swap_grains(){
 		i++;
 		cout << "created a new domain" << endl;
 	// 		cin >> buffer1;
-		domains.emplace_back(ngridpoints,ngridpoints, i,INTERIMVAL);
+		domains.emplace_back(ngridpoints,ngridpoints, i,INTERIMVAL, this);
 		domains.back().grainCheck(h, grid_blowup, buffer, loop);
 	}
 }
@@ -468,8 +473,7 @@ void grainhdl::run_sim(){
 // 		domains_copy.clear();
 		redistancing();
 	}
-}
-	  
+}  
  
  
 void grainhdl::save_sim(){
@@ -489,7 +493,6 @@ void grainhdl::save_sim(){
 	utils::PNGtoGIF("test.mp4");
 	cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
-
 
 
 void grainhdl::find_neighbors(){
