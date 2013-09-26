@@ -22,7 +22,7 @@ void grainhdl::setSimulationParameter(){
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	
-	my_weights = new weightmap(this);
+	my_weights = new weightmap();
 	
 	ID = new LSbox**[3];
 	ID[0] = new LSbox*[ngridpoints*ngridpoints];
@@ -97,7 +97,7 @@ void grainhdl::VOROMicrostructure(){
 	container con(0,1,0,1,0,1,5,5,5,randbedingung,randbedingung,randbedingung,2);
     c_loop_all vl(con);
 	
-	gridIDs = new int [ ngridpoints* ngridpoints]; //new int[ngridpoints*ngridpoints];
+	gridIDs = new int [ngridpoints* ngridpoints]; //new int[ngridpoints*ngridpoints];
 	std::fill_n(gridIDs, ngridpoints* ngridpoints, 0); 
 	
 	/**********************************************************/
@@ -116,7 +116,7 @@ void grainhdl::VOROMicrostructure(){
 	x=double(i*h); 
 	y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-	  cell_id= cell_id+1;
+	  cell_id= cell_id++;
 	  part_pos[3*(cell_id-1)]=rx;
 	  part_pos[3*(cell_id-1)+1]=ry;
 	  part_pos[3*(cell_id-1)+2]=rz;
