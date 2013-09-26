@@ -130,9 +130,9 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
 					if(lambda >= 1.) 				d = (p-x2).laenge();
 					if(((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) {
 						d=abs(d);
-						char buffer;
-						cout << " ich weiß nicht ob ich im korn bin";
-						cin >> buffer;
+// 						char buffer;
+// 						cout << " ich weiß nicht ob ich im korn bin";
+// 						cin >> buffer;
 					}
 					else d= -abs(d);
 		// 			cout << "ID klappt" << endl;

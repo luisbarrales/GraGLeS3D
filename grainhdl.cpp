@@ -16,7 +16,7 @@ void grainhdl::setSimulationParameter(){
 	h = 1.0/double(realDomainSize);
 	
 	compare_mod =1; //1 für box, 2 für domain	
-	Mode = 1; // 2 für lesen;  für erzeugen der mikrostrukture
+	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
 	
 	 
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
@@ -195,15 +195,16 @@ void grainhdl::readMicrostructurefromVertex(){
 	fscanf(levelset, "%ld\n", &ngrains);
 	cout << "ngrains : " << ngrains << endl;;
 	
-	
-	for(int i=0; i<ngrains; i++){
+	int i=0;
+	for(int nn=0; nn< ngrains; nn++){
 		
 		fscanf(levelset, "%ld\t %d\t %f\t %f\t%f\n", &id, &nvertex, &phi1, &PHI, &phi2);
 		vertices = new float [nvertex * 4];
+		cout << id << " || " << nvertex << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
 		
 		for(unsigned int j=0; j<nvertex; j++){
 			fscanf(levelset, "%f\t %f\t %f\t%f\n", &xl, &yl, &xr, &yr);	
-			fprintf(levelset, "%f\t %f\t %f\t%f\n", xl, yl, xr, yr);	
+			cout << xl << " || "<< yl << " || "<< xr << " || "<< yr<< " || " << endl;
 			int k = 4*j;
 			vertices[k]   = xl;
 			vertices[k+1] = yl;
@@ -220,7 +221,7 @@ void grainhdl::readMicrostructurefromVertex(){
 				foundDomain = (*it).addBox(newBox);
 				if (foundDomain) break;
 			}	
-			
+		
 	    if (!foundDomain) {
 			// create domain
 			cout << "failed; creating new domain:" << endl;
@@ -232,18 +233,48 @@ void grainhdl::readMicrostructurefromVertex(){
 				
 	    // calculate distances	    
 	    newBox->distancefunction(nvertex, vertices, grid_blowup, h); 
+		
 		delete [] vertices;
 	}
 	
 	for(unsigned int i=0; i<ngrains; i++){
+		double buffer;
+		fscanf(levelset, "%f\t", &buffer);
 		for(unsigned int j=i; j<ngrains; j++){
-			fscanf(levelset, "%f\t", &ST[j+(ngrains*i)]);
-			ST[i+(ngrains*j)] = ST[j+(ngrains*i)];
-		}
+			fscanf(levelset, "%f\t", &ST[i+(ngrains*j)]);
+			ST[j+(ngrains*i)] = ST[i+(ngrains*j)];
+			}
 		fscanf(levelset, "\n");
 	} 
-	
+	for(unsigned int i=0; i<ngrains; i++){
+		for(unsigned int j=0; j<ngrains; j++){
+			cout << ST[i+(ngrains*j)] << "  ";
+		}
+		cout << endl;
+	}
 	fclose(levelset);
+	
+	
+	// Ausgabe der Distanzmatrizen
+	
+	vector<LSbox*> grains;
+	vector<LSbox*>::iterator itg;;	
+	stringstream filename;
+	int j;
+    for (it = domains.begin(), j = 0; it !=domains.end(); it++, j++){
+        filename.str(std::string());
+        filename << "Distanzmatrix";
+		grains = (*it).getBoxList();
+        for (itg = grains.begin(); itg != grains.end(); itg++) {
+            filename << "_" <<(*itg)->getID();
+        }
+        filename << ".gnu";    
+		
+        if (SAFEFILES){
+        	cout << filename.str() << endl << endl;        
+			(*it).save_domainCl(filename.str().c_str());
+		}
+    }
  }
  
  
