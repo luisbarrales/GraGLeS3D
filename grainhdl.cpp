@@ -9,7 +9,7 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	ngrains= PARTICLES;
+	ngrains = PARTICLES;
 	realDomainSize= M-1;
 	
 	dt = 1.0/double(M*M);
@@ -22,7 +22,7 @@ void grainhdl::setSimulationParameter(){
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	
-	my_weights = new weightmap();
+	my_weights = new weightmap(this);
 	
 	ID = new LSbox**[3];
 	ID[0] = new LSbox*[ngridpoints*ngridpoints];
@@ -35,11 +35,12 @@ void grainhdl::setSimulationParameter(){
 	
 	zeroBox = new LSbox();
 	
-	ST = new double [ngrains*ngrains];
-	std::fill_n(ST,ngrains*ngrains,0);
 	
 	switch (Mode) {
 		case 1: { 
+			ST = new double [ngrains*ngrains];
+			std::fill_n(ST,ngrains*ngrains,0);
+    
 			VOROMicrostructure();
 			generateRandomEnergy();
 			break;
@@ -65,7 +66,7 @@ void grainhdl::setSimulationParameter(){
 void grainhdl::readInit(){
 	FILE * Init;
 	Init = fopen( "Init.dat", "r" );
-	fscanf(Init, "%ld\n", ngrains);
+	fscanf(Init, "%d\n", &ngrains);
 	
 	
 	fclose(Init);
@@ -112,14 +113,14 @@ void grainhdl::VOROMicrostructure(){
 	/**********************************************************/
 		
     for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
-        x=double(i*h); 
-		y=double(j*h); // only point within the domain
+	x=double(i*h); 
+	y=double(j*h); // only point within the domain
         if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-			cell_id= cell_id+1;
-			part_pos[3*(cell_id-1)]=rx;
-            part_pos[3*(cell_id-1)+1]=ry;
-            part_pos[3*(cell_id-1)+2]=rz;
-			gridIDs[(i+grid_blowup)*ngridpoints + j + grid_blowup]= cell_id;
+	  cell_id= cell_id+1;
+	  part_pos[3*(cell_id-1)]=rx;
+	  part_pos[3*(cell_id-1)+1]=ry;
+	  part_pos[3*(cell_id-1)+2]=rz;
+	  gridIDs[(i+grid_blowup)*ngridpoints + j + grid_blowup]= cell_id;
         }
         else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }  
@@ -128,29 +129,29 @@ void grainhdl::VOROMicrostructure(){
 	int i=0;
 	// iteration over all cells in the container con:
 	if(vl.start()) 
-	  do {
-	    // compute the current cell, taken out of the container
-	    con.compute_cell(c,vl);
-	    cell_order[ngrains-1-i]=(vl.pid()+1);
-	    
-	    // create a new Box for the current cell
-		int box_id = vl.pid()+1;
-	    LSbox* newBox = new LSbox(box_id, c, part_pos, grid_blowup, h, this);
-	    // find domain for new box
-	    bool foundDomain = false;
-	    cout << "trying to add a box -- ";
-	    if (!domains.empty())
-	      for (it = domains.begin(); it !=domains.end(); it++){
-			foundDomain = (*it).addBox(newBox);
-			if (foundDomain) break;
-	      }
+	do {
+	  // compute the current cell, taken out of the container
+	  con.compute_cell(c,vl);
+	  cell_order[ngrains-1-i]=(vl.pid()+1);
+	  
+	  // create a new Box for the current cell
+	  int box_id = vl.pid()+1;
+	  LSbox* newBox = new LSbox(box_id, c, part_pos, grid_blowup, h, this);
+	  // find domain for new box
+	  bool foundDomain = false;
+	  cout << "trying to add a box -- ";
+	  if (!domains.empty())
+	    for (it = domains.begin(); it !=domains.end(); it++){
+	      foundDomain = (*it).addBox(newBox);
+	      if (foundDomain) break;
+	    }
 	  
 	    if (!foundDomain) {
 			// create domain
-			cout << "failed; creating new domain:" << endl;
-			domains.emplace_back(ngridpoints,ngridpoints, i,INTERIMVAL, this);  
-			i++;
-			domains.back().addBox(newBox);            
+	      cout << "failed; creating new domain:" << endl;
+	      domains.emplace_back(ngridpoints,ngridpoints, i,INTERIMVAL, this);  
+	      i++;
+	      domains.back().addBox(newBox);            
 	    } 
 	    else cout << "success" << endl;
 		    
@@ -171,8 +172,8 @@ void grainhdl::VOROMicrostructure(){
 		
         if (SAFEFILES){
         	cout << filename.str() << endl << endl;        
-			(*it).save_domainCl(filename.str().c_str());
-		}
+		(*it).save_domainCl(filename.str().c_str());
+	}
     }
 		
 	delete [] part_pos;
@@ -187,12 +188,12 @@ void grainhdl::readMicrostructurefromVertex(){
 	
 	std::list<domainCl>::iterator it;
 	
-	unsigned int id;
+	long id;
 	int nvertex;
 	float phi1, PHI, phi2, xr, yr, xl, yl;
 	float* vertices;
 	
-	fscanf(levelset, "%ld\n", &ngrains);
+	fscanf(levelset, "%d\n", &ngrains);
 	cout << "ngrains : " << ngrains << endl;;
 	
 	int i=0;
@@ -237,13 +238,21 @@ void grainhdl::readMicrostructurefromVertex(){
 		delete [] vertices;
 	}
 	
+	ST = new double [ngrains*ngrains];			//Create ST array and fill with zeros
+	std::fill_n(ST,ngrains*ngrains,0);
+
 	for(unsigned int i=0; i<ngrains; i++){
-		double buffer;
+		float buffer;
 		fscanf(levelset, "%f\t", &buffer);
+		
 		for(unsigned int j=i; j<ngrains; j++){
-			fscanf(levelset, "%f\t", &ST[i+(ngrains*j)]);
-			ST[j+(ngrains*i)] = ST[i+(ngrains*j)];
-			}
+			
+		  fscanf(levelset, "%f\t", &buffer);
+		  ST[i+(ngrains*j)]= (double) buffer;
+		  ST[j+(ngrains*i)] = ST[i+(ngrains*j)];
+// 			cout << "buffer " << buffer <<endl ;
+// 			fwrite(/*levelset*/, "test");
+		}
 		fscanf(levelset, "\n");
 	} 
 	for(unsigned int i=0; i<ngrains; i++){
@@ -254,19 +263,18 @@ void grainhdl::readMicrostructurefromVertex(){
 	}
 	fclose(levelset);
 	
-	
 	// Ausgabe der Distanzmatrizen
 	
 	vector<LSbox*> grains;
 	vector<LSbox*>::iterator itg;;	
 	stringstream filename;
 	int j;
-    for (it = domains.begin(), j = 0; it !=domains.end(); it++, j++){
-        filename.str(std::string());
-        filename << "Distanzmatrix";
-		grains = (*it).getBoxList();
-        for (itg = grains.begin(); itg != grains.end(); itg++) {
-			filename << "_" <<(*itg)->getID();
+	for (it = domains.begin(), j = 0; it !=domains.end(); it++, j++){
+	  filename.str(std::string());
+	  filename << "Distanzmatrix";
+	  grains = (*it).getBoxList();
+	  for (itg = grains.begin(); itg != grains.end(); itg++) {
+		filename << "_" <<(*itg)->getID();
         }
         filename << ".gnu";    
 		
