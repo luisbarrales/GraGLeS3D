@@ -205,7 +205,7 @@ void grainhdl::readMicrostructurefromVertex(){
 		
 		for(unsigned int j=0; j<nvertex; j++){
 			fscanf(levelset, "%f\t %f\t %f\t%f\n", &xl, &yl, &xr, &yr);	
-			cout << xl << " || "<< yl << " || "<< xr << " || "<< yr<< " || " << endl;
+			cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
 			int k = 4*j;
 			vertices[k]   = xl;
 			vertices[k+1] = yl;
@@ -243,13 +243,15 @@ void grainhdl::readMicrostructurefromVertex(){
 
 	for(unsigned int i=0; i<ngrains; i++){
 		float buffer;
-		fscanf(levelset, "%f\t", &buffer);
-		
-		for(unsigned int j=i; j<ngrains; j++){
-			
-		  fscanf(levelset, "%f\t", &buffer);
-		  ST[i+(ngrains*j)]= (double) buffer;
-		  ST[j+(ngrains*i)] = ST[i+(ngrains*j)];
+		fscanf(levelset, "%f\t", &buffer);		
+		for(unsigned int j=0; j<ngrains; j++){
+			while(j < i) { 
+				fscanf(levelset, "%f\t", &buffer);
+				j++;
+			}
+			fscanf(levelset, "%f\t", &buffer);
+			ST[j+(ngrains*i)]= (double) buffer;
+			ST[i+(ngrains*j)] = ST[j+(ngrains*i)];
 // 			cout << "buffer " << buffer <<endl ;
 // 			fwrite(/*levelset*/, "test");
 		}
@@ -257,7 +259,7 @@ void grainhdl::readMicrostructurefromVertex(){
 	} 
 	for(unsigned int i=0; i<ngrains; i++){
 		for(unsigned int j=0; j<ngrains; j++){
-			cout << ST[i+(ngrains*j)] << "  ";
+			cout << ST[i+(ngrains*j)] << "  \t";
 		}
 		cout << endl;
 	}
