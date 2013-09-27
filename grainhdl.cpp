@@ -22,7 +22,7 @@ void grainhdl::setSimulationParameter(){
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	
-	my_weights = new weightmap();
+	my_weights = new weightmap(this);
 	
 	ID = new LSbox**[3];
 	ID[0] = new LSbox*[ngridpoints*ngridpoints];

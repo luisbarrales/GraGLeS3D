@@ -2,18 +2,22 @@
 #define WEIGHTMAP_H
 #include "ggLS.h"
 
+class grainhdl;
+
 typedef std::map<int, double* > storage_map;
 typedef std::map<int, storage_map* > inner_map;
 typedef std::map<int, inner_map* > outer_map;
 
 class weightmap{
 	
+	grainhdl* handler;
+	
 // 	map<int , map<int, map<int,double*>* >* > maptable;
 	outer_map weights_table;
 		
 	public:
 	friend class LSbox;
-	weightmap();
+	weightmap(grainhdl* handler);
 	~weightmap();
 	void find_representer(LSbox** rep, int length, LSbox ***ID,int i, int j);
 	double load_weights(int length, double *ST, LSbox*** ID, int i, int j, int id);

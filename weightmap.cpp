@@ -1,6 +1,6 @@
 #include "weightmap.h"
 
-weightmap::weightmap(){}
+weightmap::weightmap(grainhdl* handler): handler(handler){}
 weightmap::~weightmap(){}
 
 
@@ -106,9 +106,9 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 		sigma[2]= 1.0;	
 	}
 	else{
-		gamma[0] = ST[ (ids[0]-1) + (PARTICLES* ( ids[1]-1) ) ];
-		gamma[1] = ST[ (ids[0]-1) + (PARTICLES* ( ids[2]-1) ) ];
-		gamma[2] = ST[ (ids[1]-1) + (PARTICLES* ( ids[2]-1) ) ];
+		gamma[0] = ST[ (ids[0]-1) + (handler->get_ngrains() * ( ids[1]-1) ) ];
+		gamma[1] = ST[ (ids[0]-1) + (handler->get_ngrains() * ( ids[2]-1) ) ];
+		gamma[2] = ST[ (ids[1]-1) + (handler->get_ngrains() * ( ids[2]-1) ) ];
 		
 		
 		// wähle gamma oder lade aus ST-Feld

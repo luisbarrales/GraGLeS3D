@@ -145,30 +145,33 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
             (*domain)[i][j]= dmin;
         }
 	}
+	
 	for (int i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
 		int j=ymin;
-		while( (*domain)[i][j] > h && j<ymax ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
+		while( (*domain)[j][i] > h && j<ymax ) {
+			(*domain)[j][i] = - (*domain)[j][i];	  
 			j++;
-		}
-		j=ymax;
-		while( (*domain)[i][j] > h && j>=ymin ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
+		} if ( j<ymax ) (*domain)[j][i] = - (*domain)[j][i];
+		
+		j=ymax-1;
+		while( (*domain)[j][i] > h && j>=ymin ) {
+			(*domain)[j][i] = - (*domain)[j][i];	  
 			j--;
-		}
+		} if ( j>=ymin ) (*domain)[j][i] = - (*domain)[j][i];
 		
 	}
 	for (int j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
 		int i=xmin;
-		while( (*domain)[i][j] > h && i<xmax ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
+		while( (*domain)[j][i] > h && i<xmax ) {
+			(*domain)[j][i] = - (*domain)[j][i];	  
 			i++;
-		}
-		i=xmax;
-		while( (*domain)[i][j] > h && i>=xmin ) {
-			(*domain)[i][j] = - (*domain)[i][j];	  
+		} if ( i<xmax ) (*domain)[j][i] = - (*domain)[j][i];
+		
+		i=xmax-1;
+		while( (*domain)[j][i] > h && i>=xmin ) {
+			(*domain)[j][i] = - (*domain)[j][i];	  
 			i--;
-		}
+		} if ( i>=xmin ) (*domain)[j][i] = - (*domain)[j][i];
 		
 	}
 	return(*this);
