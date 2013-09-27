@@ -106,8 +106,7 @@ int LSbox::getID() {
 LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, double h){
 	int i,j,k;
 	double d, dmin,lambda;
-	int m=domain->get_m();
-	int n=domain->get_n();
+	int m=handler->get_ngridpoints();
 	vektor u(2), a(2), p(2), x1(2), x2(2);
 
 	for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
@@ -134,7 +133,7 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
 // 						cout << " ich wei� nicht ob ich im korn bin";
 // 						cin >> buffer;
 					}
-					else d= -abs(d);
+					else d= abs(d);
 		// 			cout << "ID klappt" << endl;
 		// 			char buffer;
 		//                         cin >> buffer ;
@@ -146,32 +145,32 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
         }
 	}
 	
-	for (int i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
-		int j=ymin;
-		while( (*domain)[j][i] > h && j<ymax ) {
+	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
+		j=ymin;
+		while( j<ymax && (*domain)[j][i] >= h  ) {
 			(*domain)[j][i] = - (*domain)[j][i];	  
 			j++;
 		} if ( j<ymax ) (*domain)[j][i] = - (*domain)[j][i];
 		
 		j=ymax-1;
-		while( (*domain)[j][i] > h && j>=ymin ) {
+		while( j>=ymin &&  (*domain)[j][i] >= h ) {
 			(*domain)[j][i] = - (*domain)[j][i];	  
 			j--;
 		} if ( j>=ymin ) (*domain)[j][i] = - (*domain)[j][i];
 		
 	}
-	for (int j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
-		int i=xmin;
-		while( (*domain)[j][i] > h && i<xmax ) {
+	for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
+		i=xmin;
+		while( i<xmax && (*domain)[j][i] >= h   ) {
 			(*domain)[j][i] = - (*domain)[j][i];	  
 			i++;
 		} if ( i<xmax ) (*domain)[j][i] = - (*domain)[j][i];
 		
 		i=xmax-1;
-		while( (*domain)[j][i] > h && i>=xmin ) {
+		while( i>=xmin   && (*domain)[j][i] >= h ) {
 			(*domain)[j][i] = - (*domain)[j][i];	  
 			i--;
-		} if ( i>=xmin ) (*domain)[j][i] = - (*domain)[j][i];
+		} if ( i>=xmin ) (*domain)[j][i] = -(*domain)[j][i];
 		
 	}
 	return(*this);
