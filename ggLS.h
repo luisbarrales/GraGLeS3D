@@ -10,8 +10,8 @@
 #define PI 3.14159265358979323846
 
 
-#define TIMESTEPS 10
-#define PRINTSTEP 1
+#define TIMESTEPS 1000
+#define PRINTSTEP 50
 #define PRINTNOW 1000
 #define PARTICLES 10
 
@@ -43,6 +43,8 @@
 #include <fftw3.h>
 #include <time.h>  
 #include <omp.h>
+
+// g++ -I/home/user/bin/R-devel/include -L/home/user/bin/R-devel/lib -lR embed.cpp
 
 #include "voro++/include/voro++/voro++.hh"
 

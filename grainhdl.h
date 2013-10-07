@@ -3,6 +3,13 @@
 
 #include "ggLS.h"
 
+
+#define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
+#define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
+#define min(x,y) (x<y?x:y)
+#define max(x,y) (x>y?x:y)
+	
+
 using namespace voro;
 using namespace std;
 
@@ -61,6 +68,10 @@ class grainhdl{
 	void save_sim();
 	void clear_mem(); 
 	
+	void compute_grain_vol()
+	int conrec();
+
+
 	
 // 	wrapper functions:
 	

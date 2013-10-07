@@ -36,7 +36,7 @@ class LSbox {
 	float PHI;
 	float phi2;
 	grainhdl* handler;
-	    
+		    
 public:
 	friend class domainCl;
     LSbox();

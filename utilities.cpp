@@ -43,7 +43,7 @@ namespace utils {
         strcat( string_gnupl_command, "set contour; ");
         strcat( string_gnupl_command, "set cntrparam levels 0;");
         strcat( string_gnupl_command, "unset surface;");
-	strcat( string_gnupl_command, "set view map;");
+		strcat( string_gnupl_command, "set view map;");
         strcat( string_gnupl_command, "set terminal png;");
         strcat( string_gnupl_command, "splot ");
         strcat( string_gnupl_command, plotfiles);
