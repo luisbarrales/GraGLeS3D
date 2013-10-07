@@ -72,7 +72,7 @@ domainCl::domainCl(const domainCl& v) : m(v.m), n(v.n), id(v.id) {
 }
 
 double* domainCl::operator[](int i) {
-    if (0 <= i < m) {
+    if (0	<= i &&i< m) {
       return x[i];
     }
     
@@ -81,7 +81,7 @@ double* domainCl::operator[](int i) {
 }
 
 const double* domainCl::operator[](int i) const {
-    if (0	<= i < m) {
+    if (0	<= i &&i< m) {
       return x[i];
     }    
      

@@ -65,6 +65,9 @@ public:
     double curvature (int x, int y, double h);
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
+	void find_LevelSet();
+	
+	
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }
 };

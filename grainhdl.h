@@ -68,7 +68,7 @@ class grainhdl{
 	void save_sim();
 	void clear_mem(); 
 	
-	void compute_grain_vol()
+	void compute_grain_vol();
 	int conrec();
 
 
@@ -78,6 +78,7 @@ class grainhdl{
 	inline long get_ngrains(){ return ngrains; }
 	inline int get_realDomainSize() { return realDomainSize; }
 	inline int get_ngridpoints() { return ngridpoints; }
+	inline double get_h() { return h; }
 
 };
 #endif
