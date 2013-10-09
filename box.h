@@ -35,6 +35,7 @@ class LSbox {
 	float phi1;
 	float PHI;
 	float phi2;
+	float volume;
 	grainhdl* handler;
 		    
 public:
@@ -66,10 +67,12 @@ public:
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
 	void find_LevelSet();
+	void compute_volume(vector<double*> &levelset);
 	
 	
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }
+	inline float get_vol() {return volume ;}
 };
 
 

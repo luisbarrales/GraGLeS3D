@@ -553,8 +553,8 @@ void grainhdl::find_neighbors(){
 				for(itlc = grainstoComp.begin(); itlc != grainstoComp.end(); itlc++){					
 					if ((*itlc)->getID()!=(*itl)->getID()){ // wozu ist diese abfrage? --- Damit die Boxen nicht Nachbarn von sich selbst sind
 						if((*itl)->checkIntersect(*itlc)){
-							(*itl)	->neighbors.push_back(*itlc);
-							(*itlc)	->neighbors.push_back(*itl);
+							(*itl)	-> neighbors.push_back(*itlc);
+							(*itlc)	-> neighbors.push_back(*itl);
 						}
 					}
 					
@@ -611,55 +611,14 @@ int grainhdl::conrec() {
 	std::list<domainCl>::iterator it;
 	vector<LSbox*> ::iterator itl;
 	
+	float volume = 0.0;
 	for (it = domains.begin(); it !=domains.end(); it++){
-			vector<LSbox*> grains = it->getBoxList();	
-			for (itl = grains.begin(); itl != grains.end(); itl++){	
-				(*itl)->find_LevelSet();
-			
+		vector<LSbox*> grains = it->getBoxList();	
+		for (itl = grains.begin(); itl != grains.end(); itl++){	
+			(*itl)->find_LevelSet();	
+			volume += (*itl)->get_vol();
 		}
 	}
-
+	cout << "whole volume: " << volume << endl;
 	return 0;
 }
-
-
-
-
-
-// void grainhdl::compute_grain_vol(){
-// 	Rf_initEmbeddedR(argc, argv);
-// 	grain_vol();
-// 	Rf_endEmbeddedR(0);
-// }
-// 
-// static double grain_vol() {
-//     SEXP x,y,data,level, A;
-//     int errorOccurred;
-// 
-//     // create and evaluate 'library(splines)'
-//     PROTECT(e = lang2(install("library"), mkString("sos")));
-//     R_tryEval(e, R_GlobalEnv, &errorOccurred);
-//     if (errorOccurred) {
-//         // handle error
-//     }
-//     UNPROTECT(1);
-// 
-// //     // 'options(FALSE)' ...
-// //     PROTECT(e = lang2(install("options"), ScalarLogical(0)));
-// //     // ... modified to 'options(example.ask=FALSE)' (this is obscure)
-// //     SET_TAG(CDR(e), install("example.ask"));
-// //     R_tryEval(e, R_GlobalEnv, NULL);
-// //     UNPROTECT(1);
-// 
-// 	data= as.matrix(read.table("C:/Users/miessen.IMM/Documents/Redistanced_matrix_2_T4_3.gnu", header=FALSE))
-// 	x <- 1:nrow(data)
-// 	y <- 1:ncol(data)
-// 	contour(x, y, data, levels=c(0));  
-// 	clines <- contourLines(x, y, data, levels=c(0))
-// 	x <- clines[[1]][["x"]]
-// 	y <- clines[[1]][["y"]]
-// 	level <- clines[[1]][["level"]]
-// 	level
-// 	A = 0.5* abs( sum( x[1:(length(x)-1)]*y[2:length(x)] - y[1:(length(x)-1)]*x[2:length(x)] ) )
-// 	return A;   
-// }

@@ -682,20 +682,23 @@ void LSbox::plot_box(bool distanceplot){
 
 
 void LSbox::find_LevelSet(){
-	if (id !=1){
-	int nc = 1;
-	double z[1]; z[0]=0.0;	
 	
+	vector<double*> levelset;
+	
+	int nc = 1;
+	double z[1]; z[0]=0.0;		
 	// x               ! data matrix column coordinates
 	// y               ! data matrix row coordinates
 	double x[xmax-xmin];
-	cerr<< "xmax" << xmax;
-	cerr<< "xmin " << xmin;
+	double dx =  (handler->get_h());
+	double y[ymax-ymin];	
 	
-	cerr<< "id " << id;
-	double y[ymax-ymin];			
-	for (int i=ymin; i< ymax; i++) y[i]=i* handler->get_h();
-	for (int j=xmin; j< xmax; j++) x[j]=j* handler->get_h();	
+	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx;
+	for (int j=xmin; j< xmax; j++) x[j-xmin]=j* dx;	
+	
+	if(id==2)  utils:: print_2dim_array(x,1,xmax-xmin);
+	char buffer;
+	cin >> buffer;
 	
 	int m1,m2,m3,case_value;
 	double dmin,dmax,x1,x2,y1,y2;
@@ -725,10 +728,9 @@ void LSbox::find_LevelSet(){
 		{9,6,7},{5,2,0},{8,0,0}
 		}
 	};
-
-		
+	
 	for (int j=(xmax-2);j>=xmin;j--) {
-		for (int i=ymin;i<ymax-1;i++) {
+		for (int i=ymin; i< ymax-1; i++) {
 			double temp1,temp2;
 			temp1 = min((*domain)[i][j],(*domain)[i][j+1]);
 			temp2 = min((*domain)[i+1][j],(*domain)[i+1][j+1]);
@@ -736,7 +738,7 @@ void LSbox::find_LevelSet(){
 			temp1 = max((*domain)[i][j],(*domain)[i][j+1]);
 			temp2 = max((*domain)[i+1][j],(*domain)[i+1][j+1]);
 			dmax = max(temp1,temp2);
-			if (dmax>=z[0]&&dmin<=z[nc-1]) {
+			if ( dmax >= z[0] && dmin <= z[nc-1] ) {
 				for (k=0;k<nc;k++) {
 					if (z[k]>=dmin&&z[k]<=dmax) {
 						for (m=4;m>=0;m--) {
@@ -750,8 +752,8 @@ void LSbox::find_LevelSet(){
 							xh[m] = x[j+jm[m-1]];
 							} else {
 							h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
-							xh[0]=0.5*(x[j]+x[j+1]);
 							yh[0]=0.5*(y[i]+y[i+1]);
+							xh[0]=0.5*(x[j]+x[j+1]);							
 							}
 							if (h[m]>0.0) {
 								sh[m] = 1;
@@ -888,7 +890,9 @@ void LSbox::find_LevelSet(){
 								//=============================================================
 								// Put your processing code here and comment out the printf
 								//=============================================================
-							//	printf("%f %f %f %f %f\n",x1,y1,x2,y2,z[0]);
+								double line[4] = {x1,y1,x2,y2};
+								if(id==2)  utils:: print_2dim_array(line,1,4);
+								levelset.push_back(line);
 							}
 						}
 					}
@@ -896,10 +900,20 @@ void LSbox::find_LevelSet(){
 			}
 		}
 	}
-	}
+	// compute cell volume
 	
-//	delete [] x;
-//	delete [] y;
+	compute_volume(levelset);	
 }
 
-
+void LSbox::compute_volume(vector<double*> &levelset){
+	float sum=.0;
+	cout << " size: "  << (levelset).size() << endl;
+	int N = (levelset).size();
+	
+	for( int i=0;i< N ;i++ ){
+		sum += ( ((levelset)[i][0] + (levelset)[i][2] ) - ((levelset)[i][3] - (levelset)[i][1] )); 
+		//Gaußsche Trapezformel
+    }
+    volume = 0.5* abs(sum);	
+	cout <<"id: " << id <<"   vol: "<< volume << endl;
+}
