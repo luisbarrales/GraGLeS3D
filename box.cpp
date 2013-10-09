@@ -696,13 +696,12 @@ void LSbox::find_LevelSet(){
 	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx;
 	for (int j=xmin; j< xmax; j++) x[j-xmin]=j* dx;	
 	
-	if(id==2)  utils:: print_2dim_array(x,1,xmax-xmin);
-	char buffer;
-	cin >> buffer;
+// 	if(id==2)  utils:: print_2dim_array(x,1,xmax-xmin);
+	
 	
 	int m1,m2,m3,case_value;
 	double dmin,dmax,x1,x2,y1,y2;
-	int k,m;
+	int i,j,k,m;
 	double h[5];
 	int sh[5];
 	double xh[5],yh[5];
@@ -729,8 +728,13 @@ void LSbox::find_LevelSet(){
 		}
 	};
 	
-	for (int j=(xmax-2);j>=xmin;j--) {
-		for (int i=ymin; i< ymax-1; i++) {
+	int jub  = xmax;
+	int jlb  = xmin;
+	int iub  = ymax;
+	int ilb  = ymin;
+	
+	for (j=(jub-2);j>=jlb;j--) {
+		for (i=ilb;i<iub-1;i++) {	
 			double temp1,temp2;
 			temp1 = min((*domain)[i][j],(*domain)[i][j+1]);
 			temp2 = min((*domain)[i+1][j],(*domain)[i+1][j+1]);
@@ -738,6 +742,8 @@ void LSbox::find_LevelSet(){
 			temp1 = max((*domain)[i][j],(*domain)[i][j+1]);
 			temp2 = max((*domain)[i+1][j],(*domain)[i+1][j+1]);
 			dmax = max(temp1,temp2);
+// 			cout<< i<<" || " <<j << endl;
+			
 			if ( dmax >= z[0] && dmin <= z[nc-1] ) {
 				for (k=0;k<nc;k++) {
 					if (z[k]>=dmin&&z[k]<=dmax) {
@@ -748,17 +754,17 @@ void LSbox::find_LevelSet(){
 							// start from zero
 							//=============================================================
 							h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-z[k];
-							yh[m] = y[i+im[m-1]];
-							xh[m] = x[j+jm[m-1]];
+							xh[m] = x[i+im[m-1]];
+							yh[m] = y[j+jm[m-1]];							
 							} else {
 							h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
-							yh[0]=0.5*(y[i]+y[i+1]);
-							xh[0]=0.5*(x[j]+x[j+1]);							
+							xh[0]=0.5*(x[i]+x[i+1]);
+							yh[0]=0.5*(y[j]+y[j+1]);							
 							}
 							if (h[m]>0.0) {
 								sh[m] = 1;
 							} 
-							else if (h[m]<0.0) {
+							else if (h[m] < 0.0) {
 								sh[m] = -1;
 							} 
 							else sh[m] = 0;
@@ -891,7 +897,8 @@ void LSbox::find_LevelSet(){
 								// Put your processing code here and comment out the printf
 								//=============================================================
 								double line[4] = {x1,y1,x2,y2};
-								if(id==2)  utils:: print_2dim_array(line,1,4);
+// 								if(id==2)  {utils:: print_2dim_array(line,1,4);
+// 								printf("%f\t%f\t%f\t%f\n", x1, y1, x2, y2);}
 								levelset.push_back(line);
 							}
 						}
@@ -899,10 +906,21 @@ void LSbox::find_LevelSet(){
 				}
 			}
 		}
+		domainCl temp(2* levelset.size(),2);
+		for(int i=0; i< levelset.size(); i++){
+			
+			temp[2*i][0]= levelset[i][0];
+			temp[2*i][1]= levelset[i][1];
+			temp[(2*i) +1][0]= levelset[i][2];
+			temp[(2*i) +1][1]= levelset[i][3];
+		}
+		temp.save_domainCl("grain.gnu");
 	}
 	// compute cell volume
 	
-	compute_volume(levelset);	
+	compute_volume(levelset);
+	char buffer;
+	cin >> buffer;
 }
 
 void LSbox::compute_volume(vector<double*> &levelset){
@@ -915,5 +933,6 @@ void LSbox::compute_volume(vector<double*> &levelset){
 		//Gauﬂsche Trapezformel
     }
     volume = 0.5* abs(sum);	
+	
 	cout <<"id: " << id <<"   vol: "<< volume << endl;
 }
