@@ -692,9 +692,9 @@ void LSbox::find_LevelSet(){
 	double x[xmax-xmin];
 	double dx =  (handler->get_h());
 	double y[ymax-ymin];	
-	
-	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx;
-	for (int j=xmin; j< xmax; j++) x[j-xmin]=j* dx;	
+	int gb = (handler)->get_grid_blowup();
+	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx - gb*dx;
+	for (int j=xmin; j< xmax; j++) x[j-xmin]=j* dx - gb*dx;	
 	
 // 	if(id==2)  utils:: print_2dim_array(x,1,xmax-xmin);
 	
@@ -712,7 +712,8 @@ void LSbox::find_LevelSet(){
 	int im[4] = {0,1,1,0},jm[4]={0,0,1,1};
 	//===========================================================================
 	// Note that castab is arranged differently from the FORTRAN code because
-	// Fortran and C/C++ arrays are transposed of each #22 0x00000000004287cd in grainhdl::conrec (this=0x7fffffff9f08) at /home/cm654063/LevelSetProject/grainhdlother, in this case
+	// Fortran and C/C++ arrays are transposed of each #22 0x00000000004287cd in 
+	// grainhdl::conrec (this=0x7fffffff9f08) at /home/cm654063/LevelSetProject/grainhdlother, in this case
 	// it is more tricky as castab is in 3 dimension
 	//===========================================================================
 	int castab[3][3][3] =
@@ -733,8 +734,8 @@ void LSbox::find_LevelSet(){
 	int iub  = ymax;
 	int ilb  = ymin;
 	
-	for (j=(jub-2);j>=jlb;j--) {
-		for (i=ilb;i<iub-1;i++) {	
+	for (j=(jub-2);j>jlb;j--) {
+		for (i=ilb+1;i<iub-1;i++) {	
 			double temp1,temp2;
 			temp1 = min((*domain)[i][j],(*domain)[i][j+1]);
 			temp2 = min((*domain)[i+1][j],(*domain)[i+1][j+1]);
@@ -749,24 +750,21 @@ void LSbox::find_LevelSet(){
 					if (z[k]>=dmin&&z[k]<=dmax) {
 						for (m=4;m>=0;m--) {
 							if (m>0) {
-							//=============================================================
-							// The indexing of im and jm should be noted as it has to
-							// start from zero
-							//=============================================================
-							h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-z[k];
-							xh[m] = x[i+im[m-1]];
-							yh[m] = y[j+jm[m-1]];							
-							} else {
-							h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
-							xh[0]=0.5*(x[i]+x[i+1]);
-							yh[0]=0.5*(y[j]+y[j+1]);							
+								//=============================================================
+								// The indexing of im and jm should be noted as it has to
+								// start from zero
+								//=============================================================
+								h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-z[k];
+								xh[m] = x[i+im[m-1]];
+								yh[m] = y[j+jm[m-1]];							
+							} 
+							else {
+								h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
+								xh[0]=0.5*(x[i]+x[i+1]);
+								yh[0]=0.5*(y[j]+y[j+1]);							
 							}
-							if (h[m]>0.0) {
-								sh[m] = 1;
-							} 
-							else if (h[m] < 0.0) {
-								sh[m] = -1;
-							} 
+							if (h[m]>0.0) {	sh[m] = 1;} 
+							else if (h[m] < 0.0) {	sh[m] = -1; } 
 							else sh[m] = 0;
 						}
 						//=================================================================
@@ -807,6 +805,7 @@ void LSbox::find_LevelSet(){
 							if (m!=4) m3 = m+1;
 							else m3 = 1;
 							case_value = castab[sh[m1]+1][sh[m2]+1][sh[m3]+1];
+							
 							if (case_value!=0) {
 								switch (case_value) {
 									//===========================================================
@@ -897,8 +896,8 @@ void LSbox::find_LevelSet(){
 								// Put your processing code here and comment out the printf
 								//=============================================================
 								double line[4] = {x1,y1,x2,y2};
-// 								if(id==2)  {utils:: print_2dim_array(line,1,4);
-// 								printf("%f\t%f\t%f\t%f\n", x1, y1, x2, y2);}
+								// 	if(id==2)  {utils:: print_2dim_array(line,1,4);
+								printf("%d\t%d\t%f\t%f\t%f\t%f\n", i,j ,x1, y1, x2, y2);
 								levelset.push_back(line);
 							}
 						}

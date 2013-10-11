@@ -48,7 +48,7 @@ class grainhdl{
 	
 	grainhdl();
 	~grainhdl();
-	void readInit(); //to do!!!
+	void readInit(); 
 	void setSimulationParameter(); 
 	void generateRandomEnergy();
 	
@@ -69,7 +69,7 @@ class grainhdl{
 	void clear_mem(); 
 	
 	void compute_grain_vol();
-	int conrec();
+	int  conrec();
 
 
 	
@@ -79,6 +79,6 @@ class grainhdl{
 	inline int get_realDomainSize() { return realDomainSize; }
 	inline int get_ngridpoints() { return ngridpoints; }
 	inline double get_h() { return h; }
-
+	inline int get_grid_blowup() { return grid_blowup; }
 };
 #endif
