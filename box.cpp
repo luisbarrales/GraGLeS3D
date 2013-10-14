@@ -693,11 +693,14 @@ void LSbox::find_LevelSet(){
 	double dx =  (handler->get_h());
 	double y[ymax-ymin];	
 	int gb = (handler)->get_grid_blowup();
-	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx - gb*dx; //+->-
-	for (int j=xmin; j< xmax; j++) x[j-xmin]=j* dx - gb*dx;	
+	for (int i=ymin; i< ymax; i++) y[i-ymin]=(i* dx) - (gb*dx); //+->-
+	for (int j=xmin; j< xmax; j++) x[j-xmin]=(j* dx) - (gb*dx);	
 	
-// 	if(id==2)  utils:: print_2dim_array(x,1,xmax-xmin);
-	
+	cout << xmin*dx - gb*dx << " || " << xmax*dx - gb*dx<< endl;
+	cout << xmin << " || " << xmax<< endl;
+	utils:: print_2dim_array(x,1,xmax-xmin);
+	cout << ymin << " || " << ymax<< endl;
+	utils:: print_2dim_array(y,1,ymax-ymin);
 	
 	int m1,m2,m3,case_value;
 	double dmin,dmax,x1,x2,y1,y2;
@@ -730,9 +733,9 @@ void LSbox::find_LevelSet(){
 	};
 	
 	int jub  = xmax;
-	int jlb  =xmin;
+	int jlb  = xmin;
 	int iub  = ymax;
-	int ilb  =ymin;
+	int ilb  = ymin;
 	
 	for (j=(jub-2);j>jlb;j--) {
 		for (i=ilb+1;i<iub-1;i++) {	
@@ -745,7 +748,7 @@ void LSbox::find_LevelSet(){
 			dmax 	= max(temp1,temp2);
 // 			cout<< i<<" || " <<j << endl;
 			
-			if ( dmax >= z[0] && dmin <= z[nc-1] ) {
+			if ( dmax >= z[0] && dmin <= z[0] ) {
 				for (k=0;k<nc;k++) {
 					if (z[k]>=dmin&&z[k]<=dmax) {
 						for (m=4;m>=0;m--) {
@@ -755,13 +758,13 @@ void LSbox::find_LevelSet(){
 								// start from zero
 								//=============================================================
 								h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-z[k];
-								xh[m] = x[i+im[m-1]];
-								yh[m] = y[j+jm[m-1]];							
+								xh[m] = x[i+im[m-1]-xmin];
+								yh[m] = y[j+jm[m-1]-ymin];
 							} 
 							else {
 								h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
-								xh[0]=0.5*(x[i]+x[i+1]);
-								yh[0]=0.5*(y[j]+y[j+1]);							
+								xh[0]=0.5*(x[i-xmin]+x[i+1-xmin]);
+								yh[0]=0.5*(y[j-ymin]+y[j+1-xmin]);
 							}
 							if (h[m]>0.0) {	sh[m] = 1;} 
 							else if (h[m] < 0.0) {	sh[m] = -1; } 
@@ -807,6 +810,9 @@ void LSbox::find_LevelSet(){
 							case_value = castab[sh[m1]+1][sh[m2]+1][sh[m3]+1];
 							
 							if (case_value!=0) {
+								printf("%d\n", case_value);
+								printf("%f\t%f\t%f\t%f\n",xh[0],xh[1],xh[2],xh[3]);
+								printf("%f\t%f\t%f\t%f\n",yh[0],yh[1],yh[2],yh[3]);
 								switch (case_value) {
 									//===========================================================
 									//     Case 1 - Line between vertices 1 and 2
@@ -901,7 +907,7 @@ void LSbox::find_LevelSet(){
 								line[2]=x2;
 								line[3]=y2;
 								// 	if(id==2)  {utils:: print_2dim_array(line,1,4);
-								printf("%d\t%d\t%f\t%f\t%f\t%f\n", i,j ,x1, y1, x2, y2);
+								printf("%d\t%d\t%d\t%f\t%f\t%f\t%f\n", m, i,j ,x1, y1, x2, y2);
 								levelset.push_back(line);
 							}
 						}
