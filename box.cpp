@@ -758,13 +758,13 @@ void LSbox::find_LevelSet(){
 								// start from zero
 								//=============================================================
 								h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-z[k];
-								xh[m] = x[i+im[m-1]-xmin];
-								yh[m] = y[j+jm[m-1]-ymin];
+								xh[m] = x[j+im[m-1]-xmin];
+								yh[m] = y[i+jm[m-1]-ymin];
 							} 
 							else {
 								h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
-								xh[0]=0.5*(x[i-xmin]+x[i+1-xmin]);
-								yh[0]=0.5*(y[j-ymin]+y[j+1-xmin]);
+								xh[0]=0.5*(x[j-xmin]+x[j+1-xmin]);
+								yh[0]=0.5*(y[i-ymin]+y[i+1-xmin]);
 							}
 							if (h[m]>0.0) {	sh[m] = 1;} 
 							else if (h[m] < 0.0) {	sh[m] = -1; } 
