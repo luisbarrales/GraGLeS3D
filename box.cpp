@@ -910,8 +910,8 @@ void LSbox::find_LevelSet(){
 			
 			temp[2*i][0]= levelset[i][0];
 			temp[2*i][1]= levelset[i][1];
-			temp[(2*i) +1][0]= levelset[i][2];
-			temp[(2*i) +1][1]= levelset[i][3];
+			temp[(2*i)+1][0]= levelset[i][2];
+			temp[(2*i)+1][1]= levelset[i][3];
 		}
 		temp.save_domainCl("grain.gnu");
 	}
