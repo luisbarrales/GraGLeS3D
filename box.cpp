@@ -693,7 +693,7 @@ void LSbox::find_LevelSet(){
 	double dx =  (handler->get_h());
 	double y[ymax-ymin];	
 	int gb = (handler)->get_grid_blowup();
-	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx - gb*dx;
+	for (int i=ymin; i< ymax; i++) y[i-ymin]=i* dx - gb*dx; //+->-
 	for (int j=xmin; j< xmax; j++) x[j-xmin]=j* dx - gb*dx;	
 	
 // 	if(id==2)  utils:: print_2dim_array(x,1,xmax-xmin);
@@ -730,19 +730,19 @@ void LSbox::find_LevelSet(){
 	};
 	
 	int jub  = xmax;
-	int jlb  = xmin;
+	int jlb  =xmin;
 	int iub  = ymax;
-	int ilb  = ymin;
+	int ilb  =ymin;
 	
 	for (j=(jub-2);j>jlb;j--) {
 		for (i=ilb+1;i<iub-1;i++) {	
 			double temp1,temp2;
-			temp1 = min((*domain)[i][j],(*domain)[i][j+1]);
-			temp2 = min((*domain)[i+1][j],(*domain)[i+1][j+1]);
-			dmin = min(temp1,temp2);
-			temp1 = max((*domain)[i][j],(*domain)[i][j+1]);
-			temp2 = max((*domain)[i+1][j],(*domain)[i+1][j+1]);
-			dmax = max(temp1,temp2);
+			temp1 	= min((*domain)[i][j],(*domain)[i][j+1]);
+			temp2	= min((*domain)[i+1][j],(*domain)[i+1][j+1]);
+			dmin 	= min(temp1,temp2);
+			temp1 	= max((*domain)[i][j],(*domain)[i][j+1]);
+			temp2 	= max((*domain)[i+1][j],(*domain)[i+1][j+1]);
+			dmax 	= max(temp1,temp2);
 // 			cout<< i<<" || " <<j << endl;
 			
 			if ( dmax >= z[0] && dmin <= z[nc-1] ) {
@@ -843,7 +843,7 @@ void LSbox::find_LevelSet(){
 									y1=yh[m1];
 									x2=xsect(m2,m3);
 									y2=ysect(m2,m3);
-									break;
+									  break;
 									//===========================================================
 									//     Case 5 - Line between vertex 2 and side 3-1
 									//===========================================================
@@ -895,7 +895,11 @@ void LSbox::find_LevelSet(){
 								//=============================================================
 								// Put your processing code here and comment out the printf
 								//=============================================================
-								double line[4] = {x1,y1,x2,y2};
+								double *line = new double[4];
+								line[0]=x1;
+								line[1]=y1;
+								line[2]=x2;
+								line[3]=y2;
 								// 	if(id==2)  {utils:: print_2dim_array(line,1,4);
 								printf("%d\t%d\t%f\t%f\t%f\t%f\n", i,j ,x1, y1, x2, y2);
 								levelset.push_back(line);
