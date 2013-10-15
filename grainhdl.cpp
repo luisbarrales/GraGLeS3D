@@ -533,7 +533,7 @@ void grainhdl::save_sim(){
 	myfile.close();
 
 	utils::PNGtoGIF("test.mp4");
-	cout << "number of distanzmatrices: "<< domains.size() << endl;
+	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
 
 
@@ -568,13 +568,13 @@ void grainhdl::find_neighbors(){
 
  
 void grainhdl::clear_mem() {
-	delete  [] ST;
- 	delete	[] gridIDs;  
-	delete	[] ID[0];
-	delete 	[] ID[1];
-	delete 	[] ID[2];
-	delete 	[] ID; 
-	delete my_weights;
+// 	delete  [] ST;
+//  	delete	[] gridIDs;  
+// 	delete	[] ID[0];
+// 	delete 	[] ID[1];
+// 	delete 	[] ID[2];
+// 	delete 	[] ID; 
+// 	delete my_weights;
 }
 
 

@@ -32,8 +32,7 @@ class grainhdl{
 	int *gridIDs;
 		
 	weightmap* my_weights;
-	
-	LSbox* zeroBox;
+
 	
 	std::list<domainCl> domains;
 	std::list<domainCl> domains_copy;
@@ -46,6 +45,8 @@ class grainhdl{
 	
 	public:
 	
+			
+	LSbox* zeroBox;
 	grainhdl();
 	~grainhdl();
 	void readInit(); 

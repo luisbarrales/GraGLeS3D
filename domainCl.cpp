@@ -6,6 +6,7 @@ using namespace voro;
 
 domainCl::domainCl()
 {
+	m=1; n=1;
   val	=	(double*) fftw_malloc ( m*n*sizeof (double)); 
     x	= new double*[m];
 }
@@ -46,11 +47,6 @@ domainCl::domainCl(int m, int n, int id, double startval, grainhdl* owner) : m(m
 }
 
 domainCl::~domainCl() {
-     for (int i = 0 ;i < m; i++) 
-     {	
-//        cerr << " M_:::: " << i << endl;
-//        delete x[i];
-     }
      delete [] x;
      fftw_free(val);
     // 	cout << "destroyed domainCl with  id: "<< id << endl;
@@ -458,6 +454,7 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 			}
 		}
 	}
+	my_weights->plot_weightmap(m, ID,ST, owner->zeroBox);
 }
 /*********************************************************************************/
 /*********************************************************************************/

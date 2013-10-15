@@ -21,7 +21,8 @@
 // based on the work of Paul Bourke and Nicholas Yue
 #include <stdio.h>
 #include <math.h>
-#include "contours.h"
+#include "contour.h"
+
 
 //bool operator <(SPoint p1,SPoint p2){return((p1.x<p2.x));}
 bool operator <(SPoint p1, SPoint p2){return(((p1.x*(unsigned int)0xFFFFFFFF)+p1.y)<((p2.x*(unsigned int)0xFFFFFFFF)+p2.y));}
@@ -31,8 +32,9 @@ bool operator !=(SPoint p1,SPoint p2){return(!(EQ(p1.x,p2.x)&&!(EQ(p1.y,p2.y))))
 SPoint operator +=(SPoint p, SVector v){return(SPoint(p.x+=v.dx,p.y+=v.dy));}
 
 
-int CContourMap::contour(CRaster *r)
-{
+//int CContourMap::contour(CRaster *r)
+int CContourMap::contour(domainCl* domain, int xmin, int xmax, int ymin, int ymax, grainhdl* handler)
+ {
 /*
    this routine is coppied almost verbatim form Nicholas Yue's C++ implememtation 
    of Paul bourkes CONREC routine. for deatails on the theory and implementation
@@ -82,7 +84,7 @@ int CContourMap::contour(CRaster *r)
    double h[5];
    int sh[5];
    double xh[5],yh[5];
-  //===========================================================================
+  //=====================con======================================================
   // The indexing of im and jm should be noted as it has to start from zero
   // unlike the fortran counter part
   //===========================================================================
@@ -104,14 +106,19 @@ int CContourMap::contour(CRaster *r)
          {9,6,7},{5,2,0},{8,0,0}
       }
    };
-   for (j=((int)r->upper_bound().x-1);j>=(int)r->lower_bound().x;j--) {
-      for (i=(int)r->lower_bound().y;i<=(int)r->upper_bound().y-1;i++) {
+   	int jub  = xmax;
+	int jlb  = xmin;
+	int iub  = ymax;
+	int ilb  = ymin;
+   
+   for (j=(xmax-2);j>=xmin;j--) {
+      for (i=ymin;i<ymax-1;i++) {
          double temp1,temp2;
-         temp1 = min(r->value(i,j),r->value(i,j+1));
-         temp2 = min(r->value(i+1,j),r->value(i+1,j+1));
+         temp1 = min((*domain)[i][j],(*domain)[i][j+1]);
+         temp2 = min((*domain)[i+1][j],(*domain)[i+1][j+1]);
          dmin = min(temp1,temp2);
-         temp1 = max(r->value(i,j),r->value(i,j+1));
-         temp2 = max(r->value(i+1,j),r->value(i+1,j+1));
+         temp1 = max((*domain)[i][j],(*domain)[i][j+1]);
+         temp2 = max((*domain)[i+1][j],(*domain)[i+1][j+1]);
          dmax = max(temp1,temp2);
          if (dmax>=levels[0]&&dmin<=levels[n_levels-1]) {
             for (k=0;k<n_levels;k++) {
@@ -122,7 +129,7 @@ int CContourMap::contour(CRaster *r)
 		// The indexing of im and jm should be noted as it has to
 		// start from zero
 		//=============================================================
-                        h[m] = r->value(i+im[m-1],j+jm[m-1])-levels[k];
+                        h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-levels[k];
                         xh[m] = i+im[m-1];
                         yh[m] = j+jm[m-1];
                      } else {
@@ -277,23 +284,13 @@ int CContourMap::contour(CRaster *r)
    return 0;
 }
 
-int CContourMap::generate_levels(double min, double max, int num)
-{
-   double step=(max-min)/(num-1);
-   if(levels) delete levels;
-   levels=new double[num];
-   n_levels=num;
-   for(int i=0;i<num;i++)
-   {
-      levels[i]=min+step*i;
-   }
-   return num;
-}
-
 CContourMap::CContourMap()
 {
    levels=NULL;
-   n_levels=0;
+   levels=new double[1];
+   levels[0]= 0;
+   
+   n_levels=1;
    contour_level=NULL;
 }
 
@@ -315,11 +312,14 @@ int CContourMap::dump()
    //sort the raw vectors if they exist
    vector<CContourLevel*>::iterator it=contour_level->begin();
    int l=0;
+   char buffer;
    while(it!=contour_level->end())
    {
       printf("Contour data at level %d [%f]\n",l,levels[l]);
+      
       if(*it) (*it)->dump();
       it++;l++;
+	  cin>> buffer;
    }
    fflush(NULL);
    return(0);
@@ -336,6 +336,11 @@ int CContourMap::consolidate()
    }
    return(0);
 }
+float CContourMap::compute_volume(){
+	
+	return (*contour_level->begin())->compute_volume();
+}
+
 
 CContourMap::~CContourMap()
 {
@@ -391,6 +396,10 @@ int CContourLevel::dump()
    }
    printf("======================================================================\n");
    return(0);
+}
+
+float CContourLevel::compute_volume(){
+	return (*contour_lines->begin())->compute_volume();
 }
 
 int CContourLevel::consolidate()
@@ -606,14 +615,50 @@ int CContour::dump()
    vector<SVector>::iterator cit=contour->begin();
    int c=1;
    SPoint p=_start;
+   ofstream datei;
+   datei.open("Grain.gnu");
+//   
    while(cit!=contour->end())
    {
       p.x+=(*cit).dx;
       p.y+=(*cit).dy;
       printf("\t\t{%f, %f}\t[%f,%f]\n",(*cit).dx,(*cit).dy,p.x,p.y);
-      c++,cit++;
+       datei << p.y<<"\t"<<p.x<< endl;
+
+	  c++,cit++;
    }
+     datei.close();
    return(0);
+}
+
+float CContour::compute_volume()
+{
+	float volume;
+   vector<SVector>::iterator cit=contour->begin();
+   int c=1;
+   SPoint p=_start;
+   SPoint q=_start;
+   p.x+=(*cit).dx;
+   p.y+=(*cit).dy;
+   q.x=p.x;
+   q.y=p.y;
+   cit++;
+   float sum=.0;
+	
+	
+   while(cit!=contour->end())
+   {
+	  p=q;
+      q.x+=(*cit).dx;
+      q.y+=(*cit).dy;
+	  
+	 sum+= (p.y+q.y)*(q.x-p.x);
+	
+
+	 cit++;
+   }
+	volume = 0.5*abs(sum);
+   return volume;
 }
 
 int CContour::condense(double difference)
@@ -671,7 +716,7 @@ CContour::~CContour()
    this->contour->clear();
    delete this->contour;
 }
-
+/*
 
 #ifdef STANDALONE
 /*
@@ -685,7 +730,6 @@ determine the x or y coordinate at this point as the original code did,
 rather we leave that for the rendering step to do by scaling the values as 
 needed.
 =============================================================================
-*/
 
 class ToMap:public CRaster
 {
@@ -725,3 +769,4 @@ int main(int argc, char *argv[])
    map->dump();
 }
 #endif
+*/

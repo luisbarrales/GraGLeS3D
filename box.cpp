@@ -680,8 +680,17 @@ void LSbox::plot_box(bool distanceplot){
 	
 }
 
+void LSbox::find_LevelSet()
+{
+	CContourMap c;
+	c.contour(domain, xmin, xmax, ymin, ymax, handler);
+	c.consolidate();
+//	cout<< "volume " << c.compute_volume()<< endl;
+	
+	volume= c.compute_volume();
+}
 
-void LSbox::find_LevelSet(){
+/*void LSbox::find_LevelSet(){
 	
 	vector<double*> levelset;
 	
@@ -758,8 +767,8 @@ void LSbox::find_LevelSet(){
 								// start from zero
 								//=============================================================
 								h[m] = (*domain)[i+im[m-1]][j+jm[m-1]]-z[k];
-								xh[m] = x[j+im[m-1]-xmin];
-								yh[m] = y[i+jm[m-1]-ymin];
+								xh[m] = x[j+jm[m-1]-xmin];
+								yh[m] = y[i+im[m-1]-ymin];
 							} 
 							else {
 								h[0] = 0.25*(h[1]+h[2]+h[3]+h[4]);
@@ -931,17 +940,4 @@ void LSbox::find_LevelSet(){
 	char buffer;
 	cin >> buffer;
 }
-
-void LSbox::compute_volume(vector<double*> &levelset){
-	float sum=.0;
-	cout << " size: "  << (levelset).size() << endl;
-	int N = (levelset).size();
-	
-	for( int i=0;i< N ;i++ ){
-		sum += ( ((levelset)[i][0] + (levelset)[i][2] ) - ((levelset)[i][3] - (levelset)[i][1] )); 
-		//Gaußsche Trapezformel
-    }
-    volume = 0.5* abs(sum);	
-	
-	cout <<"id: " << id <<"   vol: "<< volume << endl;
-}
+*/

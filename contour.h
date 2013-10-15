@@ -21,7 +21,9 @@
 #define CONTOURS_H
 #include <vector>
 #include <algorithm>
-
+#include "ggLS.h"
+class grainhdl;
+class domainCl;
 #define DIFFERENCE 0.0005
 #define EQ(_x_,_y_)  (((_x_-_y_<DIFFERENCE) && (_y_-_x_<DIFFERENCE))?1:0)
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
@@ -70,18 +72,9 @@ class CContour
       SPoint start(){return(_start);}
       SPoint end(){return(_end);}
       vector<SVector> *contour;
+	  float compute_volume();
    private:
       SPoint _start,_end;
-};
-
-class CRaster
-{
-   public:
-      CRaster(){};
-      virtual double value(double, double){return(0);};
-      virtual SPoint upper_bound(){return(SPoint(0,0));};
-      virtual SPoint lower_bound(){return(SPoint(0,0));};
-      virtual ~CRaster(){};
 };
 
 class CContourLevel
@@ -94,20 +87,21 @@ class CContourLevel
      vector<CContour*> *contour_lines;
      vector<SPair> *raw;
      ~CContourLevel();
+	 float compute_volume();
 }; 
 
 class CContourMap
 {
    public:
       CContourMap();
-      int generate_levels(double min,double max, int num);
       int add_segment(SPair t,int level);
       int dump();
-      int contour(CRaster *r);
+      int contour(domainCl* domain, int xmin, int xmax, int ymin, int ymax, grainhdl* handler);
       int consolidate();
       CContourLevel* level(int i){return((*contour_level)[i]);}
       double alt(int i){return(levels[i]);}
       ~CContourMap();
+	  float compute_volume();
    private:
       vector<CContourLevel*> *contour_level;
       int n_levels;

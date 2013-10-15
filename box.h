@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "ggLS.h"
-
+#include "contour.h"
 using namespace std;
 
 class domainCl;
