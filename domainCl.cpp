@@ -454,7 +454,7 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 			}
 		}
 	}
-	my_weights->plot_weightmap(m, ID,ST, owner->zeroBox);
+
 }
 /*********************************************************************************/
 /*********************************************************************************/

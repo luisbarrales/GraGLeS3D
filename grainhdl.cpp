@@ -625,7 +625,7 @@ int grainhdl::conrec() {
 			}
 		}
 	}
-// 	vol_list.push_back(vol_line);
+	vol_list.push_back(vol_line);
 // 	cout << "whole volume: " << volume << endl;
 	return 0;
 }
