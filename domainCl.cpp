@@ -6,7 +6,6 @@ using namespace voro;
 
 domainCl::domainCl()
 {
-	m=1; n=1;
   val	=	(double*) fftw_malloc ( m*n*sizeof (double)); 
     x	= new double*[m];
 }
@@ -49,7 +48,6 @@ domainCl::domainCl(int m, int n, int id, double startval, grainhdl* owner) : m(m
 domainCl::~domainCl() {
      delete [] x;
      fftw_free(val);
-    // 	cout << "destroyed domainCl with  id: "<< id << endl;
 }
 
 domainCl::domainCl(const domainCl& v) : m(v.m), n(v.n), id(v.id) {
@@ -390,30 +388,21 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 	
 	int n = get_n();
 	int m = get_m();
-// 	cout << m << endl;;
-// 	cout << ID[0][208* 210+1]->get_id();
-// 	cout << ID[1][208* 210+1]->get_id();
-// 	char cc;
-// 	cin >>cc;
-	
-	
-	
+
 	double *u, *v;
 	double vn, vnn;
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
-// 	domainCl diff(m,n);
 	
 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
-// 	u = (double*)	fftw_malloc(m*n*sizeof(double));
-// 	domainCl_to_array(u);
+
 	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
 	conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
-// 	array_to_domainCl(u);
+
 	fftw_destroy_plan(fwdPlan);
 	fftw_destroy_plan(bwdPlan);
-// 	fftw_free (u);
+
 	fftw_free (fftTemp);
 	/*********************************************************************************/
 	// Velocity Corrector Step: 

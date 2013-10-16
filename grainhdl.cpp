@@ -611,6 +611,7 @@ int grainhdl::conrec() {
 	// nc              ! number of contour levels
 	// z               ! contour levels in increasing order
 	double *vol_line = new double[ngrains+1];
+	std::fill_n(vol_line,ngrains+1,0.0);
 	std::list<domainCl>::iterator it;
 	vector<LSbox*> ::iterator itl;
 	
@@ -618,7 +619,7 @@ int grainhdl::conrec() {
 	for (it = domains.begin(); it !=domains.end(); it++){
 		vector<LSbox*> grains = it->getBoxList();	
 		for (itl = grains.begin(); itl != grains.end(); itl++){	
-			if((*itl)->get_status() == true){
+			if( (*itl)->get_status() == true ){
 				(*itl)->find_LevelSet();	
 				volume += (*itl)->get_vol();
 				vol_line [(*itl)->get_id()] = (*itl)->get_vol();	
