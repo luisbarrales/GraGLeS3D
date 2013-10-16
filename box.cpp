@@ -685,7 +685,5 @@ void LSbox::find_LevelSet()
 	CContourMap c;
 	c.contour(domain, xmin, xmax, ymin, ymax, handler);
 	c.consolidate();
-//	cout<< "volume " << c.compute_volume()<< endl;
-	
 	volume= c.compute_volume();
 }

@@ -76,9 +76,9 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 					it3= (*(*it2).second).find(ids[2]);
 					if(it3 == (*(*it2).second).end()){
 						sigma = compute_weights(ST, ids);
-						cout << "entry  not exist "<< endl; 
-						utils::print_2dim_array(ids,1,3);
-						utils::print_2dim_array(sigma,1,3);
+// 						cout << "entry  not exist "<< endl; 
+// 						utils::print_2dim_array(ids,1,3);
+// 						utils::print_2dim_array(sigma,1,3);
 						add_weights(ids, it2, sigma);
 					}
 					else { 

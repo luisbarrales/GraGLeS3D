@@ -513,7 +513,7 @@ void grainhdl::run_sim(){
 		swap_grains();
 // 		domains_copy.clear();
 		redistancing();
-		conrec();
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW) conrec();
 	}
 }  
  
@@ -610,8 +610,7 @@ int grainhdl::conrec() {
 	// d               ! matrix of data to contour	
 	// nc              ! number of contour levels
 	// z               ! contour levels in increasing order
-	double *vol_line;
-	if((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW ) vol_line = new double[ngrains+1];
+	double *vol_line = new double[ngrains+1];
 	std::list<domainCl>::iterator it;
 	vector<LSbox*> ::iterator itl;
 	
@@ -619,14 +618,14 @@ int grainhdl::conrec() {
 	for (it = domains.begin(); it !=domains.end(); it++){
 		vector<LSbox*> grains = it->getBoxList();	
 		for (itl = grains.begin(); itl != grains.end(); itl++){	
-			(*itl)->find_LevelSet();	
-			volume += (*itl)->get_vol();
-			if((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW ){
-				vol_line[(*itl)->get_id()]=(*itl)->get_vol();			
+			if((*itl)->get_status() == true){
+				(*itl)->find_LevelSet();	
+				volume += (*itl)->get_vol();
+				vol_line [(*itl)->get_id()] = (*itl)->get_vol();	
 			}
 		}
 	}
-	if((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW )  vol_list.push_back(vol_line);
-	cout << "whole volume: " << volume << endl;
+// 	vol_list.push_back(vol_line);
+// 	cout << "whole volume: " << volume << endl;
 	return 0;
 }
