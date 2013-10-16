@@ -521,17 +521,22 @@ void grainhdl::run_sim(){
 void grainhdl::save_sim(){
 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);
 	
-	for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
-		gridIDs[(i+grid_blowup)*ngridpoints + j + grid_blowup] = ID[1][(i+grid_blowup)*ngridpoints + j + grid_blowup]->get_id();
-	}	
-	utils::save_2dim_array( gridIDs, ngridpoints, ngridpoints, "ID_Feld" );	
-	
+		
 	ofstream myfile;
 	myfile.open ("kinetics.txt");
 	for(int i=0; i< TIMESTEPS; i++)
 		myfile << nr_grains[i] << "\t";
 	myfile.close();
-
+	
+	
+	myfile.open ("volume.txt");
+		for(auto it=vol_list.begin(); it!= vol_list.end(); it++){
+			for(int j=1; j<= ngrains; j++)
+				myfile << (*it)[j] << "\t";
+				myfile << "\n";
+		}
+	myfile.close();
+	
 	utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
@@ -602,12 +607,11 @@ void grainhdl::clear_mem() {
 
 
 int grainhdl::conrec() {
-	// d               ! matrix of data to contour
-	
-	
+	// d               ! matrix of data to contour	
 	// nc              ! number of contour levels
 	// z               ! contour levels in increasing order
-	
+	double *vol_line;
+	if((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW ) vol_line = new double[ngrains+1];
 	std::list<domainCl>::iterator it;
 	vector<LSbox*> ::iterator itl;
 	
@@ -617,8 +621,12 @@ int grainhdl::conrec() {
 		for (itl = grains.begin(); itl != grains.end(); itl++){	
 			(*itl)->find_LevelSet();	
 			volume += (*itl)->get_vol();
+			if((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW ){
+				vol_line[(*itl)->get_id()]=(*itl)->get_vol();			
+			}
 		}
 	}
+	if((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW )  vol_list.push_back(vol_line);
 	cout << "whole volume: " << volume << endl;
 	return 0;
 }

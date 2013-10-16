@@ -32,8 +32,9 @@ class grainhdl{
 	int *gridIDs;
 		
 	weightmap* my_weights;
-
-	
+	std::list<double*> vol_list;
+	std::list<double*> modf;
+	std::list<double*> energy;
 	std::list<domainCl> domains;
 	std::list<domainCl> domains_copy;
     	
