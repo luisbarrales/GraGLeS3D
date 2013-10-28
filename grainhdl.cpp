@@ -9,19 +9,20 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
+	compare_mod =1; //1 für box, 2 für domain	
+	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
 	ngrains = PARTICLES;
-	realDomainSize= M-1;
+	if(Mode==1) realDomainSize= M-1;			
+	if(Mode==2)realDomainSize= M;
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
-	
-	compare_mod =1; //1 für box, 2 für domain	
-	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
-	
+
 	 
 	grid_blowup = 2*int(((double)DELTA / h)+1); //
-	ngridpoints = realDomainSize + (2*grid_blowup); 
+
 	
+	ngridpoints = realDomainSize + (2*grid_blowup); 
 	my_weights = new weightmap(this);
 	
 	ID = new LSbox**[3];
@@ -37,16 +38,17 @@ void grainhdl::setSimulationParameter(){
 	
 	
 	switch (Mode) {
-		case 1: { 
+		case 1: { 			
 			ST = new double [ngrains*ngrains];
 			std::fill_n(ST,ngrains*ngrains,0);
-    
 			VOROMicrostructure();
 			generateRandomEnergy();
 			break;
 		}
-		case 2: readMicrostructurefromVertex(); break;
-		
+		case 2: {			
+			readMicrostructurefromVertex();
+			break;
+		}		
 	}		
 	
 	//program options:
@@ -199,12 +201,12 @@ void grainhdl::readMicrostructurefromVertex(){
 	int i=0;
 	for(int nn=0; nn< ngrains; nn++){
 		
-		fscanf(levelset, "%ld\t %d\t %f\t %f\t%f\n", &id, &nvertex, &phi1, &PHI, &phi2);
+		fscanf(levelset, "%ld\t %d\t %lf\t %lf\t%lf\n", &id, &nvertex, &phi1, &PHI, &phi2);
 		vertices = new double [nvertex * 4];
 		cout << id << " || " << nvertex << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
 		
 		for(unsigned int j=0; j<nvertex; j++){
-			fscanf(levelset, "%f\t %f\t %f\t%f\n", &xl, &yl, &xr, &yr);	
+			fscanf(levelset, "%lf\t %lf\t %lf\t%lf\n", &xl, &yl, &xr, &yr);	
 			cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
 			int k = 4*j;
 			vertices[k]   = xl;
@@ -243,13 +245,13 @@ void grainhdl::readMicrostructurefromVertex(){
 
 	for(unsigned int i=0; i<ngrains; i++){
 		double buffer;
-		fscanf(levelset, "%f\t", &buffer);		
+		fscanf(levelset, "%lf\t", &buffer);		
 		for(unsigned int j=0; j<ngrains; j++){
 			while(j < i) { 
-				fscanf(levelset, "%f\t", &buffer);
+				fscanf(levelset, "%lf\t", &buffer);
 				j++;
 			}
-			fscanf(levelset, "%f\t", &buffer);
+			fscanf(levelset, "%lf\t", &buffer);
 			ST[j+(ngrains*i)]= (double) buffer;
 			ST[i+(ngrains*j)] = ST[j+(ngrains*i)];
 // 			cout << "buffer " << buffer <<endl ;
