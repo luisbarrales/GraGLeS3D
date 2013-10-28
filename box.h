@@ -32,10 +32,10 @@ class LSbox {
 	bool exist;
     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
-	float phi1;
-	float PHI;
-	float phi2;
-	float volume;
+	double phi1;
+	double PHI;
+	double phi2;
+	double volume;
 	grainhdl* handler;
 		    
 public:
@@ -46,8 +46,8 @@ public:
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h, grainhdl* owner);
-	LSbox(int id, int nvertex, float* vertices, float phi1, float PHI, float phi2, int grid_blowup, double h, grainhdl* owner);
-	LSbox distancefunction(int nvertex, float* vertices, int grid_blowup, double h);
+	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, int grid_blowup, double h, grainhdl* owner);
+	LSbox distancefunction(int nvertex, double* vertices, int grid_blowup, double h);
     LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
     void copy_distances();
 	void copy_distances_to_domain();
@@ -72,7 +72,7 @@ public:
 	
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }
-	inline float get_vol() {return volume ;}
+	inline double get_vol() {return volume ;}
 };
 
 

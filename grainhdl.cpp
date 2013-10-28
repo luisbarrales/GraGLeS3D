@@ -15,7 +15,7 @@ void grainhdl::setSimulationParameter(){
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
 	
-	compare_mod =2; //1 für box, 2 für domain	
+	compare_mod =1; //1 für box, 2 für domain	
 	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
 	
 	 
@@ -190,8 +190,8 @@ void grainhdl::readMicrostructurefromVertex(){
 	
 	long id;
 	int nvertex;
-	float phi1, PHI, phi2, xr, yr, xl, yl;
-	float* vertices;
+	double phi1, PHI, phi2, xr, yr, xl, yl;
+	double* vertices;
 	
 	fscanf(levelset, "%d\n", &ngrains);
 	cout << "ngrains : " << ngrains << endl;;
@@ -200,7 +200,7 @@ void grainhdl::readMicrostructurefromVertex(){
 	for(int nn=0; nn< ngrains; nn++){
 		
 		fscanf(levelset, "%ld\t %d\t %f\t %f\t%f\n", &id, &nvertex, &phi1, &PHI, &phi2);
-		vertices = new float [nvertex * 4];
+		vertices = new double [nvertex * 4];
 		cout << id << " || " << nvertex << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
 		
 		for(unsigned int j=0; j<nvertex; j++){
@@ -242,7 +242,7 @@ void grainhdl::readMicrostructurefromVertex(){
 	std::fill_n(ST,ngrains*ngrains,0);
 
 	for(unsigned int i=0; i<ngrains; i++){
-		float buffer;
+		double buffer;
 		fscanf(levelset, "%f\t", &buffer);		
 		for(unsigned int j=0; j<ngrains; j++){
 			while(j < i) { 
@@ -614,7 +614,7 @@ int grainhdl::conrec() {
 	std::list<domainCl>::iterator it;
 	vector<LSbox*> ::iterator itl;
 	
-	float volume = 0.0;
+	double volume = 0.0;
 	for (it = domains.begin(); it !=domains.end(); it++){
 		vector<LSbox*> grains = it->getBoxList();	
 		for (itl = grains.begin(); itl != grains.end(); itl++){	

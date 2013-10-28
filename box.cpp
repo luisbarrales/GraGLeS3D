@@ -50,7 +50,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
 }
 
 
-LSbox::LSbox(int id, int nvertex, float* vertices, float phi1, float PHI, float phi2, int grid_blowup, double h, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner){
+LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, int grid_blowup, double h, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner){
     
     // determine size of grain
     xmax = 0; xmin = handler->get_ngridpoints(); 
@@ -103,7 +103,7 @@ void LSbox::setDomain(domainCl* aDomain) {
 int LSbox::getID() {
     return id;
 }
-LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, double h){
+LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, double h){
 	int i,j,k;
 	double d, dmin,lambda;
 	int m=handler->get_ngridpoints();
@@ -127,16 +127,11 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
 					if(lambda <= 0.) 				d = (p-x1).laenge();
 					if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
 					if(lambda >= 1.) 				d = (p-x2).laenge();
-					if(((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) {
-						d=abs(d);
-// 						char buffer;
-// 						cout << " ich wei� nicht ob ich im korn bin";
-// 						cin >> buffer;
-					}
-					else d= abs(d);
-		// 			cout << "ID klappt" << endl;
-		// 			char buffer;
-		//                         cin >> buffer ;
+// 					if(((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) {
+// 						d=abs(d);
+// 					}
+// 					else d= abs(d);
+					d= abs(d);
 					if(abs(d)< abs(dmin)) dmin=d;
 				}
             }
@@ -148,29 +143,29 @@ LSbox LSbox::distancefunction(int nvertex, float* vertices, int grid_blowup, dou
 	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
 		j=ymin;
 		while( j<ymax && (*domain)[j][i] >= h  ) {
-			(*domain)[j][i] = - (*domain)[j][i];	  
+			(*domain)[j][i] = - abs((*domain)[j][i]);	  
 			j++;
-		} if ( j<ymax ) (*domain)[j][i] = - (*domain)[j][i];
+		} if ( j<ymax ) (*domain)[j][i] = - abs((*domain)[j][i]);
 		
 		j=ymax-1;
 		while( j>=ymin &&  (*domain)[j][i] >= h ) {
-			(*domain)[j][i] = - (*domain)[j][i];	  
+			(*domain)[j][i] = - abs((*domain)[j][i]);	  
 			j--;
-		} if ( j>=ymin ) (*domain)[j][i] = - (*domain)[j][i];
+		} if ( j>=ymin ) (*domain)[j][i] = - abs((*domain)[j][i]);
 		
 	}
 	for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
 		i=xmin;
 		while( i<xmax && (*domain)[j][i] >= h   ) {
-			(*domain)[j][i] = - (*domain)[j][i];	  
+			(*domain)[j][i] = - abs((*domain)[j][i]);	  
 			i++;
-		} if ( i<xmax ) (*domain)[j][i] = - (*domain)[j][i];
+		} if ( i<xmax ) (*domain)[j][i] = - abs((*domain)[j][i]);
 		
 		i=xmax-1;
 		while( i>=xmin   && (*domain)[j][i] >= h ) {
-			(*domain)[j][i] = - (*domain)[j][i];	  
+			(*domain)[j][i] = - abs((*domain)[j][i]);	  
 			i--;
-		} if ( i>=xmin ) (*domain)[j][i] = -(*domain)[j][i];
+		} if ( i>=xmin ) (*domain)[j][i] = -abs((*domain)[j][i]);
 		
 	}
 	return(*this);
