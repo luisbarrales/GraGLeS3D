@@ -15,7 +15,7 @@ void grainhdl::setSimulationParameter(){
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
 	
-	compare_mod =1; //1 für box, 2 für domain	
+	compare_mod =2; //1 für box, 2 für domain	
 	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
 	
 	 

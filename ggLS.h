@@ -15,7 +15,7 @@
 #define PRINTNOW 1000
 #define PARTICLES 10
 
-#define ISOTROPIC false
+#define ISOTROPIC true
 #define TRIPLEPUNKT false
 #define FIX_BOUNDARY false
 

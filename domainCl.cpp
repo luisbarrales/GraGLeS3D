@@ -364,14 +364,13 @@ void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftpla
 	
 	fftw_execute(fftplan1);
 	
-	for(i=0;i<n2;i++)
-	{
+	for(i=0;i<n2;i++) {
 	  double coski=cos(k*i);
 		for(j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
 			
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
-			G = 1.0/(1.0+G*dt) / nsq;
+			G = 1.0/(1.0+(dt*G)) / nsq;
 			//        USE this line for Richardson-type extrapolation
 			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			
