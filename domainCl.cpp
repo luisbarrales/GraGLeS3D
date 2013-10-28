@@ -159,11 +159,12 @@ void domainCl::mult_with_scalar(const double d){
 }
  
  domainCl domainCl::operator-(domainCl& A){
-    domainCl C(m,n);
+    domainCl C(m,n,id);
         C.grains = this->grains;
-        C.id = id;
     assert(m == A.m && n == A.n);
-    for (int i = 0; i < m; i++) *(C.x[i]) = (*x[i]) - *(A.x[i]);
+    for (int i = 0; i < m; i++) 
+      for (int j=0; j<n ; j++)
+	(C[i][j]) = (*this)[i][j] - A[i][j];
     return C;
 }
 
@@ -492,8 +493,8 @@ void domainCl::maximum(const domainCl &A, const domainCl &B){
 	assert(A.m == B.m);
 	for (int i = 0; i < m; i++)
 		for (int j = 0; j < n; j++) {
-			if (A[i][j] > B[i][j]) x[i][j] = A[i][j];
-			else x[i][j] = B[i][j];
+			if (	A[i][j] > B[i][j]) x[i][j] = A[i][j];
+			else 	x[i][j] = B[i][j];
 		}
 }
 
@@ -523,23 +524,23 @@ int domainCl::minimumInPoint(std::list<domainCl> distances, int m, int n, int ne
 
 void domainCl::comparison(std::list<domainCl> distances, int grid_blowup){
 	std::list<domainCl>::iterator it = distances.begin();
-	std::list<domainCl>::iterator it_current_grain;
+	std::list<domainCl>::iterator it_current_distance;
+	
 	
 	int m = get_m();
 	int n = get_n();
-	domainCl Max(m,n);
+	domainCl Max(m,n), cur_Max(m,n,id);
 
 	if (id == (*it).id) Max = *(++it);
 	else Max = *it;
-	
 	for (it = distances.begin(); it != distances.end(); it++ ){
-		if (id != (*it).id) Max.maximum(Max,*it);
-		 else it_current_grain = it;
+		  if (id != (*it).id) Max.maximum(Max,*it);
+		 else it_current_distance = it;
 	}
 	
-	Max = ((*it_current_grain)-Max);
-	Max.mult_with_scalar(0.5);
-	*this = Max;
+	cur_Max = ((*it_current_distance)-Max);
+	cur_Max.mult_with_scalar(0.5);
+	*this = cur_Max;
 	
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {

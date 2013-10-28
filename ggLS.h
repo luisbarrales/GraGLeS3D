@@ -10,8 +10,8 @@
 #define PI 3.14159265358979323846
 
 
-#define TIMESTEPS 1000
-#define PRINTSTEP 50
+#define TIMESTEPS 100
+#define PRINTSTEP 10
 #define PRINTNOW 1000
 #define PARTICLES 10
 
@@ -24,7 +24,6 @@
 #define SAFEFILES true
 #define IMAGEOUT true
 #define PLOTGNU true
-#define EULER true
 #define DOMAINCOMPARISON false
 #define DRAW_PARTICLES false
 

@@ -351,7 +351,6 @@ void grainhdl::comparison_domain(){
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
 		(*it).comparison(domains_copy, grid_blowup);
-		
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 			
 			grains = (*it).getBoxList();			
