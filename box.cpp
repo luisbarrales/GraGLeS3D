@@ -419,7 +419,7 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 	  IDLocal[0]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
 	  IDLocal[1]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
 	  distance 	= 	new double [(ymax-ymin)*(xmax-xmin)];
-	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), INTERIMVAL); // Neccesary for the comparison
+	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), 2*INTERIMVAL); // Neccesary for the comparison
 	  std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
 	  std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
 	}
@@ -544,16 +544,16 @@ void LSbox::add_n2o(){
 // 	}
 // 	
 // }
-void LSbox::maximum(const domainCl &A, const domainCl &B){
-// 	assert(A.n == B.n);
-// 	assert(A.m == B.m);
-// 	for (int i = 0; i < m; i++)
-// 		for (int j = 0; j < n; j++) {
-// 			if (A[i][j] > B[i][j]) (*x[i])[j] = A[i][j];
-// 			else (*x[i])[j] = B[i][j];
-// 		}
-}
-
+// void LSbox::maximum(const domainCl &A, const domainCl &B){
+// // 	assert(A.n == B.n);
+// // 	assert(A.m == B.m);
+// // 	for (int i = 0; i < m; i++)
+// // 		for (int j = 0; j < n; j++) {
+// // 			if (A[i][j] > B[i][j]) (*x[i])[j] = A[i][j];
+// // 			else (*x[i])[j] = B[i][j];
+// // 		}
+// }
+// 
 void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 	// directions 0 = y-  // 1= x+ //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 	int signk=0, signl=0, k=start_i, l=start_j;
@@ -597,27 +597,77 @@ void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 }
 
 
-void LSbox::redistancing(double h, int grid_blowup /*,std::list<domainCl> distances, double** borderSlopes, double** slopeField*/) {
-	
-	cout << "Berechne Redist fuer Box: "<< id << endl;	
-// 	write zeros to domain:
-	vector<pointVal> :: iterator k;
-	for (k = zeros.begin(); k != zeros.end(); k++){
-		if ( abs((*domain)[(*k).y][(*k).x]) > abs((*k).val)) (*domain)[(*k).y][(*k).x]= (*k).val;	
+void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distances, double** borderSlopes, double** slopeField*/) {
+	int m=ymax-ymin;
+	int n=xmax-xmin;
+	int ii, jj;
+	domainCl *temp = new domainCl(m,n,id,-INTERIMVAL);
+	double slope = 1;
+	double candidate, i_slope,zero;
+	// x-direction forward
+	for (int i = ymin; i < ymax; i++) {
+		for (int j = xmin; j < xmax-1; j++) {
+			ii = i-ymin;
+			jj = j-xmin;
+			//check for sign change
+			if ((*domain)[i][j] * (*domain)[i][j+1] < 0.0) {
+				// interpolate
+				i_slope  = ((*domain)[i][j+1] - (*domain)[i][j]) / h;
+				zero = -(*domain)[i][j] / i_slope;
+				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
+			}
+			// calculate new distance candidate and assign if appropriate
+			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
+			if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
+		}
 	}
-	for (int j = xmin; j < xmax; j++){
-		// sweep_y_forward
-		//Startvalues for sweep (ymin, j)
-		sweeping(h, ymin, j, 2);
-// 		sweep_y_backward
-		sweeping(h, ymax-1, j, 0);
-	}		
-	cout << "y sweeps complete" << endl;
+	
+	// x-direction backward
+	for (int i = ymin; i < ymax; i++) {
+		for (int j = xmax-1; j > xmin-1; j--) {
+			ii = i-ymin;
+			jj = j-xmin;
+			// calculate new distance candidate and assign if appropriate
+			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j-1]) * h); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[ii][jj-1])) (*temp)[ii][jj-1] = candidate;
+		}
+	}
+	
+	// y-direction forward
+	for (int j = xmin; j < xmax; j++) {
+		for (int i = ymin; i < ymax-1; i++) {	
+			ii = i-ymin;
+			jj = j-xmin;
+			// check for sign change
+			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
+				// interpolate
+				i_slope  = ((*domain)[i+1][j] - (*domain)[i][j]) / h;
+				zero = -(*domain)[i][j] / i_slope;
+				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
+			}
+			// calculate new distance candidate and assign if appropriate
+			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i+1][j]) * h);
+			if (abs(candidate) < abs((*temp)[ii+1][jj])) (*temp)[ii+1][jj] = candidate;
+		}
+	}
+	
+	// y-direction backward
+	for (int j = xmin; j < xmax; j++) {
+		for (int i = ymax-1; i > ymin-1; i--) {	
+			ii = i-ymin;	jj = j-xmin;
+			// calculate new distance candidate and assign if appropriate
+			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i-1][j]) * h); // replace with the "a"-slope stuff...
+			if (abs(candidate) < abs((*temp)[ii-1][jj])) (*temp)[ii-1][jj] = candidate;
+		}
+	}
 	
 	for (int i = ymin; i < ymax; i++){
-		sweeping(h, i, xmin, 1);
-		sweeping(h, i, xmax-1, 3);
+		for (int j = xmin; j < xmax; j++){
+			(*domain)[i][j] = (*temp)[i-ymin][j-xmin];
+		}
 	}
+	delete temp;
+	
 }
 
 double LSbox::curvature(int x, int y, double h){	

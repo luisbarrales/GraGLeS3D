@@ -23,18 +23,18 @@ domainCl::domainCl(int m, int n) : m(m), n(n) {
 //keine ID übergabe erforderlich?
 
 domainCl::domainCl(int m, int n, int id) : m(m), n(n), id(id) {
-    val = (double*) fftw_malloc ( m*n*sizeof(double)); 
+    val = (double*) fftw_malloc (m*n*sizeof(double)); 
     x	=  new double*[m];
     for (int i=0;i<m;i++) 
       x[i]	=	&val[i*n];
 }
 
 domainCl::domainCl(int m, int n, int id, double startval) : m(m), n(n), id(id) {
-    val = (double*) fftw_malloc ( m*n*sizeof(double)); 
+    val = (double*) fftw_malloc (m*n*sizeof(double)); 
     x	= new double*[m];
     std::fill_n(val, m*n, startval);
     for (int i=0;i<m;i++) 
-      x[i]	=	&val[i*n];
+      x[i]=&val[i*n];
 }
 
 domainCl::domainCl(int m, int n, int id, double startval, grainhdl* owner) : m(m), n(n), id(id), owner(owner) {
@@ -102,35 +102,6 @@ double& domainCl::operator=(const domainCl& A){
 
 
 
-
-
-// // "*" Matrixmultiplikation
-// domainCl domainCl::operator*(const domainCl& A){
-//     domainCl C(m,n);
-//     assert(m == A.n && n == A.m);
-//     for (int i = 0; i < m; i++) { // alle EintrÃ¤ge der ErgebnisdomainCl 0 setzen
-//         for (int j = 0; j < n; j++) C[i][j] = 0;
-//     }
-//     for (int i = 0; i < m; i++){
-//         for (int j = 0; j < n; j++){
-//             for (int k = 0; k < n; k++) C[i][j] +=  (*x[i])[k] * A[k][j];
-//         }
-//     }
-//     return C;
-// }
-
-// // Matrix * Vektor
-// vektor domainCl::operator*(const vektor& v){
-//     vektor erg(m);
-//     assert(n == v.n);
-//     for (int i = 0; i < n; i++) erg[i] = 0; // alle EintrÃ¤ge der ErgebnisdomainCl 0 setzen
-//     for (int i = 0; i < m; i++){
-//         for (int j = 0; j < n; j++) erg[i] +=  (*x[i])[j] * v[j];
-//     }
-//     return erg;
-// }
-
-
 ostream& operator<<(ostream &os, const domainCl& A) {
     int i;
 	for(i=0; i< (A.m); i++){
@@ -185,12 +156,10 @@ domainCl domainCl::distancefunction(voronoicell_neighbor& c, int *gridIDs, doubl
         for (j=0;j< n;j++){
             dmin=1000.;
             p[0]=(i-grid_blowup)*h; 
-	    p[1]=(j-grid_blowup)*h;
-            
-            
+			p[1]=(j-grid_blowup)*h;
             for(int ii=0;ii<c.p;ii++) {
-                for(int jj=0;jj<c.nu[ii];jj++) {
-                    
+				for(int jj=0;jj<c.nu[ii];jj++) {
+                 
                     k=c.ed[ii][jj];
                     
                     x1[0]=vv[3*ii];x1[1]=vv[3*ii+1];
@@ -337,11 +306,9 @@ bool domainCl::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int
 
 void domainCl::makeFFTPlans(double *u, fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
 { /* creates plans for FFT and IFFT */
-	//double *u
-	int n = get_n();
-	int m = get_m();
-	*fftplan1 = fftw_plan_dft_r2c_2d(m,n,u,fftTemp,FFTW_ESTIMATE);
-	*fftplan2 = fftw_plan_dft_c2r_2d(m,n,fftTemp,u,FFTW_ESTIMATE);
+	int nn= owner->get_ngridpoints();
+	*fftplan1 = fftw_plan_dft_r2c_2d(nn,nn,u,fftTemp,FFTW_ESTIMATE);
+	*fftplan2 = fftw_plan_dft_c2r_2d(nn,nn,fftTemp,u,FFTW_ESTIMATE);
 }
 
 void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2, double dt)
@@ -355,18 +322,17 @@ void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftpla
 	Memory is already allocated in fftTemp
 	(necessary to create the plans) */
 	
-	int n = get_n();
-	int m = get_m();
+	int n= owner->get_ngridpoints();
 	int i, j;
 	int n2 = floor(n/2) + 1;
 	double nsq = n *  n;
 	double k = 2.0 * PI / n;
 	double G;
-	
+	double coski;
 	fftw_execute(fftplan1);
 	
 	for(i=0;i<n2;i++) {
-	  double coski=cos(k*i);
+	  coski=cos(k*i);
 		for(j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
 			
@@ -383,11 +349,12 @@ void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftpla
 	fftw_execute(fftplan2);
 }
 
+
+
+
+
 void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &ref, LSbox* zeroBox, int grid_blowup, weightmap* my_weights){
-	
-	
-	int n = get_n();
-	int m = get_m();
+	int n= owner->get_ngridpoints();
 
 	double *u, *v;
 	double vn, vnn;
@@ -423,64 +390,16 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
   // 							if (ID[0][i*m +j] ->get_id() == (**it).id) out = true;
 // 						  vn = ((*this)[i][j] -ref[i][j] ) / dt;
 // 						  vnn = vn * weight;
-						  (*this)[i][j] = ref[i][j] + ((*this)[i][j] -ref[i][j])*weight;
+						  (*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
 						}
 					}
-					
-					if (FIX_BOUNDARY) 
-						if(ID[0][i*m +j] == zeroBox || i<= (2*grid_blowup) || j <= (2*grid_blowup) || i >= m-(2*grid_blowup) || j>= n-(2*grid_blowup) )
-							(*this)[i][j] = ref[i][j];
 				}
 			}
 		}
 	}
-	
-	if (FIX_BOUNDARY) {
-		for (int i = 0; i < m; i++){
-			for (int j = 0; j < n; j++) {
-					if( i<= (1.5*grid_blowup) || j <= (1.5*grid_blowup) || i >= m-(1.5*grid_blowup) || j>= n-(1.5*grid_blowup) )
-						(*this)[i][j] = ref[i][j];
-			}
-		}
-	}
-
 }
 /*********************************************************************************/
 /*********************************************************************************/
-
-
-/*********************************************************************************/
-// berechenung der differenz von ausgangslage und bewegter distanzfunktion
-// punktweise repräsentiert die distanz, die krümmung, denn kraft = masse * beschleunigung
-// die masse ist normiert also 1, die breschleunigung ist kappa. die arbeit ist also (delta d * kappa)
-/*********************************************************************************/
-
-// domainCl domainCl::energy_correction(const LSbox ***&ID, ST, domainCl &ref, int grid_blowup){
-// 	
-// 	for (int i = 0; i < m; i++)
-// 		for (int j = 0; j < n; j++) {
-// 			v = (ref[i][j] - (*this)[i][j] )/dt;
-// 			v = v * ST[ ID[0][(i+grid_blowup)*m + j + grid_blowup]+ (PARTICLES* ID[1][(i+grid_blowup)*m + j + grid_blowup]) ];
-// 			v = v *dt;
-// 			(*this)[i][j]) = ref[i][j] + v;
-// 		}
-// 	}
-// 	
-// 	domainCl temp(m,n); 
-// 	return (temp);
-// }
-
-
-
-
-
-
-/*********************************************************************************/
-// discrete_convolution is a function to compute a discrete convolution by a grid_blowup times grid_blowup
-// kernel in space coordinates. to handle the distancefunction correctly at the boundary we expand
-// the domain by grid_blow gridpoints at each boundary.
-/*********************************************************************************/
-
 
 
 
@@ -523,12 +442,11 @@ int domainCl::minimumInPoint(std::list<domainCl> distances, int m, int n, int ne
 /*********************************************************************************/
 
 void domainCl::comparison(std::list<domainCl> distances, int grid_blowup){
+	
 	std::list<domainCl>::iterator it = distances.begin();
 	std::list<domainCl>::iterator it_current_distance;
+	int n= owner->get_ngridpoints();
 	
-	
-	int m = get_m();
-	int n = get_n();
 	domainCl Max(m,n), cur_Max(m,n,id);
 
 	if (id == (*it).id) Max = *(++it);
@@ -576,7 +494,7 @@ void domainCl::redistancing_for_all_boxes(double h, int grid_blowup){
 	for(it = grains.begin(); it != grains.end(); it++)
 	{
 		// find zeros and new box size
-		(*it)->redistancing(h, grid_blowup);
+		(*it)->redist_box(h, grid_blowup);
 		cout << "box complete" << endl;
 	}
 			
@@ -594,25 +512,21 @@ void domainCl::redistancing_for_all_boxes(double h, int grid_blowup){
 void domainCl::redistancing(double h, int grid_blowup){
 	int n = get_n();
 	int m = get_m();
-	domainCl *temp = new domainCl(m,n,id);
-	
-	double limiter = -INTERIMVAL;
+	domainCl *temp = new domainCl(m,n,id,-INTERIMVAL);
 	double slope = 1;
+	double candidate, i_slope,zero;
 	// x-direction forward
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n-1; j++) {
-			if (j==0) (*temp)[i][j] = -limiter;
-			(*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
-			
-			// check for sign change
+			//check for sign change
 			if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
 				// interpolate
-				double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
-				double zero = -(*this)[i][j] / i_slope;
-				if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+				i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
+				zero = -(*this)[i][j] / i_slope;
+				if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 			}
 			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h);
+			candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h);
 			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
 		}
 	}
@@ -621,7 +535,7 @@ void domainCl::redistancing(double h, int grid_blowup){
 	for (int i = 0; i < m; i++) {
 		for (int j = n-1; j > 0; j--) {
 			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h); // replace with the "a"-slope stuff...
+			candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
 		}
 	}
@@ -632,12 +546,12 @@ void domainCl::redistancing(double h, int grid_blowup){
 			// check for sign change
 			if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {                
 				// interpolate
-				double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
-				double zero = -(*this)[i][j] / i_slope;
-				if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+				i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+				zero = -(*this)[i][j] / i_slope;
+				if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 			}
 			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
+			candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
 			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
 		}
 	}
@@ -646,10 +560,13 @@ void domainCl::redistancing(double h, int grid_blowup){
 	for (int j = 0; j < n; j++) {
 		for (int i = m-1; i > 0; i--) {	
 			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h); // replace with the "a"-slope stuff...
+			candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
 		}
 	}
+	
+	*this=*temp;
+	delete temp;
 	
 }
 
@@ -731,115 +648,6 @@ void domainCl::redistancing_2(double h, int grid_blowup){
 	
 }     
         
-        
-        
-        
-        
-        
-/*********************************************************************************/
-// Redistancing_Advanced -> This method uses a Slopefield to 
-// 		computed the distances with a slopefactor
-/*********************************************************************************/
-
-void domainCl::redistancing_advanced(double h, int grid_blowup, std::list<domainCl> distances, double** borderSlopes, double** slopeField) {
-	int n = get_n();
-	int m = get_m();
-	domainCl *temp = new domainCl(m,n,id);
-	
-	double limiter = DELTA;
-	double slope = 1;
-				
-	// x-direction forward
-	for (int i = 0; i < m; i++) {
-		slope = 1;
-		for (int j = 0; j < n-1; j++) {
-			if (j==0) (*temp)[i][j] = -limiter;
-			(*temp)[i][j+1] = limiter * utils::sgn((*this)[i][j+1]); // set temp to limiter initially
-			
-			// check for sign change
-			if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
-				// find grain with minimal distance to [i][j]
-				int rightID = (*this).id;
-				int leftID = minimumInPoint(distances, i, j, rightID);
-				slope = borderSlopes[leftID][rightID];				
-				if (slope == 0) slope = 1;				
-				// interpolate
-				double i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
-				double zero = -(*this)[i][j] / i_slope;
-				if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
-			}
-			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h * slope); 
-			if (abs(candidate) < abs((*temp)[i][j+1])) (*temp)[i][j+1] = candidate;
-		}
-	}
-	
-	// y-direction forward
-	for (int j = 0; j < n; j++) {
-		slope = 1;
-		for (int i = 0; i < m-1; i++) {			
-			// check for sign change
-			if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {
-				// find grain with minimal distance to [i][j]
-				int bottomID = (*this).id;
-				int topID = minimumInPoint(distances, i, j, bottomID);
-				slope = borderSlopes[topID][bottomID];				
-				if (slope == 0) slope = 1;				
-				// interpolate
-				double i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
-				double zero = -(*this)[i][j] / i_slope;
-				if ( abs((*temp)[i][j]) > abs(-zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
-			}
-			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h * slope);
-			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
-		}
-	}
-	
-	// x-direction backward
-	for (int i = 0; i < m; i++) {
-		slope = 1;
-		for (int j = n-1; j > 0; j--) {			
-			// check for sign change
-			if ((*this)[i][j] * (*this)[i][j-1] < 0.0) {
-				// find grain with minimal distance to [i][j]
-				int leftID = (*this).id;
-				int rightID = minimumInPoint(distances, i, j, leftID);
-				slope = borderSlopes[leftID][rightID];
-				
-				if (slope == 0) slope = 1;
-			}			
-			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h * slope); // replace with the "a"-slope stuff...
-			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
-		}
-	}
-	
-	
-	// y-direction backward
-	for (int j = 0; j < n; j++) {
-		slope = 1;
-		for (int i = m-1; i > 0; i--) {			
-			// check for sign change
-			if ((*this)[i][j] * (*this)[i-1][j] < 0.0) {
-				// find grain with minimal distance to [i][j]
-				int topID = (*this).id;
-				int bottomID = minimumInPoint(distances, i, j, topID);
-				slope = borderSlopes[topID][bottomID];
-				
-				if (slope == 0) slope = 1;
-			}			
-			// calculate new distance candidate and assign if appropriate
-			double candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h * slope); // replace with the "a"-slope stuff...
-			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
-		}
-	}
-	
-	*this = *temp;
-	delete temp;
-}
-	
-	
 	
 int domainCl::get_m() const { return m; };
 int domainCl::get_n() const { return n; };

@@ -13,14 +13,12 @@ void grainhdl::setSimulationParameter(){
 	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
-	if(Mode==2)realDomainSize= M;
+	if(Mode==2) realDomainSize= M;
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
 
-	 
-	grid_blowup = 2*int(((double)DELTA / h)+1); //
-
+	grid_blowup = 2*int(((double)DELTA * M)+1); 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	my_weights = new weightmap(this);
@@ -53,7 +51,7 @@ void grainhdl::setSimulationParameter(){
 	
 	//program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
-    cout << "Number of Grains: " << PARTICLES << endl;
+    cout << "Number of Grains: " << ngrains << endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << ngridpoints << endl << endl;
@@ -353,8 +351,7 @@ void grainhdl::comparison_domain(){
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
 		(*it).comparison(domains_copy, grid_blowup);
-		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
-			
+		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){			
 			grains = (*it).getBoxList();			
 			filename.str(std::string());
 			filename << "Comparedmatrix_"<< "T"<<loop;
@@ -454,7 +451,9 @@ void grainhdl::redistancing(){
 		// zugriff auf Boxen über die Domain "it"
 		// Intern können verschiedenRedistancing Routinen verwendet werden
 
-		(*it).redistancing_2(h, grid_blowup);
+// 		(*it).redistancing_2(h, grid_blowup);
+// 		(*it).redistancing(h, grid_blowup);
+		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
 		nr_grains[loop]+=(*it).get_nr_of_grains();
 		
@@ -520,9 +519,7 @@ void grainhdl::run_sim(){
  
  
 void grainhdl::save_sim(){
-	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);
-	
-		
+	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
 	myfile.open ("kinetics.txt");
 	for(int i=0; i< TIMESTEPS; i++)

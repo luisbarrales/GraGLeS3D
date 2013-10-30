@@ -7,17 +7,16 @@
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
-#define PI 3.14159265358979323846
+#define PI 3.1415926 //5358979323846
 
 
-#define TIMESTEPS 100
-#define PRINTSTEP 10
+#define TIMESTEPS 20
+#define PRINTSTEP 5
 #define PRINTNOW 1000
 #define PARTICLES 10
 
 #define ISOTROPIC true
 #define TRIPLEPUNKT false
-#define FIX_BOUNDARY false
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
