@@ -512,7 +512,7 @@ void domainCl::redistancing_for_all_boxes(double h, int grid_blowup){
 void domainCl::redistancing(double h, int grid_blowup){
 	int n = get_n();
 	int m = get_m();
-	domainCl *temp = new domainCl(m,n,id,-INTERIMVAL);
+	domainCl *temp = new domainCl(m,n,id,INTERIMVAL);
 	double slope = 1;
 	double candidate, i_slope,zero;
 	// x-direction forward

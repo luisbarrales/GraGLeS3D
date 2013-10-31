@@ -8,7 +8,7 @@ set(CMAKE_BUILD_DIR "build")
 set(MY_SOURCES grainhdl.cpp box.cpp functions.cpp ggLS.cpp domainCl.cpp outOfBoundsException.cpp utilities.cpp vektor.cpp weightmap.cpp contour.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
-#set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS "-g")
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 set(VORO++_FOUND true)
 set(VORO++_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/voro++/)
 set(VORO++_LIBRARIES ${CMAKE_SOURCE_DIR}/voro++/lib/libvoro++.a)
-set(VORO++_DEFINITIONS "-O3")
+set(VORO++_DEFINITIONS "-g")
 
 find_package(OpenMP REQUIRED)
 

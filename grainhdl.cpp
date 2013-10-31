@@ -452,8 +452,8 @@ void grainhdl::redistancing(){
 		// Intern können verschiedenRedistancing Routinen verwendet werden
 
 // 		(*it).redistancing_2(h, grid_blowup);
-// 		(*it).redistancing(h, grid_blowup);
-		(*it).redistancing_for_all_boxes(h, grid_blowup);
+		(*it).redistancing(h, grid_blowup);
+// 		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
 		nr_grains[loop]+=(*it).get_nr_of_grains();
 		

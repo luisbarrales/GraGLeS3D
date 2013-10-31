@@ -601,7 +601,7 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	int m=ymax-ymin;
 	int n=xmax-xmin;
 	int ii, jj;
-	domainCl *temp = new domainCl(m,n,id,-INTERIMVAL);
+	domainCl *temp = new domainCl(m,n,id,INTERIMVAL);
 	double slope = 1;
 	double candidate, i_slope,zero;
 	// x-direction forward
@@ -616,15 +616,15 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 				zero = -(*domain)[i][j] / i_slope;
 				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
 			}
-			// calculate new distance candidate and assign if appropriate
-			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
-			if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
+				// calculate new distance candidate and assign if appropriate
+				candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
+				if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
 		}
 	}
 	
 	// x-direction backward
 	for (int i = ymin; i < ymax; i++) {
-		for (int j = xmax-1; j > xmin-1; j--) {
+		for (int j = xmax-1; j > xmin+1; j--) {
 			ii = i-ymin;
 			jj = j-xmin;
 			// calculate new distance candidate and assign if appropriate
@@ -639,7 +639,7 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 			ii = i-ymin;
 			jj = j-xmin;
 			// check for sign change
-			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {                
+			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {  
 				// interpolate
 				i_slope  = ((*domain)[i+1][j] - (*domain)[i][j]) / h;
 				zero = -(*domain)[i][j] / i_slope;
@@ -653,11 +653,12 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	
 	// y-direction backward
 	for (int j = xmin; j < xmax; j++) {
-		for (int i = ymax-1; i > ymin-1; i--) {	
+		for (int i = ymax-1; i > ymin+1; i--) {	
 			ii = i-ymin;	jj = j-xmin;
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i-1][j]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[ii-1][jj])) (*temp)[ii-1][jj] = candidate;
+
 		}
 	}
 	
