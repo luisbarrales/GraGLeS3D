@@ -512,18 +512,20 @@ void domainCl::redistancing_for_all_boxes(double h, int grid_blowup){
 void domainCl::redistancing(double h, int grid_blowup){
 	int n = get_n();
 	int m = get_m();
-	domainCl *temp = new domainCl(m,n,id,INTERIMVAL);
+	
+	domainCl *temp = new domainCl(m,n,id,-1.0);
 	double slope = 1;
 	double candidate, i_slope,zero;
 	// x-direction forward
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n-1; j++) {
 			//check for sign change
-			if ((*this)[i][j] * (*this)[i][j+1] < 0.0) {
+			if ((*this)[i][j] * (*this)[i][j+1] <= 0.0) {
 				// interpolate
 				i_slope  = ((*this)[i][j+1] - (*this)[i][j]) / h;
 				zero = -(*this)[i][j] / i_slope;
 				if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+
 			}
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j+1]) * h);
@@ -534,6 +536,7 @@ void domainCl::redistancing(double h, int grid_blowup){
 	// x-direction backward
 	for (int i = 0; i < m; i++) {
 		for (int j = n-1; j > 0; j--) {
+			if ((*this)[i][j] * (*this)[i][j-1] <= 0.0) continue;
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i][j-1]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[i][j-1])) (*temp)[i][j-1] = candidate;
@@ -544,11 +547,11 @@ void domainCl::redistancing(double h, int grid_blowup){
 	for (int j = 0; j < n; j++) {
 		for (int i = 0; i < m-1; i++) {	
 			// check for sign change
-			if ((*this)[i][j] * (*this)[i+1][j] < 0.0) {                
-				// interpolate
-				i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
-				zero = -(*this)[i][j] / i_slope;
-				if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
+			if ((*this)[i][j] * (*this)[i+1][j] <= 0.0) {   
+					// interpolate
+					i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+					zero = -(*this)[i][j] / i_slope;
+					if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 			}
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
