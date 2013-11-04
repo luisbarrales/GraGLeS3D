@@ -427,7 +427,7 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) ){
 			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
-			  if ((*(**it_nn).domain).get_id()==domain->get_id()) cout << "GRAINS IN THE SAME DOMAIN !!!!!!!!!!!!!!!!! " << (**it_nn).get_id()<<","<<get_id()<<endl << endl;
+// 			  if ((*(**it_nn).domain).get_id()==domain->get_id()) cout << "GRAINS IN THE SAME DOMAIN !!!!!!!!!!!!!!!!! " << (**it_nn).get_id()<<","<<get_id()<<endl << endl;
   
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
@@ -452,8 +452,9 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 							IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
 						}
 						else if( distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (*temp)[i-ymin][j-xmin]){
-							(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+							(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)]; //temp??
 							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;						
+						  
 						}
 					}
 				}
