@@ -565,7 +565,7 @@ cout << "redist start" << endl;
 				if (imgnum < 100) filename << "0";
 				if (imgnum < 10) filename << "0";
 				filename << imgnum << ".png";
-				utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
+				utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
 			}
 		}
 		

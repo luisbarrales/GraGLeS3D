@@ -10,12 +10,12 @@
 #define PI 3.1415926 //5358979323846
 
 
-#define TIMESTEPS 20
-#define PRINTSTEP 5
+#define TIMESTEPS 10000
+#define PRINTSTEP 500
 #define PRINTNOW 1000
-#define PARTICLES 10
+#define PARTICLES 100
 
-#define ISOTROPIC true
+#define ISOTROPIC false
 #define TRIPLEPUNKT false
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)

@@ -726,7 +726,7 @@ void LSbox::plot_box(bool distanceplot){
 	
 }
 
-void LSbox::find_LevelSet()
+void LSbox::compute_volume()
 {
 	CContourMap c;
 	c.contour(domain, xmin, xmax, ymin, ymax, handler);

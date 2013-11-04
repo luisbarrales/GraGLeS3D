@@ -69,6 +69,7 @@ class grainhdl{
 	void run_sim();
 	void save_sim();
 	void clear_mem(); 
+	void save_texture();
 	
 	void compute_grain_vol();
 	int  conrec();

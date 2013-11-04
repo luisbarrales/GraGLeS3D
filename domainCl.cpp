@@ -271,12 +271,10 @@ bool domainCl::grainCheck(double h, int grid_blowup, vector<LSbox*>& buffer, int
 
     bool del = false;
     // check for intersects
-    if (!grains.empty()) 
-		
+    if (!grains.empty()) 		
 		for (it = grains.begin(); it != grains.end()-1;) {
 			for (it2 = it+1; it2 != grains.end(); ++it2) {
-				// on intersect add box to buffer and erase from grain list
-				
+				// on intersect add box to buffer and erase from grain list				
 				if ((*it)->checkIntersect(*it2)) {
 					cout << "found intersecting box " << (*it)->getID() << " in Domain " << id << endl;
 					(*it)->copy_distances();

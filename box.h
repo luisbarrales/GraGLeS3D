@@ -40,6 +40,7 @@ class LSbox {
 		    
 public:
 	friend class domainCl;
+	friend class grainhdl;
     LSbox();
     ~LSbox();
 	vector<neighbor> weights;
@@ -66,8 +67,8 @@ public:
     double curvature (int x, int y, double h);
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
-	void find_LevelSet();
-	void compute_volume(vector<double*> &levelset);
+	void compute_volume();
+	
 	
 	
 	inline bool get_status() { return exist;}

@@ -3,8 +3,8 @@
 namespace utils {
     
     
-    void plotGnu(const char *fileName, const char *plotfiles){
-        char string_gnupl_command[20000];
+    void plotGnu(const char *fileName, const char *plotfiles, int len){
+        char string_gnupl_command[len + 1000];
         strcpy( string_gnupl_command, "set term x11 persist; " );
         strcat( string_gnupl_command, "set title \"");
         strcat( string_gnupl_command, fileName);
@@ -30,8 +30,8 @@ namespace utils {
     }
     
     
-    void plotGnuPNG(const char *fileName, const char *plotfiles){
-        char string_gnupl_command[20000];
+    void plotGnuPNG(const char *fileName, const char *plotfiles, int len){
+        char string_gnupl_command[len + 1000];
         strcpy( string_gnupl_command, "set term x11 persist; " );
         strcat( string_gnupl_command, "set output \"");
         strcat( string_gnupl_command, fileName);

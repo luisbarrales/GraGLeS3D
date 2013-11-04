@@ -418,9 +418,9 @@ void grainhdl::swap_grains(){
 		bool exist=true;
 		//check domain it for intersecting grains
 		exist = (*it).grainCheck(h, grid_blowup, buffer, loop); // h Gitterabstand
-		if (!exist){
+		if (!exist){ 
 			cout << (*it).get_id() <<"domain leer" << endl;
-			// 			domains.erase(it); it--;
+// 			domains.erase(it); it--;
 			// 			cerr << "GrainCheck" ;
 			// 			cin >> buffer1;
 		}		
@@ -484,7 +484,7 @@ void grainhdl::redistancing(){
 		if (PLOTGNU) {
 			filename.str(std::string());
 			filename << "GrainNetwork" << "_"<< loop << ".gnu";
-			utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str());
+			utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
 		}			
 		if (IMAGEOUT) {
 			int imgnum = (loop/PRINTSTEP);
@@ -495,9 +495,28 @@ void grainhdl::redistancing(){
 			if (imgnum < 100) filename << "0";
 			if (imgnum < 10) filename << "0";
 			filename << imgnum << ".png";
-			utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str());
+			utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
 		}
 	}
+}
+
+void grainhdl::save_texture(){
+	
+	FILE* myfile;
+	stringstream filename;
+	filename << "Texture" << "_"<< loop << ".ori";
+	
+	myfile = fopen(filename.str().c_str(), "w");
+	list<domainCl> :: iterator it;
+	double buffer = 0.24;
+	for (it = domains.begin(); it != domains.end(); it++) {
+		vector<LSbox*> grains = (*it).getBoxList();
+		vector<LSbox*> :: iterator it2;
+		for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it2)->phi1, (*it2)->PHI, (*it2)->phi2, (*it2)->volume, buffer);
+		}
+	}
+	fclose(myfile);
 }
  
  
@@ -513,7 +532,7 @@ void grainhdl::run_sim(){
 		swap_grains();
 // 		domains_copy.clear();
 		redistancing();
-		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW) conrec();
+		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW) {conrec();save_texture();}
 	}
 }  
  
@@ -618,12 +637,14 @@ int grainhdl::conrec() {
 		vector<LSbox*> grains = it->getBoxList();	
 		for (itl = grains.begin(); itl != grains.end(); itl++){	
 			if( (*itl)->get_status() == true ){
-				(*itl)->find_LevelSet();	
+				(*itl)->compute_volume();
 				volume += (*itl)->get_vol();
 				vol_line [(*itl)->get_id()] = (*itl)->get_vol();	
 			}
+			else cout << "grain vol = 0.0"<< endl;
 		}
 	}
+	vol_line[0]= volume;
 	vol_list.push_back(vol_line);
 // 	cout << "whole volume: " << volume << endl;
 	return 0;
