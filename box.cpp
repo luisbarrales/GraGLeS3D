@@ -733,3 +733,13 @@ void LSbox::compute_volume()
 	c.consolidate();
 	volume= c.compute_volume();
 }
+
+double LSbox::mis_ori(LSbox* grain_2){
+	return misorientationCubic(phi1,PHI,phi2,grain_2->get_phi1(), grain_2->get_PHI(), grain_2->get_phi2());
+}
+
+
+
+
+
+

@@ -40,13 +40,14 @@ class grainhdl{
     	
 	vector<int> nr_grains;
 	
+	
 	LSbox ***ID;
 	double *ST;
 	double *part_pos;
 	
 	public:
 	
-			
+	vector<LSbox*> *grains;		
 	LSbox* zeroBox;
 	grainhdl();
 	~grainhdl();
@@ -73,7 +74,8 @@ class grainhdl{
 	
 	void compute_grain_vol();
 	int  conrec();
-
+	void compute_Boundary_Energy();
+	
 
 	
 // 	wrapper functions:

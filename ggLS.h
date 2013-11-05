@@ -3,19 +3,19 @@
 
 #define DIM 2
 
-#define M 200 //gridpoints in each direction
+#define M 300 //gridpoints in each direction
 #define EPS 1e-6
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.1415926 //5358979323846
 
 
-#define TIMESTEPS 10000
-#define PRINTSTEP 500
+#define TIMESTEPS 200
+#define PRINTSTEP 10
 #define PRINTNOW 1000
 #define PARTICLES 100
 
-#define ISOTROPIC false
+#define ISOTROPIC true
 #define TRIPLEPUNKT false
 
 #define INTERIMVAL -sqrt(1. / PARTICLES)
@@ -54,6 +54,7 @@
 #include "functions.h"
 #include "weightmap.h"
 #include "grainhdl.h"
+#include "mymath.h"
 
 #endif
 

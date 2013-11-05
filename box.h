@@ -68,12 +68,14 @@ public:
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
 	void compute_volume();
-	
-	
-	
+	double mis_ori(LSbox* grain_2);
+		
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }
 	inline double get_vol() {return volume ;}
+	inline double get_phi1() {return phi1;}
+	inline double get_PHI() {return PHI;}
+	inline double get_phi2() {return phi2;}
 };
 
 

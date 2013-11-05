@@ -3,8 +3,8 @@
 #define _mymath_h_
 
 #include <math.h>
-#include "applic.h"
-#include "random.h"
+// #include "applic.h"
+// #include "random.h"
 
 #define SQR(a) ((a)*(a))
 #define CUBE(a) ((a)*(a)*(a))

@@ -652,12 +652,12 @@ double Edsqrt(double k)
 double dcos(double x)	{ return cos(x*(_PI_/180)); }
 double dsin(double x)	{ return sin(x*(_PI_/180)); }
 
-double qroot(double x)
-{
-	QUICKASSERT(x>=0);
-
-	return pow( x, 1/3.0 );
-}
+// double qroot(double x)
+// {
+// 	QUICKASSERT(x>=0);
+// 
+// 	return pow( x, 1/3.0 );
+// }
 
 
 double kante(double x)
@@ -681,7 +681,7 @@ double WLS(double r)
 	return (4.0/9.0) *r*r * exp(h);
 }
 
-
+/*
 double wicksell(double u, double *srad, long sCount)
 {
 	double sum = 0;
@@ -705,113 +705,113 @@ double wicksell(double u, double *srad, long sCount)
 	sum = 1-sum;
 
 	return sum;
-}
+}*/
 
-double misorientationCubicQxQ( double q01, double q11, double q21, double q31, double q02, double q12, double q22, double q32 )
-{
-        int i;
+// double misorientationCubicQxQ( double q01, double q11, double q21, double q31, double q02, double q12, double q22, double q32 )
+// {
+//         int i;
+// 
+//         Real p[4] = {q01,q11,q21,q31};
+// 	Real q[4] = {q02,q12,q22,q32};
+// 
+// 	Real qm1[4];    //Inverse of quaternion q
+// 
+// 	for(i=0;i<4;i++)       //Inverting unit quaternion
+//         {
+// 	        qm1[i]=q[i];
+//                 if( i>0 ) qm1[i]*=-1;
+//         }
+// 
+// 	Real r[4];     //Resulting quaternion, rotation of the two previous quaternions pq-1
+// 
+//         multiplyQuaternions( p, qm1, r );
+// 
+//         //Now, we have to determine the smallest angle.
+// 
+// 	Real r0[6][4];    //There are 12 possible angles
+// 
+//         //Note: The notation r0 is due to the definition of the quaternion which lie
+//         //in the fundamental zone, this vector possesses the smallest angle, in such a way
+//         //that r0 is actually the scalar part of this quaternion
+// 
+// 	double a,b,c,d;
+// 	Real rt3=sqrt(3.0);
+// 
+// 	a=r[0]; b=r[1]; c=r[2]; d=r[3];
+// 
+// 	Real fac=0.70710678;
+// 
+// 	r0[0][0]=(r[0]+r[1])*fac; r0[0][1]=(r[0]-r[1])*fac; r0[0][2]=(r[2]+r[3])*fac; r0[0][3]=(r[2]-r[3])*fac;
+// 	r0[1][0]=(r[0]+r[2])*fac; r0[1][1]=(r[0]-r[2])*fac; r0[1][2]=(r[1]+r[3])*fac; r0[1][3]=(r[1]-r[3])*fac;
+// 	r0[2][0]=(r[0]+r[3])*fac; r0[2][1]=(r[0]-r[3])*fac; r0[2][2]=(r[1]+r[2])*fac; r0[2][3]=(r[1]-r[2])*fac;
+// 	r0[3][0]=(r[0]+r[1]+r[2]+r[3])*0.5; r0[3][1]=(r[0]+r[1]-r[2]-r[3])*0.5; r0[3][2]=(r[0]-r[1]+r[2]-r[3])*0.5; r0[3][3]=(r[0]-r[1]-r[2]+r[3])*0.5;
+// 	r0[4][0]=(r[0]+r[1]+r[2]-r[3])*0.5; r0[4][1]=(r[0]+r[1]-r[2]+r[3])*0.5; r0[4][2]=(r[0]-r[1]+r[2]+r[3])*0.5; r0[4][3]=(r[0]-r[1]-r[2]-r[3])*0.5;
+// 	r0[5][0]=r[0];r0[5][1]=r[1];r0[5][2]=r[2];r0[5][3]=r[3];
+// 
+// 
+// 	Real omega=0.0;
+// 
+// 	for(i=0;i<6;i++)
+// 		for( int j=0;j<4;j++ )
+// 			if( fabs(r0[i][j]) > omega )
+// 				omega=fabs(r0[i][j]);
+// 
+// 	QUICKASSERT( omega < 1.01 );
+// 
+// 	if( omega > 1.0 )
+// 		omega = (Real) (int) omega;
+// 
+// 	omega=2*acos(omega);
+// 	QUICKASSERT( omega <= 1.099 );
+// 	return omega;
+// }
 
-        Real p[4] = {q01,q11,q21,q31};
-	Real q[4] = {q02,q12,q22,q32};
-
-	Real qm1[4];    //Inverse of quaternion q
-
-	for(i=0;i<4;i++)       //Inverting unit quaternion
-        {
-	        qm1[i]=q[i];
-                if( i>0 ) qm1[i]*=-1;
-        }
-
-	Real r[4];     //Resulting quaternion, rotation of the two previous quaternions pq-1
-
-        multiplyQuaternions( p, qm1, r );
-
-        //Now, we have to determine the smallest angle.
-
-	Real r0[6][4];    //There are 12 possible angles
-
-        //Note: The notation r0 is due to the definition of the quaternion which lie
-        //in the fundamental zone, this vector possesses the smallest angle, in such a way
-        //that r0 is actually the scalar part of this quaternion
-
-	double a,b,c,d;
-	Real rt3=sqrt(3.0);
-
-	a=r[0]; b=r[1]; c=r[2]; d=r[3];
-
-	Real fac=0.70710678;
-
-	r0[0][0]=(r[0]+r[1])*fac; r0[0][1]=(r[0]-r[1])*fac; r0[0][2]=(r[2]+r[3])*fac; r0[0][3]=(r[2]-r[3])*fac;
-	r0[1][0]=(r[0]+r[2])*fac; r0[1][1]=(r[0]-r[2])*fac; r0[1][2]=(r[1]+r[3])*fac; r0[1][3]=(r[1]-r[3])*fac;
-	r0[2][0]=(r[0]+r[3])*fac; r0[2][1]=(r[0]-r[3])*fac; r0[2][2]=(r[1]+r[2])*fac; r0[2][3]=(r[1]-r[2])*fac;
-	r0[3][0]=(r[0]+r[1]+r[2]+r[3])*0.5; r0[3][1]=(r[0]+r[1]-r[2]-r[3])*0.5; r0[3][2]=(r[0]-r[1]+r[2]-r[3])*0.5; r0[3][3]=(r[0]-r[1]-r[2]+r[3])*0.5;
-	r0[4][0]=(r[0]+r[1]+r[2]-r[3])*0.5; r0[4][1]=(r[0]+r[1]-r[2]+r[3])*0.5; r0[4][2]=(r[0]-r[1]+r[2]+r[3])*0.5; r0[4][3]=(r[0]-r[1]-r[2]-r[3])*0.5;
-	r0[5][0]=r[0];r0[5][1]=r[1];r0[5][2]=r[2];r0[5][3]=r[3];
-
-
-	Real omega=0.0;
-
-	for(i=0;i<6;i++)
-		for( int j=0;j<4;j++ )
-			if( fabs(r0[i][j]) > omega )
-				omega=fabs(r0[i][j]);
-
-	QUICKASSERT( omega < 1.01 );
-
-	if( omega > 1.0 )
-		omega = (Real) (int) omega;
-
-	omega=2*acos(omega);
-	QUICKASSERT( omega <= 1.099 );
-	return omega;
-}
-
-void randomMisorientationAxisConsidered(  double * qref, double * qr, double maxDev  )
-{
-        Real theta = cos( 0.5 * _PI_ );
-
-        double q[4] = {0};
-        maxDev *= _PI_/180;
-
-        double dev = cos(0.5 * maxDev);
-
-        double refNorm = sqrt( SQR(qref[0]) + SQR(qref[1]) + SQR(qref[2]) + SQR(qref[3]) );
-
-        qref[0] /= refNorm;
-        qref[1] /= refNorm;
-        qref[2] /= refNorm;
-        qref[3] /= refNorm;
-
-        while( theta < dev  )
-        {
-                double s = applic.myRandom.parkMiller();
-                double sigma1 = sqrt(1-s);
-                double sigma2 = sqrt(s);
-                double theta1 = 2*_PI_*applic.myRandom.parkMiller();
-                double theta2 = 2*_PI_*applic.myRandom.parkMiller();
-
-                q[0]=fabs(sigma2*cos(theta2));
-                q[1]=fabs(sigma1*sin(theta1));
-                q[2]=fabs(sigma1*cos(theta1));
-                q[3]=fabs(sigma2*sin(theta2));
-
-                double norm = sqrt(SQR(q[0])+SQR(q[1])+SQR(q[2])+SQR(q[3]));
-
-                q[0] /= norm;
-                q[1] /= norm;
-                q[2] /= norm;
-                q[3] /= norm;
-
-                bubbleSort( q, 4 );
-
-                theta = q[3]*qref[0] + q[2]*qref[1] + q[1]*qref[2] + q[0]*qref[3];
-        }
-        qr[0]=q[3];
-        qr[1]=q[2];
-        qr[2]=q[1];
-        qr[3]=q[0];
-
-}
+// void randomMisorientationAxisConsidered(  double * qref, double * qr, double maxDev  )
+// {
+//         Real theta = cos( 0.5 * _PI_ );
+// 
+//         double q[4] = {0};
+//         maxDev *= _PI_/180;
+// 
+//         double dev = cos(0.5 * maxDev);
+// 
+//         double refNorm = sqrt( SQR(qref[0]) + SQR(qref[1]) + SQR(qref[2]) + SQR(qref[3]) );
+// 
+//         qref[0] /= refNorm;
+//         qref[1] /= refNorm;
+//         qref[2] /= refNorm;
+//         qref[3] /= refNorm;
+// 
+//         while( theta < dev  )
+//         {
+//                 double s = applic.myRandom.parkMiller();
+//                 double sigma1 = sqrt(1-s);
+//                 double sigma2 = sqrt(s);
+//                 double theta1 = 2*_PI_*applic.myRandom.parkMiller();
+//                 double theta2 = 2*_PI_*applic.myRandom.parkMiller();
+// 
+//                 q[0]=fabs(sigma2*cos(theta2));
+//                 q[1]=fabs(sigma1*sin(theta1));
+//                 q[2]=fabs(sigma1*cos(theta1));
+//                 q[3]=fabs(sigma2*sin(theta2));
+// 
+//                 double norm = sqrt(SQR(q[0])+SQR(q[1])+SQR(q[2])+SQR(q[3]));
+// 
+//                 q[0] /= norm;
+//                 q[1] /= norm;
+//                 q[2] /= norm;
+//                 q[3] /= norm;
+// 
+//                 bubbleSort( q, 4 );
+// 
+//                 theta = q[3]*qref[0] + q[2]*qref[1] + q[1]*qref[2] + q[0]*qref[3];
+//         }
+//         qr[0]=q[3];
+//         qr[1]=q[2];
+//         qr[2]=q[1];
+//         qr[3]=q[0];
+// 
+// }
 
 double angleBetweenQuaternions( double * q, double * p )
 {
@@ -820,30 +820,30 @@ double angleBetweenQuaternions( double * q, double * p )
         return acos( _qNorm * _pNorm * ( q[0]*p[0] + q[1]*p[1] + q[2]*p[2] + q[3]*p[3] ) );
 }
 
-void randomMisorientation( double theta, double* qr  )
-{
-        double q[4]={0,0,0,0};
-        theta*=(_PI_/180);
-        double qcrit = cos(0.5*theta);
-
-        while( q[3]<qcrit )
-        {
-                double s = applic.myRandom.parkMiller();
-                double sigma1 = sqrt(1-s);
-                double sigma2 = sqrt(s);
-                double theta1 = 2*_PI_*applic.myRandom.parkMiller();
-                double theta2 = 2*_PI_*applic.myRandom.parkMiller();
-                q[0]=fabs(sigma2*cos(theta2));
-                q[1]=fabs(sigma1*sin(theta1));
-                q[2]=fabs(sigma1*cos(theta1));
-                q[3]=fabs(sigma2*sin(theta2));
-                bubbleSort( q,4 );
-        }
-        qr[0]=q[3];
-        qr[1]=q[2];
-        qr[2]=q[1];
-        qr[3]=q[0];
-}
+// void randomMisorientation( double theta, double* qr  )
+// {
+//         double q[4]={0,0,0,0};
+//         theta*=(_PI_/180);
+//         double qcrit = cos(0.5*theta);
+// 
+//         while( q[3]<qcrit )
+//         {
+//                 double s = applic.myRandom.parkMiller();
+//                 double sigma1 = sqrt(1-s);
+//                 double sigma2 = sqrt(s);
+//                 double theta1 = 2*_PI_*applic.myRandom.parkMiller();
+//                 double theta2 = 2*_PI_*applic.myRandom.parkMiller();
+//                 q[0]=fabs(sigma2*cos(theta2));
+//                 q[1]=fabs(sigma1*sin(theta1));
+//                 q[2]=fabs(sigma1*cos(theta1));
+//                 q[3]=fabs(sigma2*sin(theta2));
+//                 bubbleSort( q,4 );
+//         }
+//         qr[0]=q[3];
+//         qr[1]=q[2];
+//         qr[2]=q[1];
+//         qr[3]=q[0];
+// }
 
 void multiplyQuaternions( double *q, double* p, double* r )
 {
@@ -853,74 +853,75 @@ void multiplyQuaternions( double *q, double* p, double* r )
         r[3]=q[3]*p[0]-q[2]*p[1]+q[1]*p[2]+q[0]*p[3];
 }
 
-void misorientationQuaternionCubic( double* p, double* q, double* quat  )
-{
-	Real qm1[4];
-	int i;
-
-	for(i=0;i<4;i++)                 //inverting unit quaternion q
-        {				//Copy quaternion; not really necessary
-		qm1[i]=q[i];
-                if( i>0 ) qm1[i]*=-1;
-        }
-
-	Real r1[4];
-
-        multiplyQuaternions( p, qm1, r1 );
-
-/***********From this point on, the calculation differs for different lattices due to symmetry***********/
-
-
-	Real sqrt2=1/sqrt(2.0);
-	Real rot[6][4];
-	Real a, b, c ,d;
-
-	//The six fundamental quaternions describing the misorientation
-
-	a=r1[0]; b=r1[1]; c=r1[2]; d=r1[3];
-
-	rot[0][0] = a; rot[0][1] = b; rot[0][2] = c; rot[0][3] = d;
-
-	rot[1][0] = sqrt2 * ( a + b ); rot[1][1] = sqrt2 * ( a - b ); rot[1][2] = sqrt2 * ( c + d ); rot[1][3] = sqrt2 * ( c - d );
-
-	rot[2][0] = sqrt2 * ( a + c ); rot[2][1] = sqrt2 * ( a - c ); rot[2][2] = sqrt2 * ( b + d ); rot[2][3] = sqrt2 * ( b - d );
-
-	rot[3][0] = sqrt2 * ( a + d ); rot[3][1] = sqrt2 * ( a - d ); rot[3][2] = sqrt2 * ( b + c ); rot[3][3] = sqrt2 * ( b - c );
-
-	rot[4][0] = 0.5 * ( a + b + c + d ); rot[4][1] = 0.5 * ( a + b - c - d ); rot[4][2] = 0.5 * ( a - b + c - d ); rot[4][3] = 0.5 * ( a - b - c + d );
-
-	rot[5][0] = 0.5 * ( a + b + c - d ); rot[5][1] = 0.5 * ( a + b - c + d ); rot[5][2] = 0.5 * ( a - b + c + d ); rot[5][3]= 0.5 * ( a - b - c - d );
-
-	Real rq[4];
-
-	int mi;
-	Real max=0.0;
-	int j=0;
-
-	for( i=0;i<6;i++ )						//Determing the quaternion with the maximal component and the component itself
-		for( j=0;j<4;j++ )
-		{
-			if( fabs(rot[i][j]) > max )
-			{
-				max=fabs(rot[i][j]);
-				mi=i;
-				//mj=j;
-			}
-		}
-
-	rq[0] = fabs( rot[mi][0] );					//Desorientation requires all components positive
-	rq[1] = fabs( rot[mi][1] );
-	rq[2] = fabs( rot[mi][2] );
-	rq[3] = fabs( rot[mi][3] );
-
-	bubbleSort( rq,4 );						//Sorting into ascending order, because a desorientation in the SST
-									//requires a quaternion with q0>q1>q2>q3 which represents a minimal 
-	quat[0] = rq[3];						//rotation angle and an axis fulfilling h>k>l
-	quat[1] = rq[2];
-	quat[2] = rq[1];
-	quat[3] = rq[0];
-
-}
+// void misorientationQuaternionCubic( double* p, double* q, double* quat  )
+// {
+// 
+// 	Real qm1[4];
+// 	int i;
+// 
+// 	for(i=0;i<4;i++)                 //inverting unit quaternion q
+//         {				//Copy quaternion; not really necessary
+// 		qm1[i]=q[i];
+//                 if( i>0 ) qm1[i]*=-1;
+//         }
+// 
+// 	Real r1[4];
+// 
+//         multiplyQuaternions( p, qm1, r1 );
+// 
+// /***********From this point on, the calculation differs for different lattices due to symmetry***********/
+// 
+// 
+// 	Real sqrt2=1/sqrt(2.0);
+// 	Real rot[6][4];
+// 	Real a, b, c ,d;
+// 
+// 	//The six fundamental quaternions describing the misorientation
+// 
+// 	a=r1[0]; b=r1[1]; c=r1[2]; d=r1[3];
+// 
+// 	rot[0][0] = a; rot[0][1] = b; rot[0][2] = c; rot[0][3] = d;
+// 
+// 	rot[1][0] = sqrt2 * ( a + b ); rot[1][1] = sqrt2 * ( a - b ); rot[1][2] = sqrt2 * ( c + d ); rot[1][3] = sqrt2 * ( c - d );
+// 
+// 	rot[2][0] = sqrt2 * ( a + c ); rot[2][1] = sqrt2 * ( a - c ); rot[2][2] = sqrt2 * ( b + d ); rot[2][3] = sqrt2 * ( b - d );
+// 
+// 	rot[3][0] = sqrt2 * ( a + d ); rot[3][1] = sqrt2 * ( a - d ); rot[3][2] = sqrt2 * ( b + c ); rot[3][3] = sqrt2 * ( b - c );
+// 
+// 	rot[4][0] = 0.5 * ( a + b + c + d ); rot[4][1] = 0.5 * ( a + b - c - d ); rot[4][2] = 0.5 * ( a - b + c - d ); rot[4][3] = 0.5 * ( a - b - c + d );
+// 
+// 	rot[5][0] = 0.5 * ( a + b + c - d ); rot[5][1] = 0.5 * ( a + b - c + d ); rot[5][2] = 0.5 * ( a - b + c + d ); rot[5][3]= 0.5 * ( a - b - c - d );
+// 
+// 	Real rq[4];
+// 
+// 	int mi;
+// 	Real max=0.0;
+// 	int j=0;
+// 
+// 	for( i=0;i<6;i++ )						//Determing the quaternion with the maximal component and the component itself
+// 		for( j=0;j<4;j++ )
+// 		{
+// 			if( fabs(rot[i][j]) > max )
+// 			{
+// 				max=fabs(rot[i][j]);
+// 				mi=i;
+// 				//mj=j;
+// 			}
+// 		}
+// 
+// 	rq[0] = fabs( rot[mi][0] );					//Desorientation requires all components positive
+// 	rq[1] = fabs( rot[mi][1] );
+// 	rq[2] = fabs( rot[mi][2] );
+// 	rq[3] = fabs( rot[mi][3] );
+// 
+// 	bubbleSort( rq,4 );						//Sorting into ascending order, because a desorientation in the SST
+// 									//requires a quaternion with q0>q1>q2>q3 which represents a minimal 
+// 	quat[0] = rq[3];						//rotation angle and an axis fulfilling h>k>l
+// 	quat[1] = rq[2];
+// 	quat[2] = rq[1];
+// 	quat[3] = rq[0];
+// 
+// }
 
 double misorientationCubic( double pa1, double Pa, double pa2, double pb1, double Pb, double pb2 )
 {
@@ -986,48 +987,48 @@ double misorientationCubic( double pa1, double Pa, double pa2, double pb1, doubl
 			if( fabs(r0[i][j]) > omega )
 				omega=fabs(r0[i][j]);
 
-	QUICKASSERT( omega < 1.01 );
+// 	QUICKASSERT( omega < 1.01 );
 
 	if( omega > 1.0 )
 		omega = (Real) (int) omega;
 
 	omega=2*acos(omega);
-	QUICKASSERT( omega <= 1.099 );
+// 	QUICKASSERT( omega <= 1.099 );
 	return omega;
 }
 
-void newOrientationFromReferenceFixedAngularCone(double * oriOri, double maxDev,double angle, double u, double v, double w,double * newOri)
-{
-        Real qr[4];
-        Real ori[4], qideal[4];
-
-       /* Real p1=_PI_*(oriOri[0]/180.0);
-        Real teta=_PI_*(oriOri[1]/180.0);
-        Real p2=_PI_*(oriOri[2]/180.0);
-
-        Real co1=cos(teta/2);
-	Real s1=sin(teta/2);*/
-
-        angle *= _PI_/180;
-        Real _norm = 1.0 / sqrt(SQR(u)+SQR(v)+SQR(w));
-
-        //Real qideal[4]={co1*cos((p1+p2)/2),-s1*sin((p1-p2)/2),s1*cos((p1-p2)/2),co1*sin((p1+p2)/2)};
-
-        euler2quaternion( oriOri, qideal );
-        Real qref[4] = { cos( 0.5* angle ), u * _norm * sin( 0.5 * angle ), v * _norm * sin( 0.5 * angle ), w * _norm * sin( 0.5 * angle ) };
-
-        randomMisorientationAxisConsidered(  qref, qr, maxDev  );
-        multiplyQuaternions( qr,qideal,ori );
-
-        Real euler[3];
-        quaternion2Euler( ori, euler );
-
-        newOri[0] = euler[0] * 180 / _PI_;
-        newOri[1] = euler[1] * 180 / _PI_;
-        newOri[2] = euler[2] * 180 / _PI_;
-              //Real mis = misorientationCubicQxQ(qideal[0],qideal[1],qideal[2],qideal[3],newOri[0],newOri[1],newOri[2],newOri[3]);
-
-}
+// void newOrientationFromReferenceFixedAngularCone(double * oriOri, double maxDev,double angle, double u, double v, double w,double * newOri)
+// {
+//         Real qr[4];
+//         Real ori[4], qideal[4];
+// 
+//        /* Real p1=_PI_*(oriOri[0]/180.0);
+//         Real teta=_PI_*(oriOri[1]/180.0);
+//         Real p2=_PI_*(oriOri[2]/180.0);
+// 
+//         Real co1=cos(teta/2);
+// 	Real s1=sin(teta/2);*/
+// 
+//         angle *= _PI_/180;
+//         Real _norm = 1.0 / sqrt(SQR(u)+SQR(v)+SQR(w));
+// 
+//         //Real qideal[4]={co1*cos((p1+p2)/2),-s1*sin((p1-p2)/2),s1*cos((p1-p2)/2),co1*sin((p1+p2)/2)};
+// 
+//         euler2quaternion( oriOri, qideal );
+//         Real qref[4] = { cos( 0.5* angle ), u * _norm * sin( 0.5 * angle ), v * _norm * sin( 0.5 * angle ), w * _norm * sin( 0.5 * angle ) };
+// 
+//         randomMisorientationAxisConsidered(  qref, qr, maxDev  );
+//         multiplyQuaternions( qr,qideal,ori );
+// 
+//         Real euler[3];
+//         quaternion2Euler( ori, euler );
+// 
+//         newOri[0] = euler[0] * 180 / _PI_;
+//         newOri[1] = euler[1] * 180 / _PI_;
+//         newOri[2] = euler[2] * 180 / _PI_;
+//               //Real mis = misorientationCubicQxQ(qideal[0],qideal[1],qideal[2],qideal[3],newOri[0],newOri[1],newOri[2],newOri[3]);
+// 
+// }
 
 void rotateOrientation( double *oriOri, double angle, double u, double v, double w, double *newOri )
 {
@@ -1117,33 +1118,33 @@ void quaternion2Euler( double * quat, double * euler )
         euler[2]=phi2;
 }
 
-void newOrientationFromReference( double *oriOri, double deviation, double *newOri)
-{
-        Real qr[4];
-        Real ori[4], qideal[4];
-
-        /*Real p1=_PI_*(oriOri[0]/180.0);
-        Real teta=_PI_*(oriOri[1]/180.0);
-        Real p2=_PI_*(oriOri[2]/180.0);*/
-
-        /*Real co1=cos(teta/2);
-	Real s1=sin(teta/2);
-
-        Real qideal[4]={co1*cos((p1+p2)/2),-s1*sin((p1-p2)/2),s1*cos((p1-p2)/2),co1*sin((p1+p2)/2)};*/
-
-        euler2quaternion( oriOri, qideal );
-
-        randomMisorientation( deviation, qr  );
-        multiplyQuaternions( qr,qideal,ori );
-
-        Real euler[3];
-
-        quaternion2Euler( ori, euler );
-
-        newOri[0] = euler[0] * 180 / _PI_;
-        newOri[1] = euler[1] * 180 / _PI_;
-        newOri[2] = euler[2] * 180 / _PI_;
-}
+// void newOrientationFromReference( double *oriOri, double deviation, double *newOri)
+// {
+//         Real qr[4];
+//         Real ori[4], qideal[4];
+// 
+//         /*Real p1=_PI_*(oriOri[0]/180.0);
+//         Real teta=_PI_*(oriOri[1]/180.0);
+//         Real p2=_PI_*(oriOri[2]/180.0);*/
+// 
+//         /*Real co1=cos(teta/2);
+// 	Real s1=sin(teta/2);
+// 
+//         Real qideal[4]={co1*cos((p1+p2)/2),-s1*sin((p1-p2)/2),s1*cos((p1-p2)/2),co1*sin((p1+p2)/2)};*/
+// 
+//         euler2quaternion( oriOri, qideal );
+// 
+//         randomMisorientation( deviation, qr  );
+//         multiplyQuaternions( qr,qideal,ori );
+// 
+//         Real euler[3];
+// 
+//         quaternion2Euler( ori, euler );
+// 
+//         newOri[0] = euler[0] * 180 / _PI_;
+//         newOri[1] = euler[1] * 180 / _PI_;
+//         newOri[2] = euler[2] * 180 / _PI_;
+// }
 
 char inequalitieFulfil( double a, double b, double c, double d )
 {
