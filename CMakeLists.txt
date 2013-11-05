@@ -10,7 +10,6 @@ set(MY_SOURCES mymath.cpp grainhdl.cpp box.cpp functions.cpp ggLS.cpp domainCl.c
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS "-g")
 
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 
 set(VORO++_FOUND true)
@@ -18,12 +17,14 @@ set(VORO++_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/voro++/)
 set(VORO++_LIBRARIES ${CMAKE_SOURCE_DIR}/voro++/lib/libvoro++.a)
 set(VORO++_DEFINITIONS "-g")
 
-find_package(OpenMP REQUIRED)
 
+# OPEN MP
+FIND_PACKAGE( OpenMP REQUIRED)
 if(OPENMP_FOUND)
 message("OPENMP FOUND")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
 #die nächste Zeile sollte eigentlich funktionieren, tut es aber nicht, da die lokale Installation von voro++ die FindVoro++.cmake unnötigt macht,und die Pfade lokale zum Source bleiben (jaja, kann man ändern).

@@ -407,9 +407,9 @@ void grainhdl::comparison_box(){
 
 	domains_copy = domains;
 	
+#pragma omp parallel for
 	for (it = domains.begin(); it != domains.end(); it++){		     
-		grains = (*it).getBoxList();
-					
+		grains = (*it).getBoxList();				
 		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 			for (itLS = grains.begin(); itLS != grains.end(); itLS++){	
 				if( (**itLS).get_status() == true ){
@@ -421,7 +421,6 @@ void grainhdl::comparison_box(){
 		} 			
 		filename.str(std::string());
 		filename << "Comparedmatrix_"<< "T"<<loop;
-// 			cout << "set to dpomain" << endl;
 		for (itLS = grains.begin(); itLS != grains.end(); itLS++){
 			filename << "_"<<(*itLS)->getID();
 			if( (**itLS).get_status() == true ){
@@ -429,7 +428,6 @@ void grainhdl::comparison_box(){
 			}
 		}
 		it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
-// 			cout << "huhuh" << endl;	
 		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
 			filename << ".gnu";
 			if (SAFEFILES) {
