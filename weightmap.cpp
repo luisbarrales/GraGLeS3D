@@ -92,43 +92,47 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 		ii++;
 	}
 	delete [] rep;
-	return sigma[ii];
+	return (sigma[ii]*sigma[4]);
 	
 }
 
 double* weightmap::compute_weights(double *ST,  int* ids){
-	double* sigma = new double[3];
+	double* sigma = new double[4];
 	double gamma[3];
 	double gamma_hagb = 0.6;
 	double theta_ref = 15.0;
 	double theta_mis;
+	double drag = 0.5;
 	
 	if (ids[0] == ids[1]  ||  ids[1] == ids[2]){
 		sigma[0]= 1.0;
 		sigma[1]= 1.0;
 		sigma[2]= 1.0;	
+		sigma[3]= 1.0;
 	}
 	else{
-// 		gamma[0] = ST[ (ids[0]-1) + (handler->get_ngrains() * ( ids[1]-1) ) ];
-// 		gamma[1] = ST[ (ids[0]-1) + (handler->get_ngrains() * ( ids[2]-1) ) ];
-// 		gamma[2] = ST[ (ids[1]-1) + (handler->get_ngrains() * ( ids[2]-1) ) ];
+		gamma[0] = ST[ (ids[0]-1) + (handler->get_ngrains() * ( ids[1]-1) ) ];
+		gamma[1] = ST[ (ids[0]-1) + (handler->get_ngrains() * ( ids[2]-1) ) ];
+		gamma[2] = ST[ (ids[1]-1) + (handler->get_ngrains() * ( ids[2]-1) ) ];
 		
-		theta_mis = (*handler->grains)[ids[0]]->mis_ori((*handler->grains)[ids[1]]);
-		if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[0] = gamma_hagb;
-		
-		theta_mis = (*handler->grains)[ids[0]]->mis_ori((*handler->grains)[ids[2]]);
-		if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[1] = gamma_hagb;
-		
-		theta_mis = (*handler->grains)[ids[1]]->mis_ori((*handler->grains)[ids[2]]);
-		if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[2] = gamma_hagb;
+// 		theta_mis = (*handler->grains)[ids[0]]->mis_ori((*handler->grains)[ids[1]]);
+// 		if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 		else gamma[0] = gamma_hagb;
+// 		
+// 		theta_mis = (*handler->grains)[ids[0]]->mis_ori((*handler->grains)[ids[2]]);
+// 		if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 		else gamma[1] = gamma_hagb;
+// 		
+// 		theta_mis = (*handler->grains)[ids[1]]->mis_ori((*handler->grains)[ids[2]]);
+// 		if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 		else gamma[2] = gamma_hagb;
 		
 		// wähle gamma oder lade aus ST-Feld
 		sigma[0]= 	gamma[0] + gamma[1] - gamma[2];
 		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
+		if(ids[0]==1 && ids[1]==4) sigma[3]=drag;
+		else sigma[3]=1.0;
 	}
 
 	return sigma;
