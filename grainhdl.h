@@ -22,11 +22,13 @@ class grainhdl{
 	int ngrains;
 	double dt;
 	double h;
+	
 	int realDomainSize;
 	int ngridpoints;
 	int grid_blowup;
+	
 	int Mode;
-	int compare_mod;
+
 	int loop;
 	
 	int *gridIDs;

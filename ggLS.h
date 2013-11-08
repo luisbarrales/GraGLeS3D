@@ -8,22 +8,23 @@
 #define DELTA 5 * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
+#define INTERIMVAL -sqrt(1. / PARTICLES)
 
 #define TIMESTEPS 1000
-#define PRINTSTEP 100
-#define PRINTNOW 1000
+#define PRINTSTEP 1000
+#define ANALYSESTEP 100
+
+
 #define PARTICLES 1000
 
 #define ISOTROPIC false
-#define TRIPLEPUNKT false
 
-#define INTERIMVAL -sqrt(1. / PARTICLES)
-
-#define SAFEFILES true
+#define SAVEIMAGE false
 #define IMAGEOUT true
-#define PLOTGNU true
-#define DOMAINCOMPARISON false
-#define DRAW_PARTICLES false
+
+#define SAVEREDIST true
+#define SAVECOMP false
+#define SAVECONV false
 
 #pragma once
 #include <map>

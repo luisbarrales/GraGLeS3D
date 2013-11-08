@@ -220,7 +220,6 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
 }
 
 void LSbox::setZeros(double h, int grid_blowup, int loop) {
-	if(loop == PRINTNOW) plot_box(false);
     // clear current vector
     zeros.clear();
     

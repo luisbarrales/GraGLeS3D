@@ -9,7 +9,6 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	compare_mod =1; //1 für box, 2 für domain	
 	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
@@ -125,7 +124,7 @@ void grainhdl::VOROMicrostructure(){
         }
         else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }  
-	if(DRAW_PARTICLES)	con.draw_cells_gnuplot("particles.gnu");
+	con.draw_cells_gnuplot("particles.gnu");
 
 	int i=0;
 	// iteration over all cells in the container con:
@@ -174,10 +173,8 @@ void grainhdl::VOROMicrostructure(){
         }
         filename << ".gnu";    
 		
-        if (SAFEFILES){
-        	cout << filename.str() << endl << endl;        
+       	cout << filename.str() << endl << endl;        
 		(*it).save_domainCl(filename.str().c_str());
-	}
     }
 		
 	delete [] part_pos;
@@ -291,11 +288,8 @@ void grainhdl::readMicrostructurefromVertex(){
 		filename << "_" <<(*itg)->getID();
         }
         filename << ".gnu";    
-		
-        if (SAFEFILES){
-        	cout << filename.str() << endl << endl;        
-			(*it).save_domainCl(filename.str().c_str());
-		}
+		cout << filename.str() << endl << endl;        
+		(*it).save_domainCl(filename.str().c_str());
     }
  }
  
@@ -347,7 +341,7 @@ void grainhdl::convolution(){
 	for (it = domains.begin(), itc=domains_copy.begin(); it !=domains.end(); it++, itc++){	
 		(*it).convolution(dt,ST,ID,(*itc), zeroBox, grid_blowup, my_weights);
 	}
-	if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW) save_conv_step();
+	if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS )&& SAVECONV) save_conv_step();
 }
  
  
@@ -364,10 +358,8 @@ void grainhdl::save_conv_step(){
 			filename << "_"<<(*it2)->getID();
 		}
 		filename << ".gnu";
-		if (SAFEFILES) {
-			(*it).save_domainCl(filename.str().c_str());
-			cout << filename.str() << endl << endl;
-		}
+		(*it).save_domainCl(filename.str().c_str());
+		cout << filename.str() << endl << endl;
 	}	
 }
 
@@ -382,7 +374,7 @@ void grainhdl::comparison_domain(){
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
 		(*it).comparison(domains_copy, grid_blowup);
-		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){			
+		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS ) && SAVECOMP){			
 			grains = (*it).getBoxList();			
 			filename.str(std::string());
 			filename << "Comparedmatrix_"<< "T"<<loop;
@@ -391,9 +383,7 @@ void grainhdl::comparison_domain(){
 			}
 			
 			filename << ".gnu";
-			if (SAFEFILES) {
 			(*it).save_domainCl(filename.str().c_str());
-			}		
 		}
 	}
 }
@@ -428,12 +418,10 @@ void grainhdl::comparison_box(){
 			}
 		}
 		it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
-		if ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
+		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) && SAVECOMP){
 			filename << ".gnu";
-			if (SAFEFILES) {
 			(*it).save_domainCl(filename.str().c_str());
 			cout << filename.str() << endl << endl;
-			}
 		}
 	}
 }
@@ -485,7 +473,7 @@ void grainhdl::redistancing(){
 		
 		nr_grains[loop]+=(*it).get_nr_of_grains();
 		
-		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW){
+		if ( ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS ) && SAVEREDIST ){
 				filename.str(std::string());
 				filename << "Redistanced_matrix_";
 				filename << it->get_id() << "_";
@@ -497,10 +485,10 @@ void grainhdl::redistancing(){
 				}
 				
 				filename << ".gnu";
-				if (SAFEFILES) {
-					(*it).save_domainCl(filename.str().c_str());
-					cout << filename.str() << endl << endl;
-				}
+				
+				(*it).save_domainCl(filename.str().c_str());
+				cout << filename.str() << endl << endl;
+				
 				plotfiles << " \""<<filename.str();
 				plotfiles << "\" matrix w l";
 				int length = domains.size();
@@ -508,13 +496,11 @@ void grainhdl::redistancing(){
 			}
 	}
 	
-	if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW ){
-		if (PLOTGNU) {
-			filename.str(std::string());
-			filename << "GrainNetwork" << "_"<< loop << ".gnu";
-			utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
-		}			
-		if (IMAGEOUT) {
+	if ( ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS )&& IMAGEOUT && SAVEREDIST){
+		filename.str(std::string());
+		filename << "GrainNetwork" << "_"<< loop << ".gnu";
+		utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
+		if(SAVEIMAGE){
 			int imgnum = (loop/PRINTSTEP);
 			filename.str(std::string());
 			filename << "GrainNetwork";
@@ -552,11 +538,14 @@ void grainhdl::run_sim(){
 	find_neighbors();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
-        comparison_box();	
+//         comparison_box();	
 		swap_grains();
 // 		domains_copy.clear();
 		redistancing();
-		if ( (loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS || loop == PRINTNOW) {conrec();save_texture();}
+		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+			cout << "Grain Volumes after Timestep " << loop << endl;
+			conrec();
+			save_texture();}
 	}
 }  
  
@@ -579,7 +568,7 @@ void grainhdl::save_sim(){
 		}
 	myfile.close();
 	
-	utils::PNGtoGIF("test.mp4");
+	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
 
