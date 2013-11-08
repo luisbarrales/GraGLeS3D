@@ -188,7 +188,8 @@ void grainhdl::VOROMicrostructure(){
 
 void grainhdl::readMicrostructurefromVertex(){
 	FILE * levelset;	
-	levelset = fopen( "lsInput.dat", "r" );
+// 	levelset = fopen( "lsInput.dat", "r" );
+	levelset = fopen( "lsInput_DRAG.dat", "r" );
 // 	levelset = fopen( "lsInput_quadrat.dat", "r" );
 	std::list<domainCl>::iterator it;
 	
@@ -313,7 +314,7 @@ void grainhdl::compute_Boundary_Energy(){
 				else energy = gamma_hagb;
 				//richtiger Logarithmus??????
 				ST[i+(ngrains*j)] = energy;
-// 				ST[j+(ngrains*i)] = energy;
+				ST[j+(ngrains*i)] = energy;
 			}			
 		}
 	}
@@ -407,7 +408,6 @@ void grainhdl::comparison_box(){
 
 	domains_copy = domains;
 	
-#pragma omp parallel for
 	for (it = domains.begin(); it != domains.end(); it++){		     
 		grains = (*it).getBoxList();				
 		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
@@ -480,8 +480,8 @@ void grainhdl::redistancing(){
 		// Intern können verschiedenRedistancing Routinen verwendet werden
 
 // 		(*it).redistancing_2(h, grid_blowup);
-		(*it).redistancing(h, grid_blowup);
-// 		(*it).redistancing_for_all_boxes(h, grid_blowup);
+// 		(*it).redistancing(h, grid_blowup);
+		(*it).redistancing_for_all_boxes(h, grid_blowup);
 		
 		nr_grains[loop]+=(*it).get_nr_of_grains();
 		
@@ -552,11 +552,7 @@ void grainhdl::run_sim(){
 	find_neighbors();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
-// 		domains_copy.clear();
-		switch (compare_mod){
-			case 1: comparison_box(); break;
-			case 2: comparison_domain(); break;
-		}	
+        comparison_box();	
 		swap_grains();
 // 		domains_copy.clear();
 		redistancing();
@@ -576,9 +572,10 @@ void grainhdl::save_sim(){
 	
 	myfile.open ("volume.txt");
 		for(auto it=vol_list.begin(); it!= vol_list.end(); it++){
-			for(int j=1; j<= ngrains; j++)
+			for(int j=1; j<= ngrains; j++){
 				myfile << (*it)[j] << "\t";
-				myfile << "\n";
+			}
+			myfile << "\n";
 		}
 	myfile.close();
 	

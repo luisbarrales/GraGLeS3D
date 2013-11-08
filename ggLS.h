@@ -9,9 +9,8 @@
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 
-
 #define TIMESTEPS 1000
-#define PRINTSTEP 50
+#define PRINTSTEP 100
 #define PRINTNOW 1000
 #define PARTICLES 1000
 
@@ -45,11 +44,10 @@
 // g++ -I/home/user/bin/R-devel/include -L/home/user/bin/R-devel/lib -lR embed.cpp
 
 #include "voro++/include/voro++/voro++.hh"
-
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
-#include "box.h"
+#include "box.h"c
 #include "domainCl.h"
 #include "functions.h"
 #include "weightmap.h"

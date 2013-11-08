@@ -92,7 +92,7 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 		ii++;
 	}
 	delete [] rep;
-	return (sigma[ii]*sigma[4]);
+	return (sigma[ii]*sigma[3]);
 	
 }
 
@@ -131,8 +131,9 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 		sigma[0]= 	gamma[0] + gamma[1] - gamma[2];
 		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
-		if(ids[0]==1 && ids[1]==4) sigma[3]=drag;
-		else sigma[3]=1.0;
+// 		if(ids[0]==1 && ids[1]==3) sigma[3]=drag;
+// 		else sigma[3]=1.0;
+		sigma[3]=0.1;
 	}
 
 	return sigma;

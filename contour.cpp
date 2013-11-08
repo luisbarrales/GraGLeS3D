@@ -77,7 +77,6 @@ int CContourMap::contour(domainCl* domain, int xmin, int xmax, int ymin, int yma
 //     starts from zero (0)
 //
 //===========================================================================*/
-
    int m1,m2,m3,case_value;
    double dmin,dmax,x1,x2,y1,y2;
    register int i,j,k,m;
@@ -288,8 +287,7 @@ CContourMap::CContourMap()
 {
    levels=NULL;
    levels=new double[1];
-   levels[0]= 0;
-   
+   levels[0]= 0;   
    n_levels=1;
    contour_level=NULL;
 }
@@ -315,8 +313,7 @@ int CContourMap::dump()
    char buffer;
    while(it!=contour_level->end())
    {
-      printf("Contour data at level %d [%f]\n",l,levels[l]);
-      
+      printf("Contour data at level %d [%f]\n",l,levels[l]);      
       if(*it) (*it)->dump();
       it++;l++;
 	  cin>> buffer;
@@ -336,8 +333,8 @@ int CContourMap::consolidate()
    }
    return(0);
 }
-float CContourMap::compute_volume(){
-	
+
+float CContourMap::compute_volume(){	
 	return (*contour_level->begin())->compute_volume();
 }
 
@@ -634,31 +631,32 @@ int CContour::dump()
 float CContour::compute_volume()
 {
 	float volume;
-   vector<SVector>::iterator cit=contour->begin();
-   int c=1;
-   SPoint p=_start;
-   SPoint q=_start;
-   p.x+=(*cit).dx;
-   p.y+=(*cit).dy;
-   q.x=p.x;
-   q.y=p.y;
-   cit++;
-   float sum=.0;
+	vector<SVector>::iterator cit=contour->begin();
+	int c=1;
+	SPoint p=_start;
+	SPoint q=_start;
+	cit++;
+	float sum=.0, sum1=.0;;
+		
+	while(cit!=contour->end())
+	{
+		p=q;
+		q.x+=(*cit).dx;
+		q.y+=(*cit).dy;		
+		sum+= (p.y+q.y)*(q.x-p.x);
+		sum1+= (q.y-p.y)*(q.x+p.x);
+		cit++;
+	}
+	p=q;
+	q=_start;		
+	sum+= (p.y+q.y)*(q.x-p.x);
+	sum1+= (q.y-p.y)*(q.x+p.x);
 	
-	
-   while(cit!=contour->end())
-   {
-	  p=q;
-      q.x+=(*cit).dx;
-      q.y+=(*cit).dy;
-	  
-	 sum+= (p.y+q.y)*(q.x-p.x);
-	
-
-	 cit++;
-   }
-	volume = 0.5*abs(sum);
-   return volume;
+	volume = 0.5 * abs(sum);
+	cout << volume << "  ";
+	volume = 0.5 * abs(sum1);
+	cout << volume << endl;
+	return volume;
 }
 
 int CContour::condense(double difference)

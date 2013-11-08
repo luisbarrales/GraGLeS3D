@@ -602,14 +602,13 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	int m=ymax-ymin;
 	int n=xmax-xmin;
 	int ii, jj;
-	domainCl *temp = new domainCl(m,n,id,INTERIMVAL);
+	domainCl *temp = new domainCl(m,n,id,-1.0);
 	double slope = 1;
 	double candidate, i_slope,zero;
 	// x-direction forward
 	for (int i = ymin; i < ymax; i++) {
 		for (int j = xmin; j < xmax-1; j++) {
-			ii = i-ymin;
-			jj = j-xmin;
+			ii = i-ymin;	jj = j-xmin;
 			//check for sign change
 			if ((*domain)[i][j] * (*domain)[i][j+1] < 0.0) {
 				// interpolate
@@ -625,20 +624,19 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	
 	// x-direction backward
 	for (int i = ymin; i < ymax; i++) {
-		for (int j = xmax-1; j > xmin+1; j--) {
-			ii = i-ymin;
-			jj = j-xmin;
+		for (int j = xmax-1; j > xmin; j--) {
+			ii = i-ymin; jj = j-xmin;
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j-1]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[ii][jj-1])) (*temp)[ii][jj-1] = candidate;
 		}
+// 		(*temp)[ymin][jj-1] = (*temp)[ymin][jj] -h;
 	}
 	
 	// y-direction forward
-	for (int j = xmin; j < xmax; j++) {
+	for (int j = xmin; j < xmax; j++) {		
 		for (int i = ymin; i < ymax-1; i++) {	
-			ii = i-ymin;
-			jj = j-xmin;
+			ii = i-ymin; jj = j-xmin;
 			// check for sign change
 			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {  
 				// interpolate
@@ -650,17 +648,18 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i+1][j]) * h);
 			if (abs(candidate) < abs((*temp)[ii+1][jj])) (*temp)[ii+1][jj] = candidate;
 		}
+
 	}
 	
 	// y-direction backward
 	for (int j = xmin; j < xmax; j++) {
-		for (int i = ymax-1; i > ymin+1; i--) {	
+		for (int i = ymax-1; i > ymin; i--) {	
 			ii = i-ymin;	jj = j-xmin;
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i-1][j]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[ii-1][jj])) (*temp)[ii-1][jj] = candidate;
-
 		}
+// 		(*temp)[ii-1][xmin] = (*temp)[ii][xmin] - h;
 	}
 	
 	for (int i = ymin; i < ymax; i++){

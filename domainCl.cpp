@@ -59,7 +59,7 @@ domainCl::domainCl(const domainCl& v) : m(v.m), n(v.n), id(v.id) {
 
     for (int i=0;i<m;i++) {
       for (int j = 0; j < n; j++){
-	val[i*n+j] = v[i][j];
+		val[i*n+j] = v[i][j];
       }
 	
     }
@@ -92,7 +92,7 @@ const double* domainCl::operator[](int i) const {
 double& domainCl::operator=(const domainCl& A){
 //   cerr << "here" << endl;
     if (this != &A) {
-        assert(m == A.m && n == A.n);
+    assert(m == A.m && n == A.n);
 	for (int i=0;i<m;i++) {
 	  for (int j=0;j<n;j++)
 	    val[i*n+j]=A[i][j];
@@ -131,11 +131,11 @@ void domainCl::mult_with_scalar(const double d){
  
  domainCl domainCl::operator-(domainCl& A){
     domainCl C(m,n,id);
-        C.grains = this->grains;
+    C.grains = this->grains;
     assert(m == A.m && n == A.n);
-    for (int i = 0; i < m; i++) 
-      for (int j=0; j<n ; j++)
-	(C[i][j]) = (*this)[i][j] - A[i][j];
+    for (int i=0; i<m; i++) 
+      for (int j=0; j<n; j++)
+		C[i][j] = (*this)[i][j] - A[i][j];
     return C;
 }
 
@@ -375,6 +375,8 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
 	if(!ISOTROPIC){
+		double rad =  DELTA;
+		double weight;
 // 		int* rep = new int[3];
 		vector<LSbox*>::iterator it;
 		for(it = grains.begin(); it != grains.end(); it++){
@@ -383,8 +385,14 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
 						if (ID[0][i*m +j]!=ID[1][i*m +j] && ID[1][i*m +j]!=ID[2][i*m +j]){
-						  double weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());						  
-						  (*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
+							if(rad < abs(ref[i][j])) weight = 1.0;
+							else {
+								weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+								weight = ( 1-abs(rad - abs(ref[i][j])) )* weight;
+							}
+// 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+// 							cout << weight << endl;
+							(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
 						}
 					}
 				}
@@ -489,7 +497,6 @@ void domainCl::redistancing_for_all_boxes(double h, int grid_blowup){
 	{
 		// find zeros and new box size
 		(*it)->redist_box(h, grid_blowup);
-		cout << "box complete" << endl;
 	}
 			
 }
