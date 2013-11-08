@@ -727,6 +727,7 @@ void LSbox::plot_box(bool distanceplot){
 
 void LSbox::compute_volume()
 {
+	cout << "ID " << id << ":  ";
 	CContourMap c;
 	c.contour(domain, xmin, xmax, ymin, ymax, handler);
 	c.consolidate();
