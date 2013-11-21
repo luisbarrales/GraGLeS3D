@@ -5,15 +5,15 @@
 
 #define M 200 //gridpoints in each direction
 #define EPS 1e-6
-#define DELTA 5 * 1/double(M)
+#define BORDER 6
+#define DELTA BORDER * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 1000
-#define PRINTSTEP 1000
-#define ANALYSESTEP 100
-
+#define TIMESTEPS 0
+#define PRINTSTEP 1
+#define ANALYSESTEP 10
 
 #define PARTICLES 1000
 
@@ -23,8 +23,8 @@
 #define IMAGEOUT true
 
 #define SAVEREDIST true
-#define SAVECOMP false
-#define SAVECONV false
+#define SAVECOMP true
+#define SAVECONV true
 
 #pragma once
 #include <map>

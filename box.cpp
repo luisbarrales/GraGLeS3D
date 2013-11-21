@@ -2,6 +2,8 @@
 
 LSbox::LSbox() {}
 
+LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {}
+
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner) {
     
     // determine size of grain
@@ -104,6 +106,7 @@ int LSbox::getID() {
     return id;
 }
 LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, double h){
+// 	plot_box(false);
 	int i,j,k;
 	double d, dmin,lambda;
 	int m=handler->get_ngridpoints();
@@ -114,11 +117,9 @@ LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, do
             dmin=1000.;
             p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
             
-            for(int k=0; k < nvertices; k++) {
-                
+            for(int k=0; k < nvertices; k++) {                
 				x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-				x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
-				
+				x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];				
 				if (x1 != x2){
 					a = x1;
 					u = x2-x1;
@@ -135,37 +136,53 @@ LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, do
 					if(abs(d)< abs(dmin)) dmin=d;
 				}
             }
-
-            (*domain)[i][j]= dmin;
+			// 			(*domain)[i][j]= dmin;
+			if (abs(dmin) < DELTA) (*domain)[i][j]= dmin;
+            else (*domain)[i][j]= DELTA * utils::sgn(dmin);
         }
 	}
-	
+	int count = 0;
 	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
 		j=ymin;
-		while( j<ymax && (*domain)[j][i] >= h  ) {
-			(*domain)[j][i] = - abs((*domain)[j][i]);	  
+		count = 0;
+		while( j<ymax  && count < 1) {
+			(*domain)[j][i] = - abs((*domain)[j][i]);
+			if ( -((*domain)[j][i]) <=  h ) count++;
 			j++;
-		} if ( j<ymax ) (*domain)[j][i] = - abs((*domain)[j][i]);
+		} 
+
+
 		
 		j=ymax-1;
-		while( j>=ymin &&  (*domain)[j][i] >= h ) {
-			(*domain)[j][i] = - abs((*domain)[j][i]);	  
+		count =0;
+		while( j>=ymin && count < 1) {
+			(*domain)[j][i] = - abs((*domain)[j][i]);	
+			if ( -((*domain)[j][i]) <= h ) count++;
 			j--;
-		} if ( j>=ymin ) (*domain)[j][i] = - abs((*domain)[j][i]);
-		
+		} 
+
 	}
+
 	for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
 		i=xmin;
-		while( i<xmax && (*domain)[j][i] >= h   ) {
-			(*domain)[j][i] = - abs((*domain)[j][i]);	  
+		count = 0;
+		while( i<xmax  && count < 1 ) {
+			(*domain)[j][i] = - abs((*domain)[j][i]);
+			if ( -((*domain)[j][i]) <=  h ) count++;
 			i++;
-		} if ( i<xmax ) (*domain)[j][i] = - abs((*domain)[j][i]);
+		} 
+
+
 		
 		i=xmax-1;
-		while( i>=xmin   && (*domain)[j][i] >= h ) {
-			(*domain)[j][i] = - abs((*domain)[j][i]);	  
+		count =0;
+		while( i>=xmin   && count < 1  ) {			
+			(*domain)[j][i] = - abs((*domain)[j][i]);	
+			if ( -((*domain)[j][i]) <=  h ) count++;
 			i--;
-		} if ( i>=xmin ) (*domain)[j][i] = -abs((*domain)[j][i]);
+		} 
+
+
 		
 	}
 	return(*this);
@@ -212,8 +229,9 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
                     }
                 }
             }
-
-            (*domain)[i][j]= dmin;
+			(*domain)[i][j]= dmin;
+//             if (dmin < DELTA) (*domain)[i][j]= dmin;
+//             else (*domain)[i][j]= DELTA * utils::sgn(dmin);
         }
 	}
 	return(*this);
@@ -378,21 +396,30 @@ void LSbox::copy_distances_to_domain(){
 	distance = NULL;
 }
 
-void LSbox::comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup){
+void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
+	int m = (*handler).get_ngridpoints();
+	double h = handler->get_h();
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
-  			(*domain)[i][j]=0.5*((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ((*domain)[i][j]- distance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0){
-			  ID[0][(i*resized_m) + j] = this;
-			  ID[1][(i*resized_m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-			  ID[2][(i*resized_m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
+			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
+				(*domain)[i][j] = -DELTA;
+			}
+			if( abs(distance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (DELTA-h) && (abs((*domain)[i][j]) < (DELTA-h)) ) {
+// 				 update only in a tube around the n boundary - numerical stability!s
+				(*domain)[i][j] = 0.5 * ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+			}
+	
+			if ((*domain)[i][j]> 0){
+				ID[0][(i*m) + j] = this;
+				ID[1][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
 			}
 			else {
-// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
-			  ID[0][(i*resized_m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-			  ID[1][(i*resized_m) + j] = this;
-			  ID[2][(i*resized_m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
-			}
+	// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
+				ID[0][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+				ID[1][(i*m) + j] = this;
+				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
+			}			
 		}
 	}
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
@@ -409,25 +436,22 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 void LSbox::comparison(const domainCl &domain_copy, int loop){
-	//LSbox*
-	domainCl *temp = new domainCl(ymax-ymin, xmax-xmin, 0, 10.0);
+	domainCl *temp = new domainCl(ymax-ymin, xmax-xmin, 0, -1.0);
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
-	double max;
+
 	if(distance == NULL) {
-	  IDLocal[0]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
-	  IDLocal[1]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
-	  distance 	= 	new double [(ymax-ymin)*(xmax-xmin)];
-	  std::fill_n(distance,(ymax-ymin)*(xmax-xmin), 2*INTERIMVAL); // Neccesary for the comparison
-	  std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
-	  std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
+		IDLocal[0]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
+		IDLocal[1]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
+		distance 	= 	new double [(ymax-ymin)*(xmax-xmin)];
+		std::fill_n(distance,(ymax-ymin)*(xmax-xmin), -1.0); // Neccesary for the comparison
+		std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
+		std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
 	}
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_copy.get_id() == (*(**it_nn).domain).get_id()) ){
 			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
-// 			  if ((*(**it_nn).domain).get_id()==domain->get_id()) cout << "GRAINS IN THE SAME DOMAIN !!!!!!!!!!!!!!!!! " << (**it_nn).get_id()<<","<<get_id()<<endl << endl;
-  
 				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				
@@ -447,26 +471,59 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 					for (int j = x_min_new; j < x_max_new; j++){
 						if(distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]){ 
 							distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
-							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+							if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
+								// we just have found 2 neighbour
+								(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+							}
+							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
 							IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
 						}
-						else if( distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (*temp)[i-ymin][j-xmin]){
-							(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)]; //temp??
-							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;						
-						  
+						else if( (*temp)[i-ymin][j-xmin] < domain_copy[i][j] ){
+							(*temp)[i-ymin][j-xmin] = domain_copy[i][j]; 
+							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
 						}
 					}
 				}
-			}
-			
-		
+			}		
 		}
 		neighbors_2order.erase(it_nn);
 	}
 		else it_nn++;
+		
 	}
-	
+	// checke schnitt zum randkorn:
+// 	checkIntersect_zero_grain(temp);
 	delete temp;
+}
+
+
+void LSbox::checkIntersect_zero_grain(domainCl* temp){
+	domainCl* boundary = handler->boundary;
+	int grid_blowup = handler->get_grid_blowup();
+	vector<LSbox*> mid_in = boundary->getBoxList();
+	int m = handler->get_ngridpoints();
+	
+	if (checkIntersect(mid_in[0])){
+		for (int i = ymin; i < ymax; i++){
+			for (int j = xmin; j < xmax; j++){	
+				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
+					if(distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (*boundary)[i][j]){ 
+						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*boundary)[i][j];
+						if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
+							// we just have found 2 neighbour
+							(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+						}
+						IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
+						IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = mid_in[0];
+					}
+					else if( (*temp)[i-ymin][j-xmin] < (*boundary)[i][j] ){
+						(*temp)[i-ymin][j-xmin] = (*boundary)[i][j]; 
+						IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = mid_in[0];								  
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -484,76 +541,9 @@ void LSbox::add_n2o(){
 		}
 	}
 	neighbors.clear();
-}					
+}
 
 
-
-
-/*void LSbox::free_memory_distance(){
-	free (distance);
-	distance=NULL;
-}*/
-	
-
-/*********************************************************************/
-/*************** Redistancing Helperfunctions ************************/
-/*********************************************************************/
-
-
-// void LSbox::sweep(pointVal zero, double h){
-// 	int sweep_direction = (zero.direction + 2) % 4;
-// // 	cout << "direction: " << sweep_direction << endl;
-// 	int i=zero.y, l=0, signl = 0; 
-// 	int j=zero.x, k=0, signk = 0; 
-// 	
-// 	if (sweep_direction == -1) {
-// 		cout << "start at: "<< i    << " || " << j     << endl;
-// 		cout << "min: "     << ymin << " || " << xmin  << endl;
-// 		cout << "max: "     << ymax << " || " << xmax  << endl;
-// 		cout << "sign: " 	<< signk<< " || " << signl << endl << endl;
-// 		return;
-// 	}
-// 	int sgn = utils::sgn(zero.val);
-// 
-// 	
-// 	// direction always looks into the grain
-// 	// to get the opposite for ah negativ boundary value:
-// 	// int sweep_direction = 1; // 0 y+  2 y-  1 x+  3 x-  (1 is firstDir)
-// 	
-// 	switch (sweep_direction) {
-// 		case 0 :   signk = 1; break; 
-// 		B
-// 		case 1 :   signl = 1; break; 
-// 		case 2 :   signk = -1; break; 
-// 		case 3 :   signl = -1; break; 
-// 		
-// 	}
-// 	if (sgn == 0) sgn = utils::sgn((*domain)[i+signk][j+signl]);
-// 	
-// 	bool sign_change = false;
-// 	
-// 	while (  (ymin < (i+k)) && ((i+k) < ymax-1) && (xmin < (j+l)) && ((j+l) < xmax-1) && sign_change == false ){
-// 		double candidate = (*domain)[i+k][j+l] + (sgn * h);
-// 		k += (signk * 1);
-// 		l += (signl * 1);
-// 		if ((*domain)[i+k][j+l] == INTERIMVAL )
-// 			(*domain)[i+k][j+l] = candidate;
-// 		else if (abs(candidate) < abs((*domain)[i+k][j+l])) 
-// 			(*domain)[i+k][j+l] = candidate;	
-// 		
-// 	}
-// 	
-// }
-// void LSbox::maximum(const domainCl &A, const domainCl &B){
-// // 	assert(A.n == B.n);
-// // 	assert(A.m == B.m);
-// // 	for (int i = 0; i < m; i++)
-// // 		for (int j = 0; j < n; j++) {
-// // 			if (A[i][j] > B[i][j]) (*x[i])[j] = A[i][j];
-// // 			else (*x[i])[j] = B[i][j];
-// // 		}
-// }
-// 
 void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 	// directions 0 = y-  // 1= x+ //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 	int signk=0, signl=0, k=start_i, l=start_j;
@@ -597,27 +587,28 @@ void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 }
 
 
-void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distances, double** borderSlopes, double** slopeField*/) {
+void LSbox::redist_box(double h, int grid_blowup ) {
+	plot_box(false);
 	int m=ymax-ymin;
 	int n=xmax-xmin;
 	int ii, jj;
 	domainCl *temp = new domainCl(m,n,id,-1.0);
 	double slope = 1;
-	double candidate, i_slope,zero;
+	double candidate, i_slope, zero;
 	// x-direction forward
 	for (int i = ymin; i < ymax; i++) {
 		for (int j = xmin; j < xmax-1; j++) {
-			ii = i-ymin;	jj = j-xmin;
+			ii = i-ymin; jj = j-xmin;
 			//check for sign change
-			if ((*domain)[i][j] * (*domain)[i][j+1] < 0.0) {
+			if ((*domain)[i][j] * (*domain)[i][j+1] <= 0.0) {
 				// interpolate
 				i_slope  = ((*domain)[i][j+1] - (*domain)[i][j]) / h;
 				zero = -(*domain)[i][j] / i_slope;
 				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
 			}
 				// calculate new distance candidate and assign if appropriate
-				candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
-				if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
+			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
+			if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
 		}
 	}
 	
@@ -625,19 +616,25 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	for (int i = ymin; i < ymax; i++) {
 		for (int j = xmax-1; j > xmin; j--) {
 			ii = i-ymin; jj = j-xmin;
+			if ((*domain)[i][j] * (*domain)[i][j-1] <= 0.0) {
+				// interpolate
+				i_slope  = ((*domain)[i][j-1] - (*domain)[i][j]) / h;
+				zero = -(*domain)[i][j] / i_slope;
+				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
+			}
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j-1]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[ii][jj-1])) (*temp)[ii][jj-1] = candidate;
 		}
 // 		(*temp)[ymin][jj-1] = (*temp)[ymin][jj] -h;
 	}
-	
+// 	
 	// y-direction forward
 	for (int j = xmin; j < xmax; j++) {		
 		for (int i = ymin; i < ymax-1; i++) {	
 			ii = i-ymin; jj = j-xmin;
 			// check for sign change
-			if ((*domain)[i][j] * (*domain)[i+1][j] < 0.0) {  
+			if ((*domain)[i][j] * (*domain)[i+1][j] <= 0.0) {  
 				// interpolate
 				i_slope  = ((*domain)[i+1][j] - (*domain)[i][j]) / h;
 				zero = -(*domain)[i][j] / i_slope;
@@ -654,6 +651,12 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	for (int j = xmin; j < xmax; j++) {
 		for (int i = ymax-1; i > ymin; i--) {	
 			ii = i-ymin;	jj = j-xmin;
+				if ((*domain)[i][j] * (*domain)[i-1][j] <= 0.0) {  
+					// interpolate
+					i_slope  = ((*domain)[i-1][j] - (*domain)[i][j]) / h;
+					zero = -(*domain)[i][j] / i_slope;
+					if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
+				}
 			// calculate new distance candidate and assign if appropriate
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i-1][j]) * h); // replace with the "a"-slope stuff...
 			if (abs(candidate) < abs((*temp)[ii-1][jj])) (*temp)[ii-1][jj] = candidate;
@@ -663,7 +666,13 @@ void LSbox::redist_box(double h, int grid_blowup /*,std::list<domainCl> distance
 	
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
-			(*domain)[i][j] = (*temp)[i-ymin][j-xmin];
+			ii = i-ymin;	jj = j-xmin;
+			(*domain)[i][j] = (*temp)[ii][jj];
+// 			if (abs((*temp)[i-ymin][j-xmin])< DELTA) (*domain)[i][j] = (*temp)[i-ymin][j-xmin];
+// 			selse (*domain)[i][j] = DELTA * utils::sgn((*temp)[i-ymin][j-xmin]);
+// 			if (((i <= grid_blowup) && ((m-grid_blowup <= j) || (j <= grid_blowup)) ) || ( (m-grid_blowup <= i) && ((m-grid_blowup <= j) || (j <= grid_blowup)))){
+// 				(*domain)[i][j]= (*temp)[i-ymin][j-xmin];
+// 			}
 		}
 	}
 	delete temp;

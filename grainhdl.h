@@ -51,6 +51,8 @@ class grainhdl{
 	
 	vector<LSbox*> *grains;		
 	LSbox* zeroBox;
+
+	domainCl* boundary;
 	grainhdl();
 	~grainhdl();
 	void readInit(); 
@@ -77,6 +79,7 @@ class grainhdl{
 	void compute_grain_vol();
 	int  conrec();
 	void compute_Boundary_Energy();
+	void read_boundary();
 	
 
 	

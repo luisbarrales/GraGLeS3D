@@ -46,6 +46,7 @@ public:
 	vector<neighbor> weights;
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
+	LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2);
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, int grid_blowup, double h, grainhdl* owner);
 	LSbox distancefunction(int nvertex, double* vertices, int grid_blowup, double h);
@@ -59,7 +60,7 @@ public:
     int  getID();
     void setDomain(domainCl* aDomain);
     void comparison(const domainCl &domain_copy, int loop );
-    void comparison_set_to_domain(LSbox ***ID, int resized_m, int grid_blowup);
+    void comparison_set_to_domain(LSbox ***ID, int grid_blowup);
     void add_n2o();
 	void maximum(const domainCl &A, const domainCl &B);
     bool checkIntersect(LSbox* box2);   	
@@ -69,6 +70,7 @@ public:
 	void plot_box(bool distanceplot);
 	void compute_volume();
 	double mis_ori(LSbox* grain_2);
+	void checkIntersect_zero_grain(domainCl* temp);
 		
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }

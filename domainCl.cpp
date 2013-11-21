@@ -473,13 +473,16 @@ void domainCl::comparison(std::list<domainCl> distances, int grid_blowup){
 
 void domainCl::set_border_to_INTERIMVAL(int grid_blowup)
 {
-  for (int i = 0; i < m; i++) {
-		for (int j = 0; j < n; j++) {
-			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-				(*this)[i][j] = INTERIMVAL;
-			}
-		}
-	}
+// 	double h = owner->get_h();
+//   for (int i = 0; i < m; i++) {
+// 		for (int j = 0; j < n; j++) {
+// 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
+// 				(*this)[i][j] = -DELTA;
+// 			}
+// 			if ((i == grid_blowup+1) || (m-grid_blowup-1== i) || (j == grid_blowup+1) || (n-grid_blowup-1 == j))
+// 				(*this)[i][j] = h;
+// 		}
+// 	}
 }
         
 /*********************************************************************************/
@@ -589,7 +592,7 @@ void domainCl::redistancing(double h, int grid_blowup){
 void domainCl::redistancing_2(double h, int grid_blowup){
 	int n = get_n();
 	int m = get_m();
-	domainCl *temp = new domainCl(m,n,id);
+	domainCl *temp = new domainCl(m,n,id,-1.0);
 	
 	double limiter = -INTERIMVAL;
 	double slope = 1;

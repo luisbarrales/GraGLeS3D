@@ -17,11 +17,10 @@ void grainhdl::setSimulationParameter(){
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
 
-	grid_blowup = 2*int(((double)DELTA * M)+1); 
+	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	my_weights = new weightmap(this);
-	
 	
 	ID = new LSbox**[3];
 	ID[0] = new LSbox*[ngridpoints*ngridpoints];
@@ -46,7 +45,7 @@ void grainhdl::setSimulationParameter(){
 			break;
 		}		
 	}		
-	
+	read_boundary();
 	//program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << ngrains << endl;
@@ -181,7 +180,26 @@ void grainhdl::VOROMicrostructure(){
 }
 
 
-
+void grainhdl::read_boundary(){
+	int nvertex;
+	double p1 = 0.0;
+	double p2 = 1.0  ;
+	double vertices[16] = {p1,p1,p1,p2,p1,p2,p2,p2,p2,p2,p2,p1,p2,p1,p1,p1};
+	
+	LSbox* newBox = new LSbox(0, 4, vertices, 0, 0, 0, grid_blowup, h, this);
+	(*grains)[0]= newBox;
+	boundary = new domainCl(ngridpoints,ngridpoints, 0,-DELTA, this); 
+	(*boundary).addBox(newBox); 
+	newBox->distancefunction(4, vertices, grid_blowup, h); 
+	
+	// get the invers distancefunction
+	for (int i = 0; i < ngridpoints; i++) {
+		for (int j = 0; j < ngridpoints; j++) {	
+			(*boundary)[i][j]= - (*boundary)[i][j];
+		}
+	}
+	(*boundary).save_domainCl("boundary.gnu");
+}
 
 void grainhdl::readMicrostructurefromVertex(){
 	FILE * levelset;	
@@ -231,7 +249,7 @@ void grainhdl::readMicrostructurefromVertex(){
 	    if (!foundDomain) {
 			// create domain
 			cout << "failed; creating new domain:" << endl;
-			domains.emplace_back(ngridpoints,ngridpoints, i,INTERIMVAL, this);  
+			domains.emplace_back(ngridpoints,ngridpoints, i,-DELTA, this);  
 			i++;
 			domains.back().addBox(newBox);            
 	    } 
@@ -360,6 +378,7 @@ void grainhdl::save_conv_step(){
 		filename << ".gnu";
 		(*it).save_domainCl(filename.str().c_str());
 		cout << filename.str() << endl << endl;
+		
 	}	
 }
 
@@ -395,17 +414,14 @@ void grainhdl::comparison_box(){
 	vector<LSbox*>::iterator itLS;
 //     vector<LSbox*>::iterator itLSc;
 	vector<LSbox*> grains;
-
-	domains_copy = domains;
-	
+	domains_copy = domains;	
 	for (it = domains.begin(); it != domains.end(); it++){		     
 		grains = (*it).getBoxList();				
 		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
 			for (itLS = grains.begin(); itLS != grains.end(); itLS++){	
 				if( (**itLS).get_status() == true ){
-					if(it_domain == domains_copy.begin() )
-						{ (**itLS).add_n2o(); } // copy them once for each grain in the first cycle
-					(*itLS)->comparison(*it_domain, loop ); 
+					if(it_domain == domains_copy.begin() ) { (**itLS).add_n2o(); } // copy them once for each grain in the first cycle
+					if ((*it).get_id() != (*it_domain).get_id()) (*itLS)->comparison(*it_domain, loop ); 
 				}
 			}
 		} 			
@@ -414,10 +430,10 @@ void grainhdl::comparison_box(){
 		for (itLS = grains.begin(); itLS != grains.end(); itLS++){
 			filename << "_"<<(*itLS)->getID();
 			if( (**itLS).get_status() == true ){
-			(**itLS).comparison_set_to_domain(ID, ngridpoints, grid_blowup);
+			(**itLS).comparison_set_to_domain(ID, grid_blowup);
 			}
 		}
-		it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
+// 		it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
 		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) && SAVECOMP){
 			filename << ".gnu";
 			(*it).save_domainCl(filename.str().c_str());
@@ -534,11 +550,16 @@ void grainhdl::save_texture(){
 }
  
  
+ 
+ 
+ 
+ 
+ 
 void grainhdl::run_sim(){
 	find_neighbors();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
-//         comparison_box();	
+        comparison_box();	
 		swap_grains();
 // 		domains_copy.clear();
 		redistancing();
@@ -548,6 +569,20 @@ void grainhdl::run_sim(){
 			save_texture();}
 	}
 }  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
 void grainhdl::save_sim(){

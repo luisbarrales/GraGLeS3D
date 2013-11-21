@@ -272,6 +272,12 @@ int CContourMap::contour(domainCl* domain, int xmin, int xmax, int ymin, int yma
 		//=============================================================
 		// Put your processing code here and comment out the printf
 		//=============================================================
+						if(x1 - DELTA < xmin) xmin = x1 -DELTA;
+						else if(x1 + DELTA < xmax) xmax = x1 + DELTA;
+						
+						if(y1 - DELTA < ymin) ymin = x1 -DELTA;
+						else if(y1 + DELTA < xmax) ymax = y1 + DELTA;
+							
                         add_segment(SPair(SPoint(x1,y1),SPoint(x2,y2)),k);
                      }
                   }
@@ -636,7 +642,8 @@ float CContour::compute_volume()
 	SPoint p=_start;
 	SPoint q=_start;
 	cit++;
-	float sum=.0, sum1=.0;;
+	float sum=.0, sum1=.0;
+	
 		
 	while(cit!=contour->end())
 	{
@@ -649,6 +656,7 @@ float CContour::compute_volume()
 	}
 	p=q;
 	q=_start;		
+// 	p=_end;
 	sum+= (p.y+q.y)*(q.x-p.x);
 	sum1+= (q.y-p.y)*(q.x+p.x);
 	
