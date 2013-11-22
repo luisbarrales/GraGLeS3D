@@ -241,7 +241,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
     // clear current vector
     zeros.clear();
 	int m = handler->get_ngridpoints();
-    
+    stringstream s;
     int first_i, first_j;
     int current_i, current_j;
     int next_i, next_j;
@@ -350,7 +350,17 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
             
             if ((*domain)[current_i][current_j] * (*domain)[next_i][next_j] <= 0) {
                 foundnext = true;
-                break;
+		 double pointx; double pointy;
+		if(((*domain)[current_i][current_j] * (*domain)[next_i][next_j] != 0))
+		{
+		 double slope = ((*domain)[current_i][current_j]-(*domain)[next_i][next_j])/h;
+// 		 pointy = current_i+((next_i-current_i)*(*domain)[current_i][current_j]/slope);
+// 		 pointx = current_j+((next_j-current_j)*(*domain)[current_i][current_j]/slope);
+ 		 pointx = current_j+((next_j-current_j)*0.5);//*abs((*domain)[current_i][current_j]/slope));
+ 		 pointy = current_i+((next_i-current_i)*0.5);//*abs((*domain)[current_i][current_j]/slope))
+		 s << pointx <<"\t"<< pointy<< endl;
+		}
+		break;
             }            
             
             current_j = next_j; current_i = next_i;
@@ -364,6 +374,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
         // check if completed round
         if (current_j == first_j && current_i == first_i) {
             newZero = false;
+	    
         }
     }
     
@@ -371,7 +382,11 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
     if (xmax > m) xmax = m;
 	if (ymin < 0) ymin = 0;
 	if (ymax > m) ymax = m;
-
+      ofstream datei;
+    datei.open("testpoints.gnu");
+    datei << s.str();
+    datei.close();
+//     cerr << "!!!!!!!!!!!!!!!!!!!!!";
 	return;
 }
 

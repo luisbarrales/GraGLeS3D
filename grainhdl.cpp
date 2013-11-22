@@ -452,7 +452,7 @@ void grainhdl::swap_grains(){
 		exist = (*it).grainCheck(h, grid_blowup, buffer, loop); // h Gitterabstand
 		if (!exist){ 
 			cout << (*it).get_id() <<"domain leer" << endl;
-// 			domains.erase(it); it--;
+			 // 			domains.erase(it); it--;
 			// 			cerr << "GrainCheck" ;
 			// 			cin >> buffer1;
 		}		
@@ -559,7 +559,7 @@ void grainhdl::run_sim(){
 	find_neighbors();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
-        comparison_box();	
+		comparison_box();	
 		swap_grains();
 // 		domains_copy.clear();
 		redistancing();
