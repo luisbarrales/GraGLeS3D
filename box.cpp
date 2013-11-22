@@ -667,9 +667,9 @@ void LSbox::redist_box(double h, int grid_blowup ) {
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
 			ii = i-ymin;	jj = j-xmin;
-			(*domain)[i][j] = (*temp)[ii][jj];
-// 			if (abs((*temp)[i-ymin][j-xmin])< DELTA) (*domain)[i][j] = (*temp)[i-ymin][j-xmin];
-// 			selse (*domain)[i][j] = DELTA * utils::sgn((*temp)[i-ymin][j-xmin]);
+// 			(*domain)[i][j] = (*temp)[ii][jj];
+			if (abs((*temp)[i-ymin][j-xmin])< DELTA) (*domain)[i][j] = (*temp)[i-ymin][j-xmin];
+			else (*domain)[i][j] = DELTA * utils::sgn((*temp)[i-ymin][j-xmin]);
 // 			if (((i <= grid_blowup) && ((m-grid_blowup <= j) || (j <= grid_blowup)) ) || ( (m-grid_blowup <= i) && ((m-grid_blowup <= j) || (j <= grid_blowup)))){
 // 				(*domain)[i][j]= (*temp)[i-ymin][j-xmin];
 // 			}

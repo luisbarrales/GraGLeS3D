@@ -204,8 +204,8 @@ void grainhdl::read_boundary(){
 void grainhdl::readMicrostructurefromVertex(){
 	FILE * levelset;	
 // 	levelset = fopen( "lsInput.dat", "r" );
-// 	levelset = fopen( "lsInput_DRAG.dat", "r" );
-	levelset = fopen( "lsInput_quadrat.dat", "r" );
+	levelset = fopen( "lsInput_DRAG.dat", "r" );
+// 	levelset = fopen( "lsInput_quadrat.dat", "r" );
 	std::list<domainCl>::iterator it;
 	
 	long id;
