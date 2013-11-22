@@ -240,6 +240,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
 void LSbox::setZeros(double h, int grid_blowup, int loop) {
     // clear current vector
     zeros.clear();
+	int m = handler->get_ngridpoints();
     
     int first_i, first_j;
     int current_i, current_j;
@@ -289,7 +290,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
 	int sgn = -1; //(1 = left turn; -1 right turn)  
 
 	// reste the min and:
-	xmax = 0; xmin = M; ymax = 0; ymin = M;
+	xmax = 0; xmin = m; ymax = 0; ymin = m;
     while (newZero) {
 		
 		double val1 = (*domain)[current_i][current_j];
@@ -347,7 +348,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
                 next_i = current_i;
             }
             
-            if ((*domain)[current_i][current_j] * (*domain)[next_i][next_j] < 0) {
+            if ((*domain)[current_i][current_j] * (*domain)[next_i][next_j] <= 0) {
                 foundnext = true;
                 break;
             }            
@@ -367,9 +368,9 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
     }
     
     if (xmin < 0) xmin = 0;
-    if (xmax > (*domain).get_m()) xmax = (*domain).get_m();
+    if (xmax > m) xmax = m;
 	if (ymin < 0) ymin = 0;
-	if (ymax > (*domain).get_n()) ymax = (*domain).get_n();
+	if (ymax > m) ymax = m;
 
 	return;
 }
