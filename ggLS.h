@@ -48,7 +48,7 @@
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
-#include "box.h"c
+#include "box.h"
 #include "domainCl.h"
 #include "functions.h"
 #include "weightmap.h"
