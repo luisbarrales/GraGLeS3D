@@ -11,7 +11,7 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 100
+#define TIMESTEPS 10
 #define PRINTSTEP 10
 #define ANALYSESTEP 10
 
@@ -48,7 +48,7 @@
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
-#include "box.h"c
+#include "box.h"
 #include "domainCl.h"
 #include "functions.h"
 #include "weightmap.h"
