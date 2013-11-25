@@ -195,7 +195,7 @@ void grainhdl::read_boundary(){
 	// get the invers distancefunction
 	for (int i = 0; i < ngridpoints; i++) {
 		for (int j = 0; j < ngridpoints; j++) {	
-			(*boundary)[i][j]= - (*boundary)[i][j];
+			(*boundary)[i][j]= - 1.5 *(*boundary)[i][j];
 		}
 	}
 	(*boundary).save_domainCl("boundary.gnu");

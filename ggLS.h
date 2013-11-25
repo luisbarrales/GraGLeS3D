@@ -11,13 +11,13 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 1
-#define PRINTSTEP 1
+#define TIMESTEPS 100
+#define PRINTSTEP 10
 #define ANALYSESTEP 10
 
 #define PARTICLES 1000
 
-#define ISOTROPIC false
+#define ISOTROPIC true
 
 #define SAVEIMAGE false
 #define IMAGEOUT true
@@ -48,7 +48,7 @@
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
-#include "box.h"
+#include "box.h"c
 #include "domainCl.h"
 #include "functions.h"
 #include "weightmap.h"

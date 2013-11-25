@@ -241,7 +241,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
     // clear current vector
     zeros.clear();
 	int m = handler->get_ngridpoints();
-    stringstream s;
+    
     int first_i, first_j;
     int current_i, current_j;
     int next_i, next_j;
@@ -350,17 +350,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
             
             if ((*domain)[current_i][current_j] * (*domain)[next_i][next_j] <= 0) {
                 foundnext = true;
-		 double pointx; double pointy;
-		if(((*domain)[current_i][current_j] * (*domain)[next_i][next_j] != 0))
-		{
-		 double slope = ((*domain)[current_i][current_j]-(*domain)[next_i][next_j])/h;
-// 		 pointy = current_i+((next_i-current_i)*(*domain)[current_i][current_j]/slope);
-// 		 pointx = current_j+((next_j-current_j)*(*domain)[current_i][current_j]/slope);
- 		 pointx = current_j+((next_j-current_j)*0.5);//*abs((*domain)[current_i][current_j]/slope));
- 		 pointy = current_i+((next_i-current_i)*0.5);//*abs((*domain)[current_i][current_j]/slope))
-		 s << pointx <<"\t"<< pointy<< endl;
-		}
-		break;
+                break;
             }            
             
             current_j = next_j; current_i = next_i;
@@ -374,7 +364,6 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
         // check if completed round
         if (current_j == first_j && current_i == first_i) {
             newZero = false;
-	    
         }
     }
     
@@ -382,11 +371,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
     if (xmax > m) xmax = m;
 	if (ymin < 0) ymin = 0;
 	if (ymax > m) ymax = m;
-      ofstream datei;
-    datei.open("testpoints.gnu");
-    datei << s.str();
-    datei.close();
-//     cerr << "!!!!!!!!!!!!!!!!!!!!!";
+
 	return;
 }
 
@@ -508,7 +493,7 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 		
 	}
 	// checke schnitt zum randkorn:
-// 	checkIntersect_zero_grain(temp);
+	checkIntersect_zero_grain(temp);
 	delete temp;
 }
 
@@ -517,25 +502,18 @@ void LSbox::checkIntersect_zero_grain(domainCl* temp){
 	domainCl* boundary = handler->boundary;
 	int grid_blowup = handler->get_grid_blowup();
 	vector<LSbox*> mid_in = boundary->getBoxList();
+	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
-	
-	if (checkIntersect(mid_in[0])){
+	if (!(xmin > mid_in[0]->xmin && xmin < mid_in[0]->xmin && ymin > mid_in[0]->ymin && ymin < mid_in[0]->ymin))
+// 	if (checkIntersect(mid_in[0]))
+	{
 		for (int i = ymin; i < ymax; i++){
 			for (int j = xmin; j < xmax; j++){	
-				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
+				if ((i <= 1.5* grid_blowup) || (m-1.5*grid_blowup <= i) || (j <= 1.5*grid_blowup) || (m-1.5*grid_blowup <= j)){
 					if(distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (*boundary)[i][j]){ 
 						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*boundary)[i][j];
-						if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
-							// we just have found 2 neighbour
-							(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
-						}
-						IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
-						IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = mid_in[0];
 					}
-					else if( (*temp)[i-ymin][j-xmin] < (*boundary)[i][j] ){
-						(*temp)[i-ymin][j-xmin] = (*boundary)[i][j]; 
-						IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = mid_in[0];								  
-					}
+
 				}
 			}
 		}
