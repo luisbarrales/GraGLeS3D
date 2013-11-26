@@ -69,6 +69,7 @@ double* domainCl::operator[](int i) {
     if (0	<= i &&i< m) {
       return x[i];
     }
+    else cerr << "Tried to access domain point " << i;
     
 
   

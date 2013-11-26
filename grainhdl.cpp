@@ -195,7 +195,7 @@ void grainhdl::read_boundary(){
 	// get the invers distancefunction
 	for (int i = 0; i < ngridpoints; i++) {
 		for (int j = 0; j < ngridpoints; j++) {	
-			(*boundary)[i][j]= - 2.0 *(*boundary)[i][j];
+			(*boundary)[i][j]= - 4.0 *(*boundary)[i][j];
 		}
 	}
 	(*boundary).save_domainCl("boundary.gnu");
@@ -334,8 +334,7 @@ void grainhdl::compute_Boundary_Energy(){
  
  
  
-void grainhdl::generateRandomEnergy(){
-	
+void grainhdl::generateRandomEnergy(){	
 	const double MIN = 0.6;
 	const double MAX = 1.5;
 	for(int i=0; i < ngrains; i++){
@@ -377,8 +376,7 @@ void grainhdl::save_conv_step(){
 		}
 		filename << ".gnu";
 		(*it).save_domainCl(filename.str().c_str());
-		cout << filename.str() << endl << endl;
-		
+		cout << filename.str() << endl << endl;		
 	}	
 }
 
@@ -387,8 +385,7 @@ void grainhdl::comparison_domain(){
 	std::list<domainCl>::iterator it;
 	stringstream filename;
 	vector<LSbox*>::iterator it2;
-	vector<LSbox*> grains;	
-	
+	vector<LSbox*> grains;		
 	domains_copy = domains;		
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
@@ -418,7 +415,7 @@ void grainhdl::comparison_box(){
 	for (it = domains.begin(); it != domains.end(); it++){		     
 		grains = (*it).getBoxList();				
 		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
-			for (itLS = grains.begin(); itLS != grains.end(); itLS++){	
+			for (itLS = grains.begin(); itLS != grains.end(); itLS++) {	
 				if( (**itLS).get_status() == true ){
 					if(it_domain == domains_copy.begin() ) { (**itLS).add_n2o(); } // copy them once for each grain in the first cycle
 					if ((*it).get_id() != (*it_domain).get_id()) (*itLS)->comparison(*it_domain, loop ); 
@@ -565,7 +562,7 @@ void grainhdl::run_sim(){
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 			cout << "Grain Volumes after Timestep " << loop << endl;
-			conrec();
+// 			conrec();
 			save_texture();}
 	}
 }  
@@ -586,7 +583,7 @@ void grainhdl::run_sim(){
  
  
 void grainhdl::save_sim(){
-	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
+// 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
 	myfile.open ("kinetics.txt");
 	for(int i=0; i< TIMESTEPS; i++)
