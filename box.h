@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "ggLS.h"
-#include "contour.h"
+// #include "contour.h"
 using namespace std;
 
 class domainCl;
@@ -14,6 +14,13 @@ struct neighbor{
 	LSbox* who;
 	double sigma;
 };
+struct SPoint
+{
+   SPoint(double x,double y){this->x=x;this->y=y;}
+   SPoint(){}
+   double x,y;
+};
+
 
 struct pointVal {
     int x,y;
