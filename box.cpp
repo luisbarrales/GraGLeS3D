@@ -582,7 +582,7 @@ void LSbox::sweeping (double h, int start_i, int start_j, int direction){
 
 
 void LSbox::redist_box(double h, int grid_blowup ) {
-	plot_box(false);
+// 	plot_box(false);
 	int m=ymax-ymin;
 	int n=xmax-xmin;
 	int ii, jj;

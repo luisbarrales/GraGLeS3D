@@ -9,7 +9,7 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
+	Mode = MODE; // 2 für lesen;  für erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
 	if(Mode==2) realDomainSize= M;
@@ -195,7 +195,7 @@ void grainhdl::read_boundary(){
 	// get the invers distancefunction
 	for (int i = 0; i < ngridpoints; i++) {
 		for (int j = 0; j < ngridpoints; j++) {	
-			(*boundary)[i][j]= - 1.5 *(*boundary)[i][j];
+			(*boundary)[i][j]= - 2.0 *(*boundary)[i][j];
 		}
 	}
 	(*boundary).save_domainCl("boundary.gnu");
