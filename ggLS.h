@@ -12,8 +12,8 @@
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
 
-#define TIMESTEPS 100
-#define PRINTSTEP 10
+#define TIMESTEPS 1000
+#define PRINTSTEP 100
 #define ANALYSESTEP 100
 #define MODE 1 // 2 für lesen;  1 für erzeugen der mikrostrukture
 

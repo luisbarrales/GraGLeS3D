@@ -386,14 +386,33 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
 						if (ID[0][i*m +j]!=ID[1][i*m +j] && ID[1][i*m +j]!=ID[2][i*m +j]){
-							if(rad < abs(ref[i][j])) weight = 1.0;
-							else {
-								weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-								weight = ( 1-abs(rad - abs(ref[i][j])) )* weight;
-							}
-// 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-// 							cout << weight << endl;
-							(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
+						  if ( ID[0][i*m +j]->get_id() == (**it).get_id()|| ID[1][i*m +j]->get_id() == (**it).get_id() ||ID[2][i*m +j]->get_id() == (**it).get_id())
+						  {
+							    if(rad < abs(ref[i][j])) weight = 1.0;
+							    else {
+								    weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+								    if ( std::isnan(weight) ) 
+								    {
+								      cout << "weight is really nan" << endl;
+								      cout << "ID " << (**it).get_id();
+								      char buffin;
+								      cin >> buffin;
+								    }
+								  weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;
+							    }
+    // 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+    // 							cout << weight << endl;
+							    if ( std::isnan(weight) ) 
+							    {
+							      cout << "weight is nan at " << i << "\t" << j <<"domain"<< id <<"id " << (**it).get_id() <<endl;
+							      cout << ID[0][i*m +j]->get_id() << "\t" << ID[1][i*m +j]->get_id()<< "\t" << ID[2][i*m +j]->get_id()<<endl;
+							      cout << ID[0][i*m +j]->domain->get_id() << "\t" << ID[1][i*m +j]->domain->get_id()<< "\t" << ID[2][i*m +j]->domain->get_id()<<endl;
+
+							      char buffin;
+							      cin >> buffin;
+							    }
+							    (*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
+						  }
 						}
 					}
 				}

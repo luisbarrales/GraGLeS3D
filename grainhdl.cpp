@@ -529,21 +529,21 @@ void grainhdl::redistancing(){
 
 void grainhdl::save_texture(){
 	
-	FILE* myfile;
-	stringstream filename;
-	filename << "Texture" << "_"<< loop << ".ori";
-	
-	myfile = fopen(filename.str().c_str(), "w");
-	list<domainCl> :: iterator it;
-	double buffer = 0.24;
-	for (it = domains.begin(); it != domains.end(); it++) {
-		vector<LSbox*> grains = (*it).getBoxList();
-		vector<LSbox*> :: iterator it2;
-		for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it2)->phi1, (*it2)->PHI, (*it2)->phi2, (*it2)->volume, buffer);
-		}
-	}
-	fclose(myfile);
+// 	FILE* myfile;
+// 	stringstream filename;
+// 	filename << "Texture" << "_"<< loop << ".ori";
+// 	
+// 	myfile = fopen(filename.str().c_str(), "w");
+// 	list<domainCl> :: iterator it;
+// 	double buffer = 0.24;
+// 	for (it = domains.begin(); it != domains.end(); it++) {
+// 		vector<LSbox*> grains = (*it).getBoxList();
+// 		vector<LSbox*> :: iterator it2;
+// 		for (it2 = grains.begin(); it2 != grains.end(); it2++) {
+// 			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it2)->phi1, (*it2)->PHI, (*it2)->phi2, (*it2)->volume, buffer);
+// 		}
+// 	}
+// 	fclose(myfile);
 }
  
  
