@@ -443,7 +443,7 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
 				(*domain)[i][j] = -DELTA;
 			}
-			if( abs(distance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (DELTA-h) && (abs((*domain)[i][j]) < (DELTA-h)) ) {
+			if( abs(distance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.7* DELTA) && (abs((*domain)[i][j]) < ( 0.7 * DELTA)) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
 				(*domain)[i][j] = 0.5 * ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			}
@@ -508,18 +508,20 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
-						if(distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j]){ 
-							distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
-							if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
-								// we just have found 2 neighbour
-								(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
-														}
-							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
-							IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
-						}
-						else if( (*temp)[i-ymin][j-xmin] < domain_copy[i][j] ){
-							(*temp)[i-ymin][j-xmin] = domain_copy[i][j]; 
-							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
+						if( domain_copy[i][j]< 0.7*DELTA){
+							if( distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j] ){ 
+								distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
+								if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
+									// we just have found 2 neighbour
+									(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+								}
+								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
+								IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
+							}
+							else if( (*temp)[i-ymin][j-xmin] <= domain_copy[i][j] ){ // falls 2 körner gleichweit entfernt - geht ohne <= eins verloren!
+								(*temp)[i-ymin][j-xmin] = domain_copy[i][j]; 
+								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
+							}
 						}
 					}
 				}

@@ -41,7 +41,7 @@ class grainhdl{
 	
 	public:
 	
-	std::vector<double>* totalenergy;
+	double* totalenergy;
 	weightmap* my_weights;
 	double *ST;
 	double *part_pos;	

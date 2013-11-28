@@ -18,7 +18,7 @@ void grainhdl::setSimulationParameter(){
 	h = 1.0/double(realDomainSize);
 
 	grid_blowup = BORDER; 
-	totalenergy = new vector<double>[TIMESTEPS];
+    totalenergy = new double[TIMESTEPS];
 		
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	my_weights = new weightmap(this);
@@ -541,7 +541,8 @@ void grainhdl::save_texture(){
 		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->phi1, (*it)->PHI, (*it)->phi2, (*it)->volume, buffer);
 		total_energy += (*it)->energy;
 	}
-// 	(*totalenergy)[loop/ANALYSESTEP]=total_energy;
+    if (loop != TIMESTEPS) totalenergy[int (loop/ANALYSESTEP)]=total_energy;
+    else totalenergy[TIMESTEPS-1] = 0.5 *total_energy;
 	fclose(myfile);
 }
  
@@ -580,7 +581,7 @@ void grainhdl::save_sim(){
 
 	myfile.open ("energy.txt");
 	for(int i=0; i<TIMESTEPS; i++)
-		myfile << (*totalenergy)[i] << "\t";
+		myfile << totalenergy[i] << "\t";
 	myfile.close();
 	
 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
@@ -629,25 +630,4 @@ void grainhdl::clear_mem() {
 }
 
 
-
-
-
-
-//=============================================================================
-//
-//     CONREC is a contouring subroutine for rectangularily spaced data.
-//
-//     It emits calls to a line drawing subroutine supplied by the user
-//     which draws a contour map corresponding to real*4data on a randomly
-//     spaced rectangular grid. The coordinates emitted are in the same
-//     units given in the x() and y() arrays.
-//
-//     Any number of contour levels may be specified but they must be
-//     in order of increasing value.
-//
-//     As this code is ported from FORTRAN-77, please be very careful of the
-//     various indices like ilb,iub,jlb and jub, remeber that C/C++ indices
-//     starts from zero (0)
-//
-//=============================================================================
 

@@ -136,8 +136,7 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
 		
-		if (  std::isnan(sigma[0])||std::isnan(sigma[1])||std::isnan(sigma[2]))
-		{
+		if (  std::isnan(sigma[0])||std::isnan(sigma[1])||std::isnan(sigma[2]))	{
 		  cout << "IS NAN " << endl;
 		  cout << sigma[0] << "\t" << sigma[1] << "\t"<< sigma[2] << "\t";
 		  char buffin;
