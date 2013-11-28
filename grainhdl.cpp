@@ -9,7 +9,7 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	Mode = 2; // 2 für lesen;  für erzeugen der mikrostrukture
+	Mode = 1; // 2 für lesen;  für erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
 	if(Mode==2) realDomainSize= M;

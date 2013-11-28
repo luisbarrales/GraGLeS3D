@@ -11,13 +11,13 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 100
-#define PRINTSTEP 10
-#define ANALYSESTEP 10
+#define TIMESTEPS 1000
+#define PRINTSTEP 100
+#define ANALYSESTEP 100
 
 #define PARTICLES 1000
 
-#define ISOTROPIC true
+#define ISOTROPIC false
 
 #define SAVEIMAGE false
 #define IMAGEOUT true
