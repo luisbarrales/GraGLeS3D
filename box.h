@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "ggLS.h"
-#include "contour.h"
+// #include "contour.h"
 using namespace std;
 
 class domainCl;
@@ -14,6 +14,13 @@ struct neighbor{
 	LSbox* who;
 	double sigma;
 };
+struct SPoint
+{
+   SPoint(double x,double y){this->x=x;this->y=y;}
+   SPoint(){}
+   double x,y;
+};
+
 
 struct pointVal {
     int x,y;
@@ -36,6 +43,7 @@ class LSbox {
 	double PHI;
 	double phi2;
 	double volume;
+	double energy;
 	grainhdl* handler;
 		    
 public:
@@ -68,7 +76,6 @@ public:
     double curvature (int x, int y, double h);
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
-	void compute_volume();
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain(domainCl* temp);
 		

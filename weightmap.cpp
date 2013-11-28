@@ -57,9 +57,9 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 	outer_map::iterator it;
 	inner_map::iterator it2;
 	storage_map::iterator it3;
-	
 	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};		
-		if(ids[0]==ids[1] || ids[1]==ids[2]) return 1.0;
+
+	if(ids[0]==ids[1] || ids[1]==ids[2]) return 1.0;
 		else{
 			it = weights_table.find(ids[0]);
 			if (it == weights_table.end() ){		
@@ -90,6 +90,10 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 	int ii=0;
 	while(ids[ii] != id ){
 		ii++;
+	}
+	if ( std::isnan(sigma[ii]*sigma[3]))
+	{
+	  cout << "error found "<<ii<< endl;
 	}
 	delete [] rep;
 	return (sigma[ii]*sigma[3]);
@@ -128,10 +132,20 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 // 		else gamma[2] = gamma_hagb;
 		
 		// wähle gamma oder lade aus ST-Feld
-		sigma[0]= 	gamma[0] + gamma[1] - gamma[2];
+		sigma[0] = 	gamma[0] + gamma[1] - gamma[2];
 		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
-// 		if(ids[0]==1 && ids[1]==3) sigma[3]=drag;
+		
+		if (  std::isnan(sigma[0])||std::isnan(sigma[1])||std::isnan(sigma[2]))
+		{
+		  cout << "IS NAN " << endl;
+		  cout << sigma[0] << "\t" << sigma[1] << "\t"<< sigma[2] << "\t";
+		  char buffin;
+		  cin >> buffin;
+		}
+
+		
+		// 		if(ids[0]==1 && ids[1]==3) sigma[3]=drag;
 // 		else sigma[3]=1.0;
 		sigma[3]=0.1;
 	}

@@ -1,5 +1,7 @@
 #include "box.h"
 
+
+
 LSbox::LSbox() {}
 
 LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {}
@@ -149,10 +151,7 @@ LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, do
 			(*domain)[j][i] = - abs((*domain)[j][i]);
 			if ( -((*domain)[j][i]) <=  h ) count++;
 			j++;
-		} 
-
-
-		
+		} 		
 		j=ymax-1;
 		count =0;
 		while( j>=ymin && count < 1) {
@@ -160,7 +159,6 @@ LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, do
 			if ( -((*domain)[j][i]) <= h ) count++;
 			j--;
 		} 
-
 	}
 
 	for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
@@ -171,9 +169,6 @@ LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, do
 			if ( -((*domain)[j][i]) <=  h ) count++;
 			i++;
 		} 
-
-
-		
 		i=xmax-1;
 		count =0;
 		while( i>=xmin   && count < 1  ) {			
@@ -181,9 +176,6 @@ LSbox LSbox::distancefunction(int nvertex, double* vertices, int grid_blowup, do
 			if ( -((*domain)[j][i]) <=  h ) count++;
 			i--;
 		} 
-
-
-		
 	}
 	return(*this);
 }
@@ -229,25 +221,25 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
                     }
                 }
             }
-			(*domain)[i][j]= dmin;
-//             if (dmin < DELTA) (*domain)[i][j]= dmin;
-//             else (*domain)[i][j]= DELTA * utils::sgn(dmin);
+// 			(*domain)[i][j]= dmin;
+            if (dmin < DELTA) (*domain)[i][j]= dmin;
+            else (*domain)[i][j]= DELTA * utils::sgn(dmin);
         }
 	}
 	return(*this);
 }
 
 void LSbox::setZeros(double h, int grid_blowup, int loop) {
-    // clear current vector
     zeros.clear();
-	int m = handler->get_ngridpoints();
-    
+    int m = handler->get_ngridpoints();
+    stringstream s;
     int first_i, first_j;
     int current_i, current_j;
     int next_i, next_j;
     char direction = 1; // x+
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
-
+	double pointx; 
+	double pointy;
 	exist = false;
 	
 	int dist = ymax - ymin;
@@ -257,9 +249,9 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
         if ((*domain)[i][j] * (*domain)[i][j+1] <= 0) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
-			next_i =i; 		next_j = j+1;
-			exist= true;
-			break;
+	    next_i =i; 		next_j = j+1;
+	    exist= true;
+	    break;
         }
 	}
 	if (!exist) {
@@ -270,7 +262,7 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
 			if ((*domain)[i][j] * (*domain)[i+1][j] <= 0) {
 				first_i = i; 	first_j = j; 
 				current_i = i; 	current_j = j;
-				next_i =i+1; 		next_j = j;
+				next_i =i+1; 	next_j = j;
 				exist= true;
 				direction = 2;
 				cout << "boundary found"<< endl;
@@ -291,88 +283,134 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
 
 	// reste the min and:
 	xmax = 0; xmin = m; ymax = 0; ymin = m;
-    while (newZero) {
-		
-		double val1 = (*domain)[current_i][current_j];
-        double val2 = (*domain)[next_i][next_j];
-		
-		// interpolate current zero
-        double i_slope = (val2 - val1) / h;
-        double zero = -val1 / i_slope;
-		double bufferVal = -zero; //* i_slope
-		int sweep_direction = direction;
-// 		if (val1 > 0) sweep_direction=  (sweep_direction+2)%4;
-//         zeros.emplace_back(current_i, current_j, bufferVal, sweep_direction);
-        // add to zero-list		
-		// add left and right point to zerolist, with the direction towards the zero!!
-//         bufferVal = (-zero+h);
-// 		   zeros.emplace_back(next_i, next_j, bufferVal, (sweep_direction+2)% 4 );
-		
-		// iterate forward
-		current_i = next_i;
-		current_j = next_j;
+	SPoint point;
+	vector<SPoint> points;
 	
-        // check for size change
-        if (current_j-grid_blowup < xmin) 		xmin = current_j - grid_blowup;
-        else if (current_j > xmax-grid_blowup) 	xmax = current_j + grid_blowup;
-        if (current_i < ymin+grid_blowup) 		ymin = current_i - grid_blowup;
-        else if (current_i > ymax-grid_blowup) 	ymax = current_i + grid_blowup;
-		
-		if (direction % 2 == 0) {
-            if (direction == 0) next_i = current_i-1;
-            if (direction == 2) next_i = current_i+1;
-            next_j = current_j;
-        } else {
-            if (direction == 1) next_j = current_j+1;
-            if (direction == 3) next_j = current_j-1;
-            next_i = current_i;
-        }
-        // change search directions
-		//(1 = left turn; -1 right turn)  
-		sgn *= -1;            
-		
-        // search next zero
-		// turn  right
-        direction = (direction+sgn+4) %4; 
- 
-        bool foundnext = false;
-        for (int i = 0; i < 3; i++) {
-			// who is next?
-            if (direction % 2 == 0) {
-                if (direction == 0) next_i = current_i-1;
-                if (direction == 2) next_i = current_i+1;
-                next_j = current_j;
-            } else {
-                if (direction == 1) next_j = current_j+1;
-                if (direction == 3) next_j = current_j-1;
-                next_i = current_i;
-            }
-            
-            if ((*domain)[current_i][current_j] * (*domain)[next_i][next_j] <= 0) {
-                foundnext = true;
-                break;
-            }            
-            
-            current_j = next_j; current_i = next_i;
-			// turn further if no zero found
-			direction = (direction+sgn+4)%4; 
-        }
-        if (!foundnext) {
-            break;
-        }
-        
-        // check if completed round
-        if (current_j == first_j && current_i == first_i) {
-            newZero = false;
-        }
+// 	 begin search
+	
+    while (newZero) {		
+	  current_i = next_i;
+	  current_j = next_j;
+	  
+// check for size change
+	  if (current_j-grid_blowup < xmin) 		
+		xmin = current_j - grid_blowup;
+	  else if (current_j > xmax-grid_blowup) 	
+		xmax = current_j + grid_blowup;
+	  if (current_i < ymin+grid_blowup) 		
+		ymin = current_i - grid_blowup;
+	  else if (current_i > ymax-grid_blowup) 	
+		ymax = current_i + grid_blowup;
+	  
+	  // change search directions
+	  //(1 = left turn; -1 right turn)  
+	  sgn = utils::sgn((*domain)[current_i][current_j]);            
+	  if (sgn == 0) { 
+		if (direction == 0) 	  {next_i = current_i-1;next_j = current_j;}
+		else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
+		else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
+		else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
+		if ((*domain)[next_i][next_j]>0) (*domain)[current_i][current_j]= 0.000001;
+		else	(*domain)[current_i][current_j]=-0.000001;
+		  sgn = utils::sgn((*domain)[current_i][current_j]); 
+	  } 
+	  // search next zero
+	  // turn  right
+	  direction = (direction+sgn+4) %4; 
+	  
+	  bool foundnext = false;
+	  for (int i = 0; i < 3; i++) {
+		  if (direction == 0) 	 	{next_i = current_i-1;next_j = current_j;}
+		  else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
+		  else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
+		  else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
+		  
+//            cerr << current_i  <<"  "<< current_j <<"  "<< next_i <<"  "<< next_j <<endl ;
+		  if ((*domain)[current_i][current_j] * (*domain)[next_i][next_j] <= 0) {
+			  foundnext = true;
+			  if(((*domain)[current_i][current_j] * (*domain)[next_i][next_j] != 0.0))
+			  {
+				double slope = (*domain)[next_i][next_j]-(*domain)[current_i][current_j];
+				slope = -1.0 *slope;
+				if (direction == 1) {	 
+				  point.x= current_j + (*domain)[current_i][current_j]/slope;
+				  point.y = current_i;
+				}
+				else if (direction == 3){	 
+				  point.x = current_j - (*domain)[current_i][current_j]/slope;
+				  point.y = current_i;
+				}
+				else if (direction == 0) {	 				
+				  point.y =  current_i - (*domain)[current_i][current_j]/slope;
+				  point.x = current_j;
+				}
+				else if (direction == 2){	
+				  point.y =  current_i + (*domain)[current_i][current_j]/slope;
+				  point.x = current_j;
+				}		 
+			  }
+			  else {
+				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << (*domain)[current_i][current_j]<< endl;
+				
+				if ((*domain)[current_i][current_j] == 0.0) { point.y =  current_i;  point.x = current_j; }
+				else if ((*domain)[next_i][next_j]  == 0.0) { point.y =  next_i;  point.x = next_j; }
+			  }
+			  points.emplace_back(point);			 
+			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
+		  }        		  
+		  
+		  current_j = next_j; 
+		  current_i = next_i;
+		  // turn further if no zero found
+		  direction = (direction+sgn+4)%4; 
+	  }
+	  if (!foundnext) {
+		  break; //springen aus der while-schleife, falls keine nullstelle mehr gefunden wird
+	  }
+	  
+	  // check if completed round
+	  if (current_j == first_j && current_i == first_i) {
+		  newZero = false;	//springen aus der while-schleife, wir haben eine geschlosse kurve gefunden
+	  }
     }
     
-    if (xmin < 0) xmin = 0;
-    if (xmax > m) xmax = m;
-	if (ymin < 0) ymin = 0;
-	if (ymax > m) ymax = m;
-
-	return;
+    // compute Volume and Energy
+    if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+		vector<SPoint>::iterator volumeit=points.begin();
+		energy = 0;
+		volume = 0;
+		double px, py;
+		double gamma_hagb = 0.6;
+		double theta_ref = 15.0* PI / 180.;
+		double theta_mis;
+		
+		px= (*volumeit).x;
+		py= (*volumeit).y;
+		volumeit++;
+		for (; volumeit!= points.end(); volumeit++){
+			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;      
+			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
+			px= (*volumeit).x;
+			py= (*volumeit).y;
+			
+			theta_mis=mis_ori( handler->ID[1][(int(py+0.5)*m) + int(px+0.5)] );
+			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+				else energy += h* gamma_hagb;
+		}		
+		if (xmin < 0) xmin = 0;
+		if (xmax > m) xmax = m;
+		if (ymin < 0) ymin = 0;
+		if (ymax > m) ymax = m;
+		
+		stringstream dateiname;
+		dateiname << "testpoints_" << id << ".gnu";
+		ofstream datei;
+		datei.open(dateiname.str());
+		datei << s.str();
+		datei.close();
+		cerr<< "Volume of " << id << "= " << abs(volume)*0.5<< endl;
+	}
+    return;
 }
 
 void LSbox::copy_distances(){
@@ -475,7 +513,7 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 							if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
 								// we just have found 2 neighbour
 								(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
-							}
+														}
 							IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
 							IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
 						}
@@ -502,18 +540,15 @@ void LSbox::checkIntersect_zero_grain(domainCl* temp){
 	domainCl* boundary = handler->boundary;
 	int grid_blowup = handler->get_grid_blowup();
 	vector<LSbox*> mid_in = boundary->getBoxList();
-	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
-	if (!(xmin > mid_in[0]->xmin && xmin < mid_in[0]->xmin && ymin > mid_in[0]->ymin && ymin < mid_in[0]->ymin))
-// 	if (checkIntersect(mid_in[0]))
-	{
+	if (!(xmin > mid_in[0]->xmin && xmax < mid_in[0]->xmax && ymin > mid_in[0]->ymin && ymax < mid_in[0]->ymax)){
+// 	if (checkIntersect(mid_in[0])){
 		for (int i = ymin; i < ymax; i++){
 			for (int j = xmin; j < xmax; j++){	
-				if ((i <= 1.5* grid_blowup) || (m-1.5*grid_blowup <= i) || (j <= 1.5*grid_blowup) || (m-1.5*grid_blowup <= j)){
+				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
 					if(distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (*boundary)[i][j]){ 
-						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*boundary)[i][j];
+						distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*boundary)[i][j];						  
 					}
-
 				}
 			}
 		}
@@ -728,14 +763,6 @@ void LSbox::plot_box(bool distanceplot){
 	
 }
 
-void LSbox::compute_volume()
-{
-	cout << "ID " << id << ":  ";
-	CContourMap c;
-	c.contour(domain, xmin, xmax, ymin, ymax, handler);
-	c.consolidate();
-	volume= c.compute_volume();
-}
 
 double LSbox::mis_ori(LSbox* grain_2){
 	return misorientationCubic(phi1,PHI,phi2,grain_2->get_phi1(), grain_2->get_PHI(), grain_2->get_phi2());

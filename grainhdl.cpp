@@ -9,7 +9,7 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	Mode = 1; // 2 für lesen;  für erzeugen der mikrostrukture
+	Mode = MODE; // 2 für lesen;  für erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
 	if(Mode==2) realDomainSize= M;
@@ -18,7 +18,8 @@ void grainhdl::setSimulationParameter(){
 	h = 1.0/double(realDomainSize);
 
 	grid_blowup = BORDER; 
-	
+	totalenergy = new vector<double>[TIMESTEPS];
+		
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	my_weights = new weightmap(this);
 	
@@ -195,7 +196,7 @@ void grainhdl::read_boundary(){
 	// get the invers distancefunction
 	for (int i = 0; i < ngridpoints; i++) {
 		for (int j = 0; j < ngridpoints; j++) {	
-			(*boundary)[i][j]= - 1.5 *(*boundary)[i][j];
+			(*boundary)[i][j]= - 4.0 *(*boundary)[i][j];
 		}
 	}
 	(*boundary).save_domainCl("boundary.gnu");
@@ -334,8 +335,7 @@ void grainhdl::compute_Boundary_Energy(){
  
  
  
-void grainhdl::generateRandomEnergy(){
-	
+void grainhdl::generateRandomEnergy(){	
 	const double MIN = 0.6;
 	const double MAX = 1.5;
 	for(int i=0; i < ngrains; i++){
@@ -377,8 +377,7 @@ void grainhdl::save_conv_step(){
 		}
 		filename << ".gnu";
 		(*it).save_domainCl(filename.str().c_str());
-		cout << filename.str() << endl << endl;
-		
+		cout << filename.str() << endl << endl;		
 	}	
 }
 
@@ -387,8 +386,7 @@ void grainhdl::comparison_domain(){
 	std::list<domainCl>::iterator it;
 	stringstream filename;
 	vector<LSbox*>::iterator it2;
-	vector<LSbox*> grains;	
-	
+	vector<LSbox*> grains;		
 	domains_copy = domains;		
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
@@ -418,7 +416,7 @@ void grainhdl::comparison_box(){
 	for (it = domains.begin(); it != domains.end(); it++){		     
 		grains = (*it).getBoxList();				
 		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
-			for (itLS = grains.begin(); itLS != grains.end(); itLS++){	
+			for (itLS = grains.begin(); itLS != grains.end(); itLS++) {	
 				if( (**itLS).get_status() == true ){
 					if(it_domain == domains_copy.begin() ) { (**itLS).add_n2o(); } // copy them once for each grain in the first cycle
 					if ((*it).get_id() != (*it_domain).get_id()) (*itLS)->comparison(*it_domain, loop ); 
@@ -433,7 +431,7 @@ void grainhdl::comparison_box(){
 			(**itLS).comparison_set_to_domain(ID, grid_blowup);
 			}
 		}
-// 		it->set_border_to_INTERIMVAL(grid_blowup); // cut the grains at der boundary of the virtual domain
+
 		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS) && SAVECOMP){
 			filename << ".gnu";
 			(*it).save_domainCl(filename.str().c_str());
@@ -531,21 +529,19 @@ void grainhdl::redistancing(){
 }
 
 void grainhdl::save_texture(){
-	
 	FILE* myfile;
 	stringstream filename;
-	filename << "Texture" << "_"<< loop << ".ori";
-	
+	double total_energy=0;
+	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
-	list<domainCl> :: iterator it;
 	double buffer = 0.24;
-	for (it = domains.begin(); it != domains.end(); it++) {
-		vector<LSbox*> grains = (*it).getBoxList();
-		vector<LSbox*> :: iterator it2;
-		for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it2)->phi1, (*it2)->PHI, (*it2)->phi2, (*it2)->volume, buffer);
-		}
+	fprintf(myfile, "%lf\n", ngrains);
+	vector<LSbox*> :: iterator it;
+	for(it = (*grains).begin(); it != (*grains).end(); it++){
+		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->phi1, (*it)->PHI, (*it)->phi2, (*it)->volume, buffer);
+		total_energy += (*it)->energy;
 	}
+// 	(*totalenergy)[loop/ANALYSESTEP]=total_energy;
 	fclose(myfile);
 }
  
@@ -565,42 +561,26 @@ void grainhdl::run_sim(){
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 			cout << "Grain Volumes after Timestep " << loop << endl;
-			conrec();
-			save_texture();}
+			save_texture();
+		}
 	}
 }  
  
  
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+  
  
 void grainhdl::save_sim(){
-	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
+// 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
-	myfile.open ("kinetics.txt");
+	myfile.open ("nr_of_rem_grains.txt");
 	for(int i=0; i< TIMESTEPS; i++)
 		myfile << nr_grains[i] << "\t";
 	myfile.close();
-	
-	
-	myfile.open ("volume.txt");
-		for(auto it=vol_list.begin(); it!= vol_list.end(); it++){
-			for(int j=1; j<= ngrains; j++){
-				myfile << (*it)[j] << "\t";
-			}
-			myfile << "\n";
-		}
+
+	myfile.open ("energy.txt");
+	for(int i=0; i<TIMESTEPS; i++)
+		myfile << (*totalenergy)[i] << "\t";
 	myfile.close();
 	
 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
@@ -639,13 +619,13 @@ void grainhdl::find_neighbors(){
 
  
 void grainhdl::clear_mem() {
-// 	delete  [] ST;
-//  	delete	[] gridIDs;  
-// 	delete	[] ID[0];
-// 	delete 	[] ID[1];
-// 	delete 	[] ID[2];
-// 	delete 	[] ID; 
-// 	delete my_weights;
+	delete  [] ST;
+ 	delete	[] gridIDs;  
+	delete	[] ID[0];
+	delete 	[] ID[1];
+	delete 	[] ID[2];
+	delete 	[] ID; 
+	delete my_weights;
 }
 
 
@@ -671,30 +651,3 @@ void grainhdl::clear_mem() {
 //
 //=============================================================================
 
-
-int grainhdl::conrec() {
-	// d               ! matrix of data to contour	
-	// nc              ! number of contour levels
-	// z               ! contour levels in increasing order
-	double *vol_line = new double[ngrains+1];
-	std::fill_n(vol_line,ngrains+1,0.0);
-	std::list<domainCl>::iterator it;
-	vector<LSbox*> ::iterator itl;
-	
-	double volume = 0.0;
-	for (it = domains.begin(); it !=domains.end(); it++){
-		vector<LSbox*> grains = it->getBoxList();	
-		for (itl = grains.begin(); itl != grains.end(); itl++){	
-			if( (*itl)->get_status() == true ){
-				(*itl)->compute_volume();
-				volume += (*itl)->get_vol();
-				vol_line [(*itl)->get_id()] = (*itl)->get_vol();	
-			}
-			else cout << "grain vol = 0.0"<< endl;
-		}
-	}
-	vol_line[0]= volume;
-	vol_list.push_back(vol_line);
-// 	cout << "whole volume: " << volume << endl;
-	return 0;
-}

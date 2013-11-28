@@ -66,7 +66,7 @@ public:
 	void redistancing_for_all_boxes(double h, int grid_blowup); // ruft boxweise auf
 
 	void comparison(std::list<domainCl> distances, int grid_blowup);
-	void set_border_to_INTERIMVAL(int grid_blowup);
+
 	void save_domainCl(const char* filename ); //schreibt datei für gnuplotskript
 	void clear_domain(double value);
 

@@ -69,6 +69,7 @@ double* domainCl::operator[](int i) {
     if (0	<= i &&i< m) {
       return x[i];
     }
+    else cerr << "Tried to access domain point " << i;
     
 
   
@@ -384,15 +385,35 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 			for (int i = (**it).ymin; i < (**it).ymax; i++){
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
 					if( ID[0][i*m +j] != zeroBox ){
-						if (ID[0][i*m +j]!=ID[1][i*m +j] && ID[1][i*m +j]!=ID[2][i*m +j]){
-							if(rad < abs(ref[i][j])) weight = 1.0;
-							else {
-								weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-								weight = ( 1-abs(rad - abs(ref[i][j])) )* weight;
-							}
-// 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-// 							cout << weight << endl;
-							(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
+						if ( ID[0][i*m +j] != ID[1][i*m +j] && ID[1][i*m +j] != ID[2][i*m +j] ){
+						  if ( ID[0][i*m +j]->get_id() == (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
+						  {
+							    if(rad < abs(ref[i][j])) weight = 1.0;
+							    else {
+								    weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+								    if ( std::isnan(weight) ) 
+								    {
+								      cout << "weight is really nan" << endl;
+								      cout << "ID " << (**it).get_id();
+								      char buffin;
+								      cin >> buffin;
+								    }
+								  weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;
+							    }
+    // 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+    // 							cout << weight << endl;
+							    if ( std::isnan(weight) ) 
+							    {
+							      cout << "weight is nan at " << i << "\t" << j <<"domain"<< id <<"id " << (**it).get_id() <<endl;
+							      cout << ID[0][i*m +j]->get_id() << "\t" << ID[1][i*m +j]->get_id()<< "\t" << ID[2][i*m +j]->get_id()<<endl;
+							      cout << ID[0][i*m +j]->domain->get_id() << "\t" << ID[1][i*m +j]->domain->get_id()<< "\t" << ID[2][i*m +j]->domain->get_id()<<endl;
+
+							      char buffin;
+							      cin >> buffin;
+							    }
+							    (*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
+						  }
+						  else cout << "ID not found! " << (**it).get_id() << endl;
 						}
 					}
 				}
@@ -471,19 +492,6 @@ void domainCl::comparison(std::list<domainCl> distances, int grid_blowup){
 	}
 }
 
-void domainCl::set_border_to_INTERIMVAL(int grid_blowup)
-{
-// 	double h = owner->get_h();
-//   for (int i = 0; i < m; i++) {
-// 		for (int j = 0; j < n; j++) {
-// 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (n-grid_blowup <= j)) {
-// 				(*this)[i][j] = -DELTA;
-// 			}
-// 			if ((i == grid_blowup+1) || (m-grid_blowup-1== i) || (j == grid_blowup+1) || (n-grid_blowup-1 == j))
-// 				(*this)[i][j] = h;
-// 		}
-// 	}
-}
         
 /*********************************************************************************/
 // Redistancing für alle Boxen -> greift auf LSbox::redistancing zu:

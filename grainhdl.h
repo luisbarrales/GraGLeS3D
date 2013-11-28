@@ -32,23 +32,20 @@ class grainhdl{
 	int loop;
 	
 	int *gridIDs;
-		
-	weightmap* my_weights;
-	std::list<double*> vol_list;
-	std::list<double*> modf;
-	std::list<double*> energy;
+
+	
 	std::list<domainCl> domains;
 	std::list<domainCl> domains_copy;
     	
-	vector<int> nr_grains;
-	
-	
-	LSbox ***ID;
-	double *ST;
-	double *part_pos;
+	vector<int> nr_grains;	
 	
 	public:
 	
+	std::vector<double>* totalenergy;
+	weightmap* my_weights;
+	double *ST;
+	double *part_pos;	
+	LSbox ***ID;
 	vector<LSbox*> *grains;		
 	LSbox* zeroBox;
 
@@ -76,8 +73,6 @@ class grainhdl{
 	void clear_mem(); 
 	void save_texture();
 	
-	void compute_grain_vol();
-	int  conrec();
 	void compute_Boundary_Energy();
 	void read_boundary();
 	
@@ -90,5 +85,6 @@ class grainhdl{
 	inline int get_ngridpoints() { return ngridpoints; }
 	inline double get_h() { return h; }
 	inline int get_grid_blowup() { return grid_blowup; }
+	inline int get_loop() { return loop; }
 };
 #endif

@@ -11,11 +11,12 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 1000
-#define PRINTSTEP 100
-#define ANALYSESTEP 100
+#define TIMESTEPS 10
+#define PRINTSTEP 1
+#define ANALYSESTEP 10
+#define MODE 1 // 2 für lesen;  1 für erzeugen der mikrostrukture
 
-#define PARTICLES 1000
+#define PARTICLES 500
 
 #define ISOTROPIC false
 
@@ -48,7 +49,7 @@
 #include "utilities.h"
 #include "outOfBoundsException.h"
 #include "vektor.h"
-#include "box.h"c
+#include "box.h"
 #include "domainCl.h"
 #include "functions.h"
 #include "weightmap.h"
