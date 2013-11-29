@@ -438,27 +438,36 @@ void LSbox::copy_distances_to_domain(){
 void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 	int m = (*handler).get_ngridpoints();
 	double h = handler->get_h();
+	LSbox* zero = handler->zeroBox;
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
 				(*domain)[i][j] = -DELTA;
+				ID[0][(i*m) + j] = zero;
+				ID[1][(i*m) + j] = zero;
+				ID[2][(i*m) + j] = zero;
 			}
 			if( abs(distance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.7* DELTA) && (abs((*domain)[i][j]) < ( 0.7 * DELTA)) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
 				(*domain)[i][j] = 0.5 * ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			}
 	
-			if ((*domain)[i][j]> 0){
+			if ( (*domain)[i][j]> 0 ){
 				ID[0][(i*m) + j] = this;
 				ID[1][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
 				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
 			}
-			else {
+			else if( (*domain)[i][j] > -DELTA){
 	// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
 				ID[0][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
 				ID[1][(i*m) + j] = this;
 				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
-			}			
+			}	
+			else {
+				ID[0][(i*m) + j] = this;
+				ID[1][(i*m) + j] = this;
+				ID[2][(i*m) + j] = this;
+			}
 		}
 	}
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
@@ -508,17 +517,25 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
-						if( domain_copy[i][j]< 0.7*DELTA){
-							if( distance[(i-ymin)*(xmax-xmin)+(j-xmin)] < domain_copy[i][j] ){ 
-								distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
-								if( IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)]!= this ) {
-									// we just have found 2 neighbour
-									(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+						
+						if(  abs((*domain)[i][j]) < 0.7*DELTA  &&  abs(domain_copy[i][j]) < 0.7*DELTA){
+// 							 potentieller nachbar ist maximal 0.7*DELTA weit entfernt!
+							if( domain_copy[i][j] > distance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
+								if( IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] == this ) {
+// 									falls noch kein nachbar vorhanden:
+									distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];	
+									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;									
 								}
-								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];							
-								IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;
+								else {
+// 									neuer nächster nachbar gefunden:
+									(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
+									IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;	
+								}
 							}
-							else if( (*temp)[i-ymin][j-xmin] <= domain_copy[i][j] ){ // falls 2 körner gleichweit entfernt - geht ohne <= eins verloren!
+							else if(  domain_copy[i][j] > (*temp)[i-ymin][j-xmin] ){ 
+// 								Kandidat ist näher dran, als 2ter nachbar oder gleich
 								(*temp)[i-ymin][j-xmin] = domain_copy[i][j]; 
 								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
 							}

@@ -5,7 +5,7 @@
 
 #define M 200 //gridpoints in each direction
 #define EPS 1e-6
-#define BORDER 10
+#define BORDER 6
 #define DELTA BORDER * 1/double(M)
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
@@ -16,7 +16,7 @@
 #define ANALYSESTEP 10
 #define MODE 1 // 2 für lesen;  1 für erzeugen der mikrostrukture
 
-#define PARTICLES 500
+#define PARTICLES 50
 
 #define ISOTROPIC false
 

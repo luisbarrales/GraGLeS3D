@@ -558,6 +558,9 @@ void grainhdl::run_sim(){
 		convolution();
 		comparison_box();	
 		swap_grains();
+		char buffer;
+		my_weights->plot_weightmap(ngridpoints,ID, ST, zeroBox);
+		cin >> buffer;
 // 		domains_copy.clear();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
