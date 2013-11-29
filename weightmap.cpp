@@ -153,32 +153,21 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 }
 
 void weightmap::plot_weightmap(int length, LSbox*** ID, double* ST, LSbox* zeroBox){
-	domainCl *temp = new domainCl(length,length);
-	domainCl *id_0 = new domainCl(length,length);
-	domainCl *id_1 = new domainCl(length,length);
-	domainCl *id_2 = new domainCl(length,length);
-	double weight;
-	for(int i=0; i<length; i++)
-		for(int j=0; j<length; j++){
-			if( ID[0][i*length +j] != zeroBox ){
-				weight = load_weights(length,ST,ID,i,j, ID[0][i*length +j]->get_id() );
-// 				cout << weight << endl;
-				if( weight != 1.0 )(*temp)[i][j] = weight;
-				else (*temp)[i][j] = 0.0;
-				(*id_0)[i][j]= ID[0][i*length+j]->get_id();
-				(*id_1)[i][j]= ID[1][i*length+j]->get_id();
-				(*id_2)[i][j]= ID[2][i*length+j]->get_id();
+	
+	outer_map::iterator it;
+	inner_map::iterator it2;
+	storage_map::iterator it3;
+	
+	ofstream myfile;
+	myfile.open ("weightmap.txt");
+	for (it=weights_table.begin(); it!=weights_table.end(); it++)
+		for (it2=(*it).second->begin(); it2!=(*it).second->end() ;it2++)
+			for (it3=(*it2).second->begin(); it3!=(*it2).second->end() ;it3++){
+				int ids[3]={(*it).first, (*it2).first, (*it3).first};
+				double* weight = (*it3).second;
+				myfile << ids[0] << "\t" << ids[1] << "\t" << ids[2] << "\t" << weight[0] << "\t" << weight[1] << "\t" << weight[2] << "\n";
 			}
-			else (*temp)[i][j]=0.0;
-		}
-		(*id_0).save_domainCl("id_0.gnu");
-		(*id_1).save_domainCl("id_1.gnu");
-		(*id_2).save_domainCl("id_2.gnu");
-		(*temp).save_domainCl("weights.gnu");
-		
-		delete temp;
-		delete id_0;
-		delete id_1;
-		delete id_2;
+	
+	myfile.close();
 		
 }
