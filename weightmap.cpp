@@ -165,6 +165,8 @@ void weightmap::plot_weightmap(int length, LSbox*** ID, double* ST, LSbox* zeroB
 			for (it3=(*it2).second->begin(); it3!=(*it2).second->end() ;it3++){
 				int ids[3]={(*it).first, (*it2).first, (*it3).first};
 				double* weight = (*it3).second;
+				cout << ids[0] << "\t" << ids[1] << "\t" << ids[2] << "\t" << weight[0] << "\t" << weight[1] << "\t" << weight[2] << "\n";
+
 				myfile << ids[0] << "\t" << ids[1] << "\t" << ids[2] << "\t" << weight[0] << "\t" << weight[1] << "\t" << weight[2] << "\n";
 			}
 	

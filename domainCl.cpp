@@ -413,7 +413,13 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 							    }
 							    (*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
 						  }
-						  else cout << "ID not found! " << (**it).get_id() << endl;
+						  else{ 
+								cout << "ID not found! " << (**it).get_id() << endl;
+								char buffer;
+								owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
+								cin >> buffer;
+						  }
+						  
 						}
 					}
 				}
