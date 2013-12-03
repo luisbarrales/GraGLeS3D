@@ -11,14 +11,14 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 10
-#define PRINTSTEP 1
+#define TIMESTEPS 100
+#define PRINTSTEP 10
 #define ANALYSESTEP 10
 #define MODE 1 // 2 für lesen;  1 für erzeugen der mikrostrukture
 
 #define PARTICLES 50
 
-#define ISOTROPIC false
+#define ISOTROPIC true
 
 #define SAVEIMAGE false
 #define IMAGEOUT true

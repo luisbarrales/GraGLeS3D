@@ -222,7 +222,7 @@ LSbox LSbox::distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, doubl
                 }
             }
 // 			(*domain)[i][j]= dmin;
-            if (dmin < DELTA) (*domain)[i][j]= dmin;
+            if (abs(dmin) < DELTA) (*domain)[i][j]= dmin;
             else (*domain)[i][j]= DELTA * utils::sgn(dmin);
         }
 	}
@@ -457,17 +457,17 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 				ID[1][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
 				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
 			}
-			else if( (*domain)[i][j] > -DELTA){
-	// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
-				ID[0][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-				ID[1][(i*m) + j] = this;
-				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
-			}	
-			else {
-				ID[0][(i*m) + j] = this;
-				ID[1][(i*m) + j] = this;
-				ID[2][(i*m) + j] = this;
-			}
+// 			else if( (*domain)[i][j] > -DELTA){
+// 	// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
+// 				ID[0][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+// 				ID[1][(i*m) + j] = this;
+// 				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
+// 			}	
+// 			else {
+// 				ID[0][(i*m) + j] = this;
+// 				ID[1][(i*m) + j] = this;
+// 				ID[2][(i*m) + j] = this;
+// 			}
 		}
 	}
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);

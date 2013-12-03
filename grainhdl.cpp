@@ -152,7 +152,7 @@ void grainhdl::VOROMicrostructure(){
 	    if (!foundDomain) {
 			// create domain
 	      cout << "failed; creating new domain:" << endl;
-	      domains.emplace_back(ngridpoints,ngridpoints, i,INTERIMVAL, this);  
+	      domains.emplace_back(ngridpoints,ngridpoints, i,-DELTA, this);  
 	      i++;
 	      domains.back().addBox(newBox);            
 	    } 
@@ -560,7 +560,7 @@ void grainhdl::run_sim(){
 		swap_grains();
 		char buffer;
 		my_weights->plot_weightmap(ngridpoints,ID, ST, zeroBox);
-		cin >> buffer;
+// 		cin >> buffer;
 // 		domains_copy.clear();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
