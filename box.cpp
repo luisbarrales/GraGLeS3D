@@ -779,7 +779,31 @@ void LSbox::plot_box(bool distanceplot){
 		}
 		cout << endl;
 	} else cout << " neighbors_2order unknown " << endl;
+	  
+     if (distanceplot)
+     {
+       stringstream filename;
+       filename<< "BoxDistance_"<< id << ".gnu";
+       ofstream datei;
+       datei.open(filename.str());
+// 	for (int j = ymin; j < ymax; j++){
+// 	    for (int i = xmin; i < xmax; i++){
+// 		 datei << ::std::fixed << (*domain)[j][i] << "\t";
+// 	      }
+// 	    datei << endl;
+// 	}
 	
+	for (int j = 0; j < handler->get_ngridpoints(); j++){
+	    for (int i = 0; i < handler->get_ngridpoints(); i++){
+		if( j >= ymin && j < ymax && i >=xmin && i < xmax) 
+		datei << ::std::fixed << (*domain)[j][i] << "\t";
+		else datei << ::std::fixed << -DELTA<< "\t";
+	      }
+	    datei << endl;
+	}
+	
+	datei.close();
+     }
 }
 
 
