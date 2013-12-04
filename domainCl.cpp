@@ -419,8 +419,8 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 						cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
 						cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
 						cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
-						(**it).plot_box(false);
-						ID[0][i*m +j]->plot_box(false);
+						(**it).plot_box(true);
+						ID[0][i*m +j]->plot_box(true);
 						char buffer;
 						owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
 						cin >> buffer;
