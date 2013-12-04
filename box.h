@@ -35,6 +35,7 @@ class LSbox {
     int xmin, xmax, ymin, ymax;
     vector<pointVal> zeros;
 	double* distance;
+	double* distance_2neighbor;
     domainCl* domain;
 	bool exist;
     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
@@ -77,7 +78,7 @@ public:
     void euler_forward(double dt, double h);
 	void plot_box(bool distanceplot);
 	double mis_ori(LSbox* grain_2);
-	void checkIntersect_zero_grain(domainCl* temp);
+	void checkIntersect_zero_grain();
 		
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }

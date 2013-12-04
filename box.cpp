@@ -472,6 +472,7 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 	}
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
  	delete [] distance;
+	delete [] distance_2neighbor;
 	delete [] IDLocal[0];
 	delete [] IDLocal[1];
  	distance = NULL;
@@ -484,7 +485,6 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 void LSbox::comparison(const domainCl &domain_copy, int loop){
-	domainCl *temp = new domainCl(ymax-ymin, xmax-xmin, 0, -1.0);
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
 
@@ -492,7 +492,9 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 		IDLocal[0]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
 		IDLocal[1]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
 		distance 	= 	new double [(ymax-ymin)*(xmax-xmin)];
+		distance_2neighbor = new double [(ymax-ymin)*(xmax-xmin)];
 		std::fill_n(distance,(ymax-ymin)*(xmax-xmin), -1.0); // Neccesary for the comparison
+		std::fill_n(distance_2neighbor,(ymax-ymin)*(xmax-xmin), -1.0);
 		std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
 		std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
 	}
@@ -528,20 +530,26 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 								}
 								else {
 // 									neuer nächster nachbar gefunden:
-									(*temp)[i-ymin][j-xmin] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = distance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									distance[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j];
 									IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
 									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;	
+									if (id==13 && (*it_nn)->get_id()==11 ) cout << distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\n";
 								}
 							}
-							else if(  domain_copy[i][j] > (*temp)[i-ymin][j-xmin] ){ 
+							else if(  domain_copy[i][j] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
 // 								Kandidat ist näher dran, als 2ter nachbar oder gleich
-								(*temp)[i-ymin][j-xmin] = domain_copy[i][j]; 
+								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j]; 
 								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
 							}
 						}
+						if (id==13 && (*it_nn)->get_id()==14 ) cout << distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\t";
 					}
+					if (id==13 && (*it_nn)->get_id()==14 ) cout << endl;
+					
 				}
+// 				if (id==13 && (*it_nn)->get_id()==11 ) utils::print_2dim_array( distance, ymax-ymin, xmax-xmin);
+				
 			}		
 		}
 		neighbors_2order.erase(it_nn);
@@ -550,12 +558,12 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 		
 	}
 	// checke schnitt zum randkorn:
-	checkIntersect_zero_grain(temp);
-	delete temp;
+	checkIntersect_zero_grain();
+
 }
 
 
-void LSbox::checkIntersect_zero_grain(domainCl* temp){
+void LSbox::checkIntersect_zero_grain(){
 	domainCl* boundary = handler->boundary;
 	int grid_blowup = handler->get_grid_blowup();
 	vector<LSbox*> mid_in = boundary->getBoxList();
