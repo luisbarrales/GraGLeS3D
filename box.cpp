@@ -518,7 +518,7 @@ void LSbox::comparison(const domainCl &domain_copy, int loop){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 						
-						if(  abs((*domain)[i][j]) < 0.7*DELTA  &&  abs(domain_copy[i][j]) < 0.7*DELTA){
+						if(  abs((*domain)[i][j]) < 0.7*DELTA /* &&  abs(domain_copy[i][j]) < 0.7*DELTA*/){
 // 							 potentieller nachbar ist maximal 0.7*DELTA weit entfernt!
 							if( domain_copy[i][j] > distance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
 								if( IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] == this ) {

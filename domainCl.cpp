@@ -416,7 +416,7 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 					}
 					else{ 
 						cout << "ID not found! " << (**it).get_id() << endl;
-						cout << (*this)[i][j] << "   DELTA: " << DELTA << endl ;
+						cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
 						cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
 						cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
 						(**it).plot_box(false);
