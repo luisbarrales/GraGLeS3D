@@ -353,82 +353,86 @@ void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftpla
 
 
 void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &ref, LSbox* zeroBox, int grid_blowup, weightmap* my_weights){
-	int n= owner->get_ngridpoints();
+  int n= owner->get_ngridpoints();
 
-	double *u, *v;
-	double vn, vnn;
-	
-	fftw_complex *fftTemp;
-	fftw_plan fwdPlan, bwdPlan;
-	
-	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+  double *u, *v;
+  double vn, vnn;
+  
+  fftw_complex *fftTemp;
+  fftw_plan fwdPlan, bwdPlan;
+  
+  fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
 
-	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
-	conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
+  makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
+  conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
 
-	fftw_destroy_plan(fwdPlan);
-	fftw_destroy_plan(bwdPlan);
+  fftw_destroy_plan(fwdPlan);
+  fftw_destroy_plan(bwdPlan);
 
-	fftw_free (fftTemp);
-	/*********************************************************************************/
-	// Velocity Corrector Step: 
-	/*********************************************************************************/
-	// hier soll energycorrection gerechnet werden.
-	// in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
-	if(!ISOTROPIC){
-		double rad =  DELTA* 0.7;
-		double weight;
+  fftw_free (fftTemp);
+  /*********************************************************************************/
+  // Velocity Corrector Step: 
+  /*********************************************************************************/
+  // hier soll energycorrection gerechnet werden.
+  // in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
+  if(!ISOTROPIC){
+	  double xmin, ymin;
+	  double rad =  DELTA* 0.7;
+	  double weight;
 // 		int* rep = new int[3];
-		vector<LSbox*>::iterator it;
-		for(it = grains.begin(); it != grains.end(); it++){
+	  vector<LSbox*>::iterator it;
+	  for(it = grains.begin(); it != grains.end(); it++){
 // 			bool out=false;
-			for (int i = (**it).ymin; i < (**it).ymax; i++){
-				for (int j = (**it).xmin; j < (**it).xmax; j++) {
-				if(  ID[0][i*m +j] == zeroBox ) continue;
-				if (!( ID[0][i*m +j] != ID[1][i*m +j] && ID[1][i*m +j] != ID[2][i*m +j] && ID[0][i*m +j] != ID[2][i*m +j])) continue;
-				if ( rad < abs(ref[i][j]) ) continue;
-				
-				if ( ID[0][i*m +j]->get_id() == (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
-					{
-					
-					weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-					if ( std::isnan(weight) ) 
-					{
-						cout << "weight is really nan" << endl;
-						cout << "ID " << (**it).get_id();
-						char buffin;
-						cin >> buffin;
-					}
-					weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;					
-						
+		      xmin = (*it)->xmin;
+		      ymin = (*it)->ymin;
+		  for (int i = ymin; i < (**it).ymax; i++){
+			  for (int j = xmin; j < (**it).xmax; j++) {
+			  if(  ID[0][i*m +j] == zeroBox ) continue;
+			  if (!( ID[0][i*m +j] != ID[1][i*m +j] && ID[1][i*m +j] != ID[2][i*m +j] && ID[0][i*m +j] != ID[2][i*m +j])) continue;
+			  if ( rad < abs((*((*it)->distance[i-ymin]))[j-xmin]) ) continue;
+			  
+			  if ( ID[0][i*m +j]->get_id() == (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() ){
+				  weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
+				  if ( std::isnan(weight) ) 
+				  {
+					  cout << "weight is really nan" << endl;
+					  cout << "ID " << (**it).get_id();
+					  char buffin;
+					  cin >> buffin;
+				  }
+				  weight = ( 1-abs(rad - abs((*((*it)->distance[i-ymin]))[j-xmin]) ) ) * weight;					
+					  
 // 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
 // 							cout << weight << endl;
-					if ( std::isnan(weight) ) 
-					{
-						cout << "weight is nan at " << i << "\t" << j <<"domain"<< id <<"id " << (**it).get_id() <<endl;
-						cout << ID[0][i*m +j]->get_id() << "\t" << ID[1][i*m +j]->get_id()<< "\t" << ID[2][i*m +j]->get_id()<<endl;
-						cout << ID[0][i*m +j]->domain->get_id() << "\t" << ID[1][i*m +j]->domain->get_id()<< "\t" << ID[2][i*m +j]->domain->get_id()<<endl;
+				  if ( std::isnan(weight) ) 
+				  {
+					  cout << "weight is nan at " << i << "\t" << j <<"domain"<< id <<"id " << (**it).get_id() <<endl;
+					  cout << ID[0][i*m +j]->get_id() << "\t" << ID[1][i*m +j]->get_id()<< "\t" << ID[2][i*m +j]->get_id()<<endl;
+					  cout << ID[0][i*m +j]->domain->get_id() << "\t" << ID[1][i*m +j]->domain->get_id()<< "\t" << ID[2][i*m +j]->domain->get_id()<<endl;
 
-						char buffin;
-						cin >> buffin;
-					}
-					(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
-					}
-					else{ 
-						cout << "ID not found! " << (**it).get_id() << endl;
-						cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
-						cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
-						cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
-						(**it).plot_box(true);
-						ID[0][i*m +j]->plot_box(true);
-						char buffer;
-						owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
-						cin >> buffer;
-					}						  
-				}
-			}
-		}
-	}
+					  char buffin;
+					  cin >> buffin;
+				  }
+				  // update to distance in Box for Comparison. The updated value will be written back to the domain 
+				    (*((*it)->distance[i-ymin]))[j-xmin]  = abs((*((*it)->distance[i-ymin]))[j-xmin] + (((*this)[i][j] -abs((*((*it)->distance[i-ymin]))[j-xmin]) ) * weight)); 
+				  // now update the domain value to -1 for the comparison step
+				    (*this)[i][j]	=-1;
+			  }
+			  else{ 
+					  cout << "ID not found! " << (**it).get_id() << endl;
+					  cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
+					  cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
+					  cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
+					  (**it).plot_box(true);
+					  ID[0][i*m +j]->plot_box(true);
+					  char buffer;
+					  owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
+					  cin >> buffer;
+				  }						  
+			  }
+		  }
+	  }
+  }
 }
 /*********************************************************************************/
 /*********************************************************************************/

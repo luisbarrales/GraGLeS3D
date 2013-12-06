@@ -34,7 +34,7 @@ class LSbox {
     unsigned int id;
     int xmin, xmax, ymin, ymax;
     vector<pointVal> zeros;
-	double* distance;
+	vector<vector<double>*> distance;
 	double* distance_2neighbor;
     domainCl* domain;
 	bool exist;
@@ -68,7 +68,7 @@ public:
 	void sweep(pointVal zero, double h);
     int  getID();
     void setDomain(domainCl* aDomain);
-    void comparison(const domainCl &domain_copy, int loop );
+    void comparison(domainCl &domain_copy, int loop );
     void comparison_set_to_domain(LSbox ***ID, int grid_blowup);
     void add_n2o();
 	void maximum(const domainCl &A, const domainCl &B);

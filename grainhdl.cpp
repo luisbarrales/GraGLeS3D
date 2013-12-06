@@ -134,7 +134,7 @@ void grainhdl::VOROMicrostructure(){
 	  con.compute_cell(c,vl);
 	  cell_order[ngrains-1-i]=(vl.pid()+1);
 	  
-	  // create a new Box for the current cell
+	 // create a new Box for the current cell
 	  int box_id = vl.pid()+1;
 	  LSbox* newBox = new LSbox(box_id, c, part_pos, grid_blowup, h, this);
 	  
@@ -614,6 +614,7 @@ void grainhdl::find_neighbors(){
 					}
 					
 				}
+			    (*itl)->copy_distances();
 				
 			}
 			
