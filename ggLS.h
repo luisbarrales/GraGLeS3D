@@ -18,7 +18,7 @@
 
 #define PARTICLES 50
 
-#define ISOTROPIC false
+#define ISOTROPIC true
 
 #define SAVEIMAGE false
 #define IMAGEOUT true

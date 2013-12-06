@@ -21,16 +21,16 @@ void grainhdl::setSimulationParameter(){
     totalenergy = new double[TIMESTEPS];
 		
 	ngridpoints = realDomainSize + (2*grid_blowup); 
-	my_weights = new weightmap(this);
+// 	my_weights = new weightmap(this);
 	
-	ID = new LSbox**[3];
-	ID[0] = new LSbox*[ngridpoints*ngridpoints];
-	ID[1] = new LSbox*[ngridpoints*ngridpoints];
-	ID[2] = new LSbox*[ngridpoints*ngridpoints];
+// 	ID = new LSbox**[3];
+// 	ID[0] = new LSbox*[ngridpoints*ngridpoints];
+// 	ID[1] = new LSbox*[ngridpoints*ngridpoints];
+// 	ID[2] = new LSbox*[ngridpoints*ngridpoints];
 	LSbox* zeroBox = new LSbox();
-	std::fill_n(ID[0],ngridpoints*ngridpoints,zeroBox);
-	std::fill_n(ID[1],ngridpoints*ngridpoints,zeroBox);
-	std::fill_n(ID[2],ngridpoints*ngridpoints,zeroBox);
+// 	std::fill_n(ID[0],ngridpoints*ngridpoints,zeroBox);
+// 	std::fill_n(ID[1],ngridpoints*ngridpoints,zeroBox);
+// 	std::fill_n(ID[2],ngridpoints*ngridpoints,zeroBox);
 
 	
 	switch (Mode) {
@@ -387,10 +387,10 @@ void grainhdl::comparison_domain(){
 	stringstream filename;
 	vector<LSbox*>::iterator it2;
 	vector<LSbox*> grains;		
-	domains_copy = domains;		
+// 	domains_copy = domains;		
 	
 	for (it = domains.begin(); it != domains.end(); it++){		  
-		(*it).comparison(domains_copy, grid_blowup);
+		(*it).comparison(domains, grid_blowup);
 		if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS ) && SAVECOMP){			
 			grains = (*it).getBoxList();			
 			filename.str(std::string());
@@ -412,13 +412,13 @@ void grainhdl::comparison_box(){
 	vector<LSbox*>::iterator itLS;
 //     vector<LSbox*>::iterator itLSc;
 	vector<LSbox*> grains;
-	domains_copy = domains;	
+// 	domains_copy = domains;	
 	for (it = domains.begin(); it != domains.end(); it++){		     
 		grains = (*it).getBoxList();				
-		for (it_domain = domains_copy.begin(); it_domain != domains_copy.end(); it_domain++){
+		for (it_domain = domains.begin(); it_domain != domains.end(); it_domain++){
 			for (itLS = grains.begin(); itLS != grains.end(); itLS++) {	
 				if( (**itLS).get_status() == true ){
-					if(it_domain == domains_copy.begin() ) { (**itLS).add_n2o(); } // copy them once for each grain in the first cycle
+					if(it_domain == domains.begin() ) { (**itLS).add_n2o(); } // copy them once for each grain in the first cycle
 					if ((*it).get_id() != (*it_domain).get_id()) (*itLS)->comparison(*it_domain, loop ); 
 				}
 			}

@@ -24,6 +24,7 @@ domainCl::domainCl(int m, int n) : m(m), n(n) {
 
 domainCl::domainCl(int m, int n, int id) : m(m), n(n), id(id) {
     val = (double*) fftw_malloc (m*n*sizeof(double)); 
+	
     x	=  new double*[m];
     for (int i=0;i<m;i++) 
       x[i]	=	&val[i*n];
@@ -376,7 +377,7 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
 	if(!ISOTROPIC){
-		double rad =  DELTA* 0.7;
+		double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
 		double weight;
 // 		int* rep = new int[3];
 		vector<LSbox*>::iterator it;
@@ -389,42 +390,27 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 				if ( rad < abs(ref[i][j]) ) continue;
 				
 				if ( ID[0][i*m +j]->get_id() == (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
-					{
+				{	
 					
-					weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-					if ( std::isnan(weight) ) 
-					{
-						cout << "weight is really nan" << endl;
-						cout << "ID " << (**it).get_id();
-						char buffin;
-						cin >> buffin;
-					}
-					weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;					
-						
-// 							weight = (*my_weights).load_weights(m, ST, ID,i,j,(**it).get_id());
-// 							cout << weight << endl;
-					if ( std::isnan(weight) ) 
-					{
-						cout << "weight is nan at " << i << "\t" << j <<"domain"<< id <<"id " << (**it).get_id() <<endl;
-						cout << ID[0][i*m +j]->get_id() << "\t" << ID[1][i*m +j]->get_id()<< "\t" << ID[2][i*m +j]->get_id()<<endl;
-						cout << ID[0][i*m +j]->domain->get_id() << "\t" << ID[1][i*m +j]->domain->get_id()<< "\t" << ID[2][i*m +j]->domain->get_id()<<endl;
-
-						char buffin;
-						cin >> buffin;
-					}
+					weight = (**it).local_weights .load_weights(ST);
+// 					weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
 					(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
-					}
-					else{ 
-						cout << "ID not found! " << (**it).get_id() << endl;
-						cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
-						cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
-						cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
-						(**it).plot_box(true);
-						ID[0][i*m +j]->plot_box(true);
-						char buffer;
-						owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
-						cin >> buffer;
-					}						  
+					(**it).(*(IDLocal[i])[j]).clear(); // removes all ID's add that that gridpoint -> neccessary for update in the comparison
+				}
+				else
+				{
+					
+// 					weight = (*my_weights).load_weights(m,ST)
+					cout << "ID not found! " << (**it).get_id() << endl;
+					cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
+// 					cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
+// 					cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
+					(**it).plot_box(true);
+// 					ID[0][i*m +j]->plot_box(true);
+					char buffer;
+// 					owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
+					cin >> buffer;
+				}						  
 				}
 			}
 		}
