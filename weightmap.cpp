@@ -35,7 +35,7 @@ void weightmap::find_representer(mapkey& rep, vector<LSbox*> IDs){
 }
 
 
-double weightmap::load_weights(vector<LSbox*> IDs, LSbox* me, double* ST, mapkey rep){
+double weightmap::load_weights(vector<LSbox*> IDs, LSbox* me, double* ST){
     mapkey rep;
     find_representer(rep,IDs);	
     double sigma;

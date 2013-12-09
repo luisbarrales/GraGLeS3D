@@ -4,10 +4,11 @@
 
 LSbox::LSbox() {}
 
-LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {
+LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2, grainhdl* owner): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {
   
-  
-  	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
+	handler=owner;
+  	IDLocal.resize((xmax-xmin)*(ymax-ymin));
+	local_weights=new weightmap(owner);
   
 }
 
@@ -59,6 +60,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
 	distance_current.resize(xmax-xmin * ymax-ymin);
 	distance_new.resize(xmax-xmin * ymax-ymin);
+	local_weights=new weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
@@ -105,7 +107,7 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	distance_new.resize(xmax-xmin * ymax-ymin);
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-
+	local_weights=new weightmap(owner);
 }
 
 
@@ -239,7 +241,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		j=ymin;
 		count = 0;
 		while( j<ymax  && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]]);
+			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 			j++;
 		} 		
@@ -274,12 +276,18 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 void LSbox::convolution(){
 
 	double* ST = handler->ST;
-	int n= handler->get_ngridpoints();
-	int dt = handler->get_dt();
-// 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+	int n	= handler->get_ngridpoints();
+	int dt 	= handler->get_dt();
+	
+	fftw_complex *fftTemp;
+	fftw_plan fwdPlan, bwdPlan;
 
-// 	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
-// 	conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
+	
+	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+	double* in = &distance_current[0];
+	double* out = &distance_new[0];
+	makeFFTPlans(in,out, fftTemp, &fwdPlan, &bwdPlan);
+	conv_generator(fftTemp,fwdPlan,bwdPlan);
 
 	fftw_destroy_plan(fwdPlan);
 	fftw_destroy_plan(bwdPlan);
@@ -320,15 +328,63 @@ void LSbox::convolution(){
     
 		    
 		    // 		    if ( rad < abs(ref[i][j]) ) continue;
-			ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
-			weight = local_weights.load_weights(ID[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)]);
+			weight = local_weights->load_weights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
-			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = ref[i][j] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
-			//CLEAR ID??
+			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = distance_current[(i-ymin)*(xmax-xmin)+j-xmin] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
+			IDLocal.clear(); 
 		  }
 	  }
 	}
 }
+
+
+void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
+{ /* creates plans for FFT and IFFT */
+	int xr = xmax-xmin;
+	int yr = ymax-ymin;
+	*fftplan1 = fftw_plan_dft_r2c_2d(xr,yr,in,fftTemp,FFTW_ESTIMATE);
+	*fftplan2 = fftw_plan_dft_c2r_2d(xr,yr,fftTemp,out,FFTW_ESTIMATE);
+}
+
+void LSbox::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
+{
+	/* Function returns in u the updated value of u as described below..
+	u -> (G_{dt})*u
+	Assumptions:
+	fftplan1 converts u to it's FT (in fftTemp), and
+	fftplan2 converts the FT (after pointwise multiplication with G)
+	back to a real-valued level set function at u.
+	Memory is already allocated in fftTemp
+	(necessary to create the plans) */
+	
+	int n= owner->get_ngridpoints();
+	int dt= handler->get_dt();
+	int n2 = floor(n/2) + 1;
+	double nsq = n *  n;
+	double k = 2.0 * PI / n;
+	double G;
+	double coski;
+	fftw_execute(fftplan1);
+	
+	for(int i=0;i<n2;i++) {
+		coski=cos(k*i);
+		for(int j=0;j<n;j++){
+			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
+			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+			G = 1.0/(1.0+(dt*G)) / nsq;
+			//        USE this line for Richardson-type extrapolation
+			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
+			/* normalize G by n*n to pre-normalize convolution results */
+			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+		}
+	}
+	fftw_execute(fftplan2);
+}
+
+
+
+
 
 
 
@@ -486,10 +542,6 @@ void LSbox::find_contour() {
 	  }
     }
     
-	diff_xmin = diff_xmin - xmin; 
-	diff_xmax = diff_xmax - xmax; 
-	diff_ymin = diff_ymin - ymin; 
-	diff_ymax = diff_ymax - ymax;
     
     
     // compute Volume and Energy
