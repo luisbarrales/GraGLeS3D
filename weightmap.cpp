@@ -5,8 +5,8 @@ weightmap::~weightmap(){}
 
 
 
-void weightmap::find_representer(LSbox** rep, int length, LSbox ***ID,int i, int j){
-		
+void weightmap::find_representer(LSbox** rep){
+	int length	
 	if( ID[0][i*length +j]->get_id() < ID[1][i*length +j]->get_id() ){
 		rep[0]=ID[0][i*length +j];
 		rep[2]=ID[1][i*length +j];
@@ -50,7 +50,7 @@ void weightmap::add_weights(int* ids, inner_map::iterator it2, double* sigma){
 
 
 
-double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j, int id){
+double weightmap::load_weights(double* ST){
 	LSbox** rep= new LSbox* [3];
 	find_representer(rep, length,ID,i,j);	
 	double* sigma;
@@ -58,6 +58,11 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 	inner_map::iterator it2;
 	storage_map::iterator it3;
 	int ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};		
+	
+// 	if ( !(ID[0][i*m +j]->get_id() == id || ID[1][i*m +j]->get_id() == id || ID[2][i*m +j]->get_id() == id ) ){
+// 	  	  
+// 	  ids[3]={(*rep[0]).get_id(),(*rep[1]).get_id(), (*rep[2]).get_id()};
+// 	}
 
 	if(ids[0]==ids[1] || ids[1]==ids[2]) return 1.0;
 		else{
@@ -91,12 +96,8 @@ double weightmap::load_weights(int length, double* ST, LSbox*** ID, int i, int j
 	while(ids[ii] != id ){
 		ii++;
 	}
-	if ( std::isnan(sigma[ii]*sigma[3]))
-	{
-	  cout << "error found "<<ii<< endl;
-	}
 	delete [] rep;
-	return (sigma[ii]*sigma[3]);
+	return (sigma[ii]*sigma[3]); // eventuell sinnvoll: gesondert zugriff auf sigma[3]
 	
 }
 
@@ -135,7 +136,7 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 		sigma[0] = 	gamma[0] + gamma[1] - gamma[2];
 		sigma[1]= 	gamma[0] - gamma[1] + gamma[2];
 		sigma[2]= -	gamma[0] + gamma[1] + gamma[2];
-		
+/*		
 		if (  std::isnan(sigma[0])||std::isnan(sigma[1])||std::isnan(sigma[2]))	{
 		  cout << "IS NAN " << endl;
 		  cout << sigma[0] << "\t" << sigma[1] << "\t"<< sigma[2] << "\t";
@@ -143,10 +144,10 @@ double* weightmap::compute_weights(double *ST,  int* ids){
 		  cin >> buffin;
 		}
 
-		
+		*/
 		// 		if(ids[0]==1 && ids[1]==3) sigma[3]=drag;
 // 		else sigma[3]=1.0;
-		sigma[3]=0.1;
+		sigma[3]=1.0; // could be used as a dragfactor
 	}
 
 	return sigma;

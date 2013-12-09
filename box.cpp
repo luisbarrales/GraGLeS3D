@@ -44,15 +44,16 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_
           
             
         }
-    } 
-    xmax += 2*grid_blowup;
-    ymax += 2*grid_blowup;
-     
-//     for ( int i =ymin; i<ymax; i++){
+    }
+    
+	xmax += 2*grid_blowup;
+	ymax += 2*grid_blowup;
 	
-      
-//     }
-   cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+	     for(int i=0; i< ymax-ymin; i++) {
+		IDLocal[i]= new vector< vector<LSbox*>* >;
+		for(int j=0; j< xmax-xmin; i++) (*(IDLocal[i]))[j] = new vector<LSbox*>;
+	}
+	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
 
@@ -91,8 +92,14 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
         
-   cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-
+	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+	IDLocal.
+	for(int i=0; i< ymax-ymin; i++) {
+		IDLocal.push_back(new vector< vector<LSbox*>*>);
+		for(int j=0; j< xmax-xmin; i++) 
+		  (IDLocal[i]).push_back( new vector<LSbox*>);
+	}
+	
 }
 
 
@@ -398,10 +405,10 @@ void LSbox::setZeros(double h, int grid_blowup, int loop) {
 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 				else energy += h* gamma_hagb;
 		}		
-		if (xmin < 0) xmin = 0;
-		if (xmax > m) xmax = m;
-		if (ymin < 0) ymin = 0;
-		if (ymax > m) ymax = m;
+		if (xmin < 0) {cout <<"undefined box size for xmin: "<< xmin << endl; abort();}//xmin = 0;
+		if (xmax > m) {cout <<"undefined box size for xmax: "<< xmax << endl; abort();}//xmax = m;
+		if (ymin < 0) {cout <<"undefined box size for ymin: "<< ymin << endl; abort();}//ymin = 0;
+		if (ymax > m) {cout <<"undefined box size for ymax: "<< xmax << endl; abort();}// ymax = m;
 		
 		stringstream dateiname;
 		dateiname << "testpoints_" << id << ".gnu";
@@ -443,20 +450,21 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 		for (int j = xmin; j < xmax; j++){
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
 				(*domain)[i][j] = -DELTA;
-				ID[0][(i*m) + j] = zero;
-				ID[1][(i*m) + j] = zero;
-				ID[2][(i*m) + j] = zero;
+				
+// 				ID[0][(i*m) + j] = zero;
+// 				ID[1][(i*m) + j] = zero;
+// 				ID[2][(i*m) + j] = zero;
 			}
 			if( abs((*(distance[i-ymin]))[j-xmin]) < (0.7* DELTA) && (abs((*domain)[i][j]) < ( 0.7 * DELTA)) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
 				(*domain)[i][j] = 0.5 * ((*domain)[i][j]-(*(distance[i-ymin]))[j-xmin]);
 			}
 	
-			if ( (*domain)[i][j]> 0 ){
-				ID[0][(i*m) + j] = this;
-				ID[1][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
-			}
+// 			if ( (*domain)[i][j]> 0 ){
+// 				ID[0][(i*m) + j] = this;
+// 				ID[1][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
+// 				ID[2][(i*m) + j] = IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)];
+// 			}
 // 			else if( (*domain)[i][j] > -DELTA){
 // 	// 			  we are otside the cureent grain, but we has to assure that every gridpoint is updated!!
 // 				ID[0][(i*m) + j] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
@@ -473,8 +481,6 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 // 	utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
  
 	delete [] distance_2neighbor;
-	delete [] IDLocal[0];
-	delete [] IDLocal[1];
 }
 
 
@@ -487,14 +493,8 @@ void LSbox::comparison(domainCl &domain_ref, int loop){
 	std::vector<LSbox*>::iterator it;
 	std::vector<LSbox*>::iterator it_nn;
 
-		IDLocal[0]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
-		IDLocal[1]	=	new LSbox*[(xmax-xmin)*(ymax-ymin)];
-// 		distance 	= 	new double [(ymax-ymin)*(xmax-xmin)];
-		distance_2neighbor = new double [(ymax-ymin)*(xmax-xmin)];
-// 		std::fill_n(distance,(ymax-ymin)*(xmax-xmin), -1.0); // Neccesary for the comparison
-		std::fill_n(distance_2neighbor,(ymax-ymin)*(xmax-xmin), -1.0);
-		std::fill_n(IDLocal[0],(ymax-ymin)*(xmax-xmin), this);
-		std::fill_n(IDLocal[1],(ymax-ymin)*(xmax-xmin), this);
+	distance_2neighbor = new double [(ymax-ymin)*(xmax-xmin)]; // change to vector
+	
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
 		if((domain_ref.get_id() == (*(**it_nn).domain).get_id()) ){
 			if( ((**it_nn).get_status() == true )) {
@@ -517,61 +517,35 @@ void LSbox::comparison(domainCl &domain_ref, int loop){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){
 						
-// 						if(  abs((*domain)[i][j]) < 0.7*DELTA /* &&  abs(domain_copy[i][j]) < 0.7*DELTA*/){
-// // 							 potentieller nachbar ist maximal 0.7*DELTA weit entfernt!
-// 							if( domain_copy[i][j] > (*(distance[i-ymin]))[j-xmin] ){ 	
-// 								if( IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] == this ) {
-// // 									falls noch kein nachbar vorhanden:
-// 									(*(distance[i-ymin]))[j-xmin] = domain_copy[i][j];	
-// 									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;									
-// 								}
-// 								else {
-// // 									neuer nächster nachbar gefunden:
-// 									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*(distance[i-ymin]))[j-xmin];
-// 									(*(distance[i-ymin]))[j-xmin] = domain_copy[i][j];
-// 									IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-// 									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;	
-// 									if (id==13 && (*it_nn)->get_id()==11 ) cout << distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\n";
-// 								}
-// 							}
-// 							else if(  domain_copy[i][j] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
-// // 								Kandidat ist näher dran, als 2ter nachbar oder gleich
-// 								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = domain_copy[i][j]; 
-// 								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
-// 							}
-// 						}
 						
 						if(  abs((*(distance[i-ymin]))[j-xmin]) < 0.7*DELTA /* &&  abs(domain_copy[i][j]) < 0.7*DELTA*/){
 // 							 potentieller nachbar ist maximal 0.7*DELTA weit entfernt!
 							if( (*(distance[i-ymin]))[j-xmin] > (domain_ref)[i][j] ){ 	
-								if( IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] == this ) {
+								if( (*(IDLocal[i-ymin]))[j-xmin] == this ) {
 // 									falls noch kein nachbar vorhanden:
 									domain_ref[i][j] = (*(distance[i-ymin]))[j-xmin];	
-									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;									
+									(*(IDLocal[i-ymin]))[j-xmin]->push_back(*it_nn);									
 								}
 								else {
 // 									neuer nächster nachbar gefunden:
 									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (domain_ref)[i][j];
 									(domain_ref)[i][j] = (*(distance[i-ymin]))[j-xmin];
-									IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)];
-									IDLocal[0][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;	
-									if (id==13 && (*it_nn)->get_id()==11 ) cout << distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\n";
-								}
+									(*(IDLocal[i-ymin]))[j-xmin]->insert((*(IDLocal[i-ymin]))[j-xmin]->begin(), *it_nn);										}
 							}
 							else if(  (*(distance[i-ymin]))[j-xmin] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
 // 								Kandidat ist näher dran, als 2ter nachbar oder gleich
 								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*(distance[i-ymin]))[j-xmin]; 
-								IDLocal[1][(i-ymin)*(xmax-xmin)+(j-xmin)] = *it_nn;								  
+								(*(IDLocal[i-ymin]))[j-xmin]->insert(++(*(IDLocal[i-ymin]))[j-xmin]->begin() , *it_nn);							  
+							}
+							else if(  (*(distance[i-ymin]))[j-xmin] > -DELTA ){ 
+								// probably there are more than 3 grains nearer than DELTA to this gridpoint
+								(*(IDLocal[i-ymin]))[j-xmin]->push_back(*it_nn);						  
 							}
 						}
 						
 						if (id==13 && (*it_nn)->get_id()==14 ) cout << distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\t";
 					}
-					if (id==13 && (*it_nn)->get_id()==14 ) cout << endl;
-					
 				}
-// 				if (id==13 && (*it_nn)->get_id()==11 ) utils::print_2dim_array( distance, ymax-ymin, xmax-xmin);
-				
 			}		
 		}
 		neighbors_2order.erase(it_nn);

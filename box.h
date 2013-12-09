@@ -9,11 +9,9 @@ using namespace std;
 class domainCl;
 class LSbox;
 class grainhdl;
+class weightmap;
 
-struct neighbor{
-	LSbox* who;
-	double sigma;
-};
+
 struct SPoint
 {
    SPoint(double x,double y){this->x=x;this->y=y;}
@@ -29,6 +27,8 @@ struct pointVal {
     pointVal(int yy, int xx, double aVal, int dir):x(xx), y(yy), val(aVal), direction(dir){}
 };
 
+
+
 //box is ambiguous, so L(evel)S(et)box...
 class LSbox {
     unsigned int id;
@@ -38,7 +38,9 @@ class LSbox {
 	double* distance_2neighbor;
     domainCl* domain;
 	bool exist;
-    LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
+	vector<vector<vector<LSbox*>*>* > IDLocal;
+	weightmap* local_weights;
+//     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
 	double phi1;
 	double PHI;
@@ -52,7 +54,7 @@ public:
 	friend class grainhdl;
     LSbox();
     ~LSbox();
-	vector<neighbor> weights;
+	
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_2order;
 	LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2);
