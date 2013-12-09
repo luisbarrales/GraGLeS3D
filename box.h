@@ -47,7 +47,7 @@ class LSbox {
 	double volume;
 	double energy;
 	grainhdl* handler;
-		    
+	
 public:
 	friend class grainhdl;
     LSbox();

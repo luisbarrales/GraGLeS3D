@@ -39,7 +39,7 @@ class grainhdl{
 	double *ST;
 	double *part_pos;	
 	
-	vector<LSbox*> *grains;		
+	vector<LSbox*> grains;		
 	LSbox* zeroBox;
 
 	LSbox* boundary;
