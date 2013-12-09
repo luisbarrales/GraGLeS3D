@@ -93,8 +93,9 @@ void grainhdl::VOROMicrostructure(){
 	  part_pos[3*(cell_id-1)]=rx;
 	  part_pos[3*(cell_id-1)+1]=ry;
 	  part_pos[3*(cell_id-1)+2]=rz;
+
 	}
-        else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
+    else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }  
 // 	con.draw_cells_gnuplot("particles.gnu");
 
@@ -415,9 +416,10 @@ void grainhdl::find_neighbors(){
 	
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		for (itc = ++grains.begin(); itc !=grains.end(); itc++)
-			if(it!=itc) 
+			if(*it!=*itc) 
 				if ((*it)->checkIntersect(*itc))
 					(*it)->neighbors.push_back(*itc);
+
 }
 
  

@@ -73,7 +73,9 @@ public:
 	void maximum(const domainCl &A, const domainCl &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
+
 	void convolution();
+
 	void plot_box(bool distanceplot);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();

@@ -270,14 +270,16 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	}
 }
 
-void LSbox::convolution(){
-	
-	int n= grainhdl->get_ngridpoints();
-	
-	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
 
-	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
-	conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
+void LSbox::convolution(){
+
+	double* ST = owner->ST;
+	int n= owner->get_ngridpoints();
+	int dt = owner->get_dt();
+// 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+
+// 	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
+// 	conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
 
 	fftw_destroy_plan(fwdPlan);
 	fftw_destroy_plan(bwdPlan);
@@ -288,62 +290,43 @@ void LSbox::convolution(){
 	/*********************************************************************************/
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
+	
 	if(!ISOTROPIC){
-		double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
-		double weight;
-// 		int* rep = new int[3];
-	  vector<LSbox*>::iterator it;
-	  int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
-	  
-	  if (old_xmin < xmin) 		
-		intersec_xmin = xmin;
-	  else 	intersec_xmin = old_xmin;
-	  
-	  if (old_ymin < ymin) 		
-		intersec_ymin = ymin;
-	  else 	intersec_ymin = old_ymin;
-	  
-	  if (old_xmax > xmax) 	
-		intersec_xmax= xmax;
-	  else  intersec_xmax = old_xmax;
-	  
-	  if (old_ymax > ymax) 	
-		intersec_ymax= ymax;
-	  else  intersec_ymax = old_ymax;
-	  
-	  
-	  for (int i = intersec_ymin; i < intersec_ymax; i++){
-		for (int j = intersec_xmin; j < intersec_xmax; j++) {
-// 		  if(  ID[0][i*m +j] == zeroBox ) continue; ///////// unneccessary
-// 		  if (!( ID[0][i*m +j] != ID[1][i*m +j] && ID[1][i*m +j] != ID[2][i*m +j] && ID[0][i*m +j] != ID[2][i*m +j])) continue;
-// 		    if ( rad < abs(ref[i][j]) ) continue;
-				
-				ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
-// 				{	
-					
-					weight = local_weights.load_weights(ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)]);
-// 					weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
-				
-					(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
-					(**it).(*(IDLocal[i])[j]).clear(); // removes all ID's add that that gridpoint -> neccessary for update in the comparison
-// 				}
-				else
-				{
-					
-// 					weight = (*my_weights).load_weights(m,ST)
-					cout << "ID not found! " << (**it).get_id() << endl;
-					cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
-// 					cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
-// 					cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
-					(**it).plot_box(true);
-// 					ID[0][i*m +j]->plot_box(true);
-					char buffer;
-// 					owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
-					cin >> buffer;
-				}						  
-				}
-			}
-		}
+// 	    double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
+	    double weight;
+// 	    int* rep = new int[3];
+	    vector<LSbox*>::iterator it;
+	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
+	    
+	    if (old_xmin < xmin) 		
+		  intersec_xmin = xmin;
+	    else  intersec_xmin = old_xmin;
+	    
+	    if (old_ymin < ymin) 		
+		  intersec_ymin = ymin;
+	    else  intersec_ymin = old_ymin;
+	    
+	    if (old_xmax > xmax) 	
+		  intersec_xmax= xmax;
+	    else  intersec_xmax = old_xmax;
+	    
+	    if (old_ymax > ymax) 	
+		  intersec_ymax= ymax;
+	    else  intersec_ymax = old_ymax;
+	    
+	    
+	    for (int i = intersec_ymin; i < intersec_ymax; i++){
+		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
+    
+		    
+		    // 		    if ( rad < abs(ref[i][j]) ) continue;
+			ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
+			weight = local_weights.load_weights(ID[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)]);
+		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
+			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = ref[i][j] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
+			//CLEAR ID??
+		  }
+	  }
 	}
 }
 
