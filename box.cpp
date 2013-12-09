@@ -4,15 +4,20 @@
 
 LSbox::LSbox() {}
 
-LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {}
+LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {
+  
+  
+  	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
+  
+}
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner) {
     
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
     // determine size of grain
-	xmax = 0; xmin = handler->get_ngridpoints(); 
-	ymax = 0; ymin = xmin;
+    xmax = 0; xmin = handler->get_ngridpoints(); 
+    ymax = 0; ymin = xmin;
 	
     vektor x1(2), x2(2);
     vector<double> vv;
@@ -48,13 +53,12 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
         }
     }
     
-    xmax += 2*grid_blowup;
+	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
-	
+		
+	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
 	distance_current.resize(xmax-xmin * ymax-ymin);
 	distance_new.resize(xmax-xmin * ymax-ymin);
-	
-	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
@@ -95,6 +99,7 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
     }
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
+	IDLocal.resize((xmax-xmin)*(ymax-ymin));
     
 	distance_current.resize(xmax-xmin * ymax-ymin);
 	distance_new.resize(xmax-xmin * ymax-ymin);
@@ -125,31 +130,31 @@ void LSbox::distancefunction(int nvertex, double* vertices ){
 
 	for (i=ymin;i<ymax;i++){ // Â¸ber gitter iterieren
 	  for (j=xmin;j<xmax;j++){
-            dmin=1000.;
-            p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
+            dmin = 1000.;
+            p[0] = (i-grid_blowup)*h; p[1] = (j-grid_blowup)*h;            
             
             for(int k=0; k < nvertices; k++) {                
-				x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-				x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];				
-				if (x1 != x2){
-					a = x1;
-					u = x2-x1;
-					lambda=((p-a)*u)/(u*u); 
-					
-					if(lambda <= 0.) 				d = (p-x1).laenge();
-					if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
-					if(lambda >= 1.) 				d = (p-x2).laenge();
+		x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+		x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];				
+		if (x1 != x2){
+			a = x1;
+			u = x2-x1;
+			lambda=((p-a)*u)/(u*u); 
+			
+			if(lambda <= 0.) 				d = (p-x1).laenge();
+			if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
+			if(lambda >= 1.) 				d = (p-x2).laenge();
 // 					if(((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) {
 // 						d=abs(d);
 // 					}
 // 					else d= abs(d);
-					d= abs(d);
-					if(abs(d)< abs(dmin)) dmin=d;
-				}
+			d= abs(d);
+			if(abs(d)< abs(dmin)) dmin=d;
+		}
             }
 			// 			(*domain)[i][j]= dmin;
 			if (abs(dmin) < DELTA) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
-            else distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
+			else distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
         }
 	}
 	int count = 0;
@@ -195,6 +200,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	
 	int i,j,k;
 	double d, dmin,lambda;
+
 	vektor u(2), a(2), p(2), x1(2), x2(2);
 	vector<double> vv;
 	c.vertices (part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
@@ -264,6 +270,85 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	}
 }
 
+void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &ref, LSbox* zeroBox, int grid_blowup, weightmap* my_weights){
+	
+	int n= grainhdl->get_ngridpoints();
+	
+	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+
+	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
+	conv_generator(val,fftTemp,fwdPlan,bwdPlan,dt);
+
+	fftw_destroy_plan(fwdPlan);
+	fftw_destroy_plan(bwdPlan);
+
+	fftw_free (fftTemp);
+	/*********************************************************************************/
+	// Velocity Corrector Step: 
+	/*********************************************************************************/
+	// hier soll energycorrection gerechnet werden.
+	// in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
+	if(!ISOTROPIC){
+		double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
+		double weight;
+// 		int* rep = new int[3];
+	  vector<LSbox*>::iterator it;
+	  int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
+	  
+	  if (old_xmin < xmin) 		
+		intersec_xmin = xmin;
+	  else 	intersec_xmin = old_xmin;
+	  
+	  if (old_ymin < ymin) 		
+		intersec_ymin = ymin;
+	  else 	intersec_ymin = old_ymin;
+	  
+	  if (old_xmax > xmax) 	
+		intersec_xmax= xmax;
+	  else  intersec_xmax = old_xmax;
+	  
+	  if (old_ymax > ymax) 	
+		intersec_ymax= ymax;
+	  else  intersec_ymax = old_ymax;
+	  
+	  
+	  for (int i = intersec_ymin; i < intersec_ymax; i++){
+		for (int j = intersec_xmin; j < intersec_xmax; j++) {
+// 		  if(  ID[0][i*m +j] == zeroBox ) continue; ///////// unneccessary
+// 		  if (!( ID[0][i*m +j] != ID[1][i*m +j] && ID[1][i*m +j] != ID[2][i*m +j] && ID[0][i*m +j] != ID[2][i*m +j])) continue;
+// 		    if ( rad < abs(ref[i][j]) ) continue;
+				
+				ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
+// 				{	
+					
+					weight = local_weights.load_weights(ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)]);
+// 					weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
+				
+					(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
+					(**it).(*(IDLocal[i])[j]).clear(); // removes all ID's add that that gridpoint -> neccessary for update in the comparison
+// 				}
+				else
+				{
+					
+// 					weight = (*my_weights).load_weights(m,ST)
+					cout << "ID not found! " << (**it).get_id() << endl;
+					cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
+// 					cout << ID[0][i*m +j]->get_id()  << "  "<< ID[1][i*m +j]->get_id() << "  "<< ID[2][i*m +j]->get_id() <<endl;
+// 					cout << ID[0][i*m +j]->domain->entry(i,j)  << "  "<< ID[1][i*m +j]->domain->entry(i,j) << "  "<< ID[2][i*m +j]->domain->entry(i,j) <<endl;
+					(**it).plot_box(true);
+// 					ID[0][i*m +j]->plot_box(true);
+					char buffer;
+// 					owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
+					cin >> buffer;
+				}						  
+				}
+			}
+		}
+	}
+}
+
+
+
 void LSbox::find_contour() {
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
@@ -320,7 +405,13 @@ void LSbox::find_contour() {
 	int sgn = -1; //(1 = left turn; -1 right turn)  
 
 	// reste the min and:
+	old_xmin = xmin; 
+	old_xmax = xmax; 
+	old_ymin = ymin; 
+	old_ymax = ymax;
 	xmax = 0; xmin = m; ymax = 0; ymin = m;
+	
+	
 	SPoint point;
 	vector<SPoint> points;
 	
@@ -344,7 +435,7 @@ void LSbox::find_contour() {
 	  //(1 = left turn; -1 right turn)  
 	  sgn = utils::sgn((*domain)[current_i][current_j]);            
 	  if (sgn == 0) { 
-		if (direction == 0) 	  {next_i = current_i-1;next_j = current_j;}
+		if (direction == 0) 	   {next_i = current_i-1;next_j = current_j;}
 		else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
 		else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
 		else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
@@ -411,6 +502,12 @@ void LSbox::find_contour() {
 		  newZero = false;	//springen aus der while-schleife, wir haben eine geschlosse kurve gefunden
 	  }
     }
+    
+	diff_xmin = diff_xmin - xmin; 
+	diff_xmax = diff_xmax - xmax; 
+	diff_ymin = diff_ymin - ymin; 
+	diff_ymax = diff_ymax - ymax;
+    
     
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
@@ -581,8 +678,6 @@ void LSbox::add_n2o(){
 		}
 	}
 }
-
-
 
 
 void LSbox::redist_box() {

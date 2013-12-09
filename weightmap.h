@@ -4,27 +4,18 @@
 
 class grainhdl;
 
-typedef std::map<int, double* > storage_map;
-typedef std::map<int, storage_map* > inner_map;
-typedef std::map<int, inner_map* > outer_map;
-
 class weightmap{
 	
 	grainhdl* handler;
-	
-// 	map<int , map<int, map<int,double*>* >* > maptable;
-	outer_map weights_table;
+	std::map<key, double> weights_table;
 		
 	public:
 	friend class LSbox;
 	weightmap(grainhdl* handler);
 	~weightmap();
-	void find_representer(LSbox** rep, int length, LSbox ***ID,int i, int j);
-	double load_weights(int length, double *ST, LSbox*** ID, int i, int j, int id);
-	double* compute_weights( double* ST, int* ids);
-	void add_weights(int* ids, double* sigma);
-	void add_weights(int* ids, outer_map::iterator it, double* sigma);
-	void add_weights(int* ids, inner_map::iterator it2, double* sigma);
+	void find_representer(key& rep, vector<LSbox*> IDs);
+	double load_weights(vector<LSbox*> IDs,LSbox* me, double* ST,key rep);
+	double* compute_weights( key rep, LSbox* me, double* ST);
 	void plot_weightmap(int length, LSbox*** ID, double* ST, LSbox * zeroBox);
 };
 

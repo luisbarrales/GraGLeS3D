@@ -32,12 +32,14 @@ struct pointVal {
 class LSbox {
     unsigned int id;
     int xmin, xmax, ymin, ymax;
+    int old_xmin, old_xmax, old_ymin, old_ymax;
+    vector<double> distance_new, distance_current;
+    domainCl* domain;
 
 	
 	double* distance_2neighbor;
-
 	bool exist;
-	vector<vector<vector<LSbox*>*>* > IDLocal;
+	vector<vector<LSbox*>> IDLocal;
 	weightmap* local_weights;
 //     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
