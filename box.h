@@ -6,7 +6,6 @@
 // #include "contour.h"
 using namespace std;
 
-class domainCl;
 class LSbox;
 class grainhdl;
 class weightmap;
@@ -34,10 +33,11 @@ class LSbox {
     unsigned int id;
     int xmin, xmax, ymin, ymax;
     int old_xmin, old_xmax, old_ymin, old_ymax;
-    vector<pointVal> zeros;
-	vector<vector<double>*> distance;
+    vector<double> distance_new, distance_current;
+    domainCl* domain;
+
+	
 	double* distance_2neighbor;
-	domainCl* domain;
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
 	weightmap* local_weights;
@@ -51,34 +51,29 @@ class LSbox {
 	grainhdl* handler;
 		    
 public:
-	friend class domainCl;
 	friend class grainhdl;
     LSbox();
     ~LSbox();
 	
     vector<LSbox*> neighbors;
+	vector<LSbox*> neighbors_old;
 	vector<LSbox*> neighbors_2order;
 	LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2);
-    LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, int grid_blowup, double h, grainhdl* owner);
-	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, int grid_blowup, double h, grainhdl* owner);
-	LSbox distancefunction(int nvertex, double* vertices, int grid_blowup, double h);
-    LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos, int grid_blowup, double h);
-    void copy_distances();
-	void copy_distances_to_domain();
-	void sweeping (double h, int start_i, int start_j, int direction);
-	void redist_box(double h, int grid_blowup );
-	void setZeros(double h, int grid_blowup, int loop);
-	void sweep(pointVal zero, double h);
-    int  getID();
+    LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);
+	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
+	LSbox distancefunction(int nvertex, double* vertices);
+    LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos);
+    void redist_box();
+	void find_contour();
+	int  getID();
     void setDomain(domainCl* aDomain);
     void comparison(domainCl &domain_copy, int loop );
-    void comparison_set_to_domain(LSbox ***ID, int grid_blowup);
+    void set_comparison(LSbox ***ID, int grid_blowup);
     void add_n2o();
 	void maximum(const domainCl &A, const domainCl &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
-    double curvature (int x, int y, double h);
-    void euler_forward(double dt, double h);
+	
 	void plot_box(bool distanceplot);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();

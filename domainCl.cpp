@@ -332,15 +332,13 @@ void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftpla
 	fftw_execute(fftplan1);
 	
 	for(i=0;i<n2;i++) {
-	  coski=cos(k*i);
+		coski=cos(k*i);
 		for(j=0;j<n;j++){
-			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));
-			
+			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
 			G = 1.0/(1.0+(dt*G)) / nsq;
 			//        USE this line for Richardson-type extrapolation
 			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
-			
 			/* normalize G by n*n to pre-normalize convolution results */
 			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
 			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
@@ -390,16 +388,13 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 				if ( rad < abs(ref[i][j]) ) continue;
 				
 				if ( ID[0][i*m +j]->get_id() == (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
-				{	
-					
+				{						
 					weight = (**it).local_weights .load_weights(ST);
 // 					weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
 					(*this)[i][j] = ref[i][j] + (((*this)[i][j] -ref[i][j]) * weight);
-					(**it).(*(IDLocal[i])[j]).clear(); // removes all ID's add that that gridpoint -> neccessary for update in the comparison
+					(**it).(*(IDLocal[i])[j])->clear(); // removes all ID's add that that gridpoint -> neccessary for update in the comparison
 				}
-				else
-				{
-					
+				else {					
 // 					weight = (*my_weights).load_weights(m,ST)
 					cout << "ID not found! " << (**it).get_id() << endl;
 					cout << (*this)[i][j] << "   DELTA: " << DELTA << "  h=  "<< owner->get_h() <<endl;
@@ -410,7 +405,7 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 					char buffer;
 // 					owner->my_weights->plot_weightmap(n,ID, ST, zeroBox);
 					cin >> buffer;
-				}						  
+					}						  
 				}
 			}
 		}
@@ -439,7 +434,7 @@ int domainCl::minimumInPoint(std::list<domainCl> distances, int m, int n, int ne
 	
 	std::list<domainCl>::iterator it;
 	int minID = -1;
-	double minVal = 100000; // just a value that can not be reached
+	double minVal = 10000; // just a value that can not be reached
 	
 	for(it = distances.begin(); it != distances.end(); it++){
 		if ((*it).id != neglect) {
@@ -448,8 +443,7 @@ int domainCl::minimumInPoint(std::list<domainCl> distances, int m, int n, int ne
 				minID = (*it).id;
 			}
 		}
-	}
-	
+	}	
 	return minID;
 }
 
