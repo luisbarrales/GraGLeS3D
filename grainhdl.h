@@ -28,31 +28,25 @@ class grainhdl{
 	int grid_blowup;
 	
 	int Mode;
-
-	int loop;
-	
-	int *gridIDs;
-
-	
-	std::list<domainCl> domains;
-	std::list<domainCl> domains_copy;
-    	
+   	
 	vector<int> nr_grains;	
 	
 	public:
 	
+	int loop;
 	double* totalenergy;
-	weightmap* my_weights;
+
 	double *ST;
 	double *part_pos;	
-	LSbox ***ID;
+	
 	vector<LSbox*> *grains;		
 	LSbox* zeroBox;
 
-	domainCl* boundary;
+	LSbox* boundary;
 	grainhdl();
 	~grainhdl();
 	void readInit(); 
+	
 	void setSimulationParameter(); 
 	void generateRandomEnergy();
 	
@@ -63,9 +57,9 @@ class grainhdl{
 	 
 	void convolution();
 	void save_conv_step();
-	void comparison_domain();
 	void comparison_box();
-	void swap_grains();
+
+	void level_set();
 	void redistancing();
 	
 	void run_sim();
