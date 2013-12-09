@@ -352,7 +352,7 @@ void domainCl::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftpla
 
 
 void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &ref, LSbox* zeroBox, int grid_blowup, weightmap* my_weights){
-	int n= owner->get_ngridpoints();
+  int n= owner->get_ngridpoints();
 
 	double *u, *v;
 	double vn, vnn;
@@ -378,8 +378,8 @@ void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &r
 		double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
 		double weight;
 // 		int* rep = new int[3];
-		vector<LSbox*>::iterator it;
-		for(it = grains.begin(); it != grains.end(); it++){
+	  vector<LSbox*>::iterator it;
+	  for(it = grains.begin(); it != grains.end(); it++){
 // 			bool out=false;
 			for (int i = (**it).ymin; i < (**it).ymax; i++){
 				for (int j = (**it).xmin; j < (**it).xmax; j++) {
@@ -434,7 +434,7 @@ int domainCl::minimumInPoint(std::list<domainCl> distances, int m, int n, int ne
 	
 	std::list<domainCl>::iterator it;
 	int minID = -1;
-	double minVal = 100000; // just a value that can not be reached
+	double minVal = 10000; // just a value that can not be reached
 	
 	for(it = distances.begin(); it != distances.end(); it++){
 		if ((*it).id != neglect) {
