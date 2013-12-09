@@ -418,13 +418,13 @@ void grainhdl::save_sim(){
 
 
 void grainhdl::find_neighbors(){
-	std::list<domainCl>::iterator it,itc;
+	std::vector<LSbox*>::iterator it,itc;
 	
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		for (itc = ++grains.begin(); itc !=grains.end(); itc++)
-			if(it!=itc) 
-				if ((*it).intersect(itc))
-					(*it).neighbor.pushback(itc);
+			if((*it)!=(*itc)) 
+			  if ((*it)->checkIntersect((*itc)))
+			    (*it)->neighbors.push_back(*itc);
 }
 
  
