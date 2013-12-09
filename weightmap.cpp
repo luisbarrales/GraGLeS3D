@@ -4,33 +4,9 @@ weightmap::weightmap(grainhdl* handler): handler(handler){}
 weightmap::~weightmap(){}
  
  
-struct key {
-  LSbox* first, second, third; 
-  
-   bool operator<( const key & c ) const {
-	if (this->first < c.first)
-	  return true;
-	
-	else if(this->first == c.first){
-	  if (this->second < c.second){
-	    return true;
-	  }
-	  else if ( this-> second == c.second){
-	      
-	    if (this->thrid < c.third)
-		return true;
-	    else return false;
-	  
-	  }
-	  return false;
-	}
-	return false;
-  }
-
-}
 
 
-void weightmap::find_representer(key& rep, vector<LSbox*> IDs){
+void weightmap::find_representer(mapkey& rep, vector<LSbox*> IDs){
 //
   if ( IDs.size() <= 3){
 	if(IDs[0]< IDs[1]){
@@ -59,8 +35,8 @@ void weightmap::find_representer(key& rep, vector<LSbox*> IDs){
 }
 
 
-double weightmap::load_weights(vector<LSbox*> IDs, LSbox* me, double* ST, key rep){
-    key rep;
+double weightmap::load_weights(vector<LSbox*> IDs, LSbox* me, double* ST, mapkey rep){
+    mapkey rep;
     find_representer(rep,IDs);	
     double sigma;
   
@@ -77,7 +53,7 @@ double weightmap::load_weights(vector<LSbox*> IDs, LSbox* me, double* ST, key re
     return sigma;
 }
 
-double weightmap::compute_weights(key rep,  LSbox* me, double* ST){
+double weightmap::compute_weights(mapkey rep,  LSbox* me, double* ST){
 	double sigma;
 	double gamma[3];
 	double gamma_hagb = 0.6;
