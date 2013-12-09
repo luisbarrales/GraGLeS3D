@@ -120,10 +120,10 @@ int LSbox::getID() {
     return id;
 }
 
-void LSbox::distancefunction(int nvertex, double* vertices ){
+void LSbox::distancefunction(int nvertex, double* vertices){
 // 	plot_box(false);
-	int grid_blowup = owner->get_grid_blowup(); 
-	double h = owner->get_h();
+	int grid_blowup = handler->get_grid_blowup(); 
+	double h = handler->get_h();
 	int i,j,k;
 	double d, dmin,lambda;
 	vektor u(2), a(2), p(2), x1(2), x2(2);
@@ -162,7 +162,7 @@ void LSbox::distancefunction(int nvertex, double* vertices ){
 		j=ymin;
 		count = 0;
 		while( j<ymax  && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]]);
+			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 			j++;
 		} 		
@@ -195,8 +195,8 @@ void LSbox::distancefunction(int nvertex, double* vertices ){
 
 
 void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
-	int grid_blowup = owner->get_grid_blowup(); 
-	double h = owner->get_h();
+	int grid_blowup = handler->get_grid_blowup(); 
+	double h = handler->get_h();
 	
 	int i,j,k;
 	double d, dmin,lambda;
@@ -273,9 +273,9 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 
 void LSbox::convolution(){
 
-	double* ST = owner->ST;
-	int n= owner->get_ngridpoints();
-	int dt = owner->get_dt();
+	double* ST = handler->ST;
+	int n= handler->get_ngridpoints();
+	int dt = handler->get_dt();
 // 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
 
 // 	makeFFTPlans(val, fftTemp,&fwdPlan,&bwdPlan);
@@ -333,9 +333,9 @@ void LSbox::convolution(){
 
 
 void LSbox::find_contour() {
-	int grid_blowup = owner->get_grid_blowup(); 
-	double h = owner->get_h();
-	int loop = owner->loop;
+	int grid_blowup = handler->get_grid_blowup(); 
+	double h = handler->get_h();
+	int loop = handler->loop;
     int m = handler->get_ngridpoints();
 
 	stringstream s;
