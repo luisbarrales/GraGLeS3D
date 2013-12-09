@@ -292,17 +292,17 @@ void LSbox::convolution(double *ST){
 	if(!ISOTROPIC){
 // 	    double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
 	    double weight;
-// 		int* rep = new int[3];
+// 	    int* rep = new int[3];
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 	    
 	    if (old_xmin < xmin) 		
 		  intersec_xmin = xmin;
-	    else 	intersec_xmin = old_xmin;
+	    else  intersec_xmin = old_xmin;
 	    
 	    if (old_ymin < ymin) 		
 		  intersec_ymin = ymin;
-	    else 	intersec_ymin = old_ymin;
+	    else  intersec_ymin = old_ymin;
 	    
 	    if (old_xmax > xmax) 	
 		  intersec_xmax= xmax;
@@ -315,16 +315,17 @@ void LSbox::convolution(double *ST){
 	    
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
-    // 		    if ( rad < abs(ref[i][j]) ) continue;
-				  
-				  ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
-    // 				{
+    
+		    
+		    // 		    if ( rad < abs(ref[i][j]) ) continue;
+			ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
 			weight = local_weights.load_weights(ID[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)]);
-// 			weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
+		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
 			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = ref[i][j] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
 			//CLEAR ID??
 		  }
 	  }
+	}
 }
 
 

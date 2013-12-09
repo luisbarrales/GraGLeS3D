@@ -62,7 +62,7 @@ public:
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
 	LSbox distancefunction(int nvertex, double* vertices);
-    LSbox distancefunction(voro::voronoicell_neighbor& c, int *gridIDs, double *part_pos);
+    LSbox distancefunction(voro::voronoicell_neighbor& c, double *part_pos);
     void redist_box();
 	void find_contour();
 	int  getID();
@@ -73,6 +73,7 @@ public:
 	void maximum(const domainCl &A, const domainCl &B);
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
+    void convolution(double *ST);
 	
 	void plot_box(bool distanceplot);
 	double mis_ori(LSbox* grain_2);

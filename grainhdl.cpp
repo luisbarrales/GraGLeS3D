@@ -93,7 +93,7 @@ void grainhdl::VOROMicrostructure(){
 	  part_pos[3*(cell_id-1)]=rx;
 	  part_pos[3*(cell_id-1)+1]=ry;
 	  part_pos[3*(cell_id-1)+2]=rz;
-	  gridIDs[(i+grid_blowup)*ngridpoints + j + grid_blowup]= cell_id;
+// 	  gridIDs[(i+grid_blowup)*ngridpoints + j + grid_blowup]= cell_id;
         }
         else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }  
@@ -112,7 +112,7 @@ void grainhdl::VOROMicrostructure(){
 		LSbox* newBox = new LSbox(box_id, c, part_pos,this);
 		
 		grains[box_id]= newBox;
-		newBox->distancefunction(c, gridIDs, part_pos, grid_blowup, h);        
+		newBox->distancefunction(c, part_pos);        
 
 	} while(vl.inc());
 
