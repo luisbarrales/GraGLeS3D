@@ -37,7 +37,7 @@ void grainhdl::setSimulationParameter(){
 			break;
 		}		
 	}		
-	read_boundary();
+	construct_boundary();
 	//program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << ngrains << endl;
@@ -88,13 +88,12 @@ void grainhdl::VOROMicrostructure(){
     for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
 	x=double(i*h); 
 	y=double(j*h); // only point within the domain
-        if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
+    if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
 	  cell_id= cell_id++;
 	  part_pos[3*(cell_id-1)]=rx;
 	  part_pos[3*(cell_id-1)+1]=ry;
 	  part_pos[3*(cell_id-1)+2]=rz;
-	  gridIDs[(i+grid_blowup)*ngridpoints + j + grid_blowup]= cell_id;
-        }
+	}
         else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }  
 // 	con.draw_cells_gnuplot("particles.gnu");
@@ -112,7 +111,7 @@ void grainhdl::VOROMicrostructure(){
 		LSbox* newBox = new LSbox(box_id, c, part_pos,this);
 		
 		grains[box_id]= newBox;
-		newBox->distancefunction(c, gridIDs, part_pos, grid_blowup, h);        
+		newBox->distancefunction(c, part_pos);        
 
 	} while(vl.inc());
 
@@ -120,7 +119,7 @@ void grainhdl::VOROMicrostructure(){
 }
 
 
-void grainhdl::read_boundary(){
+void grainhdl::construct_boundary(){
 	int nvertex;
 	double p1 = 0.0;
 	double p2 = 1.0  ;
@@ -129,13 +128,9 @@ void grainhdl::read_boundary(){
 	boundary = new LSbox(0, 4, vertices, 0, 0, 0, this);
 	grains[0]= boundary;
 	boundary->distancefunction(4, vertices); 
-	
+	boundary->shape_distance();
 	// get the invers distancefunction
-	for (int i = 0; i < ngridpoints; i++) {
-		for (int j = 0; j < ngridpoints; j++) {	
-			(*boundary)[i][j]= - 4.0 *(*boundary)[i][j];
-		}
-	}
+	
 // 	(*boundary).save_box("boundary.gnu");
 }
 
@@ -152,7 +147,7 @@ void grainhdl::readMicrostructurefromVertex(){
 	
 	fscanf(levelset, "%d\n", &ngrains);
 	cout << "ngrains : " << ngrains << endl;;
-	grains.resize(grains+1);
+	grains.resize(ngrains+1);
 	
 	int i=0;
 	for(int nn=0; nn< ngrains; nn++){
@@ -171,11 +166,11 @@ void grainhdl::readMicrostructurefromVertex(){
 			vertices[k+3] = yr;
 		}
 		
-		LSbox* newBox = new LSbox(id, nvertex, vertices, phi1, PHI, phi2, grid_blowup, h, this);
+		LSbox* newBox = new LSbox(id, nvertex, vertices, phi1, PHI, phi2, this);
 		grains[id]= newBox;
 				
 	    // calculate distances	    
-	    newBox->distancefunction(nvertex, vertices, grid_blowup, h); 
+	    newBox->distancefunction(nvertex, vertices); 
 		
 		delete [] vertices;
 	}
@@ -222,7 +217,7 @@ void grainhdl::compute_Boundary_Energy(){
 		for(int j=0; j <=i; j++){	
 			if(i==j) ST[j+(ngrains*i)] = 1.0;
 			else{
-				theta_mis = (*grains)[i+1]->mis_ori((*grains)[j+1]);
+				theta_mis = grains[i+1]->mis_ori(grains[j+1]);
 				if (theta_mis <= theta_ref)	energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 				else energy = gamma_hagb;
 				//richtiger Logarithmus??????
@@ -254,9 +249,9 @@ void grainhdl::generateRandomEnergy(){
  
  
 void grainhdl::convolution(){
-	std::list<LSbox*>::iterator it;
+	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it !=grains.end(); it++){	
-		(*it).convolution();
+		(*it)->convolution();
 	}
 // 	if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS )&& SAVECONV) save_conv_step();
 }
@@ -285,18 +280,16 @@ void grainhdl::convolution(){
 void grainhdl::comparison_box(){
 	stringstream filename;
 	vector<LSbox*>::iterator it;
-
 	for (it = ++grains.begin(); it != grains.end(); it++){	
-		(*it).comparison();
+		(*it)->comparison();
 	}
 }
 
 
 void grainhdl::level_set(){
-	
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
-		(*it).find_contour();
+		(*it)->find_contour();
 	}
 }
 
@@ -305,12 +298,12 @@ void grainhdl::redistancing(){
 // 	stringstream plotfiles;
 // 	stringstream filename;
 // 	vector<LSbox*>::iterator it2;
-	std::list<LSbox>::iterator it;
+	std::vector<LSbox*>::iterator it;
 	int i;
 	nr_grains.push_back(0);
 	
 	for (it = ++grains.begin(); it != grains.end(); it++) {
-		(*it).redist_box();
+		(*it)->redist_box();
 		nr_grains[loop]+=1;
 		
 // 		if ( ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS ) && SAVEREDIST ){
@@ -418,13 +411,13 @@ void grainhdl::save_sim(){
 
 
 void grainhdl::find_neighbors(){
-	std::list<domainCl>::iterator it,itc;
+	std::vector<LSbox*>::iterator it,itc;
 	
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		for (itc = ++grains.begin(); itc !=grains.end(); itc++)
 			if(it!=itc) 
-				if ((*it).intersect(itc))
-					(*it).neighbor.pushback(itc);
+				if ((*it)->checkIntersect(*itc))
+					(*it)->neighbors.push_back(*itc);
 }
 
  

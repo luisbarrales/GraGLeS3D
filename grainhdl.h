@@ -45,8 +45,7 @@ class grainhdl{
 	LSbox* boundary;
 	grainhdl();
 	~grainhdl();
-	void readInit(); 
-	
+		
 	void setSimulationParameter(); 
 	void generateRandomEnergy();
 	
@@ -68,7 +67,7 @@ class grainhdl{
 	void save_texture();
 	
 	void compute_Boundary_Energy();
-	void read_boundary();
+	void construct_boundary();
 	
 
 	

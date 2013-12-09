@@ -270,7 +270,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	}
 }
 
-void domainCl::convolution(const double dt, double *ST, LSbox ***ID, domainCl &ref, LSbox* zeroBox, int grid_blowup, weightmap* my_weights){
+void LSbox::convolution(){
 	
 	int n= grainhdl->get_ngridpoints();
 	
@@ -838,6 +838,12 @@ double LSbox::mis_ori(LSbox* grain_2){
 
 
 
-
+void LSbox::shape_distance(){
+	for (int i = 0; i < ymax-ymin; i++) {
+		for (int j = 0; j < xmax-xmin; j++) {	
+			distance_current[i*(xmax-xmin)+j]= - 4.0 *distance_current[i*(xmax-xmin)+j];
+		}
+	}
+}
 
 
