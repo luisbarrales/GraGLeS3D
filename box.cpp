@@ -239,7 +239,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		j=ymin;
 		count = 0;
 		while( j<ymax  && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]]);
+			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 			j++;
 		} 		
@@ -323,7 +323,7 @@ void LSbox::convolution(){
 			ID[(i-old_xmin)*(old_xmax-old_xmin) + (j-old_ymin)] //== (**it).get_id() || ID[1][i*m +j]->get_id() == (**it).get_id() || ID[2][i*m +j]->get_id() == (**it).get_id() )
 			weight = local_weights.load_weights(ID[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)]);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
-			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = ref[i][j] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
+			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = (distance_current[(i-ymin)*(xmax-xmin)+j-xmin]  + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] - distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
 			//CLEAR ID??
 		  }
 	  }
@@ -598,7 +598,8 @@ void LSbox::comparison(){
 // 									new next neighbor found:
 									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)];
-									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);										}
+									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);	
+								}
 							}
 							else if(  (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
 // 								Kandidat ist näher dran, als 2ter nachbar oder gleich
@@ -664,14 +665,16 @@ void LSbox::add_n2o(){
 
 
 void LSbox::redist_box() {
-	int grid_blowup = owner->get_grid_blowup(); 
-	double h = owner->get_h();
+	int grid_blowup = handler->get_grid_blowup(); 
+	double h = handler->get_h();
 // 	plot_box(false);
 	int m=ymax-ymin;
 	int n=xmax-xmin;
 	int ii, jj;
 	double slope = 1;
 	double candidate, i_slope, zero;
+	distance_current_resize(m*n);
+	std::fill(distance_current.begin(),distance_current.end(),-1.0);
 	
 // 	resize the distance_current array. be careful because during this part of algorithm both arrays have not the same size!!
 	
@@ -680,6 +683,7 @@ void LSbox::redist_box() {
 		for (int j = xmin; j < xmax-1; j++) {
 			ii = i-ymin; jj = j-xmin;
 			//check for sign change
+			if(i >= old_ymin && y < old_ymax && x >= old_xmin && x < old_xmax)
 			if ((*domain)[i][j] * (*domain)[i][j+1] <= 0.0) {
 				// interpolate
 				i_slope  = ((*domain)[i][j+1] - (*domain)[i][j]) / h;
@@ -690,6 +694,7 @@ void LSbox::redist_box() {
 			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
 			if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
 		}
+		
 	}
 	
 	// x-direction backward
@@ -755,8 +760,7 @@ void LSbox::redist_box() {
 // 			}
 		}
 	}
-	delete temp;
-	copy_distances();
+	distance_new.resize(m*n);
 }
 
 

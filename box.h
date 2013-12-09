@@ -66,11 +66,11 @@ public:
     void redist_box();
 	void find_contour();
 	int  getID();
-    void setDomain(domainCl* aDomain);
+   
     void comparison();
-    void set_comparison(LSbox ***ID, int grid_blowup);
+    void set_comparison();
     void add_n2o();
-	void maximum(const domainCl &A, const domainCl &B);
+	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
 
