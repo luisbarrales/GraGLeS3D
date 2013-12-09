@@ -456,7 +456,7 @@ void LSbox::comparison_set_to_domain(LSbox ***ID, int grid_blowup){
 // 				ID[1][(i*m) + j] = zero;
 // 				ID[2][(i*m) + j] = zero;
 			}
-			if( abs(distance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.7* DELTA) && (abs((*domain)[i][j]) < ( 0.7 * DELTA)) ) {
+			if( abs(distance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.9* DELTA) && (abs((*domain)[i][j]) < ( 0.9 * DELTA)) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
 				(*domain)[i][j] = 0.5 * ((*domain)[i][j]-distance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 			}
