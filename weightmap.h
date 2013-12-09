@@ -41,7 +41,7 @@ class weightmap{
 	weightmap(grainhdl* handler);
 	~weightmap();
 	void find_representer(mapkey& rep, vector<LSbox*> IDs);
-	double load_weights(vector<LSbox*> IDs,LSbox* me, double* ST,mapkey rep);
+	double load_weights(vector<LSbox*> IDs, LSbox* me, double* ST);
 	double* compute_weights( mapkey rep, LSbox* me, double* ST);
 	void plot_weightmap(int length, LSbox*** ID, double* ST, LSbox * zeroBox);
 };
