@@ -5,7 +5,7 @@
 class vektor;
 
 // LU Decomposition of A=L*U with partial pivoting
-void LUDecomp(int n, domainCl& A);
+//void LUDecomp(int n, domainCl& A);
 
 // For A*x=b we get L*U*x=b and set y = U*x
 // Hence to get x, we first solve L*y = b

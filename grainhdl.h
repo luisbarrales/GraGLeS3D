@@ -12,8 +12,7 @@
 
 using namespace voro;
 using namespace std;
-
-class domainCl;
+	
 class weightmap;
 class LSbox;
 

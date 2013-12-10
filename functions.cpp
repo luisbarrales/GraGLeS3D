@@ -4,18 +4,18 @@ using namespace std;
 
 
 // LU Decomposition of A=L*U with partial pivoting
-void LUDecomp(int n, domainCl& A) {
-    for (int k = 0; k < n; k++){
-        for (int i = k+1; i < n; i++)
-            if (A[i][k] != 0) {
-                A[i][k] /= A[k][k];
-            }
-        for (int j=k+1;j<n;j++)
-            for (int i=k+1;i<n;i++)
-                if (A[i][k]!=0) 
-                    A[i][j]-=A[i][k]*A[k][j];
-    }
-}
+//void LUDecomp(int n, domainCl& A) {
+ //   for (int k = 0; k < n; k++){
+ //       for (int i = k+1; i < n; i++)
+ //           if (A[i][k] != 0) {
+ //               A[i][k] /= A[k][k];
+ //           }
+  ///      for (int j=k+1;j<n;j++)
+  //          for (int i=k+1;i<n;i++)
+  //              if (A[i][k]!=0) 
+  //                  A[i][j]-=A[i][k]*A[k][j];
+  //  }
+//}
 
 // For A*x=b we get L*U*x=b and set y = U*x
 // Hence to get x, we first solve L*y = b
