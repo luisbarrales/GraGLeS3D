@@ -474,15 +474,12 @@ void LSbox::find_contour() {
 	  
 	  // change search directions
 	  //(1 = left turn; -1 right turn)  
-	  sgn = utils::sgn((*domain)[current_i][current_j]);            
+	  sgn = utils::sgn(distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]);            
 	  if (sgn == 0) { 
 		if (direction == 0) 	{next_i = current_i-1;next_j = current_j;}
 		else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
 		else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
 		else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
-		if ((*domain)[next_i][next_j]>0) (*domain)[current_i][current_j]= 0.000001;
-		else	(*domain)[current_i][current_j]=-0.000001;
-		  sgn = utils::sgn((*domain)[current_i][current_j]); 
 	  } 
 	  // search next zero
 	  // turn  right
@@ -520,7 +517,7 @@ void LSbox::find_contour() {
 				}		 
 			  }
 			  else {
-				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << (*domain)[current_i][current_j]<< endl;
+				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]<< endl;
 				
 				if (distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] == 0.0) { point.y =  current_i;  point.x = current_j; }
 				else if (distance_current[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)]  == 0.0) { point.y =  next_i;  point.x = next_j; }
@@ -723,6 +720,8 @@ void LSbox::redist_box() {
 	int grid_blowup = handler->get_grid_blowup(); 
 	double h = handler->get_h();
 // 	plot_box(false);
+
+	double* distance_old= &distance_new[0];
 	int m=ymax-ymin;
 	int n=xmax-xmin;
 	int ii, jj;
@@ -732,89 +731,112 @@ void LSbox::redist_box() {
 	std::fill(distance_current.begin(),distance_current.end(),-1.0);
 	
 // 	resize the distance_current array. be careful because during this part of algorithm both arrays have not the same size!!
+	int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
+	    
+	if (old_xmin < xmin) 		
+		intersec_xmin = xmin;
+	else  intersec_xmin = old_xmin;
 	
+	if (old_ymin < ymin) 		
+		intersec_ymin = ymin;
+	else  intersec_ymin = old_ymin;
+	
+	if (old_xmax > xmax) 	
+		intersec_xmax= xmax;
+	else  intersec_xmax = old_xmax;
+	
+	if (old_ymax > ymax) 	
+		intersec_ymax= ymax;
+	else  intersec_ymax = old_ymax;
+	
+	   
+	for (int i = intersec_ymin; i < ymax; i++){
+	  for (int j = intersec_xmin; j < xmax-1; j++) {
 	// x-direction forward
-	for (int i = ymin; i < ymax; i++) {
-		for (int j = xmin; j < xmax-1; j++) {
-			ii = i-ymin; jj = j-xmin;
 			//check for sign change
-			if(i >= old_ymin && i < old_ymax && j >= old_xmin && j < old_xmax)
-			if ((*domain)[i][j] * (*domain)[i][j+1] <= 0.0) {
-				// interpolate
-				i_slope  = ((*domain)[i][j+1] - (*domain)[i][j]) / h;
-				zero = -(*domain)[i][j] / i_slope;
-				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
-			}
-				// calculate new distance candidate and assign if appropriate
-			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j+1]) * h);
-			if (abs(candidate) < abs((*temp)[ii][jj+1])) (*temp)[ii][jj+1] = candidate;
-		}
-		
-	}
-	
-	// x-direction backward
-	for (int i = ymin; i < ymax; i++) {
-		for (int j = xmax-1; j > xmin; j--) {
-			ii = i-ymin; jj = j-xmin;
-			if ((*domain)[i][j] * (*domain)[i][j-1] <= 0.0) {
-				// interpolate
-				i_slope  = ((*domain)[i][j-1] - (*domain)[i][j]) / h;
-				zero = -(*domain)[i][j] / i_slope;
-				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
-			}
-			// calculate new distance candidate and assign if appropriate
-			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i][j-1]) * h); // replace with the "a"-slope stuff...
-			if (abs(candidate) < abs((*temp)[ii][jj-1])) (*temp)[ii][jj-1] = candidate;
-		}
-// 		(*temp)[ymin][jj-1] = (*temp)[ymin][jj] -h;
-	}
-// 	
-	// y-direction forward
-	for (int j = xmin; j < xmax; j++) {		
-		for (int i = ymin; i < ymax-1; i++) {	
-			ii = i-ymin; jj = j-xmin;
-			// check for sign change
-			if ((*domain)[i][j] * (*domain)[i+1][j] <= 0.0) {  
-				// interpolate
-				i_slope  = ((*domain)[i+1][j] - (*domain)[i][j]) / h;
-				zero = -(*domain)[i][j] / i_slope;
-				if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
-			}
-			// calculate new distance candidate and assign if appropriate
-			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i+1][j]) * h);
-			if (abs(candidate) < abs((*temp)[ii+1][jj])) (*temp)[ii+1][jj] = candidate;
-		}
-
-	}
-	
-	// y-direction backward
-	for (int j = xmin; j < xmax; j++) {
-		for (int i = ymax-1; i > ymin; i--) {	
-			ii = i-ymin;	jj = j-xmin;
-				if ((*domain)[i][j] * (*domain)[i-1][j] <= 0.0) {  
+			if(j < intersec_xmax && i < intersec_ymax){
+				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] <= 0.0) {
 					// interpolate
-					i_slope  = ((*domain)[i-1][j] - (*domain)[i][j]) / h;
-					zero = -(*domain)[i][j] / i_slope;
-					if ( abs((*temp)[ii][jj]) > abs(zero)) (*temp)[ii][jj] = -zero * utils::sgn(i_slope);
+					i_slope  = ( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
+					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
 				}
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
+			}
+			else {
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
+			}
 			// calculate new distance candidate and assign if appropriate
-			candidate = (*temp)[ii][jj] + (utils::sgn((*domain)[i-1][j]) * h); // replace with the "a"-slope stuff...
-			if (abs(candidate) < abs((*temp)[ii-1][jj])) (*temp)[ii-1][jj] = candidate;
-		}
-// 		(*temp)[ii-1][xmin] = (*temp)[ii][xmin] - h;
+			
+		}		
 	}
 	
-	for (int i = ymin; i < ymax; i++){
-		for (int j = xmin; j < xmax; j++){
-			ii = i-ymin;	jj = j-xmin;
-// 			(*domain)[i][j] = (*temp)[ii][jj];
-			if (abs((*temp)[i-ymin][j-xmin])< DELTA) (*domain)[i][j] = (*temp)[i-ymin][j-xmin];
-			else (*domain)[i][j] = DELTA * utils::sgn((*temp)[i-ymin][j-xmin]);
-// 			if (((i <= grid_blowup) && ((m-grid_blowup <= j) || (j <= grid_blowup)) ) || ( (m-grid_blowup <= i) && ((m-grid_blowup <= j) || (j <= grid_blowup)))){
-// 				(*domain)[i][j]= (*temp)[i-ymin][j-xmin];
-// 			}
-		}
+	for (int i = intersec_ymin; i < ymax; i++){
+	  for (int j = intersec_xmax-1; j > xmin; j--) {
+	// x-direction backward
+			//check for sign change
+			if(j > intersec_xmin && i < intersec_ymax){
+				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] <= 0.0) {
+					// interpolate
+					i_slope  = ( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
+					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+					}
+					// calculate new distance candidate and assign if appropriate
+					candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] ) * h);
+					if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)]  = candidate;
+			}
+			else {
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)]  = candidate;
+			}
+		}		
 	}
+	// 	
+	
+		// y-direction forward
+	for (int j = intersec_xmin; j < intersec_xmax; j++) {
+		for (int i = intersec_ymin; i < intersec_ymax-1; i++) {	
+			if(j < intersec_xmax && i < intersec_ymax){
+				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] <= 0.0) {
+					// interpolate
+					i_slope  = (distance_old[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] )/ h;
+					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+				}
+				// calculate new distance candidate and assign if appropriate
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  = candidate;
+			}
+			else {
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  = candidate;
+			}
+		}		
+	}
+	
+	for (int j = intersec_xmin; j < intersec_xmax; j++) {
+		for (int i = intersec_ymax-1; i > intersec_ymin; i--) {	
+			if(j < intersec_xmax && i > intersec_ymin){
+				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] <= 0.0) {
+					// interpolate
+					i_slope  = (distance_old[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] )/ h;
+					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+				}
+				// calculate new distance candidate and assign if appropriate
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)]  = candidate;
+			}
+			else {
+				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)]  = candidate;
+			}
+		}		
+	}
+
 	distance_new.resize(m*n);
 }
 
@@ -826,8 +848,7 @@ void LSbox::plot_box(bool distanceplot){
     cout << " xmin, xmax, ymin, ymax :" << xmin << " || "<< xmax << " || " << ymin << " || " << ymax << endl;
 //     if (distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 // 		else cout << " no distance values in storage!" << endl;
-    cout << " Box is in Domain: " << domain->get_id() << endl;
-	
+   	
 	if(neighbors.empty()!=true){
 		cout << " List of Neighbors : ";
 		vector<LSbox*> :: iterator it;
@@ -862,7 +883,7 @@ void LSbox::plot_box(bool distanceplot){
 	for (int j = 0; j < handler->get_ngridpoints(); j++){
 	    for (int i = 0; i < handler->get_ngridpoints(); i++){
 		if( j >= ymin && j < ymax && i >=xmin && i < xmax) 
-		datei << ::std::fixed << (*domain)[j][i] << "\t";
+		datei << ::std::fixed << distance_current[i*(xmax-xmin)+j] << "\t";
 		else datei << ::std::fixed << -DELTA<< "\t";
 	      }
 	    datei << endl;
