@@ -347,7 +347,7 @@ void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_pla
 	*fftplan2 = fftw_plan_dft_c2r_2d(xr,yr,fftTemp,out,FFTW_ESTIMATE);
 }
 
-void LSbox::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
+void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
 {
 	/* Function returns in u the updated value of u as described below..
 	u -> (G_{dt})*u
@@ -386,16 +386,17 @@ void LSbox::conv_generator(double *u, fftw_complex *fftTemp, fftw_plan fftplan1,
 
 
 
+// Find Contour operates on distance_new_array
 
 
 
 void LSbox::find_contour() {
-	int grid_blowup = handler->get_grid_blowup(); 
-	double h = handler->get_h();
-	int loop = handler->loop;
+    int grid_blowup = handler->get_grid_blowup(); 
+    double h = handler->get_h();
+    int loop = handler->loop;
     int m = handler->get_ngridpoints();
 
-	stringstream s;
+    stringstream s;
     int first_i, first_j;
     int current_i, current_j;
     int next_i, next_j;
@@ -409,7 +410,7 @@ void LSbox::find_contour() {
 	int i = ymin+ int(dist/2);
     // look for zero in row y
     for (int j = xmin; j < xmax-1; j++) {
-        if (distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  <= 0) {
+        if (distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distance_new[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  <= 0) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
 	    next_i =i; 		next_j = j+1;
@@ -422,7 +423,7 @@ void LSbox::find_contour() {
 		int dist = xmax - xmin;
 		int j = xmin+ int(dist/2);
 		for (int i = ymin; i < ymax-1; i++) {	
-			if (distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  <= 0) {
+			if (distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distance_new[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  <= 0) {
 				first_i = i; 	first_j = j; 
 				current_i = i; 	current_j = j;
 				next_i =i+1; 	next_j = j;
@@ -442,20 +443,20 @@ void LSbox::find_contour() {
 
     // begin zero-tracking and interpolations
     bool newZero = true;
-	int sgn = -1; //(1 = left turn; -1 right turn)  
+    int sgn = -1; //(1 = left turn; -1 right turn)  
 
-	// reste the min and:
-	old_xmin = xmin; 
-	old_xmax = xmax; 
-	old_ymin = ymin; 
-	old_ymax = ymax;
-	xmax = 0; xmin = m; ymax = 0; ymin = m;
+    // reste the min and:
+    old_xmin = xmin; 
+    old_xmax = xmax; 
+    old_ymin = ymin; 
+    old_ymax = ymax;
+    xmax = 0; xmin = m; ymax = 0; ymin = m;
 	
 	
-	SPoint point;
-	vector<SPoint> points;
-	
-// 	 begin search
+    SPoint point;
+    vector<SPoint> points;
+
+    // 	 begin search
 	
     while (newZero) {		
 	  current_i = next_i;
@@ -475,7 +476,7 @@ void LSbox::find_contour() {
 	  //(1 = left turn; -1 right turn)  
 	  sgn = utils::sgn((*domain)[current_i][current_j]);            
 	  if (sgn == 0) { 
-		if (direction == 0) 	   {next_i = current_i-1;next_j = current_j;}
+		if (direction == 0) 	{next_i = current_i-1;next_j = current_j;}
 		else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
 		else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
 		else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
@@ -658,7 +659,7 @@ void LSbox::comparison(){
 							}
 							else if(  (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
 // 								Kandidat ist näher dran, als 2ter nachbar oder gleich
-								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*(distance[i-ymin]))[j-xmin]; 
+								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
 								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( ++IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin() , *it_nn);							  
 							}
 							else { 
@@ -691,8 +692,8 @@ void LSbox::checkIntersect_zero_grain(){
 		for (int i = ymin; i < ymax; i++){
 			for (int j = xmin; j < xmax; j++){	
 				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					if(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary)[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
-						distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary)[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
+					if(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
+						distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
 					}
 				}
 			}
@@ -737,7 +738,7 @@ void LSbox::redist_box() {
 		for (int j = xmin; j < xmax-1; j++) {
 			ii = i-ymin; jj = j-xmin;
 			//check for sign change
-			if(i >= old_ymin && y < old_ymax && x >= old_xmin && x < old_xmax)
+			if(i >= old_ymin && i < old_ymax && j >= old_xmin && j < old_xmax)
 			if ((*domain)[i][j] * (*domain)[i][j+1] <= 0.0) {
 				// interpolate
 				i_slope  = ((*domain)[i][j+1] - (*domain)[i][j]) / h;

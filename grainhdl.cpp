@@ -18,7 +18,7 @@ void grainhdl::setSimulationParameter(){
 	h = 1.0/double(realDomainSize);
 
 	grid_blowup = BORDER; 
-    totalenergy = new double[TIMESTEPS];
+	totalenergy = new double[TIMESTEPS];
 		
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 

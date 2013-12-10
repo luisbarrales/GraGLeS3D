@@ -3,7 +3,7 @@
 #include "ggLS.h"
 
 class grainhdl;
-
+class LSbox;
 struct mapkey {
   LSbox* first;
   LSbox* second;
