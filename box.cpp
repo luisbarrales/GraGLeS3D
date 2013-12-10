@@ -58,8 +58,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	ymax += 2*grid_blowup;
 		
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
-	distance_current.resize(xmax-xmin * ymax-ymin);
-	distance_new.resize(xmax-xmin * ymax-ymin);
+	distanceBuffer2.resize(xmax-xmin * ymax-ymin);
+	distanceBuffer1.resize(xmax-xmin * ymax-ymin);
 	local_weights=new weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
@@ -103,8 +103,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	ymax += 2*grid_blowup;
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
     
-	distance_current.resize(xmax-xmin * ymax-ymin);
-	distance_new.resize(xmax-xmin * ymax-ymin);
+	distanceBuffer2.resize(xmax-xmin * ymax-ymin);
+	distanceBuffer1.resize(xmax-xmin * ymax-ymin);
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new weightmap(owner);
@@ -155,8 +155,8 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		}
             }
 			// 			(*domain)[i][j]= dmin;
-			if (abs(dmin) < DELTA) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
-			else distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
+			if (abs(dmin) < DELTA) distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
+			else distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
         }
 	}
 	int count = 0;
@@ -164,15 +164,15 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		j=ymin;
 		count = 0;
 		while( j<ymax  && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 			j++;
 		} 		
 		j=ymax-1;
 		count =0;
 		while( j>=ymin && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
+			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
 			j--;
 		} 
 	}
@@ -181,15 +181,15 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		i=xmin;
 		count = 0;
 		while( i<xmax  && count < 1 ) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 			i++;
 		} 
 		i=xmax-1;
 		count =0;
 		while( i>=xmin   && count < 1  ) {			
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 			i--;
 		} 
 	}
@@ -232,8 +232,8 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    }
 	}
 // 			(*domain)[i][j]= dmin;
-	if (abs(dmin) < DELTA) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
-	else distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
+	if (abs(dmin) < DELTA) distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
+	else distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
       }
     }
 	    int count = 0;
@@ -241,15 +241,15 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    j=ymin;
 	    count = 0;
 	    while( j<ymax  && count < 1) {
-		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    j++;
 	    } 		
 	    j=ymax-1;
 	    count =0;
 	    while( j>=ymin && count < 1) {
-		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
 		    j--;
 	    } 
     }
@@ -258,15 +258,15 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    i=xmin;
 	    count = 0;
 	    while( i<xmax  && count < 1 ) {
-		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    i++;
 	    } 
 	    i=xmax-1;
 	    count =0;
 	    while( i>=xmin   && count < 1  ) {			
-		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    i--;
 	    } 
     }
@@ -284,8 +284,9 @@ void LSbox::convolution(){
 
 	
 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
-	double* in = &distance_current[0];
-	double* out = &distance_new[0];
+	double* in = &distanceBuffer2[0];
+	double* out = &distanceBuffer1[0];
+	
 	makeFFTPlans(in,out, fftTemp, &fwdPlan, &bwdPlan);
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
 
@@ -331,7 +332,7 @@ void LSbox::convolution(){
 			weight = local_weights->load_weights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
 
-			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = distance_current[(i-ymin)*(xmax-xmin)+j-xmin] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
+			distanceBuffer2[(i-ymin)*(xmax-xmin)+j-xmin] = distanceBuffer2[(i-ymin)*(xmax-xmin)+j-xmin] + ((distanceBuffer2[(i-ymin)*(xmax-xmin)+j-xmin] -distanceBuffer1[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
 			
 		  }
 	   }
@@ -359,7 +360,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	Assumptions:
 	fftplan1 converts u to it's FT (in fftTemp), and
 	fftplan2 converts the FT (after pointwise multiplication with G)
-	back to a real-valued level set function at u.
+	outputDistance to a real-valued level set function at u.
 	Memory is already allocated in fftTemp
 	(necessary to create the plans) */
 	
@@ -391,7 +392,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 
 
 
-// Find Contour operates on distance_new_array
+// Find Contour operates on distanceBuffer1_array
 
 
 
@@ -415,7 +416,7 @@ void LSbox::find_contour() {
 	int i = ymin+ int(dist/2);
     // look for zero in row y
     for (int j = xmin; j < xmax-1; j++) {
-        if (distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distance_new[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  <= 0) {
+        if (distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  <= 0) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
 	    next_i =i; 		next_j = j+1;
@@ -428,7 +429,7 @@ void LSbox::find_contour() {
 		int dist = xmax - xmin;
 		int j = xmin+ int(dist/2);
 		for (int i = ymin; i < ymax-1; i++) {	
-			if (distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distance_new[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  <= 0) {
+			if (distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]  * distanceBuffer1[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  <= 0) {
 				first_i = i; 	first_j = j; 
 				current_i = i; 	current_j = j;
 				next_i =i+1; 	next_j = j;
@@ -480,7 +481,7 @@ void LSbox::find_contour() {
 	  // change search directions
 	  //(1 = left turn; -1 right turn)  
 
-	  sgn = utils::sgn(distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]);            
+	  sgn = utils::sgn(distanceBuffer2[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]);            
 	  if (sgn == 0) { 
 		if (direction == 0) 	{next_i = current_i-1;next_j = current_j;}
 		else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
@@ -501,38 +502,38 @@ void LSbox::find_contour() {
 		  else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
 		  
 //            cerr << current_i  <<"  "<< current_j <<"  "<< next_i <<"  "<< next_j <<endl ;
-		  if ( distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distance_new[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] <= 0) {
+		  if ( distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distanceBuffer1[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] <= 0) {
 			  foundnext = true;
-			  if( distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distance_new[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] != 0.0 )
+			  if( distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distanceBuffer1[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] != 0.0 )
 			  {
-				double slope =  distance_new[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] - distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)];
+				double slope =  distanceBuffer1[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] - distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)];
 				slope = -1.0 *slope;
 				if (direction == 1) {	 
-				  point.x= current_j + distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.x= current_j + distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.y = current_i;
 				}
 				else if (direction == 3){	 
-				  point.x = current_j - distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.x = current_j - distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.y = current_i;
 				}
 				else if (direction == 0) {	 				
-				  point.y =  current_i - distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.y =  current_i - distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.x = current_j;
 				}
 				else if (direction == 2){	
-				  point.y =  current_i + distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.y =  current_i + distanceBuffer1[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.x = current_j;
 				}		 
 			  }
 			  else {
 
-				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]<< endl;
+				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << distanceBuffer2[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]<< endl;
 				
-				if (distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] == 0.0) { point.y =  current_i;  point.x = current_j; }
-				else if (distance_current[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)]  == 0.0) { point.y =  next_i;  point.x = next_j; }
+				if (distanceBuffer2[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] == 0.0) { point.y =  current_i;  point.x = current_j; }
+				else if (distanceBuffer2[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)]  == 0.0) { point.y =  next_i;  point.x = next_j; }
 
 			  }
-			  points.emplace_back(point);			 
+			  points.emplace_outputDistance(point);			 
 			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
 		  }        		  
 		  
@@ -602,11 +603,11 @@ void LSbox::set_comparison(){
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-				distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
+				distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
 			}
-			if( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.9* DELTA) && (abs(distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]) < ( 0.9 * DELTA)) ) {
+			if( abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.9* DELTA) && (abs(distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]) < ( 0.9 * DELTA)) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
-				distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)] = 0.5 * (distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)] - distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] );
+				distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] = 0.5 * (distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] - distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] );
 			}
 		}
 	}
@@ -630,7 +631,7 @@ void LSbox::comparison(){
 		
 			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
-				neighbors.push_back(*it_nn);
+				neighbors.push_outputDistance(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				
 				if(xmin < (**it_nn).xmin) x_min_new = (**it_nn).xmin;
@@ -647,31 +648,31 @@ void LSbox::comparison(){
 					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){					
-// 						after the Convolution the updated distancefunction is in the distance_new arry of each box. so we have to compare with this array. 
-// 						the nearest value we save for comparison in the distance_current array of the current grain.
-						if( abs((**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]) < 0.9*DELTA ){
+// 						after the Convolution the updated distancefunction is in the distanceBuffer1 arry of each box. so we have to compare with this array. 
+// 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.
+						if( abs((**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]) < 0.9*DELTA ){
 // 							we are in the 0.9*DELTA-tube of grain (**it_nn) -> so we update our arrays and neighborlist
-							if( distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] < (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
+							if( distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] < (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
 								if( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ) {
 // 									falls noch kein nachbar vorhanden:
-									distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)];	
-									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);									
+									distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)];	
+									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_outputDistance(*it_nn);									
 								}
 								else {
 // 									new next neighbor found:
-									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)];
-									distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);	
 								}
 							}
-							else if(  (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
+							else if(  (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
 // 								Kandidat ist näher dran, als 2ter nachbar oder gleich
-								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).distance_new[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
+								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
 								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( ++IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin() , *it_nn);							  
 							}
 							else { 
 								// probably there are more than 3 grains nearer than DELTA to this gridpoint
-								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);						  
+								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_outputDistance(*it_nn);						  
 							}
 						}
 					}
@@ -685,7 +686,7 @@ void LSbox::comparison(){
 	checkIntersect_zero_grain();
 // 	be careful for parralisation!!!!!
 	set_comparison();
-// 	write the compared values to the distance_new array
+// 	write the compared values to the distanceBuffer1 array
 	
 }
 
@@ -699,8 +700,8 @@ void LSbox::checkIntersect_zero_grain(){
 		for (int i = ymin; i < ymax; i++){
 			for (int j = xmin; j < xmax; j++){	
 				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					if(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
-						distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
+					if(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
+						distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
 					}
 				}
 			}
@@ -720,7 +721,7 @@ void LSbox::add_n2o(){
 			for(it_com = neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
 				if(*it_n2o == *it_com || this == *it_n2o) just_in = true;
 			}
-			if(just_in == false) neighbors_2order.push_back(*it_n2o);
+			if(just_in == false) neighbors_2order.push_outputDistance(*it_n2o);
 		}
 	}
 }
@@ -732,16 +733,19 @@ void LSbox::redist_box() {
 	double h = handler->get_h();
 // 	plot_box(false);
 
-	double* distance_old= &distance_new[0];
-	int m=ymax-ymin;
-	int n=xmax-xmin;
+	inputDistance= distanceBuffer1;
+	outputDistance = distanceBuffer2;
+
 	int ii, jj;
 	double slope = 1;
 	double candidate, i_slope, zero;
-	distance_current.resize(m*n);
-	std::fill(distance_current.begin(),distance_current.end(),-1.0);
 	
-// 	resize the distance_current array. be careful because during this part of algorithm both arrays have not the same size!!
+	int m=ymax-ymin;
+	int n=xmax-xmin;
+	outputDistance.resize(m*n);
+	std::fill(outputDistance.begin(),outputDistance.end(),-1.0);
+	
+// 	resize the outputDistance array. be careful because during this part of algorithm both arrays have not the same size!!
 	int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 	    
 	if (old_xmin < xmin) 		
@@ -766,18 +770,18 @@ void LSbox::redist_box() {
 	// x-direction forward
 			//check for sign change
 			if(j < intersec_xmax && i < intersec_ymax){
-				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] <= 0.0) {
+				if (inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] <= 0.0) {
 					// interpolate
-					i_slope  = ( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
-					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
-					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+					i_slope  = ( inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)]  - inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
+					zero = - inputDistance[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
 				}
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
 			}
 			else {
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( outputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
 			}
 			// calculate new distance candidate and assign if appropriate
 			
@@ -786,69 +790,69 @@ void LSbox::redist_box() {
 	
 	for (int i = intersec_ymin; i < ymax; i++){
 	  for (int j = intersec_xmax-1; j > xmin; j--) {
-	// x-direction backward
+	// x-direction outputDistanceward
 			//check for sign change
 			if(j > intersec_xmin && i < intersec_ymax){
-				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] <= 0.0) {
+				if (inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] <= 0.0) {
 					// interpolate
-					i_slope  = ( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
-					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
-					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+					i_slope  = ( inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)]  - inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
+					zero = - inputDistance[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
 					}
 					// calculate new distance candidate and assign if appropriate
-					candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] ) * h);
-					if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)]  = candidate;
+					candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] ) * h);
+					if (abs(candidate) < abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin-1)] )) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin-1)]  = candidate;
 			}
 			else {
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)] )) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin-1)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( outputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin-1)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin-1)] )) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin-1)]  = candidate;
 			}
 		}		
 	}
 	// 	
 	
 		// y-direction forward
-	for (int j = intersec_xmin; j < intersec_xmax; j++) {
-		for (int i = intersec_ymin; i < intersec_ymax-1; i++) {	
+	for (int j = intersec_xmin; j < xmax; j++) {
+		for (int i = intersec_ymin; i < ymax-1; i++) {	
 			if(j < intersec_xmax && i < intersec_ymax){
-				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] <= 0.0) {
+				if (inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * inputDistance[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] <= 0.0) {
 					// interpolate
-					i_slope  = (distance_old[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] )/ h;
-					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
-					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+					i_slope  = (inputDistance[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)]  - inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] )/ h;
+					zero = - inputDistance[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
 				}
 				// calculate new distance candidate and assign if appropriate
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( inputDistance[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin+1)*(xmax-xmin)+(j-xmin)] )) outputDistance[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  = candidate;
 			}
 			else {
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( outputDistance[(i-old_ymin+1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin+1)*(xmax-xmin)+(j-xmin)] )) outputDistance[(i-ymin+1)*(xmax-xmin)+(j-xmin)]  = candidate;
 			}
 		}		
 	}
 	
-	for (int j = intersec_xmin; j < intersec_xmax; j++) {
-		for (int i = intersec_ymax-1; i > intersec_ymin; i--) {	
+	for (int j = intersec_xmin; j < xmax; j++) {
+		for (int i = intersec_ymax-1; i > ymin; i--) {	
 			if(j < intersec_xmax && i > intersec_ymin){
-				if (distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * distance_old[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] <= 0.0) {
+				if (inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * inputDistance[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] <= 0.0) {
 					// interpolate
-					i_slope  = (distance_old[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)]  - distance_old[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] )/ h;
-					zero = - distance_old[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
-					if ( abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
+					i_slope  = (inputDistance[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)]  - inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] )/ h;
+					zero = - inputDistance[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
+					if ( abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
 				}
 				// calculate new distance candidate and assign if appropriate
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_old[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( inputDistance[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin-1)*(xmax-xmin)+(j-xmin)] )) outputDistance[(i-ymin-1)*(xmax-xmin)+(j-xmin)]  = candidate;
 			}
 			else {
-				candidate = distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( distance_current[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
-				if (abs(candidate) < abs(distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)] )) distance_current[(i-ymin-1)*(xmax-xmin)+(j-xmin)]  = candidate;
+				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( outputDistance[(i-old_ymin-1)*(old_xmax-old_xmin)+(j-old_xmin)] ) * h);
+				if (abs(candidate) < abs(outputDistance[(i-ymin-1)*(xmax-xmin)+(j-xmin)] )) outputDistance[(i-ymin-1)*(xmax-xmin)+(j-xmin)]  = candidate;
 			}
 		}		
 	}
 
-	distance_new.resize(m*n);
+	distanceBuffer1.resize(m*n);
 }
 
 
@@ -894,7 +898,7 @@ void LSbox::plot_box(bool distanceplot){
 	for (int j = 0; j < handler->get_ngridpoints(); j++){
 	    for (int i = 0; i < handler->get_ngridpoints(); i++){
 		if( j >= ymin && j < ymax && i >=xmin && i < xmax) 
-		datei << ::std::fixed << distance_new[(j-ymin)*(xmax-xmin)+i-xmin] << "\t";
+		datei << ::std::fixed << distanceBuffer1[(j-ymin)*(xmax-xmin)+i-xmin] << "\t";
 
 		else datei << ::std::fixed << -DELTA<< "\t";
 	      }
@@ -902,7 +906,7 @@ void LSbox::plot_box(bool distanceplot){
 	}
 	
 	datei.close();
-     }
+    }
 }
 
 
@@ -916,7 +920,7 @@ double LSbox::mis_ori(LSbox* grain_2){
 void LSbox::shape_distance(){
 	for (int i = 0; i < ymax-ymin; i++) {
 		for (int j = 0; j < xmax-xmin; j++) {	
-			distance_current[i*(xmax-xmin)+j]= - 4.0 *distance_current[i*(xmax-xmin)+j];
+			distanceBuffer2[i*(xmax-xmin)+j]= - 4.0 *distanceBuffer2[i*(xmax-xmin)+j];
 		}
 	}
 }
