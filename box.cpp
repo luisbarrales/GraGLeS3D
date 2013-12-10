@@ -197,79 +197,79 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 
 
 void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
-	int grid_blowup = handler->get_grid_blowup(); 
-	double h = handler->get_h();
+    int grid_blowup = handler->get_grid_blowup(); 
+    double h = handler->get_h();
+    
+    int i,j,k;
+    double d, dmin,lambda;
+
+    vektor u(2), a(2), p(2), x1(2), x2(2);
+    vector<double> vv;
+    c.vertices (part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
+    double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
+    for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
+      for (j=xmin;j<xmax;j++){
+	dmin=1000.;
+	p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
 	
-	int i,j,k;
-	double d, dmin,lambda;
-
-	vektor u(2), a(2), p(2), x1(2), x2(2);
-	vector<double> vv;
-	c.vertices (part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
-	double domain_vertices[] = {0.,0.,1.,0.,1.,1.,0.,1.,0.,0.}; // array of vertices to loop over
-	for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
-	  for (j=xmin;j<xmax;j++){
-            dmin=1000.;
-            p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
-            
-            for(int ii = 0;ii < c.p; ii++) {
-                for(int jj = 0;jj < c.nu[ii]; jj++) {
-                    
-                    k=c.ed[ii][jj];                    
-                    x1[0] = vv[3*ii]; x1[1] = vv[3*ii+1];
-                    x2[0] = vv[3*k];  x2[1] = vv[3*k+1];
-                    
-                    if (x1 != x2){
-                        a = x1;
-                        u = x2-x1;
-                        lambda=((p-a)*u)/(u*u); 
-                        
-                        if(lambda <= 0.) 				d = (p-x1).laenge();
-                        if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
-                        if(lambda >= 1.) d = (p-x2).laenge();
-						if(abs(d)< abs(dmin)) dmin=d;
-                    }
-                }
-            }
+	for(int ii = 0;ii < c.p; ii++) {
+	    for(int jj = 0;jj < c.nu[ii]; jj++) {
+		
+		k=c.ed[ii][jj];                    
+		x1[0] = vv[3*ii]; x1[1] = vv[3*ii+1];
+		x2[0] = vv[3*k];  x2[1] = vv[3*k+1];
+		
+		if (x1 != x2){
+		    a = x1;
+		    u = x2-x1;
+		    lambda=((p-a)*u)/(u*u); 
+		    
+		    if(lambda <= 0) 				d = (p-x1).laenge();
+		    if((0 < lambda) && (lambda < 1)) 		d = (p-(a+(u*lambda))).laenge();
+		    if(lambda >= 1) d = (p-x2).laenge();
+					    if(abs(d)< abs(dmin)) dmin=d;
+		}
+	    }
+	}
 // 			(*domain)[i][j]= dmin;
-            if (abs(dmin) < DELTA) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
-            else distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
-        }
-	}
-		int count = 0;
-	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
-		j=ymin;
-		count = 0;
-		while( j<ymax  && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-			j++;
-		} 		
-		j=ymax-1;
-		count =0;
-		while( j>=ymin && count < 1) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
-			j--;
-		} 
-	}
+	if (abs(dmin) < DELTA) distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
+	else distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
+      }
+    }
+	    int count = 0;
+    for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
+	    j=ymin;
+	    count = 0;
+	    while( j<ymax  && count < 1) {
+		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    j++;
+	    } 		
+	    j=ymax-1;
+	    count =0;
+	    while( j>=ymin && count < 1) {
+		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
+		    j--;
+	    } 
+    }
 
-	for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
-		i=xmin;
-		count = 0;
-		while( i<xmax  && count < 1 ) {
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-			i++;
-		} 
-		i=xmax-1;
-		count =0;
-		while( i>=xmin   && count < 1  ) {			
-			distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-			if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-			i--;
-		} 
-	}
+    for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
+	    i=xmin;
+	    count = 0;
+	    while( i<xmax  && count < 1 ) {
+		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    i++;
+	    } 
+	    i=xmax-1;
+	    count =0;
+	    while( i>=xmin   && count < 1  ) {			
+		    distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(distance_current[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    i--;
+	    } 
+    }
 }
 
 
@@ -332,10 +332,15 @@ void LSbox::convolution(){
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
 
 			distance_current[(i-ymin)*(xmax-xmin)+j-xmin] = distance_current[(i-ymin)*(xmax-xmin)+j-xmin] + ((distance_current[(i-ymin)*(xmax-xmin)+j-xmin] -distance_new[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
-			IDLocal.clear(); 
+			
 		  }
-	  }
+	   }
+	   
 	}
+	IDLocal.clear(); 
+	IDLocal.resize((xmax-xmin)*(ymax-ymin));
+	
+	
 }
 
 
@@ -402,9 +407,9 @@ void LSbox::find_contour() {
     int next_i, next_j;
     char direction = 1; // x+
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
-	double pointx; 
-	double pointy;
-	exist = false;
+    double pointx; 
+    double pointy;
+    exist = false;
 	
 	int dist = ymax - ymin;
 	int i = ymin+ int(dist/2);
@@ -445,7 +450,7 @@ void LSbox::find_contour() {
     bool newZero = true;
     int sgn = -1; //(1 = left turn; -1 right turn)  
 
-    // reste the min and:
+    // save olf min
     old_xmin = xmin; 
     old_xmax = xmax; 
     old_ymin = ymin; 
@@ -474,6 +479,7 @@ void LSbox::find_contour() {
 	  
 	  // change search directions
 	  //(1 = left turn; -1 right turn)  
+
 	  sgn = utils::sgn(distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]);            
 	  if (sgn == 0) { 
 		if (direction == 0) 	{next_i = current_i-1;next_j = current_j;}
@@ -481,6 +487,8 @@ void LSbox::find_contour() {
 		else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
 		else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
 	  } 
+    
+
 	  // search next zero
 	  // turn  right
 	  direction = (direction+sgn+4) %4; 
@@ -493,34 +501,36 @@ void LSbox::find_contour() {
 		  else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
 		  
 //            cerr << current_i  <<"  "<< current_j <<"  "<< next_i <<"  "<< next_j <<endl ;
-		  if ( distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distance_current[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] <= 0) {
+		  if ( distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distance_new[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] <= 0) {
 			  foundnext = true;
-			  if( distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distance_current[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] != 0.0 )
+			  if( distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] * distance_new[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] != 0.0 )
 			  {
-				double slope =  distance_current[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] - distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)];
+				double slope =  distance_new[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)] - distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)];
 				slope = -1.0 *slope;
 				if (direction == 1) {	 
-				  point.x= current_j + distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.x= current_j + distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.y = current_i;
 				}
 				else if (direction == 3){	 
-				  point.x = current_j - distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.x = current_j - distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.y = current_i;
 				}
 				else if (direction == 0) {	 				
-				  point.y =  current_i - distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.y =  current_i - distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.x = current_j;
 				}
 				else if (direction == 2){	
-				  point.y =  current_i + distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
+				  point.y =  current_i + distance_new[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]/slope;
 				  point.x = current_j;
 				}		 
 			  }
 			  else {
+
 				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)]<< endl;
 				
 				if (distance_current[(current_i-ymin)*(xmax-xmin)+(current_j-xmin)] == 0.0) { point.y =  current_i;  point.x = current_j; }
 				else if (distance_current[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)]  == 0.0) { point.y =  next_i;  point.x = next_j; }
+
 			  }
 			  points.emplace_back(point);			 
 			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
@@ -717,6 +727,7 @@ void LSbox::add_n2o(){
 
 
 void LSbox::redist_box() {
+
 	int grid_blowup = handler->get_grid_blowup(); 
 	double h = handler->get_h();
 // 	plot_box(false);
@@ -848,7 +859,7 @@ void LSbox::plot_box(bool distanceplot){
     cout << " xmin, xmax, ymin, ymax :" << xmin << " || "<< xmax << " || " << ymin << " || " << ymax << endl;
 //     if (distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 // 		else cout << " no distance values in storage!" << endl;
-   	
+
 	if(neighbors.empty()!=true){
 		cout << " List of Neighbors : ";
 		vector<LSbox*> :: iterator it;
@@ -883,7 +894,8 @@ void LSbox::plot_box(bool distanceplot){
 	for (int j = 0; j < handler->get_ngridpoints(); j++){
 	    for (int i = 0; i < handler->get_ngridpoints(); i++){
 		if( j >= ymin && j < ymax && i >=xmin && i < xmax) 
-		datei << ::std::fixed << distance_current[i*(xmax-xmin)+j] << "\t";
+		datei << ::std::fixed << distance_new[(j-ymin)*(xmax-xmin)+i-xmin] << "\t";
+
 		else datei << ::std::fixed << -DELTA<< "\t";
 	      }
 	    datei << endl;
