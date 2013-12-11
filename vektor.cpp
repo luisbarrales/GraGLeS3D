@@ -13,7 +13,6 @@ vektor::vektor(int n, double startval) : n(n) {
         for (int i=0;i<n;i++) x[i]=startval;
     }
 
-vektor::~vektor() { delete [] x; }
 
 vektor::vektor(const vektor& v) : n(v.n) {
         x=new double[n];
@@ -21,6 +20,9 @@ vektor::vektor(const vektor& v) : n(v.n) {
 }
 
 
+vektor::~vektor() { 
+// 	delete [] x; 
+}
 /*****************************************************************************/
 /*****************************************************************************/
 // overloaded operators
@@ -39,7 +41,7 @@ const double& vektor::operator[](int i) const {
     if (0<= i < n) return x[i];
     else {
         outOfBoundsException e(i, i);
-        cout << "invalid index " << e.what() << endl;
+        cerr << "invalid index " << e.what() << endl;
     }
 }
 

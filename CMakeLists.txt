@@ -8,7 +8,7 @@ set(CMAKE_BUILD_DIR "build")
 set(MY_SOURCES vektor.cpp outOfBoundsException.cpp mymath.cpp grainhdl.cpp box.cpp ggLS.cpp domainCl.cpp utilities.cpp weightmap.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
-set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS "-g")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 

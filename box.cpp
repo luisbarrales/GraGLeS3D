@@ -2,17 +2,20 @@
 
 
 
-LSbox::LSbox() {}
+LSbox::LSbox():inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {}
 
-LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2, grainhdl* owner): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2) {
+LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2, grainhdl* owner): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2),inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
   
 	handler=owner;
   	IDLocal.resize((xmax-xmin)*(ymax-ymin));
+	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
+	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
+
 	local_weights=new weightmap(owner);
-  
+	
 }
 
-LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner) {
+LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner), inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
     
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
@@ -58,14 +61,14 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	ymax += 2*grid_blowup;
 		
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
-	distanceBuffer2.resize(xmax-xmin * ymax-ymin);
-	distanceBuffer1.resize(xmax-xmin * ymax-ymin);
+	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
+	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	local_weights=new weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
 
-LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner){
+LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner), inputDistance(distanceBuffer1), outputDistance(distanceBuffer2){
     
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
@@ -103,8 +106,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	ymax += 2*grid_blowup;
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
     
-	distanceBuffer2.resize(xmax-xmin * ymax-ymin);
-	distanceBuffer1.resize(xmax-xmin * ymax-ymin);
+	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
+	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new weightmap(owner);
@@ -227,7 +230,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    if(lambda <= 0) 				d = (p-x1).laenge();
 		    if((0 < lambda) && (lambda < 1)) 		d = (p-(a+(u*lambda))).laenge();
 		    if(lambda >= 1) d = (p-x2).laenge();
-					    if(abs(d)< abs(dmin)) dmin=d;
+			if(abs(d)< abs(dmin)) dmin=d;
 		}
 	    }
 	}

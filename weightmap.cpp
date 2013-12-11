@@ -9,7 +9,7 @@ weightmap::~weightmap(){}
 void weightmap::find_representer(mapkey& rep, vector<LSbox*> IDs){
 //
   if ( IDs.size() <= 3){
-	if(IDs[0]< IDs[1]){
+	if(IDs[0]->get_id()< IDs[1]->get_id()){
 		rep.first=IDs[0];
 		rep.third=IDs[1];
 	}
@@ -17,12 +17,12 @@ void weightmap::find_representer(mapkey& rep, vector<LSbox*> IDs){
 		rep.third=IDs[0];
 		rep.first=IDs[1];
 	}
-	if( rep.third< IDs[2]){
+	if( rep.third->get_id()< IDs[2]->get_id()){
 		rep.second=rep.third;
 		rep.third=IDs[2];
 	}
 	else {
-		if( rep.first> IDs[2]){
+		if( rep.first->get_id()> IDs[2]->get_id()){
 			rep.second=rep.first;
 			rep.first=IDs[2];
 		}
@@ -44,11 +44,11 @@ double weightmap::load_weights(vector<LSbox*> IDs, LSbox* me, double* ST){
     if(rep.first==rep.second || rep.second==rep.third) 
       return 1.0;
     else{
-	it = weights_table.find(rep);
-	if (it == weights_table.end() ){		
-	sigma = compute_weights(rep, IDs, me);
-	weights_table[rep]= sigma;
-	}
+		std::map<mapkey,double>::iterator it = weights_table.find(rep);
+		if (it == weights_table.end() ){		
+		sigma = compute_weights(rep, me, ST);
+		weights_table[rep]= sigma;
+		}
     }
     return sigma;
 }
@@ -65,9 +65,9 @@ double weightmap::compute_weights(mapkey rep,  LSbox* me, double* ST){
 		sigma= 1.0;
 	}
 	else{
-		gamma[0] = ST[ (rep.first-1) + (handler->get_ngrains() * ( rep.second-1) ) ];
-		gamma[1] = ST[ (rep.first-1) + (handler->get_ngrains() * ( rep.third-1 ) ) ];
-		gamma[2] = ST[ (rep.second-1)+ (handler->get_ngrains() * ( rep.third-1 ) ) ];
+		gamma[0] = ST[ (rep.first->get_id()-1) + (handler->get_ngrains() * ( rep.second->get_id()-1) ) ];
+		gamma[1] = ST[ (rep.first->get_id()-1) + (handler->get_ngrains() * ( rep.third->get_id()-1 ) ) ];
+		gamma[2] = ST[ (rep.second->get_id()-1)+ (handler->get_ngrains() * ( rep.third->get_id()-1 ) ) ];
 		
 // 		theta_mis = (*handler->grains)[rep.first]->mis_ori((*handler->grains)[rep.second]);
 // 		if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
