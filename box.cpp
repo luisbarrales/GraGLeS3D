@@ -63,6 +63,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
+	
 	local_weights=new weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
@@ -104,9 +105,9 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
     }
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
+	
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
-    
-	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
+    distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
@@ -139,23 +140,23 @@ void LSbox::distancefunction(int nvertex, double* vertices){
             p[0] = (i-grid_blowup)*h; p[1] = (j-grid_blowup)*h;            
             
             for(int k=0; k < nvertices; k++) {                
-		x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-		x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];				
-		if (x1 != x2){
-			a = x1;
-			u = x2-x1;
-			lambda=((p-a)*u)/(u*u); 
-			
-			if(lambda <= 0.) 				d = (p-x1).laenge();
-			if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
-			if(lambda >= 1.) 				d = (p-x2).laenge();
-// 					if(((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) {
-// 						d=abs(d);
-// 					}
-// 					else d= abs(d);
-			d= abs(d);
-			if(abs(d)< abs(dmin)) dmin=d;
-		}
+				x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+				x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];				
+				if (x1 != x2){
+					a = x1;
+					u = x2-x1;
+					lambda=((p-a)*u)/(u*u); 
+					
+					if(lambda <= 0.) 				d = (p-x1).laenge();
+					if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
+					if(lambda >= 1.) 				d = (p-x2).laenge();
+		// 					if(((grid_blowup < i) && (i < (m- grid_blowup))) && ((grid_blowup < j) && (j < (m- grid_blowup)))) {
+		// 						d=abs(d);
+		// 					}
+		// 					else d= abs(d);
+					d= abs(d);
+					if(abs(d)< abs(dmin)) dmin=d;
+				}
             }
 			// 			(*domain)[i][j]= dmin;
 			if (abs(dmin) < DELTA) distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
@@ -163,39 +164,43 @@ void LSbox::distancefunction(int nvertex, double* vertices){
         }
 	}
 	int count = 0;
-	for (i=xmin;i<xmax;i++){ // ¸ber gitter iterieren
-		j=ymin;
-		count = 0;
-		while( j<ymax  && count < 1) {
-			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-			j++;
-		} 		
-		j=ymax-1;
-		count =0;
-		while( j>=ymin && count < 1) {
-			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
-			j--;
-		} 
-	}
+    for (j=xmin;j<xmax;j++){ // ¸ber gitter iterieren
+	    i=ymin;
+	    count = 0;
+	    while( i<ymax  && count < 1) {
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    i++;
+	    } 		
+	    i=ymax-1;
+	    count =0;
+	    while( i>=ymin && count < 1) {
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
+		    i--;
+	    } 
+    }
 
-	for (j=ymin;j<ymax;j++){ // ¸ber gitter iterieren
-		i=xmin;
-		count = 0;
-		while( i<xmax  && count < 1 ) {
-			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-			i++;
-		} 
-		i=xmax-1;
-		count =0;
-		while( i>=xmin   && count < 1  ) {			
-			distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-			if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-			i--;
-		} 
-	}
+    for (i=ymin;i<ymax;i++){ // ¸ber gitter iterieren
+	    j=xmin;
+	    count = 0;
+	    while( j<xmax  && count < 1 ) {
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    j++;
+	    } 
+	    j=xmax-1;
+	    count =0;
+	    while( j>=xmin   && count < 1  ) {			
+		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    j--;
+	    } 
+    }
+       plot_box(true,2);
+	char buffer;
+	cin >> buffer;
+
 }
 
 
@@ -239,21 +244,21 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	else distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
       }
     }
-	    int count = 0;
-    for (j=xmin;j<xmax;i++){ // ¸ber gitter iterieren
+	int count = 0;
+    for (j=xmin;j<xmax;j++){ // ¸ber gitter iterieren
 	    i=ymin;
 	    count = 0;
 	    while( i<ymax  && count < 1) {
 		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-		    j++;
+		    i++;
 	    } 		
 	    i=ymax-1;
 	    count =0;
 	    while( i>=ymin && count < 1) {
 		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
 		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
-		    j--;
+		    i--;
 	    } 
     }
 
@@ -263,30 +268,35 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    while( j<xmax  && count < 1 ) {
 		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
 		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-		    i++;
+		    j++;
 	    } 
 	    j=xmax-1;
 	    count =0;
 	    while( j>=xmin   && count < 1  ) {			
 		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
 		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
-		    i--;
+		    j--;
 	    } 
     }
+    plot_box(true,2);
+	char buffer;
+	cin >> buffer;
 }
 
 
 void LSbox::convolution(){
 
 	double* ST = handler->ST;
-	int n	= handler->get_ngridpoints();
+	int n = xmax-xmin;
+	int m = ymax-ymin;
 	int dt 	= handler->get_dt();
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
 
 	
-	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(m/2)+1)*sizeof(fftw_complex));
+	
 	double* in = &distanceBuffer2[0];
 	double* out = &distanceBuffer1[0];
 	
@@ -344,6 +354,9 @@ void LSbox::convolution(){
 	IDLocal.clear(); 
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
 	
+	plot_box(true,1);
+	char buffer;
+	cin>> buffer;
 	
 }
 
@@ -367,9 +380,11 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	Memory is already allocated in fftTemp
 	(necessary to create the plans) */
 	
-	int n= handler->get_ngridpoints();
+	int m = xmax-xmin;
+	int n = ymax-ymin;
 	int dt= handler->get_dt();
 	int n2 = floor(n/2) + 1;
+	
 	double nsq = n *  n;
 	double k = 2.0 * PI / n;
 	double G;
@@ -378,7 +393,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	
 	for(int i=0;i<n2;i++) {
 		coski=cos(k*i);
-		for(int j=0;j<n;j++){
+		for(int j=0;j<m;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
 			G = 1.0/(1.0+(dt*G)) / nsq;
@@ -893,10 +908,12 @@ void LSbox::plot_box(bool distanceplot, int select){
        ofstream datei;
        datei.open(filename.str());
 
-		for (int j = 0; j < handler->get_ngridpoints(); j++){
-			for (int i = 0; i < handler->get_ngridpoints(); i++){
-				if( j >= ymin && j < ymax && i >=xmin && i < xmax) 
-					datei << ::std::fixed << distanceBuffer1[(j-ymin)*(xmax-xmin)+i-xmin] << "\t";
+		for (int i = 0; i < handler->get_ngridpoints(); i++){
+			for (int j = 0; j < handler->get_ngridpoints(); j++){
+				if( i >= ymin && i < ymax && j >=xmin && j < xmax) {
+					if(select == 1) datei << ::std::fixed << distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\t";
+					if(select == 2) datei << ::std::fixed << distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] << "\t";
+				}
 				else datei << ::std::fixed << -DELTA<< "\t";
 			}
 	    datei << endl;

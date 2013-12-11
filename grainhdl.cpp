@@ -42,6 +42,7 @@ void grainhdl::setSimulationParameter(){
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << ngrains << endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
+	 cout << "DELTA TUBE: " << DELTA << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << ngridpoints << endl << endl;
     
@@ -130,8 +131,7 @@ void grainhdl::construct_boundary(){
 	grains[0]= boundary;
 	boundary->distancefunction(4, vertices); 
 	boundary->shape_distance();
-	// get the invers distancefunction
-	
+	// get the inverse distancefunction which slope 4!
 // 	(*boundary).save_box("boundary.gnu");
 }
 
