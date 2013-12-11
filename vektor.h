@@ -1,12 +1,14 @@
 #ifndef VEKTOR_h
 #define VEKTOR_h
 
-#include "levelsetproject.h"
-
+#include "ggLS.h"
 using namespace std;
 
-class matrix;
-class particle_information;
+
+
+
+
+
 
 class vektor {
 	int n;
