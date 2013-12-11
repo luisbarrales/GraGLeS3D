@@ -47,11 +47,9 @@
 
 #include "voro++/include/voro++/voro++.hh"
 #include "utilities.h"
-#include "outOfBoundsException.h"
-#include "vektor.h"
+
+
 #include "box.h"
-#include "domainCl.h"
-#include "functions.h"
 #include "weightmap.h"
 #include "grainhdl.h"
 #include "mymath.h"

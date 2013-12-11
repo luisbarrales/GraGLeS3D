@@ -533,7 +533,7 @@ void LSbox::find_contour() {
 				else if (distanceBuffer2[(next_i-ymin)*(xmax-xmin)+(next_j-xmin)]  == 0.0) { point.y =  next_i;  point.x = next_j; }
 
 			  }
-			  points.emplace_outputDistance(point);			 
+			  points.emplace_back(point);			 
 			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
 		  }        		  
 		  
@@ -631,7 +631,7 @@ void LSbox::comparison(){
 		
 			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
-				neighbors.push_outputDistance(*it_nn);
+				neighbors.push_back(*it_nn);
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				
 				if(xmin < (**it_nn).xmin) x_min_new = (**it_nn).xmin;
@@ -656,7 +656,7 @@ void LSbox::comparison(){
 								if( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ) {
 // 									falls noch kein nachbar vorhanden:
 									distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)];	
-									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_outputDistance(*it_nn);									
+									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);									
 								}
 								else {
 // 									new next neighbor found:
@@ -672,7 +672,7 @@ void LSbox::comparison(){
 							}
 							else { 
 								// probably there are more than 3 grains nearer than DELTA to this gridpoint
-								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_outputDistance(*it_nn);						  
+								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);						  
 							}
 						}
 					}
@@ -721,7 +721,7 @@ void LSbox::add_n2o(){
 			for(it_com = neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
 				if(*it_n2o == *it_com || this == *it_n2o) just_in = true;
 			}
-			if(just_in == false) neighbors_2order.push_outputDistance(*it_n2o);
+			if(just_in == false) neighbors_2order.push_back(*it_n2o);
 		}
 	}
 }
