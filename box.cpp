@@ -335,6 +335,9 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 
 void LSbox::convolution(){
 
+	inputDistance	= distanceBuffer2;
+	outputDistance	= distanceBuffer1;
+
 	double* ST = handler->ST;
 	int n = xmax-xmin;
 	int m = ymax-ymin;
@@ -345,12 +348,8 @@ void LSbox::convolution(){
 	
 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
 	
-	double* in = &distanceBuffer2[0];
-	double* out = &distanceBuffer1[0];
-	
-	plot_box(true,2);
-	char buffer;
-	cin>> buffer;
+	double* in = &inputDistance[0];
+	double* out = &outputDistance[0];
 	
 	makeFFTPlans(in,out, fftTemp, &fwdPlan, &bwdPlan);
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
@@ -392,13 +391,10 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
     
-		    
 		    // 		    if ( rad < abs(ref[i][j]) ) continue;
 			weight = local_weights->load_weights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
-		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren			
-
-			distanceBuffer2[(i-ymin)*(xmax-xmin)+j-xmin] = distanceBuffer2[(i-ymin)*(xmax-xmin)+j-xmin] + ((distanceBuffer2[(i-ymin)*(xmax-xmin)+j-xmin] -distanceBuffer1[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
-			
+		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
+			outputDistance[(i-ymin)*(xmax-xmin)+j-xmin] = inputDistance[(i-ymin)*(xmax-xmin)+j-xmin] + ((outputDistance[(i-ymin)*(xmax-xmin)+j-xmin] -inputDistance[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
 		  }
 	   }
 	   
@@ -406,9 +402,9 @@ void LSbox::convolution(){
 	IDLocal.clear(); 
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
 	
-	plot_box(true,1);
-	cin>> buffer;
-	
+// 	 set the references for the comparison step
+	inputDistance = distanceBuffer1;
+	outputDistance = distanceBuffer2;
 }
 
 
@@ -435,7 +431,6 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	int m = ymax-ymin;
 // 	assert(m!=n);
 	double dt = handler->get_dt();
-	cout << "dt  : " << dt << endl;
 	int n2 = floor(n/2) + 1;
 	
 	double nsq =  n*n; 
@@ -443,7 +438,6 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	double G;
 	double coski;
 	fftw_execute(fftplan1);
-	cout << "now compute the convolution" << endl;
 	for(int i=0;i<n2;i++) {
 		coski=cos(k*i);
 		for(int j=0;j<n;j++){
@@ -468,10 +462,18 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 
 
 void LSbox::find_contour() {
+	exist = false;
+	// save old boundaries -> function will compute updates
+    old_xmin = xmin; 
+    old_xmax = xmax; 
+    old_ymin = ymin; 
+    old_ymax = ymax;
+	
     int grid_blowup = handler->get_grid_blowup(); 
     double h = handler->get_h();
     int loop = handler->loop;
     int m = handler->get_ngridpoints();
+	
 	inputDistance = distanceBuffer1;
 	
     stringstream s;
@@ -482,7 +484,7 @@ void LSbox::find_contour() {
     // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
 	double pointx; 
     double pointy;
-    exist = false;
+    
 	
 	int dist = ymax - ymin;
 	int i = ymin+ int(dist/2);
@@ -522,25 +524,16 @@ void LSbox::find_contour() {
     // begin zero-tracking and interpolations
     bool newZero = true;
     int sgn = -1; //(1 = left turn; -1 right turn)  
-
-    // save olf min
-    old_xmin = xmin; 
-    old_xmax = xmax; 
-    old_ymin = ymin; 
-    old_ymax = ymax;
-    xmax = 0; xmin = m; ymax = 0; ymin = m;
-	
-	
     SPoint point;
     vector<SPoint> points;
 
     // 	 begin search
-	
+	xmax = 0; xmin = m; ymax = 0; ymin = m;	
     while (newZero) {		
 	  current_i = next_i;
 	  current_j = next_j;
 	  
-// check for size change
+	  // check for size change
 	  if (current_j-grid_blowup < xmin) 		
 		xmin = current_j - grid_blowup;
 	  else if (current_j > xmax-grid_blowup) 	
@@ -644,15 +637,18 @@ void LSbox::find_contour() {
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
-			
-			theta_mis=mis_ori( IDLocal[(int(py+0.5)*m) + int(px+0.5)][0] );
-			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-				else energy += h* gamma_hagb;
+			cout << px << "  " << py << endl;
+// 			theta_mis=mis_ori( IDLocal[(int(py+0.5)*(old_xmax-old_xmin)) + int(px+0.5)][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
+// 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 				else energy += h* gamma_hagb;
 		}		
 		if (xmin < 0) {cout <<"undefined box size for xmin: "<< xmin << endl; abort();} //xmin = 0;
 		if (xmax > m) {cout <<"undefined box size for xmax: "<< xmax << endl; abort();} //xmax = m;
 		if (ymin < 0) {cout <<"undefined box size for ymin: "<< ymin << endl; abort();} //ymin = 0;
 		if (ymax > m) {cout <<"undefined box size for ymax: "<< xmax << endl; abort();} // ymax = m;
+		resizeToSquare();
+		
+		
 		
 		stringstream dateiname;
 		dateiname << "testpoints_" << id << ".gnu";
@@ -667,7 +663,7 @@ void LSbox::find_contour() {
 
 
 
-void LSbox::set_comparison(){
+void LSbox::set_comparison(vector<double>& comparisonDistance){
 	int grid_blowup = (*handler).get_grid_blowup();
 	int m = (*handler).get_ngridpoints();
 	double h = handler->get_h();
@@ -675,14 +671,18 @@ void LSbox::set_comparison(){
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-				distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
+				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
 			}
-			if( abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.9* DELTA) && (abs(distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]) < ( 0.9 * DELTA)) ) {
+			if( abs(comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.9* DELTA) && (abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < ( 0.9 * DELTA)) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
-				distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] = 0.5 * (distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] - distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] );
+// 				outputDistance and comparisonDistance point to the same object!
+				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = 0.5 * (inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] - comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] );
 			}
 		}
 	}
+	plot_box(true,1);
+	char buffer;
+	cin>> buffer;
 // 	perhaps better to shift this line to the convolution function:
 	neighbors_old = neighbors;
 // 	update the old neighborlist - for read access by the other grains in the next timestep
@@ -696,6 +696,10 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 void LSbox::comparison(){
+	vector<double>& comparisonDistance = outputDistance; 
+	
+	distance_2neighbor = new double[(ymax-ymin) *(xmax-xmin)];
+
 	int loop = handler->loop;
 	std::vector<LSbox*>::iterator it_nn;
 
@@ -720,26 +724,24 @@ void LSbox::comparison(){
 					
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){					
-// 						after the Convolution the updated distancefunction is in the distanceBuffer1 arry of each box. so we have to compare with this array. 
+// 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.
-						if( abs((**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]) < 0.9*DELTA ){
-// 							we are in the 0.9*DELTA-tube of grain (**it_nn) -> so we update our arrays and neighborlist
-							if( distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] < (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
+						if( abs((**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) < 0.9*DELTA ){       // check if we are currently in the delta-area around the contour
+ 							if( comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
 								if( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ) {
 // 									falls noch kein nachbar vorhanden:
-									distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)];	
+									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];	
 									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);									
 								}
 								else {
 // 									new next neighbor found:
-									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];
-									distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);	
 								}
 							}
-							else if(  (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 
-// 								Kandidat ist näher dran, als 2ter nachbar oder gleich
-								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
+							else if(  (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ //candidate of neighbor is closer than 2nd neighbor
+								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
 								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( ++IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin() , *it_nn);							  
 							}
 							else { 
@@ -755,15 +757,16 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 	  // checke schnitt zum randkorn:
-	checkIntersect_zero_grain();
-// 	be careful for parralisation!!!!!
-	set_comparison();
-// 	write the compared values to the distanceBuffer1 array
+	checkIntersect_zero_grain(comparisonDistance);
+	// 	be careful for parralisation!!!!!
+	set_comparison(comparisonDistance);
+	// 	write the compared values to the distanceBuffer1 array
+	delete [] distance_2neighbor;
 	
 }
 
 
-void LSbox::checkIntersect_zero_grain(){
+void LSbox::checkIntersect_zero_grain(vector<double>& comparisonDistance){
 	LSbox* boundary = handler->boundary;
 	int grid_blowup = handler->get_grid_blowup();
 	int m = handler->get_ngridpoints();
@@ -772,8 +775,8 @@ void LSbox::checkIntersect_zero_grain(){
 		for (int i = ymin; i < ymax; i++){
 			for (int j = xmin; j < xmax; j++){	
 				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					if(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
-						distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
+					if(comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
+						comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
 					}
 				}
 			}

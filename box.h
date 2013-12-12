@@ -69,7 +69,7 @@ public:
 	int  getID();
     void resizeToSquare();
     void comparison();
-    void set_comparison();
+    void set_comparison(vector<double>& comparisonDistance);
     void add_n2o();
 	
     bool checkIntersect(LSbox* box2);   	
@@ -79,7 +79,7 @@ public:
 
 	void plot_box(bool distanceplot, int select);
 	double mis_ori(LSbox* grain_2);
-	void checkIntersect_zero_grain();
+	void checkIntersect_zero_grain(vector<double>& comparisonDistance);
 	void shape_distance();
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);

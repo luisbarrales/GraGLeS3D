@@ -377,7 +377,7 @@ void grainhdl::run_sim(){
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
 		comparison_box();	
-		level_set();
+// 		level_set();
 		char buffer;
 		cin >> buffer;
 		redistancing();
