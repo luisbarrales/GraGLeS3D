@@ -141,7 +141,7 @@ void LSbox::resizeToSquare(){
 	}
 	else
 	{
-		int diff = width - height;
+		int diff = height - width;
 		xmin -= diff/2;
 		xmax += diff/2 + diff%2;
 	}
