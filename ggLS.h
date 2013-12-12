@@ -15,6 +15,7 @@
 #define PRINTSTEP 1
 #define ANALYSESTEP 1
 #define MODE 2 // 2 für lesen;  1 für erzeugen der mikrostrukture
+#define NDEBUG
 
 #define PARTICLES 50
 

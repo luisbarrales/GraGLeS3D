@@ -78,6 +78,6 @@ class grainhdl{
 	inline double get_h() { return h; }
 	inline int get_grid_blowup() { return grid_blowup; }
 	inline int get_loop() { return loop; }
-	inline int get_dt() { return dt; }
+	inline double get_dt() { return dt; }
 };
 #endif

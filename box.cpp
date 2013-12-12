@@ -7,6 +7,7 @@ LSbox::LSbox():inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
 LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2, grainhdl* owner): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2),inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
   
 	handler=owner;
+	resizeToSquare();
   	IDLocal.resize((xmax-xmin)*(ymax-ymin));
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
@@ -59,7 +60,9 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
     
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
-		
+	
+	resizeToSquare();
+	
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
@@ -106,6 +109,9 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
 	
+	resizeToSquare();	
+	cout << ymax-ymin << "   " << xmax -xmin << endl;
+	
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
     distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
@@ -114,8 +120,60 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	local_weights=new weightmap(owner);
 }
 
+void LSbox::resizeToSquare(){
+	int N = handler->get_ngridpoints();
+	int m = ymax -ymin;
+	int n = xmax -xmin;
+	cout << "borders are: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+	cout << endl << ymax -ymin << "   " << xmax -xmin << " "<< N<< endl;
+	if (m > n){
+		cout << "case 1" << endl;
+		int i;
+		int half = int((m-n)/2);
+		while (  (xmax < N-1 ) && ( xmin > 0 ) && i < half ){
+			xmax +=1;
+			xmin -=1;
+			i++;
+		}
+		if(xmax < N-1){
+			cout<< "here" <<endl;
+			while ( (xmax-xmin) < m ) xmax+=1;
 
-
+		}
+		else if(xmin > 0){
+			cout<< "now here" << endl;
+			cout << "borders are: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+			while ( (xmax-xmin) < m ) xmin-=1;
+		}
+		cout << "borders are: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+		n=xmax-xmin;
+		
+		if(m=n) return;
+		else cout <<"error: no square box found!";
+	
+	}
+	else if (m < n){
+		cout << "case 2" << endl;
+		int i;
+		int half = int((m-n)/2);
+		while (  (ymax < N-1 ) && ( ymin > 0 )  && i < half){
+			ymax +=1;
+			ymin -=1;
+			i++;
+		}
+		if(ymax < N-1){
+			while ( (ymax-ymin)< n ) ymax+=1;
+		}
+		else if(ymin > 0){
+			while ( (ymax-ymin) < n ) ymin-=1;
+		}
+		
+		m=xmax-xmin;
+		
+		if(m=n) return;
+		else cout <<"error: no square box found!";
+	}
+}
 
 
 LSbox::~LSbox() {
@@ -197,10 +255,6 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		    j--;
 	    } 
     }
-       plot_box(true,2);
-	char buffer;
-	cin >> buffer;
-
 }
 
 
@@ -221,22 +275,20 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	p[0]=(i-grid_blowup)*h; p[1]=(j-grid_blowup)*h;            
 	
 	for(int ii = 0;ii < c.p; ii++) {
-	    for(int jj = 0;jj < c.nu[ii]; jj++) {
-		
-		k=c.ed[ii][jj];                    
-		x1[0] = vv[3*ii]; x1[1] = vv[3*ii+1];
-		x2[0] = vv[3*k];  x2[1] = vv[3*k+1];
-		
-		if (x1 != x2){
-		    a = x1;
-		    u = x2-x1;
-		    lambda=((p-a)*u)/(u*u); 
-		    
-		    if(lambda <= 0) 						d = (p-x1).laenge();
-		    if((0 < lambda) && (lambda < 1)) 		d = (p-(a+(u*lambda))).laenge();
-		    if(lambda >= 1) d = (p-x2).laenge();
-			if(abs(d)< abs(dmin)) dmin=d;
-		}
+	    for(int jj = 0;jj < c.nu[ii]; jj++) {		
+			k=c.ed[ii][jj];                    
+			x1[0] = vv[3*ii]; x1[1] = vv[3*ii+1];
+			x2[0] = vv[3*k];  x2[1] = vv[3*k+1];			
+			if (x1 != x2){
+				a = x1;
+				u = x2-x1;
+				lambda=((p-a)*u)/(u*u); 
+				
+				if(lambda <= 0) 					d = (p-x1).laenge();
+				if((0 < lambda) && (lambda < 1)) 	d = (p-(a+(u*lambda))).laenge();
+				if(lambda >= 1) 					d = (p-x2).laenge();
+				if(abs(d)< abs(dmin)) 				dmin=d;
+			}
 	    }
 	}
 // 			(*domain)[i][j]= dmin;
@@ -278,9 +330,6 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    j--;
 	    } 
     }
-    plot_box(true,2);
-	char buffer;
-	cin >> buffer;
 }
 
 
@@ -293,12 +342,15 @@ void LSbox::convolution(){
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
-
 	
-	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(m/2)+1)*sizeof(fftw_complex));
+	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
 	
 	double* in = &distanceBuffer2[0];
 	double* out = &distanceBuffer1[0];
+	
+	plot_box(true,2);
+	char buffer;
+	cin>> buffer;
 	
 	makeFFTPlans(in,out, fftTemp, &fwdPlan, &bwdPlan);
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
@@ -355,7 +407,6 @@ void LSbox::convolution(){
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
 	
 	plot_box(true,1);
-	char buffer;
 	cin>> buffer;
 	
 }
@@ -363,10 +414,10 @@ void LSbox::convolution(){
 
 void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
 { /* creates plans for FFT and IFFT */
-	int xr = xmax-xmin;
-	int yr = ymax-ymin;
-	*fftplan1 = fftw_plan_dft_r2c_2d(xr,yr,in,fftTemp,FFTW_ESTIMATE);
-	*fftplan2 = fftw_plan_dft_c2r_2d(xr,yr,fftTemp,out,FFTW_ESTIMATE);
+	int n = xmax-xmin;
+	int m = ymax-ymin;
+	*fftplan1 = fftw_plan_dft_r2c_2d(n,m,in,fftTemp,FFTW_ESTIMATE);
+	*fftplan2 = fftw_plan_dft_c2r_2d(n,m,fftTemp,out,FFTW_ESTIMATE);
 }
 
 void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
@@ -380,20 +431,22 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	Memory is already allocated in fftTemp
 	(necessary to create the plans) */
 	
-	int m = xmax-xmin;
-	int n = ymax-ymin;
-	int dt= handler->get_dt();
+	int n = xmax-xmin;
+	int m = ymax-ymin;
+// 	assert(m!=n);
+	double dt = handler->get_dt();
+	cout << "dt  : " << dt << endl;
 	int n2 = floor(n/2) + 1;
 	
-	double nsq = n *  n;
+	double nsq =  n*n; 
 	double k = 2.0 * PI / n;
 	double G;
 	double coski;
 	fftw_execute(fftplan1);
-	
+	cout << "now compute the convolution" << endl;
 	for(int i=0;i<n2;i++) {
 		coski=cos(k*i);
-		for(int j=0;j<m;j++){
+		for(int j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
 			G = 1.0/(1.0+(dt*G)) / nsq;

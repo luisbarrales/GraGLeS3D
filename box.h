@@ -67,7 +67,7 @@ public:
     void redist_box();
 	void find_contour();
 	int  getID();
-   
+    void resizeToSquare();
     void comparison();
     void set_comparison();
     void add_n2o();
