@@ -77,7 +77,7 @@ public:
 
 	void convolution();
 
-	void plot_box(bool distanceplot, int select);
+	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain(vector<double>& comparisonDistance);
 	void shape_distance();

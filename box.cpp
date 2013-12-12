@@ -255,6 +255,11 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		    j--;
 	    } 
     }
+    
+    // 	 set the references for the convolution step
+	
+	inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
@@ -330,13 +335,14 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    j--;
 	    } 
     }
+    
+//     set references for the convolution step
+    inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
 void LSbox::convolution(){
-
-	inputDistance	= distanceBuffer2;
-	outputDistance	= distanceBuffer1;
 
 	double* ST = handler->ST;
 	int n = xmax-xmin;
@@ -474,7 +480,6 @@ void LSbox::find_contour() {
     int loop = handler->loop;
     int m = handler->get_ngridpoints();
 	
-	inputDistance = distanceBuffer1;
 	
     stringstream s;
     int first_i, first_j;
@@ -680,13 +685,18 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 			}
 		}
 	}
-	plot_box(true,1);
+	plot_box(true,1,"Compare");
 	char buffer;
 	cin>> buffer;
 // 	perhaps better to shift this line to the convolution function:
 	neighbors_old = neighbors;
 // 	update the old neighborlist - for read access by the other grains in the next timestep
 // 	delete [] distance_2neighbor;
+
+
+// 	 set the references for the redist step
+	inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
@@ -927,12 +937,17 @@ void LSbox::redist_box() {
 		}		
 	}
 
+	plot_box(true,1,"Redist");
 	distanceBuffer1.resize(m*n);
+	
+	// 	 set the references for the convolution step
+	inputDistance = distanceBuffer1;
+	outputDistance = distanceBuffer2;
 }
 
 
 
-void LSbox::plot_box(bool distanceplot, int select){
+void LSbox::plot_box(bool distanceplot, int select, string simstep){
 	cout <<" \nGrain  Info: " << endl;
 	cout << " ID :" <<id << endl;
     cout << " xmin, xmax, ymin, ymax :" << xmin << " || "<< xmax << " || " << ymin << " || " << ymax << endl;
@@ -960,7 +975,7 @@ void LSbox::plot_box(bool distanceplot, int select){
      if (distanceplot)
      {
        stringstream filename;
-       filename<< "BoxDistance_"<< id << ".gnu";
+       filename<< "BoxDistance_"<< simstep << "_" << id << ".gnu";
        ofstream datei;
        datei.open(filename.str());
 
