@@ -12,7 +12,7 @@ LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 
-	local_weights=new weightmap(owner);
+	local_weights=new Weightmap(owner);
 	
 }
 
@@ -67,7 +67,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	
-	local_weights=new weightmap(owner);
+	local_weights=new Weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
@@ -117,7 +117,7 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-	local_weights=new weightmap(owner);
+	local_weights=new Weightmap(owner);
 }
 
 void LSbox::resizeToSquare(){
@@ -398,7 +398,7 @@ void LSbox::convolution(){
 		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
     
 		    // 		    if ( rad < abs(ref[i][j]) ) continue;
-			weight = local_weights->load_weights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
+			weight = local_weights->loadWeights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
 			outputDistance[(i-ymin)*(xmax-xmin)+j-xmin] = inputDistance[(i-ymin)*(xmax-xmin)+j-xmin] + ((outputDistance[(i-ymin)*(xmax-xmin)+j-xmin] -inputDistance[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
 		  }

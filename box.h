@@ -8,7 +8,7 @@ using namespace std;
 
 class LSbox;
 class grainhdl;
-class weightmap;
+class Weightmap;
 
 
 struct SPoint
@@ -41,7 +41,7 @@ class LSbox {
 	double* distance_2neighbor;
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
-	weightmap* local_weights;
+	Weightmap* local_weights;
 //     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
 	double phi1;

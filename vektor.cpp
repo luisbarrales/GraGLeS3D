@@ -32,16 +32,14 @@ vektor::~vektor() {
 double& vektor::operator[](int i) {
     if (0<= i < n) return x[i];
     else {
-        outOfBoundsException e(i, i);
-        cout << "invalid index " << e.what() << endl;
+        cout << "invalid index " << i << endl;
     }
 }
 
 const double& vektor::operator[](int i) const {
     if (0<= i < n) return x[i];
     else {
-        outOfBoundsException e(i, i);
-        cerr << "invalid index " << e.what() << endl;
+        cerr << "invalid index " << i << endl;
     }
 }
 
