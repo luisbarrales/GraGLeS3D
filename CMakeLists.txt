@@ -63,3 +63,6 @@ ADD_CUSTOM_TARGET (rm_cmake
 	COMMAND ${CMAKE_COMMAND} -E remove CMakeFiles/
 )
 
+ADD_CUSTOM_TARGET (doc
+	COMMAND doxygen
+)
