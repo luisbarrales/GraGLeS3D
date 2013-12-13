@@ -895,8 +895,7 @@ void LSbox::redist_box() {
 		}		
 	}
 	// 	
-	
-		// y-direction forward
+	// y-direction forward
 	for (int j = intersec_xmin; j < xmax; j++) {
 		for (int i = intersec_ymin; i < ymax-1; i++) {	
 			if(j < intersec_xmax && i < intersec_ymax){
