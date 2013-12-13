@@ -30,13 +30,14 @@ struct pointVal {
 
 //box is ambiguous, so L(evel)S(et)box...
 class LSbox {
-    unsigned int id;
-    int xmin, xmax, ymin, ymax;
-    int old_xmin, old_xmax, old_ymin, old_ymax;
-    vector<double> distanceBuffer1, distanceBuffer2;
+	unsigned int id;
+	int xmin, xmax, ymin, ymax;
+	int old_xmin, old_xmax, old_ymin, old_ymax;
+	vector<double> distanceBuffer1, distanceBuffer2;
 	
 	vector<double>& inputDistance;
 	vector<double>& outputDistance;
+	
 	
 	double* distance_2neighbor;
 	bool exist;
@@ -50,12 +51,11 @@ class LSbox {
 	double volume;
 	double energy;
 	grainhdl* handler;
-	
+	vector <SPoint> contourGrain;
 public:
 	friend class grainhdl;
     LSbox();
     ~LSbox();
-	
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_old;
 	vector<LSbox*> neighbors_2order;
@@ -74,10 +74,11 @@ public:
 	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
-
+      
 	void convolution();
-
+    
 	void plot_box(bool distanceplot, int select);
+	void plot_box_contour(int loop);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain(vector<double>& comparisonDistance);
 	void shape_distance();

@@ -468,7 +468,7 @@ void LSbox::find_contour() {
     old_xmax = xmax; 
     old_ymin = ymin; 
     old_ymax = ymax;
-	
+    contourGrain.clear();
     int grid_blowup = handler->get_grid_blowup(); 
     double h = handler->get_h();
     int loop = handler->loop;
@@ -525,7 +525,6 @@ void LSbox::find_contour() {
     bool newZero = true;
     int sgn = -1; //(1 = left turn; -1 right turn)  
     SPoint point;
-    vector<SPoint> points;
 
     // 	 begin search
 	xmax = 0; xmin = m; ymax = 0; ymin = m;	
@@ -596,9 +595,8 @@ void LSbox::find_contour() {
 				
 				if (inputDistance[(current_i-old_ymin)*(old_xmax-old_xmin)+(current_j-old_xmin)] == 0.0) { point.y =  current_i;  point.x = current_j; }
 				else if (inputDistance[(next_i-old_ymin)*(old_xmax-old_xmin)+(current_j-old_xmin)]  == 0.0) { point.y =  next_i;  point.x = next_j; }
-
 			  }
-			  points.emplace_back(point);			 
+			  contourGrain.emplace_back(point);			 
 			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
 		  }        		  
 		  
@@ -621,7 +619,7 @@ void LSbox::find_contour() {
     
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-		vector<SPoint>::iterator volumeit=points.begin();
+		vector<SPoint>::iterator volumeit=contourGrain.begin();
 		energy = 0;
 		volume = 0;
 		double px, py;
@@ -632,13 +630,13 @@ void LSbox::find_contour() {
 		px= (*volumeit).x;
 		py= (*volumeit).y;
 		volumeit++;
-		for (; volumeit!= points.end(); volumeit++){
+		for (; volumeit!= contourGrain.end(); volumeit++){
 			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;      
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
 			cout << px << "  " << py << endl;
-// 			theta_mis=mis_ori( IDLocal[(int(py+0.5)*(old_xmax-old_xmin)) + int(px+0.5)][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
+// 			thtea_mis=mis_ori( IDLocal[(int(py+0.5)*(old_xmax-old_xmin)) + int(px+0.5)][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
 // 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 // 				else energy += h* gamma_hagb;
 		}		
@@ -931,6 +929,25 @@ void LSbox::redist_box() {
 }
 
 
+void LSbox::plot_box_contour(int loop)
+{
+
+  stringstream filename;
+  filename<< "TempBox_"<< id <<"_T"<< loop << ".gnu";
+  
+  ofstream datei;
+  datei.open(filename.str());
+  vector<SPoint>::iterator contourIterator;
+
+    for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
+	datei << (*contourIterator).x << "\t" << (*contourIterator).y<< endl;
+    }
+    datei << endl;
+  
+datei.close();
+
+  
+}
 
 void LSbox::plot_box(bool distanceplot, int select){
 	cout <<" \nGrain  Info: " << endl;
