@@ -8,7 +8,7 @@ using namespace std;
 
 class LSbox;
 class grainhdl;
-class weightmap;
+class Weightmap;
 
 
 struct SPoint
@@ -28,7 +28,20 @@ struct pointVal {
 
 
 
-//box is ambiguous, so L(evel)S(et)box...
+/*!
+ * \class LSBox
+ * \brief Class encapsulating an Level Set Box.
+ *
+ * LSbox class contains the coordinates of the box in the actual grid. <br>
+ * For each point that the LSbox covers, it stores: <br>
+ * - Distances to the actual grain boundry. <br>
+ * - List of pointers to other LSBoxes that influence the point.
+ *
+ * The class also stores the coordinates of the LSBox, a weightmap,Euler angles that represent
+ * the orientation, the volume of the grain, <br>
+ * the energy of the grain and a pointer to the \b grainhdl object.
+ *
+ */
 class LSbox {
 	unsigned int id;
 	int xmin, xmax, ymin, ymax;
@@ -38,11 +51,10 @@ class LSbox {
 	vector<double>& inputDistance;
 	vector<double>& outputDistance;
 	
-	
 	double* distance_2neighbor;
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
-	weightmap* local_weights;
+	Weightmap* local_weights;
 //     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
 	double phi1;
@@ -76,9 +88,10 @@ public:
 	void free_memory_distance();
       
 	void convolution();
-    
-	void plot_box(bool distanceplot, int select);
+
 	void plot_box_contour(int loop);
+
+	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain(vector<double>& comparisonDistance);
 	void shape_distance();

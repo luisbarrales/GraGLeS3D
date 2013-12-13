@@ -13,7 +13,7 @@
 using namespace voro;
 using namespace std;
 	
-class weightmap;
+class Weightmap;
 class LSbox;
 
 class grainhdl{

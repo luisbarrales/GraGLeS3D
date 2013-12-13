@@ -9,7 +9,7 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	Mode = MODE; // 2 für lesen;  für erzeugen der mikrostrukture
+	Mode = MODE; // 2 fï¿½r lesen;  fï¿½r erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
 	if(Mode==2) realDomainSize= M;
@@ -355,7 +355,7 @@ void grainhdl::save_texture(){
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
 	double buffer = 0.24;
-	fprintf(myfile, "%lf\n", ngrains);
+	fprintf(myfile, "%d\n", ngrains);
 	vector<LSbox*> :: iterator it;
 	for(it = ++grains.begin(); it != grains.end(); it++){
 		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->phi1, (*it)->PHI, (*it)->phi2, (*it)->volume, buffer);

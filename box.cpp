@@ -2,18 +2,24 @@
 
 
 
-LSbox::LSbox():inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {}
+LSbox::LSbox() :inputDistance(distanceBuffer1), outputDistance(distanceBuffer2)
+{}
 
-LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2, grainhdl* owner): id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1), PHI(PHI), phi2(phi2),inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
-  
-	handler=owner;
+LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
+		double PHI, double phi2, grainhdl* owner) :
+		id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1),
+		PHI(PHI), phi2(phi2), inputDistance(distanceBuffer1),
+		outputDistance(distanceBuffer2)
+{
+
+	handler = owner;
 	resizeToSquare();
-  	IDLocal.resize((xmax-xmin)*(ymax-ymin));
-	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
-	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
+	IDLocal.resize((xmax - xmin) * (ymax - ymin));
+	distanceBuffer2.resize((xmax - xmin) * (ymax - ymin));
+	distanceBuffer1.resize((xmax - xmin) * (ymax - ymin));
 
-	local_weights=new weightmap(owner);
-	
+	local_weights = new Weightmap(owner);
+
 }
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner), inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
@@ -67,7 +73,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	
-	local_weights=new weightmap(owner);
+	local_weights=new Weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
@@ -117,61 +123,52 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-	local_weights=new weightmap(owner);
+	local_weights=new Weightmap(owner);
 }
 
 void LSbox::resizeToSquare(){
-	int N = handler->get_ngridpoints();
-	int m = ymax -ymin;
-	int n = xmax -xmin;
-	cout << "borders are: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-	cout << endl << ymax -ymin << "   " << xmax -xmin << " "<< N<< endl;
-	if (m > n){
-		cout << "case 1" << endl;
-		int i;
-		int half = int((m-n)/2);
-		while (  (xmax < N-1 ) && ( xmin > 0 ) && i < half ){
-			xmax +=1;
-			xmin -=1;
-			i++;
-		}
-		if(xmax < N-1){
-			cout<< "here" <<endl;
-			while ( (xmax-xmin) < m ) xmax+=1;
-
-		}
-		else if(xmin > 0){
-			cout<< "now here" << endl;
-			cout << "borders are: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-			while ( (xmax-xmin) < m ) xmin-=1;
-		}
-		cout << "borders are: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
-		n=xmax-xmin;
-		
-		if(m=n) return;
-		else cout <<"error: no square box found!";
-	
+	int grid_size = handler->get_ngridpoints();
+	int height = ymax - ymin;
+	int width = xmax - xmin;
+	//First resize the rectangle to a square
+	if(width == height)
+		return;
+	else if (width > height)
+	{
+		int diff = width - height;
+		ymin -= diff/2;
+		ymax += diff/2 + diff%2;
 	}
-	else if (m < n){
-		cout << "case 2" << endl;
-		int i;
-		int half = int((m-n)/2);
-		while (  (ymax < N-1 ) && ( ymin > 0 )  && i < half){
-			ymax +=1;
-			ymin -=1;
-			i++;
-		}
-		if(ymax < N-1){
-			while ( (ymax-ymin)< n ) ymax+=1;
-		}
-		else if(ymin > 0){
-			while ( (ymax-ymin) < n ) ymin-=1;
-		}
-		
-		m=xmax-xmin;
-		
-		if(m=n) return;
-		else cout <<"error: no square box found!";
+	else
+	{
+		int diff = height - width;
+		xmin -= diff/2;
+		xmax += diff/2 + diff%2;
+	}
+	//Now move the square in the bounds if it has left them
+	if( xmin < 0 )
+	{
+		int delta = -xmin;
+		xmax += delta;
+		xmin += delta;
+	}
+	else if (xmax > grid_size)
+	{
+		int delta = grid_size - xmax;
+		xmax += delta;
+		xmin += delta;
+	}
+	if( ymin < 0 )
+	{
+		int delta = -ymin;
+		ymax += delta;
+		ymin += delta;
+	}
+	else if (ymax > grid_size)
+	{
+		int delta = grid_size - ymax;
+		ymax += delta;
+		ymin += delta;
 	}
 }
 
@@ -255,6 +252,11 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		    j--;
 	    } 
     }
+    
+    // 	 set the references for the convolution step
+	
+	inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
@@ -330,13 +332,14 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    j--;
 	    } 
     }
+    
+//     set references for the convolution step
+    inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
 void LSbox::convolution(){
-
-	inputDistance	= distanceBuffer2;
-	outputDistance	= distanceBuffer1;
 
 	double* ST = handler->ST;
 	int n = xmax-xmin;
@@ -362,7 +365,7 @@ void LSbox::convolution(){
 	// Velocity Corrector Step: 
 	/*********************************************************************************/
 	// hier soll energycorrection gerechnet werden.
-	// in der domainCl steht die ursprünglich distanzfunktion, in dem arry die gefaltete
+	// in der domainCl steht die ursprï¿½nglich distanzfunktion, in dem arry die gefaltete
 	
 	if(!ISOTROPIC){
 // 	    double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
@@ -392,7 +395,7 @@ void LSbox::convolution(){
 		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
     
 		    // 		    if ( rad < abs(ref[i][j]) ) continue;
-			weight = local_weights->load_weights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
+			weight = local_weights->loadWeights(IDLocal[(i-old_ymin)*(old_xmax-old_xmin) + (j-old_xmin)], this, handler->ST);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
 			outputDistance[(i-ymin)*(xmax-xmin)+j-xmin] = inputDistance[(i-ymin)*(xmax-xmin)+j-xmin] + ((outputDistance[(i-ymin)*(xmax-xmin)+j-xmin] -inputDistance[(i-ymin)*(xmax-xmin)+j-xmin]) * weight);
 		  }
@@ -474,7 +477,6 @@ void LSbox::find_contour() {
     int loop = handler->loop;
     int m = handler->get_ngridpoints();
 	
-	inputDistance = distanceBuffer1;
 	
     stringstream s;
     int first_i, first_j;
@@ -678,13 +680,18 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 			}
 		}
 	}
-	plot_box(true,1);
+	plot_box(true,1,"Compare");
 	char buffer;
 	cin>> buffer;
 // 	perhaps better to shift this line to the convolution function:
 	neighbors_old = neighbors;
 // 	update the old neighborlist - for read access by the other grains in the next timestep
 // 	delete [] distance_2neighbor;
+
+
+// 	 set the references for the redist step
+	inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
@@ -925,7 +932,12 @@ void LSbox::redist_box() {
 		}		
 	}
 
+	plot_box(true,1,"Redist");
 	distanceBuffer1.resize(m*n);
+	
+	// 	 set the references for the convolution step
+	inputDistance = distanceBuffer1;
+	outputDistance = distanceBuffer2;
 }
 
 
@@ -949,7 +961,7 @@ datei.close();
   
 }
 
-void LSbox::plot_box(bool distanceplot, int select){
+void LSbox::plot_box(bool distanceplot, int select, string simstep){
 	cout <<" \nGrain  Info: " << endl;
 	cout << " ID :" <<id << endl;
     cout << " xmin, xmax, ymin, ymax :" << xmin << " || "<< xmax << " || " << ymin << " || " << ymax << endl;
@@ -977,7 +989,7 @@ void LSbox::plot_box(bool distanceplot, int select){
      if (distanceplot)
      {
        stringstream filename;
-       filename<< "BoxDistance_"<< id << ".gnu";
+       filename<< "BoxDistance_"<< simstep << "_" << id << ".gnu";
        ofstream datei;
        datei.open(filename.str());
 
