@@ -64,6 +64,7 @@ class grainhdl{
 	void save_sim();
 	void clear_mem(); 
 	void save_texture();
+	void plot_contour();
 	
 	void compute_Boundary_Energy();
 	void construct_boundary();

@@ -54,6 +54,8 @@ void save_2dim_array( T *arr, int m , int n, const char* filename){
     datei.close();
 }
 
+void plotContour(const char *fileName, const char *plotfiles, int len);
+
 
 inline double rnd() {return double(rand())/RAND_MAX;}
 

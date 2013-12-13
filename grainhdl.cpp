@@ -378,7 +378,10 @@ void grainhdl::run_sim(){
 		convolution();
 		comparison_box();	
 // 		level_set();
-		char buffer;
+		if ( (loop % int(PRINTSTEP)) == 0)
+		      plot_contour();
+  
+		  char buffer;
 		cin >> buffer;
 		redistancing();
 		
@@ -388,6 +391,31 @@ void grainhdl::run_sim(){
 // 		}
 	}
 }  
+
+void grainhdl::plot_contour(){
+	stringstream filename;
+	filename << "GrainNetwork_T" << loop << ".gnu";
+
+
+	
+	vector<LSbox*>::iterator it_gr; 
+	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
+	  (*it_gr)->plot_box_contour(loop);
+	}
+	//change to openmp reduce
+	stringstream dateinamen;
+	int len=0;
+	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
+	  if (len !=0) dateinamen << ", ";
+	  dateinamen << "\"TempBox_"<< (*it_gr)->get_id() <<"_T"<< loop << ".gnu\"";
+	  len+=15;
+	}
+	
+	utils::plotContour(filename.str().c_str(), dateinamen.str().c_str(), len);
+	
+// 	datei << s.str();
+// 	datei.close();
+}
  
  
  

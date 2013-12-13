@@ -39,19 +39,18 @@ struct pointVal {
  *
  * The class also stores the coordinates of the LSBox, a weightmap,Euler angles that represent
  * the orientation, the volume of the grain, <br>
- * the energy of the grain and a pointer to its corresponding \b grainhdl object.
+ * the energy of the grain and a pointer to the \b grainhdl object.
  *
  */
 class LSbox {
-private:
-    unsigned int id;
-    int xmin, xmax, ymin, ymax;
-    int old_xmin, old_xmax, old_ymin, old_ymax;
-    vector<double> distanceBuffer1, distanceBuffer2;
-
+	unsigned int id;
+	int xmin, xmax, ymin, ymax;
+	int old_xmin, old_xmax, old_ymin, old_ymax;
+	vector<double> distanceBuffer1, distanceBuffer2;
+	
 	vector<double>& inputDistance;
 	vector<double>& outputDistance;
-
+	
 	double* distance_2neighbor;
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
@@ -64,12 +63,11 @@ private:
 	double volume;
 	double energy;
 	grainhdl* handler;
-	
+	vector <SPoint> contourGrain;
 public:
 	friend class grainhdl;
     LSbox();
     ~LSbox();
-	
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_old;
 	vector<LSbox*> neighbors_2order;
@@ -88,8 +86,10 @@ public:
 	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
-
+      
 	void convolution();
+
+	void plot_box_contour(int loop);
 
 	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);
