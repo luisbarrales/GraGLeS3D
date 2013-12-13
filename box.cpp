@@ -408,10 +408,11 @@ void LSbox::convolution(){
 	}
 	IDLocal.clear(); 
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
+	plot_box(true,2,"Convoluted");
 	
 // 	 set the references for the comparison step
-	inputDistance = distanceBuffer1;
-	outputDistance = distanceBuffer2;
+	inputDistance = distanceBuffer2;
+	outputDistance = distanceBuffer1;
 }
 
 
@@ -696,6 +697,7 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 		}
 	}
 	plot_box(true,1,"Compare");
+	plot_box(true,2,"Compare_2");
 	char buffer;
 	cin>> buffer;
 // 	perhaps better to shift this line to the convolution function:
@@ -705,8 +707,8 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 
 
 // 	 set the references for the redist step
-	inputDistance = distanceBuffer2;
-	outputDistance = distanceBuffer1;
+	inputDistance = distanceBuffer1;
+	outputDistance = distanceBuffer2;
 }
 
 
@@ -858,31 +860,27 @@ void LSbox::redist_box() {
 // 	resize the outputDistance array. be careful because during this part of algorithm both arrays have not the same size!!
 	int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 	    
-	if (old_xmin < xmin) 		
-		intersec_xmin = xmin;
+	if (old_xmin < xmin) intersec_xmin = xmin;
 	else  intersec_xmin = old_xmin;
 	
-	if (old_ymin < ymin) 		
-		intersec_ymin = ymin;
+	if (old_ymin < ymin) intersec_ymin = ymin;
 	else  intersec_ymin = old_ymin;
 	
-	if (old_xmax > xmax) 	
-		intersec_xmax= xmax;
+	if (old_xmax > xmax) intersec_xmax= xmax;
 	else  intersec_xmax = old_xmax;
 	
-	if (old_ymax > ymax) 	
-		intersec_ymax= ymax;
+	if (old_ymax > ymax) intersec_ymax= ymax;
 	else  intersec_ymax = old_ymax;
 	
-	   
+	cout << "box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+	cout << "box: intersec_xmin="<<intersec_xmin<< " intersec_xmax="<<intersec_xmax <<" intersec_ymin="<<intersec_ymin << " intersec_ymax="<<intersec_ymax<<endl;
 	for (int i = intersec_ymin; i < ymax; i++){
 	  for (int j = intersec_xmin; j < xmax-1; j++) {
-	// x-direction forward
-			//check for sign change
+			// x-direction forward
 			if(j < intersec_xmax && i < intersec_ymax){
 				if (inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] * inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] <= 0.0) {
 					// interpolate
-					i_slope  = ( inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)]  - inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
+					i_slope  = ( inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] - inputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin)] ) / h;
 					zero = - inputDistance[(i-old_ymin)*(old_xmax-old_xmax)+(j-old_xmin)] / i_slope;
 					if ( abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) > abs(zero)) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = -zero * utils::sgn(i_slope);
 				}
@@ -893,8 +891,6 @@ void LSbox::redist_box() {
 				candidate = outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  + (utils::sgn( outputDistance[(i-old_ymin)*(old_xmax-old_xmin)+(j-old_xmin+1)] ) * h);
 				if (abs(candidate) < abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin+1)] )) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin+1)]  = candidate;
 			}
-			// calculate new distance candidate and assign if appropriate
-			
 		}		
 	}
 	
@@ -963,7 +959,7 @@ void LSbox::redist_box() {
 
 	plot_box(true,1,"Redist");
 	distanceBuffer1.resize(m*n);
-	
+	plot_box(true,2,"Redist_2");
 	// 	 set the references for the convolution step
 	inputDistance = distanceBuffer1;
 	outputDistance = distanceBuffer2;

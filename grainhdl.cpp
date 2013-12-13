@@ -254,28 +254,8 @@ void grainhdl::convolution(){
 	for (it = ++grains.begin(); it !=grains.end(); it++){	
 		(*it)->convolution();
 	}
-// 	if (((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS )&& SAVECONV) save_conv_step();
 }
  
- 
-// void grainhdl::save_conv_step(){
-// 	std::list<domainCl>::iterator it;
-// 	stringstream filename;
-// 	for (it = domains.begin(); it !=domains.end(); it++){		
-// 		filename.str(std::string());
-// 		filename << "Convolutedmatrix_";
-// 		vector<LSbox*> grains = (*it).getBoxList();
-// 		vector<LSbox*>::iterator it2;
-// 		filename << "T"<<loop;
-// 		for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-// 			filename << "_"<<(*it2)->getID();
-// 		}
-// 		filename << ".gnu";
-// 		(*it).save_domainCl(filename.str().c_str());
-// 		cout << filename.str() << endl << endl;		
-// 	}	
-// }
-
 
 
 void grainhdl::comparison_box(){
@@ -306,47 +286,9 @@ void grainhdl::redistancing(){
 	for (it = ++grains.begin(); it != grains.end(); it++) {
 		(*it)->redist_box();
 		nr_grains[loop]+=1;
-		
-// 		if ( ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS ) && SAVEREDIST ){
-// 				filename.str(std::string());
-// 				filename << "Redistanced_matrix_";
-// 				filename << it->get_id() << "_";
-// 				vector<LSbox*> grains = (*it).getBoxList();
-// 				filename << "T"<<loop;
-// 
-// 				for (it2 = grains.begin(); it2 != grains.end(); it2++) {
-// 						filename <<"_"<< (*it2)->getID();
-// 				}
-// 				
-// 				filename << ".gnu";
-// 				
-// 				(*it).save_domainCl(filename.str().c_str());
-// 				cout << filename.str() << endl << endl;
-// 				
-// 				plotfiles << " \""<<filename.str();
-// 				plotfiles << "\" matrix w l";
-// 				int length = domains.size();
-// 				if(i!=(length-1)) plotfiles << ",";
-// 			}
 	}
-	
-// 	if ( ((loop % int(PRINTSTEP)) == 0 || loop == TIMESTEPS )&& IMAGEOUT && SAVEREDIST){
-// 		filename.str(std::string());
-// 		filename << "GrainNetwork" << "_"<< loop << ".gnu";
-// 		utils::plotGnu(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
-// 		if(SAVEIMAGE){
-// 			int imgnum = (loop/PRINTSTEP);
-// 			filename.str(std::string());
-// 			filename << "GrainNetwork";
-// 			if (imgnum < 10000) filename << "0";
-// 			if (imgnum < 1000) filename << "0";
-// 			if (imgnum < 100) filename << "0";
-// 			if (imgnum < 10) filename << "0";
-// 			filename << imgnum << ".png";
-// 			utils::plotGnuPNG(filename.str().c_str(), plotfiles.str().c_str(), plotfiles.str().size());
-// 		}
-// 	}
 }
+
 
 void grainhdl::save_texture(){
 	FILE* myfile;
@@ -378,14 +320,12 @@ void grainhdl::run_sim(){
 		convolution();
 		updateSecondOrderNeighbors();
 		comparison_box();
-// 		level_set();
+		level_set();
 // 		if ( (loop % int(PRINTSTEP)) == 0)
 // 		      plot_contour();
-//   
-// 		  char buffer;
-// 		cin >> buffer;
 		redistancing();
-		
+			char buffer;
+		cin >> buffer;	
 // 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 // 			cout << "Grain Volumes after Timestep " << loop << endl;
 // 			save_texture();
