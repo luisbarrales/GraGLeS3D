@@ -383,7 +383,7 @@ void grainhdl::updateSecondOrderNeighbors(){
 	std::vector<LSbox*>::iterator it,itc;
 	for (it = ++grains.begin(); it !=grains.end(); it++){
 		(*it)->add_n2o();
-		(*it)->plot_box(false,1, "nothing");
+// 		(*it)->plot_box(false,1, "nothing");
 	}
 }
 

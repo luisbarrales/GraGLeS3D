@@ -408,7 +408,8 @@ void LSbox::convolution(){
 	}
 	IDLocal.clear(); 
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
-	plot_box(true,2,"Convoluted");
+	plot_box(true,1,"Convoluted_1");
+	plot_box(true,2,"Convoluted_2");
 	
 // 	 set the references for the comparison step
 	inputDistance = distanceBuffer2;
@@ -684,22 +685,21 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 	int m = (*handler).get_ngridpoints();
 	double h = handler->get_h();
 	LSbox* zero = handler->zeroBox;
+
 	for (int i = ymin; i < ymax; i++){
 		for (int j = xmin; j < xmax; j++){
-			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
-			}
-			if( abs(comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.9* DELTA) && (abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < ( 0.9 * DELTA)) ) {
+			if( abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < ( 0.7 * DELTA) ) {
 // 				 update only in a tube around the n boundary - numerical stability!s
 // 				outputDistance and comparisonDistance point to the same object!
 				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = 0.5 * (inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] - comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] );
 			}
+// 			else if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
+// 				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
+// 			}
+// 			else outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 		}
 	}
-	plot_box(true,1,"Compare");
-	plot_box(true,2,"Compare_2");
-	char buffer;
-	cin>> buffer;
+	
 // 	perhaps better to shift this line to the convolution function:
 	neighbors_old = neighbors;
 // 	update the old neighborlist - for read access by the other grains in the next timestep
@@ -748,28 +748,24 @@ void LSbox::comparison(){
 					for (int j = x_min_new; j < x_max_new; j++){					
 // 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.
-						if( abs((**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ) < 0.9*DELTA ){       // check if we are currently in the delta-area around the contour
- 							if( comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] < (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
-								if( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ) {
-// 									falls noch kein nachbar vorhanden:
-									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];	
-									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);									
-								}
-								else {
-// 									new next neighbor found:
-									distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+						if(abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)])  < 0.7*DELTA ){       
+							// check if we are currently in the delta-area around the contour
+ 							if( (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
+									if( !IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ){ 
+										distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									}
 									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);	
-								}
+// 								}
 							}
-							else if(  (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ //candidate of neighbor is closer than 2nd neighbor
-								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
-								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( ++IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin() , *it_nn);							  
-							}
-							else { 
-								// probably there are more than 3 grains nearer than DELTA to this gridpoint
-								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);						  
-							}
+// 							else if(  (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ //candidate of neighbor is closer than 2nd neighbor
+// 								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
+// 								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( ++IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin() , *it_nn);							  
+// 							}
+// 							else { 
+// 								// probably there are more than 3 grains nearer than DELTA to this gridpoint
+// 								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].push_back(*it_nn);						  
+// 							}
 						}
 					}
 				}
@@ -778,10 +774,19 @@ void LSbox::comparison(){
 		}
 		neighbors_2order.erase(it_nn);
 	}
+	plot_box(true,1,"Compare_1");
+	plot_box(true,2,"Compare_2");
+	char buffer;
+	cin>> buffer;
 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain(comparisonDistance);
+	plot_box(true,1,"Compare_1_zero");
+	plot_box(true,2,"Compare_2_zero");
+	cin>> buffer;
 	// 	be careful for parralisation!!!!!
 	set_comparison(comparisonDistance);
+	plot_box(true,1,"Compare_1_set");
+	plot_box(true,2,"Compare_2_set");
 	// 	write the compared values to the distanceBuffer1 array
 	delete [] distance_2neighbor;
 	
