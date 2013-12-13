@@ -91,7 +91,7 @@ int main() {
 	std::fill_n(ID[1],resized_m*resized_m,zeroBox);
 	std::fill_n(ID[2],resized_m*resized_m,zeroBox);
 	
-	weightmap my_weights;
+	Weightmap my_weights;
 // 	weights = vector<int>***[PARTICLES];
 //  weights weightsmap();
 	        
@@ -522,8 +522,8 @@ cout << "redist start" << endl;
 	for (i=0, it = domains.begin(); it != domains.end(); it++, i++) {
 		//Nullstellenverfolgung:
 		//cout << "Rechne Redistancing auf Boxen der Domain: " << (*it).get_id() << endl << endl;
-		// zugriff auf Boxen über die Domain "it"
-		// Intern können verschiedenRedistancing Routinen verwendet werden
+		// zugriff auf Boxen ï¿½ber die Domain "it"
+		// Intern kï¿½nnen verschiedenRedistancing Routinen verwendet werden
 
 		(*it).redistancing_2(h, grid_blowup);		
 
