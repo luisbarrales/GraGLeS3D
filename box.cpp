@@ -339,6 +339,10 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 }
 
 
+// Convolution und Helperfunctions 
+/**************************************/
+/**************************************/
+
 void LSbox::convolution(){
 
 	double* ST = handler->ST;
@@ -457,12 +461,15 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	fftw_execute(fftplan2);
 }
 
+/**************************************/
+/**************************************/
 
 
 
-// Find Contour operates on distanceBuffer1_array
 
-
+// Find Contour operates on inputDistance
+/**************************************/
+/**************************************/
 
 void LSbox::find_contour() {
 	exist = false;
@@ -663,6 +670,14 @@ void LSbox::find_contour() {
     return;
 }
 
+/**************************************/
+/**************************************/
+
+
+
+// Comparison + Helperfunctions
+/**************************************/
+/**************************************/
 
 
 void LSbox::set_comparison(vector<double>& comparisonDistance){
@@ -703,8 +718,7 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 void LSbox::comparison(){
-	vector<double>& comparisonDistance = outputDistance; 
-	
+	vector<double>& comparisonDistance = outputDistance; 	
 	distance_2neighbor = new double[(ymax-ymin) *(xmax-xmin)];
 
 	int loop = handler->loop;
@@ -807,6 +821,23 @@ void LSbox::add_n2o(){
 		}
 	}
 }
+
+
+/**************************************/
+// end of Comparison
+/**************************************/
+
+
+
+
+
+
+
+
+
+/**************************************/
+//  Redistancing
+/**************************************/
 
 
 void LSbox::redist_box() {
@@ -941,6 +972,15 @@ void LSbox::redist_box() {
 	outputDistance = distanceBuffer2;
 }
 
+/**************************************/
+// end of redist
+/**************************************/
+
+
+
+/**************************************/
+// plot the box and all its properties
+/**************************************/
 
 
 void LSbox::plot_box(bool distanceplot, int select, string simstep){
