@@ -718,12 +718,13 @@ bool LSbox::checkIntersect(LSbox* box2) {
 void LSbox::comparison(){
 	vector<double>& comparisonDistance = outputDistance; 	
 	distance_2neighbor = new double[(ymax-ymin) *(xmax-xmin)];
-
+	std::fill_n(distance_2neighbor,(ymax-ymin) *(xmax-xmin), -1.0);
+	std::fill_n(&comparisonDistance[0],(ymax-ymin) *(xmax-xmin), -1.0);
 	int loop = handler->loop;
 	std::vector<LSbox*>::iterator it_nn;
 
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
-		
+			cout << "starting comparison between "<< id << "  and " << (*it_nn)->get_id()<< endl;
 			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
@@ -820,7 +821,6 @@ void LSbox::add_n2o(){
 	}
 }
 
-
 /**************************************/
 // end of Comparison
 /**************************************/
@@ -836,7 +836,6 @@ void LSbox::add_n2o(){
 /**************************************/
 //  Redistancing
 /**************************************/
-
 
 void LSbox::redist_box() {
 

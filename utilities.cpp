@@ -46,10 +46,8 @@ namespace utils {
         strcat( string_gnupl_command, plotfiles);
         strcat( string_gnupl_command, "; ");
 //         cout << plotfiles;
-        cout << string_gnupl_command << endl << endl;
-	char bufstop;
-	cin >> bufstop;
-        FILE *pipe = popen ( "gnuplot", "w" );             // Instanz von Gnuplot
+//         cout << string_gnupl_command << endl << endl;
+	    FILE *pipe = popen ( "gnuplot", "w" );             // Instanz von Gnuplot
         fprintf ( pipe, "%s\n", string_gnupl_command );    // Füllen der Rohrpost zu Gnuplot
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
         pclose ( pipe );

@@ -56,6 +56,7 @@ class grainhdl{
 	void convolution();
 	void save_conv_step();
 	void comparison_box();
+	void updateSecondOrderNeighbors();
 
 	void level_set();
 	void redistancing();

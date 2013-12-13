@@ -376,13 +376,14 @@ void grainhdl::run_sim(){
 	find_neighbors();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
-		comparison_box();	
+		updateSecondOrderNeighbors();
+		comparison_box();
 // 		level_set();
-		if ( (loop % int(PRINTSTEP)) == 0)
-		      plot_contour();
-  
-		  char buffer;
-		cin >> buffer;
+// 		if ( (loop % int(PRINTSTEP)) == 0)
+// 		      plot_contour();
+//   
+// 		  char buffer;
+// 		cin >> buffer;
 		redistancing();
 		
 // 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
@@ -438,6 +439,13 @@ void grainhdl::save_sim(){
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
 
+void grainhdl::updateSecondOrderNeighbors(){
+	std::vector<LSbox*>::iterator it,itc;
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		(*it)->add_n2o();
+		(*it)->plot_box(false,1, "nothing");
+	}
+}
 
 void grainhdl::find_neighbors(){
 	std::vector<LSbox*>::iterator it,itc;
@@ -449,6 +457,9 @@ void grainhdl::find_neighbors(){
 					(*it)->neighbors.push_back(*itc);
 
 }
+
+
+
 
  
 void grainhdl::clear_mem() {
