@@ -9,7 +9,8 @@ LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
 		id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1),
 		PHI(PHI), phi2(phi2)
 {
-
+	inputDistance = &distanceBuffer1[0];
+	outputDistance = &distanceBuffer2[0];
 	handler = owner;
 	resizeToSquare();
 	IDLocal.resize((xmax - xmin) * (ymax - ymin));
@@ -21,7 +22,7 @@ LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
 }
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner) {
-    
+
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
     // determine size of grain
@@ -72,14 +73,15 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	std::fill_n(&distanceBuffer2[0],(xmax-xmin) * (ymax-ymin),0.0);
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	std::fill_n(&distanceBuffer1[0],(xmax-xmin) * (ymax-ymin),0.0);
-	
+	inputDistance = &distanceBuffer1[0];
+	outputDistance = &distanceBuffer2[0];
 	local_weights=new Weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
 
 LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner){
-    
+
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
     // determine size of grain
@@ -123,10 +125,13 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	std::fill_n(&distanceBuffer2[0],(xmax-xmin) * (ymax-ymin),0.0);
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
 	std::fill_n(&distanceBuffer1[0],(xmax-xmin) * (ymax-ymin),0.0);
-	plot_box(true,1,"start_1");
-	plot_box(true,2,"start_2");
-	char buffer;
-	cin >> buffer;
+	inputDistance = &distanceBuffer1[0];
+	outputDistance = &distanceBuffer2[0];
+	
+// 	plot_box(true,1,"start_1");
+// 	plot_box(true,2,"start_2");
+// 	char buffer;
+// 	cin >> buffer;
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new Weightmap(owner);
@@ -220,8 +225,8 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 				}
             }
 			// 			(*domain)[i][j]= dmin;
-			if (abs(dmin) < DELTA) distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
-			else distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
+			if (abs(dmin) < DELTA) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
+			else outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
         }
 	}
 	int count = 0;
@@ -229,15 +234,15 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 	    i=ymin;
 	    count = 0;
 	    while( i<ymax  && count < 1) {
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    i++;
 	    } 		
 	    i=ymax-1;
 	    count =0;
 	    while( i>=ymin && count < 1) {
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
 		    i--;
 	    } 
     }
@@ -246,15 +251,15 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 	    j=xmin;
 	    count = 0;
 	    while( j<xmax  && count < 1 ) {
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    j++;
 	    } 
 	    j=xmax-1;
 	    count =0;
 	    while( j>=xmin   && count < 1  ) {			
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    j--;
 	    } 
     }
@@ -295,8 +300,8 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    }
 	}
 // 			(*domain)[i][j]= dmin;
-	if (abs(dmin) < DELTA) distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
-	else distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
+	if (abs(dmin) < DELTA) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]= dmin;
+	else outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]= DELTA * utils::sgn(dmin);
       }
     }
 	int count = 0;
@@ -304,15 +309,15 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    i=ymin;
 	    count = 0;
 	    while( i<ymax  && count < 1) {
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    i++;
 	    } 		
 	    i=ymax-1;
 	    count =0;
 	    while( i>=ymin && count < 1) {
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <= h ) count++;
 		    i--;
 	    } 
     }
@@ -321,15 +326,15 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    j=xmin;
 	    count = 0;
 	    while( j<xmax  && count < 1 ) {
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    j++;
 	    } 
 	    j=xmax-1;
 	    count =0;
 	    while( j>=xmin   && count < 1  ) {			
-		    distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
-		    if ( -(distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
+		    outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = - abs(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]);	
+		    if ( -(outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) <=  h ) count++;
 		    j--;
 	    } 
     }
@@ -344,11 +349,11 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 
 void LSbox::convolution(){
 	//  set references for the convolution step
-	double* inputDistance;
-	double* outputDistance;
-	
-    inputDistance = &distanceBuffer2[0];
-	outputDistance = &distanceBuffer1[0];
+// 	double* inputDistance;
+// 	double* outputDistance;
+	switch_in_and_out();
+//     inputDistance = &distanceBuffer2[0];
+// 	outputDistance = &distanceBuffer1[0];
 	plot_box(true,1,"Convoluted_1");
 	plot_box(true,2,"Convoluted_2");
 	char buffer;
@@ -415,6 +420,9 @@ void LSbox::convolution(){
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
 	plot_box(true,1,"Convoluted_1");
 	plot_box(true,2,"Convoluted_2");
+	
+	
+	switch_in_and_out();
 
 }
 
@@ -477,7 +485,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 
 void LSbox::find_contour() {
 	
-	double* inputDistance = &distanceBuffer1[0];
+// 	double* inputDistance = &distanceBuffer1[0];
 	exist = false;
 	// save old boundaries -> function will compute updates
     old_xmin = xmin; 
@@ -677,15 +685,21 @@ void LSbox::find_contour() {
 /**************************************/
 /**************************************/
 
-
+void LSbox::switch_in_and_out(){
+	double* temp;
+	temp= outputDistance;
+	outputDistance = inputDistance;
+	inputDistance = temp;
+}
 
 // Comparison + Helperfunctions
 /**************************************/
 /**************************************/
 
 
-void LSbox::set_comparison(vector<double>& comparisonDistance){
-	double* inputDistance = &
+void LSbox::set_comparison(double* comparisonDistance){
+// 	double* inputDistance = &distanceBuffer1[0];
+// 	double* outputDistance = &distanceBuffer2[0];
 	int grid_blowup = (*handler).get_grid_blowup();
 	int m = (*handler).get_ngridpoints();
 	double h = handler->get_h();
@@ -698,6 +712,8 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 // 				outputDistance and comparisonDistance point to the same object!
 				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = 0.5 * (inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] - comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] );
 			}
+			else if(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > 0) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = DELTA;
+			else if(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] < 0) outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = -DELTA;
 // 			else if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
 // 				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
 // 			}
@@ -709,11 +725,6 @@ void LSbox::set_comparison(vector<double>& comparisonDistance){
 	neighbors_old = neighbors;
 // 	update the old neighborlist - for read access by the other grains in the next timestep
 // 	delete [] distance_2neighbor;
-
-
-// 	 set the references for the redist step
-	inputDistance = distanceBuffer1;
-	outputDistance = distanceBuffer2;
 }
 
 
@@ -723,10 +734,16 @@ bool LSbox::checkIntersect(LSbox* box2) {
 }
 
 void LSbox::comparison(){
-	vector<double>& comparisonDistance = outputDistance; 	
+	
+// 	switch_in_and_out();
+	double* comparisonDistance = outputDistance;
+// 	double* inputDistance = &distanceBuffer1[0];
+// 	double* comparisonDistance = &distanceBuffer2[2];
 	distance_2neighbor = new double[(ymax-ymin) *(xmax-xmin)];
+	
 	std::fill_n(distance_2neighbor,(ymax-ymin) *(xmax-xmin), -1.0);
 	std::fill_n(&comparisonDistance[0],(ymax-ymin) *(xmax-xmin), -1.0);
+	
 	int loop = handler->loop;
 	std::vector<LSbox*>::iterator it_nn;
 
@@ -748,18 +765,19 @@ void LSbox::comparison(){
 					
 				if(ymax > (**it_nn).ymax) y_max_new = (**it_nn).ymax;
 					else y_max_new = ymax;
-					
+				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
+	
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){					
 // 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.
-						if(abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)])  < 0.7*DELTA ){       
+						if(abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)])  < 0.7*DELTA &&  (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)] < 0.7 *DELTA){       
 							// check if we are currently in the delta-area around the contour
  							if( (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
 									if( !IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ){ 
 										distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									}
-									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);	
 // 								}
 							}
@@ -798,7 +816,7 @@ void LSbox::comparison(){
 }
 
 
-void LSbox::checkIntersect_zero_grain(vector<double>& comparisonDistance){
+void LSbox::checkIntersect_zero_grain(double* comparisonDistance){
 	LSbox* boundary = handler->boundary;
 	int grid_blowup = handler->get_grid_blowup();
 	int m = handler->get_ngridpoints();
@@ -807,8 +825,10 @@ void LSbox::checkIntersect_zero_grain(vector<double>& comparisonDistance){
 		for (int i = ymin; i < ymax; i++){
 			for (int j = xmin; j < xmax; j++){	
 				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					if(comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
-						comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
+					if(abs(distanceBuffer1[(i-ymin)*(xmax-xmin)+(j-xmin)])  < 0.7*DELTA ){					
+						if(comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  < (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)]){ 
+							comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (*boundary).distanceBuffer2[(i-ymin)*(xmax-xmin)+(j-xmin)];						  
+						}
 					}
 				}
 			}
@@ -855,8 +875,10 @@ void LSbox::redist_box() {
 	double h = handler->get_h();
 // 	plot_box(false);
 
-	double* inputDistance= &distanceBuffer1[0];
-	double* outputDistance = &distanceBuffer2[0];
+	switch_in_and_out();
+
+// 	double* inputDistance= &distanceBuffer1[0];
+// 	double* outputDistance = &distanceBuffer2[0];
 
 	int ii, jj;
 	double slope = 1;
@@ -864,8 +886,8 @@ void LSbox::redist_box() {
 	
 	int m=ymax-ymin;
 	int n=xmax-xmin;
-	outputDistance.resize(m*n);
-	std::fill(outputDistance.begin(),outputDistance.end(),-1.0);
+	distanceBuffer1.resize(m*n);
+	std::fill_n(outputDistance,m*n,-1.0);
 	
 // 	resize the outputDistance array. be careful because during this part of algorithm both arrays have not the same size!!
 	int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
@@ -968,11 +990,10 @@ void LSbox::redist_box() {
 	}
 
 	plot_box(true,1,"Redist");
-	distanceBuffer1.resize(m*n);
+	distanceBuffer2.resize(m*n);
 	plot_box(true,2,"Redist_2");
 	// 	 set the references for the convolution step
-	inputDistance = distanceBuffer1;
-	outputDistance = distanceBuffer2;
+
 }
 
 /**************************************/
