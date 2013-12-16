@@ -2,14 +2,12 @@
 
 
 
-LSbox::LSbox() :inputDistance(distanceBuffer1), outputDistance(distanceBuffer2)
-{}
+LSbox::LSbox() {}
 
 LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
 		double PHI, double phi2, grainhdl* owner) :
 		id(id), xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), phi1(phi1),
-		PHI(PHI), phi2(phi2), inputDistance(distanceBuffer1),
-		outputDistance(distanceBuffer2)
+		PHI(PHI), phi2(phi2)
 {
 
 	handler = owner;
@@ -22,7 +20,7 @@ LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
 
 }
 
-LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner), inputDistance(distanceBuffer1), outputDistance(distanceBuffer2) {
+LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner) {
     
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
@@ -71,14 +69,16 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));	
 	distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
+	std::fill_n(&distanceBuffer2[0],(xmax-xmin) * (ymax-ymin),0.0);
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
+	std::fill_n(&distanceBuffer1[0],(xmax-xmin) * (ymax-ymin),0.0);
 	
 	local_weights=new Weightmap(owner);
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
 
-LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner), inputDistance(distanceBuffer1), outputDistance(distanceBuffer2){
+LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner){
     
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
@@ -120,7 +120,13 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
     distanceBuffer2.resize((xmax-xmin) * (ymax-ymin));
+	std::fill_n(&distanceBuffer2[0],(xmax-xmin) * (ymax-ymin),0.0);
 	distanceBuffer1.resize((xmax-xmin) * (ymax-ymin));
+	std::fill_n(&distanceBuffer1[0],(xmax-xmin) * (ymax-ymin),0.0);
+	plot_box(true,1,"start_1");
+	plot_box(true,2,"start_2");
+	char buffer;
+	cin >> buffer;
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new Weightmap(owner);
@@ -252,11 +258,6 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		    j--;
 	    } 
     }
-    
-    // 	 set the references for the convolution step
-	
-	inputDistance = distanceBuffer2;
-	outputDistance = distanceBuffer1;
 }
 
 
@@ -333,9 +334,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 	    } 
     }
     
-//     set references for the convolution step
-    inputDistance = distanceBuffer2;
-	outputDistance = distanceBuffer1;
+
 }
 
 
@@ -344,7 +343,16 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 /**************************************/
 
 void LSbox::convolution(){
-
+	//  set references for the convolution step
+	double* inputDistance;
+	double* outputDistance;
+	
+    inputDistance = &distanceBuffer2[0];
+	outputDistance = &distanceBuffer1[0];
+	plot_box(true,1,"Convoluted_1");
+	plot_box(true,2,"Convoluted_2");
+	char buffer;
+	cin >> buffer;
 	double* ST = handler->ST;
 	int n = xmax-xmin;
 	int m = ymax-ymin;
@@ -354,11 +362,8 @@ void LSbox::convolution(){
 	fftw_plan fwdPlan, bwdPlan;
 	
 	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
-	
-	double* in = &inputDistance[0];
-	double* out = &outputDistance[0];
-	
-	makeFFTPlans(in,out, fftTemp, &fwdPlan, &bwdPlan);
+		
+	makeFFTPlans(inputDistance,outputDistance, fftTemp, &fwdPlan, &bwdPlan);
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
 
 	fftw_destroy_plan(fwdPlan);
@@ -410,10 +415,7 @@ void LSbox::convolution(){
 	IDLocal.resize((xmax-xmin)*(ymax-ymin));
 	plot_box(true,1,"Convoluted_1");
 	plot_box(true,2,"Convoluted_2");
-	
-// 	 set the references for the comparison step
-	inputDistance = distanceBuffer2;
-	outputDistance = distanceBuffer1;
+
 }
 
 
@@ -474,6 +476,8 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 /**************************************/
 
 void LSbox::find_contour() {
+	
+	double* inputDistance = &distanceBuffer1[0];
 	exist = false;
 	// save old boundaries -> function will compute updates
     old_xmin = xmin; 
@@ -681,6 +685,7 @@ void LSbox::find_contour() {
 
 
 void LSbox::set_comparison(vector<double>& comparisonDistance){
+	double* inputDistance = &
 	int grid_blowup = (*handler).get_grid_blowup();
 	int m = (*handler).get_ngridpoints();
 	double h = handler->get_h();
@@ -850,8 +855,8 @@ void LSbox::redist_box() {
 	double h = handler->get_h();
 // 	plot_box(false);
 
-	inputDistance= distanceBuffer1;
-	outputDistance = distanceBuffer2;
+	double* inputDistance= &distanceBuffer1[0];
+	double* outputDistance = &distanceBuffer2[0];
 
 	int ii, jj;
 	double slope = 1;
