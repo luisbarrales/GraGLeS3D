@@ -44,8 +44,9 @@ struct pointVal {
  */
 class LSbox {
 	unsigned int id;
-	int xmin, xmax, ymin, ymax;
-	int old_xmin, old_xmax, old_ymin, old_ymax;
+	int xminIn, xmaxIn, yminIn, ymaxIn;
+	int xminOut, xmaxOut, yminOut, ymaxOut;
+	int xmaxId ,xminId , ymaxId, yminId; 
 	vector<double> distanceBuffer1, distanceBuffer2;
 	
 	double* distance_2neighbor;
@@ -78,7 +79,8 @@ public:
     void redist_box();
 	void find_contour();
 	int  getID();
-    void resizeToSquare();
+	void resizeToSquareIn();
+    void resizeToSquareOut();
     void comparison();
 	double getDistance(int i, int j);
     void set_comparison(vector<double>* comparisonDistance);
@@ -88,6 +90,7 @@ public:
 	void free_memory_distance();
       
 	void convolution();
+	void get_new_IDLocalSize();
 
 	void plot_box_contour(int loop);
 
