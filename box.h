@@ -61,8 +61,8 @@ class LSbox {
 	double energy;
 	grainhdl* handler;
 	vector <SPoint> contourGrain;
-	double* inputDistance;
-	double* outputDistance;
+	vector<double>* inputDistance;
+	vector<double>* outputDistance;
 public:
 	friend class grainhdl;
     LSbox();
@@ -81,7 +81,7 @@ public:
     void resizeToSquare();
     void comparison();
 	double getDistance(int i, int j);
-    void set_comparison(double* comparisonDistance);
+    void set_comparison(vector<double>* comparisonDistance);
     void add_n2o();
 	
     bool checkIntersect(LSbox* box2);   	
@@ -93,7 +93,7 @@ public:
 
 	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);
-	void checkIntersect_zero_grain(double* comparisonDistance);
+	void checkIntersect_zero_grain(vector<double>* comparisonDistance);
 	void shape_distance();
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
