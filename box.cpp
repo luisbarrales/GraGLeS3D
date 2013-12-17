@@ -771,19 +771,20 @@ void LSbox::comparison(){
 					for (int j = x_min_new; j < x_max_new; j++){					
 // 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.
-						if(abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)])  < (0.7*DELTA) &&  abs((**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]) < (0.7*DELTA)){       
+						double dist = (**it_nn).getDistance(i,j);
+						if(abs(inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)])  < (0.7*DELTA) &&  abs(dist) < (0.7*DELTA)){       
 							// check if we are currently in the delta-area around the contour
- 							if( (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
+ 							if( dist > comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ 	
 									if( !IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].empty() ){ 
 										distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
 									}
-									cout <<  (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] << endl;
-									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];
+									cout <<  dist << endl;
+									comparisonDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = dist;   
 									IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin(), *it_nn);	
 // 								}
 							}
-// 							else if(  (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] > distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ //candidate of neighbor is closer than 2nd neighbor
-// 								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = (**it_nn).inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]; 
+// 							else if(  dist> distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] ){ //candidate of neighbor is closer than 2nd neighbor
+// 								distance_2neighbor[(i-ymin)*(xmax-xmin)+(j-xmin)] = dist; 
 // 								IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].insert( ++IDLocal[(i-ymin)*(xmax-xmin)+(j-xmin)].begin() , *it_nn);							  
 // 							}
 // 							else { 
@@ -815,6 +816,12 @@ void LSbox::comparison(){
 	delete [] distance_2neighbor;
 	
 }
+
+double LSbox::getDistance(int i, int j){
+   return inputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)];   
+   }
+
+
 
 
 void LSbox::checkIntersect_zero_grain(double* comparisonDistance){

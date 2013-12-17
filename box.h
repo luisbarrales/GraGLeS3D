@@ -80,6 +80,7 @@ public:
 	int  getID();
     void resizeToSquare();
     void comparison();
+	double getDistance(int i, int j);
     void set_comparison(double* comparisonDistance);
     void add_n2o();
 	
