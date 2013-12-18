@@ -2,6 +2,7 @@
 #define BOX_H
 
 #include <vector>
+#include "dimensionalBuffer.h"
 #include "ggLS.h"
 // #include "contour.h"
 using namespace std;
@@ -44,12 +45,8 @@ struct pointVal {
  */
 class LSbox {
 	unsigned int id;
-	int xminIn, xmaxIn, yminIn, ymaxIn;
-	int xminOut, xmaxOut, yminOut, ymaxOut;
 	int xmaxId ,xminId , ymaxId, yminId; 
-	vector<double> distanceBuffer1, distanceBuffer2;
 	
-	double* distance_2neighbor;
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
 	Weightmap* local_weights;
@@ -62,8 +59,8 @@ class LSbox {
 	double energy;
 	grainhdl* handler;
 	vector <SPoint> contourGrain;
-	vector<double>* inputDistance;
-	vector<double>* outputDistance;
+	DimensionalBuffer<double>* inputDistance;
+	DimensionalBuffer<double>* outputDistance;
 public:
 	friend class grainhdl;
     LSbox();
@@ -111,10 +108,4 @@ public:
 	inline double get_PHI() {return PHI;}
 	inline double get_phi2() {return phi2;}
 };
-
-
-
-
-
-
 #endif

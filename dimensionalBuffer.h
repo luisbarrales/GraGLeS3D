@@ -18,7 +18,7 @@ public:
 	/*!
 	 * \brief Basic constructor. Just initializes the object with some default values.
 	 */
-	DimensionalBuffer::DimensionalBuffer() :
+	DimensionalBuffer() :
 			m_xMin(0), m_xMax(1), m_yMin(0), m_yMax(1)
 	{}
 	/*!
@@ -42,31 +42,31 @@ public:
 	/*!
 	* \brief Method that returns the value at the given coordinates.
 	*
-	* This method retreives the value at the specified coordinates. If such a value does not exist
+	* This method retrieves the value at the specified coordinates. If such a value does not exist
 	* this method throws an out of bound exception.
-	* \param x the x coordinate of the element.
-	* \param y the y coordinate of the element.
+	* \param row the y coordinate of the element.
+	* \param column the x coordinate of the element.
 	*/
-	T getValueAt(unsigned int x, unsigned int y) const
+	T getValueAt(unsigned int row, unsigned int column) const
 	{
 		//Will throw exception if accessed out of bound.
 		//TODO: Analyze performance and replace with [] if needed.
-		return m_values.at((y - m_yMin) * (m_xMax - m_xMin + 1) + (x - m_xMin));
+		return m_values.at((row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin));
 	}
 	/*!
 	* \brief Method that sets the value at the given coordinates.
 	*
 	* This method sets the value at the specified coordinates. If such a value does not exist
 	* this method throws an out of bound exception.
-	* \param x the x coordinate of the element.
-	* \param y the y coordinate of the element.
+	* \param row the y coordinate of the element.
+	* \param column the x coordinate of the element.
 	* \param value the value to be set.
 	*/
-	void setValueAt(unsigned int x, unsigned int y, T value)
+	void setValueAt(unsigned int row, unsigned int column, T value)
 	{
 		//Will throw exception if accessed out of bound.
 		//TODO: Analyze performance and replace with [] if needed.
-		m_values.at((y - m_yMin) * (m_xMax - m_xMin + 1) + (x - m_xMin)) = value;
+		m_values.at((row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)) = value;
 	}
 	/*!
 	* \brief This method resizes the dimensions.
@@ -85,7 +85,7 @@ public:
 		m_yMin = upperLeftY;
 		m_yMax = lowerRightY;
 
-		m_values.resize((m_xMax - m_xMin + 1) * (m_yMax - m_yMin + 1));
+		m_values.resize((m_xMax - m_xMin) * (m_yMax - m_yMin));
 	}
 
 	/*!
@@ -140,7 +140,7 @@ public:
 			m_yMin += delta;
 		}
 
-		m_values.resize((m_xMax-m_xMin+1) * (m_yMax-m_yMin+1));
+		m_values.resize((m_xMax-m_xMin) * (m_yMax-m_yMin));
 	}
 	/*!
 	* \brief This method fills the area with the provided values.
@@ -149,6 +149,17 @@ public:
 	{
 		std::fill(m_values.begin(), m_values.end(), value);
 	}
+	inline int getMinX() const
+	{return m_xMin;}
+	inline int getMaxX() const
+	{return m_xMax;}
+	inline int getMinY() const
+	{return m_yMin;}
+	inline int getMaxY() const
+	{return m_yMax;}
+	inline T* getRawData()
+	{return &m_values[0];}
+
 private:
 
 	int 	m_xMin;
