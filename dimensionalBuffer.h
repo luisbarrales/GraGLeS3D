@@ -149,6 +149,25 @@ public:
 	{
 		std::fill(m_values.begin(), m_values.end(), value);
 	}
+	/*!
+	* \brief This method restricts all values to the range of [minimumValue ; maximumValue]
+	* \param minimumValue The minimum value.
+	* \param maximumValue The maximum value.
+	*/
+	void clampValues(T minimumValue, T maximumValue)
+	{
+		for(int i=0; i<m_values.size(); i++)
+		{
+			if ( m_values[i] < minimumValue )
+			{
+				m_values[i] = minimumValue; continue;
+			}
+			if (m_values[i] > maximumValue )
+			{
+				m_values[i] = maximumValue; continue;
+			}
+		}
+	}
 	inline int getMinX() const
 	{return m_xMin;}
 	inline int getMaxX() const
