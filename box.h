@@ -80,7 +80,7 @@ public:
     void resizeToSquareOut();
     void comparison();
 	double getDistance(int i, int j);
-    void set_comparison(vector<double>* comparisonDistance);
+    void set_comparison();
     void add_n2o();
 	
     bool checkIntersect(LSbox* box2);   	
@@ -93,7 +93,7 @@ public:
 
 	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);
-	void checkIntersect_zero_grain(vector<double>* comparisonDistance);
+	void checkIntersect_zero_grain();
 	void shape_distance();
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);

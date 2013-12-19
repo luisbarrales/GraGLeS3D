@@ -706,7 +706,7 @@ void LSbox::switch_in_and_out(){
 /**************************************/
 
 
-void LSbox::set_comparison(vector<double>* comparisonDistance){
+void LSbox::set_comparison(){
 
 	int grid_blowup = (*handler).get_grid_blowup();
 	int m = (*handler).get_ngridpoints();
@@ -720,7 +720,7 @@ void LSbox::set_comparison(vector<double>* comparisonDistance){
 // 				 update only in a tube around the n boundary - numerical stability!s
 // 				outputDistance and comparisonDistance point to the same object!
 				//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] = 0.5 * ((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] - (*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] );
-				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - inputDistance->getValueAt(i,j)));
+				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			}
 			//else if((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] > 0)
 			else if(inputDistance->getValueAt(i,j) > 0)
@@ -760,6 +760,7 @@ void LSbox::comparison(){
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxX());
 
 	distance_2neighbor.clearValues(-1.0);
+	outputDistance->clearValues(-1.0);
 	//std::fill((*comparisonDistance).begin(),(*comparisonDistance).end(), -1.0);
 	
 	int loop = handler->loop;
@@ -802,17 +803,17 @@ void LSbox::comparison(){
 									}
 									//(*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)]  = dist;
 									outputDistance->setValueAt(i, j, dist);
-									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
+// 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
 // 								}
 							}
 							//else if(  dist > distance_2neighbor[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] ){ //candidate of neighbor is closer than 2nd neighbor
 							else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
 								distance_2neighbor.setValueAt(i,j, dist);
-								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
+// 								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
 							}
 							else { 
 								// probably there are more than 3 grains nearer than DELTA to this gridpoint
-								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+// 								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
 							}
 						}
 					}
@@ -827,13 +828,13 @@ void LSbox::comparison(){
 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
-// 	checkIntersect_zero_grain(comparisonDistance);(ymaxOut-yminOut) *(xmaxOut-xminOut)
-// 	plot_box(true,1,"Compare_1_zero");
-// 	plot_box(true,2,"Compare_2_zero");
+	checkIntersect_zero_grain();
+	plot_box(true,1,"Compare_1_zero");
+	plot_box(true,2,"Compare_2_zero");
 
 	// 	be careful for parralisation!!!!!
 
-	set_comparison(comparisonDistance);
+	set_comparison();
 	plot_box(true,1,"Compare_1_set");
 	plot_box(true,2,"Compare_2_set");
 
@@ -851,9 +852,10 @@ double LSbox::getDistance(int i, int j){
 
 
 
-void LSbox::checkIntersect_zero_grain(vector<double>* comparisonDistance){
+void LSbox::checkIntersect_zero_grain(){
 	LSbox* boundary = handler->boundary;
 	int grid_blowup = handler->get_grid_blowup();
+	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
 	if (!(outputDistance->getMinX() > boundary->outputDistance->getMinX() &&
 		  outputDistance->getMaxX() < boundary->outputDistance->getMaxX() &&
@@ -863,10 +865,8 @@ void LSbox::checkIntersect_zero_grain(vector<double>* comparisonDistance){
 		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++){
 			for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX(); j++){
 				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					if(abs(inputDistance->getValueAt(i,j))  < 0.7*DELTA ){
-						if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
-							outputDistance->setValueAt(i,j,boundary->outputDistance->getValueAt(i,j));
-						}
+					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
+						outputDistance->setValueAt(i,j,boundary->outputDistance->getValueAt(i,j));
 					}
 				}
 			}
@@ -1147,7 +1147,7 @@ void LSbox::shape_distance(){
 	int m = outputDistance->getMaxX()-outputDistance->getMinX();
 	for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++) {
 		for (int j = 0; j < m; j++) {
-			outputDistance->getRawData()[i*m +j] *= 4.0;
+			outputDistance->getRawData()[i*m +j] *= -4.0;
 		}
 	}
 }
