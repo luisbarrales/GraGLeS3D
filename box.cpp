@@ -406,9 +406,9 @@ void LSbox::convolution(){
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
-	plot_box(true,1,"Convoluted_1");
-	plot_box(true,2,"Convoluted_2");
-	
+// 	plot_box(true,1,"Convoluted_1");
+// 	plot_box(true,2,"Convoluted_2");
+// 	
 
 	switch_in_and_out();
 
@@ -611,8 +611,8 @@ void LSbox::comparison(){
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
-	plot_box(true,1,"Compare_1_zero");
-	plot_box(true,2,"Compare_2_zero");
+// 	plot_box(true,1,"Compare_1_zero");
+// 	plot_box(true,2,"Compare_2_zero");
 
 	// 	be careful for parralisation!!!!!
 
@@ -621,7 +621,7 @@ void LSbox::comparison(){
 	plot_box(true,2,"Compare_2_set");
 
 	
-	cout << "comparison complete for grain: "<<id << endl;
+// 	cout << "comparison complete for grain: "<<id << endl;
 // 	cin>> buffer;
 	// 	write the compared values to the distanceBuffer1 array
 
@@ -897,18 +897,21 @@ void LSbox::find_contour() {
 		
 		px= (*volumeit).x;
 		py= (*volumeit).y;
+		cout << py << "  " << px << endl;
+		cout << (*(++volumeit)).y  << "  " << (*(++volumeit)).x << endl;
 		volumeit++;
 		for (; volumeit!= contourGrain.end(); volumeit++){
 			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;      
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
-			cout << px << "  " << py << endl;
+// 			cout << px << "  " << py << endl;
 // 			theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
 // 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 // 				else energy += h* gamma_hagb;
 		}		
-		
+		cout << (*(--volumeit)).y  << "  " << (*(--volumeit)).x << endl;
+		cout << py << "  " << px << endl;
 		
 		stringstream dateiname;
 		dateiname << "testpoints_" << id << ".gnu";
@@ -960,7 +963,7 @@ void LSbox::redist_box() {
 		intersec_ymax= inputDistance->getMaxY();
 	else  intersec_ymax = outputDistance->getMaxY();
 	
-	cout << "box: intersec_xmin="<<intersec_xmin<< " intersec_xmax="<<intersec_xmax <<" intersec_ymin="<<intersec_ymin << " intersec_ymax="<<intersec_ymax<<endl;
+// 	cout << "box: intersec_xmin="<<intersec_xmin<< " intersec_xmax="<<intersec_xmax <<" intersec_ymin="<<intersec_ymin << " intersec_ymax="<<intersec_ymax<<endl;
 
 	for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 	  for (int j = intersec_xmin; j < outputDistance->getMaxX()-1; j++) {
@@ -1034,22 +1037,7 @@ void LSbox::redist_box() {
 			}
 		}		
 	}
-	// y-direction forward
-// 	for (int j = 0; j < n; j++) {
-// 		for (int i = 0; i < m-1; i++) {	
-// 			// check for sign change
-// 			if ((*this)[i][j] * (*this)[i+1][j] <= 0.0) {   
-// 					// interpolate
-// 					i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
-// 					zero = -(*this)[i][j] / i_slope;
-// 					if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
-// 			}
-// 			// calculate new distance candidate and assign if appropriate
-// 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
-// 			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
-// 		}
-// 	}
-// 	
+
 	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 		for (int i = intersec_ymax-1; i > outputDistance->getMinY(); i--) {
 			if(j <= intersec_xmax && i >= intersec_ymin){
@@ -1057,8 +1045,6 @@ void LSbox::redist_box() {
 					// interpolate
 					i_slope  = (inputDistance->getValueAt(i-1,j)  - inputDistance->getValueAt(i,j))/ h;
 					distToZero = - inputDistance->getValueAt(i,j) / i_slope;
-					cout << i_slope << "   "<< distToZero<< endl;
-					if(abs (distToZero) > h) cout << "distance to big!" << endl;
 					if ( abs(outputDistance->getValueAt(i,j) ) > abs(distToZero))
 						outputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
 				}
@@ -1074,16 +1060,6 @@ void LSbox::redist_box() {
 			}
 		}		
 	}
-
-
-// 	// y-direction backward
-// 	for (int j = 0; j < n; j++) {
-// 		for (int i = m-1; i > 0; i--) {	
-// 			// calculate new distance candidate and assign if appropriate
-// 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h); // replace with the "a"-slope stuff...
-// 			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
-// 		}
-// 	}
 
 	plot_box(true,1,"Redist_1");
 	plot_box(true,2,"Redist_2");
