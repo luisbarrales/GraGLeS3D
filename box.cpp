@@ -515,6 +515,17 @@ void LSbox::find_contour() {
             current_i = i; 	current_j = j;
 	    next_i =i; 		next_j = j+1;
 	    exist= true;
+		cout << "zero found" << endl;
+		double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j);
+		
+		
+		SPoint point;
+		point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
+		point.y = current_i;
+		 cout << current_i <<"   " << current_j << endl;
+		 char buf;
+		 cin>> buf;
+		contourGrain.emplace_back(point);
 	    break;
         }
 	}
@@ -530,7 +541,20 @@ void LSbox::find_contour() {
 				next_i =i+1; 	next_j = j;
 				exist= true;
 				direction = 2;
+				SPoint point;
 				cout << "boundary found"<< endl;
+				
+				double slope =  inputDistance->getValueAt(next_i,next_j) - inputDistance->getValueAt(current_i, current_j);
+				
+				cout << slope << endl;
+				slope = -1.0 *slope;
+				point.x= current_j;
+				point.y = current_i+ (inputDistance->getValueAt(current_i, current_j)/slope);
+				
+				contourGrain.emplace_back(point);
+					cout << current_i <<"   " << current_j << endl;
+					char buf;
+					cin>> buf;
 				break;
 			}
 		}
@@ -554,14 +578,14 @@ void LSbox::find_contour() {
 	  current_j = next_j;
 	  
 	  // check for size change
-	  if (current_j-grid_blowup < xminOut) 		
+	  if (current_j-grid_blowup < xminOut && current_j-grid_blowup >= 0) 		
 		xminOut = current_j - grid_blowup;
-	  else if (current_j > xmaxOut-grid_blowup) 	
+	  else if (current_j > xmaxOut-grid_blowup && current_j + grid_blowup <= m-1) 	
 		xmaxOut = current_j + grid_blowup;
-	  if (current_i < yminOut+grid_blowup) 		
+	  if (current_i < yminOut+grid_blowup && current_i-grid_blowup >= 0) 		
 		yminOut = current_i - grid_blowup;
-	  else if (current_i > ymaxOut-grid_blowup) 	
-		ymaxOut = current_i + grid_blowup;
+	  else if (current_i > ymaxOut-grid_blowup && current_i + grid_blowup <= m-1) 	
+		ymaxOut = current_i + grid_blowup ;
 	  
 	  // change search directions
 	  //(1 = left turn; -1 right turn)  
@@ -586,6 +610,7 @@ void LSbox::find_contour() {
 		  else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
 		  else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
 		  else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
+		  cout <<"   "<< current_i<<"   "<< current_j <<"   "<< next_i <<"   "<< next_j<< endl;
 		  
 //            cerr << current_i  <<"  "<< current_j <<"  "<< next_i <<"  "<< next_j <<endl ;
 		  //if ( (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)] * (*inputDistance)[(next_i-yminIn)*(xmaxIn-xminIn)+(next_j-xminIn)] <= 0) {
@@ -594,29 +619,30 @@ void LSbox::find_contour() {
 			  //if( ((*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)] * (*inputDistance)[(next_i-yminIn)*(xmaxIn-xminIn)+(next_j-xminIn)] )!= 0.0 )
 			  if( inputDistance->getValueAt(current_i, current_j) * inputDistance->getValueAt(next_i, next_j) != 0.0 )
 			  {
-				//double slope =  (*inputDistance)[(next_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)] - (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)];
-				  double slope =  inputDistance->getValueAt(next_i,current_j) - inputDistance->getValueAt(current_i, current_j);
-				slope = -1.0 *slope;
-				if (direction == 1) {	 
-				  //point.x= current_j + (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
-				  point.x= current_j + inputDistance->getValueAt(current_i, current_j)/slope;
-				  point.y = current_i;
-				}
-				else if (direction == 3){	 
-				  //point.x = current_j - (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
-					point.x = current_j - inputDistance->getValueAt(current_i, current_j)/slope;
-				  point.y = current_i;
-				}
-				else if (direction == 0) {	 				
-				  //point.y =  current_i - (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
-					point.y =  current_i - inputDistance->getValueAt(current_i, current_j)/slope;
-				  point.x = current_j;
-				}
-				else if (direction == 2){	
-				  //point.y =  current_i + (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
-				  point.y =  current_i + inputDistance->getValueAt(current_i, current_j)/slope;
-				  point.x = current_j;
-				}		 
+					//double slope =  (*inputDistance)[(next_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)] - (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)];
+					double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j) ;
+					cout << slope << endl;
+					
+					if (direction == 1) {	 
+					//point.x= current_j + (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
+					point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
+					point.y = current_i;
+					}
+					else if (direction == 3){	 
+					//point.x = current_j - (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
+						point.x = current_j - inputDistance->getValueAt(current_i, current_j)/slope;
+					point.y = current_i;
+					}
+					else if (direction == 0) {	 				
+					//point.y =  current_i - (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
+						point.y =  current_i - inputDistance->getValueAt(current_i, current_j)/slope;
+					point.x = current_j;
+					}
+					else if (direction == 2){	
+					//point.y =  current_i + (*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]/slope;
+					point.y =  current_i + inputDistance->getValueAt(current_i, current_j)/slope;
+					point.x = current_j;
+					}		 
 			  }
 			  else {
 				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << inputDistance->getValueAt(current_i, current_j)<<"\t" << inputDistance->getValueAt(next_i, current_j)<< endl;
@@ -628,7 +654,8 @@ void LSbox::find_contour() {
 				else if (inputDistance->getValueAt(next_i, current_j)  == 0.0)
 					{ point.y =  next_i;  point.x = next_j; }
 			  }
-			  contourGrain.emplace_back(point);			 
+			  contourGrain.emplace_back(point);	
+			  cout << point.y <<"   " << point.x << endl;
 			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
 		  }        		  
 		  
@@ -639,15 +666,22 @@ void LSbox::find_contour() {
 	  }
 	  if (!foundnext) {
 		  break; //springen aus der while-schleife, falls keine nullstelle mehr gefunden wird
-	  }
-	  
-	  // check if completed round
+	  }	  
+	  // check if completed contourline
 	  if (current_j == first_j && current_i == first_i) {
 		  newZero = false;	//springen aus der while-schleife, wir haben eine geschlosse kurve gefunden
 	  }
     }
+    cout << " contour found!! " << endl;
+	
+    if (xminOut < 0) {cout <<"undefined box size for xmin: "<< xminOut << endl; abort();} //xmin = 0;
+	if (xmaxOut > m) {cout <<"undefined box size for xmax: "<< xmaxOut << endl; abort();} //xmax = m;
+	if (yminOut < 0) {cout <<"undefined box size for ymin: "<< yminOut << endl; abort();} //ymin = 0;
+	if (ymaxOut > m) {cout <<"undefined box size for ymax: "<< xmaxOut << endl; abort();} // ymax = m;
+	
+	outputDistance->resizeToSquare(handler->get_ngridpoints());
     outputDistance->resize(xminOut, yminOut, xmaxOut, ymaxOut);
-    
+   
     
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
@@ -668,16 +702,12 @@ void LSbox::find_contour() {
 			px= (*volumeit).x;
 			py= (*volumeit).y;
 			cout << px << "  " << py << endl;
-			theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
-			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-				else energy += h* gamma_hagb;
+// 			theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
+// 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 				else energy += h* gamma_hagb;
 		}		
-		if (xminOut < 0) {cout <<"undefined box size for xmin: "<< xminOut << endl; abort();} //xmin = 0;
-		if (xmaxOut > m) {cout <<"undefined box size for xmax: "<< xmaxOut << endl; abort();} //xmax = m;
-		if (yminOut < 0) {cout <<"undefined box size for ymin: "<< yminOut << endl; abort();} //ymin = 0;
-		if (ymaxOut > m) {cout <<"undefined box size for ymax: "<< xmaxOut << endl; abort();} // ymax = m;
 		
-		outputDistance->resizeToSquare(handler->get_ngridpoints());
+		
 		stringstream dateiname;
 		dateiname << "testpoints_" << id << ".gnu";
 		ofstream datei;
@@ -803,17 +833,17 @@ void LSbox::comparison(){
 									}
 									//(*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)]  = dist;
 									outputDistance->setValueAt(i, j, dist);
-// 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
+									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
 // 								}
 							}
 							//else if(  dist > distance_2neighbor[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] ){ //candidate of neighbor is closer than 2nd neighbor
 							else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
 								distance_2neighbor.setValueAt(i,j, dist);
-// 								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
+								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
 							}
 							else { 
 								// probably there are more than 3 grains nearer than DELTA to this gridpoint
-// 								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
 							}
 						}
 					}
