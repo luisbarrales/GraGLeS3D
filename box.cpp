@@ -509,10 +509,10 @@ void LSbox::set_comparison(){
 				outputDistance->setValueAt(i,j, DELTA);
 			//else if((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] < 0)
 			else if(inputDistance->getValueAt(i,j) < 0)
+				outputDistance->setValueAt(i,j, -3*DELTA);
+			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
 				outputDistance->setValueAt(i,j, -DELTA);
-// 			else if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-// 				outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)]  = -DELTA;
-// 			}
+			}
 // 			else outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)];
 		}
 	}
@@ -1019,8 +1019,8 @@ void LSbox::redist_box() {
 					// interpolate
 					i_slope  = (inputDistance->getValueAt(i+1,j) - inputDistance->getValueAt(i,j) )/ h;
 					distToZero = - inputDistance->getValueAt(i,j) / i_slope;
-					if ( abs(inputDistance->getValueAt(i,j) ) > abs(distToZero))
-						inputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
+					if ( abs(outputDistance->getValueAt(i,j) ) > abs(distToZero))
+						outputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
 				}
 				// calculate new distance candidate and assign if appropriate
 				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( inputDistance->getValueAt(i+1,j) ) * h);
@@ -1028,34 +1028,61 @@ void LSbox::redist_box() {
 					outputDistance->setValueAt(i+1,j, candidate);
 			}
 			else {
-				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( inputDistance->getValueAt(i+1,j)) * h);
+				candidate = outputDistance->getValueAt(i,j)  -h;//+ (utils::sgn( inputDistance->getValueAt(i+1,j)) * h);
 				if (abs(candidate) < abs(outputDistance->getValueAt(i+1,j)))
 					outputDistance->setValueAt(i+1,j, candidate);
 			}
 		}		
 	}
-	
-// 	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
-// 		for (int i = intersec_ymax-1; i > outputDistance->getMinY(); i--) {
-// 			if(j <= intersec_xmax && i >= intersec_ymin){
-// // 				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i-1,j) <= 0.0) {
-// // 					// interpolate
-// // 					i_slope  = (inputDistance->getValueAt(i-1,j)  - inputDistance->getValueAt(i,j))/ h;
-// // 					distToZero = - inputDistance->getValueAt(i,j) / i_slope;
-// // 					if ( abs(inputDistance->getValueAt(i,j) ) > abs(distToZero))
-// // 						inputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
-// // 				}
-// 				// calculate new distance candidate and assign if appropriate
-// 				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( inputDistance->getValueAt(i-1, j) ) * h);
-// 				if (abs(candidate) < abs(outputDistance->getValueAt(i-1, j) ))
-// 					outputDistance->setValueAt(i-1, j, candidate);
+	// y-direction forward
+// 	for (int j = 0; j < n; j++) {
+// 		for (int i = 0; i < m-1; i++) {	
+// 			// check for sign change
+// 			if ((*this)[i][j] * (*this)[i+1][j] <= 0.0) {   
+// 					// interpolate
+// 					i_slope  = ((*this)[i+1][j] - (*this)[i][j]) / h;
+// 					zero = -(*this)[i][j] / i_slope;
+// 					if ( abs((*temp)[i][j]) > abs(zero)) (*temp)[i][j] = -zero * utils::sgn(i_slope);
 // 			}
-// 			else {
-// 				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
-// 				if (abs(candidate) < abs(outputDistance->getValueAt(i-1,j)))
-// 					outputDistance->setValueAt(i-1, j, candidate);
-// 			}
-// 		}		
+// 			// calculate new distance candidate and assign if appropriate
+// 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i+1][j]) * h);
+// 			if (abs(candidate) < abs((*temp)[i+1][j])) (*temp)[i+1][j] = candidate;
+// 		}
+// 	}
+// 	
+	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
+		for (int i = intersec_ymax-1; i > outputDistance->getMinY(); i--) {
+			if(j <= intersec_xmax && i >= intersec_ymin){
+				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i-1,j) <= 0.0) {
+					// interpolate
+					i_slope  = (inputDistance->getValueAt(i-1,j)  - inputDistance->getValueAt(i,j))/ h;
+					distToZero = - inputDistance->getValueAt(i,j) / i_slope;
+					cout << i_slope << "   "<< distToZero<< endl;
+					if(abs (distToZero) > h) cout << "distance to big!" << endl;
+					if ( abs(outputDistance->getValueAt(i,j) ) > abs(distToZero))
+						outputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
+				}
+				// calculate new distance candidate and assign if appropriate
+				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( inputDistance->getValueAt(i-1, j) ) * h);
+				if (abs(candidate) < abs(outputDistance->getValueAt(i-1, j) ))
+					outputDistance->setValueAt(i-1, j, candidate);
+			}
+			else {
+				candidate = outputDistance->getValueAt(i,j)  -h ; //+ (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
+				if (abs(candidate) < abs(outputDistance->getValueAt(i-1,j)))
+					outputDistance->setValueAt(i-1, j, candidate);
+			}
+		}		
+	}
+
+
+// 	// y-direction backward
+// 	for (int j = 0; j < n; j++) {
+// 		for (int i = m-1; i > 0; i--) {	
+// 			// calculate new distance candidate and assign if appropriate
+// 			candidate = (*temp)[i][j] + (utils::sgn((*this)[i-1][j]) * h); // replace with the "a"-slope stuff...
+// 			if (abs(candidate) < abs((*temp)[i-1][j])) (*temp)[i-1][j] = candidate;
+// 		}
 // 	}
 
 	plot_box(true,1,"Redist_1");
