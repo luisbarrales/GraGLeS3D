@@ -367,6 +367,8 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		    j--;
 	    } 
     }
+    plot_box(true,1,"Dist_1");
+	plot_box(true,2,"Dist_2");
 }
 
 
@@ -455,7 +457,8 @@ void LSbox::convolution(){
 	//  set references for the convolution step
 
 	switch_in_and_out();
-
+	plot_box(true,1,"DistSwitch_1");
+	plot_box(true,2,"DistSwitch_2");
 	double* ST = handler->ST;
 	int n = xmaxOut-xminOut;
 	int m = ymaxOut-yminOut;
@@ -518,9 +521,9 @@ void LSbox::convolution(){
 	IDLocal.clear();	
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
-// 	plot_box(true,1,"Convoluted_1");
-// 	plot_box(true,2,"Convoluted_2");
-// 	
+	plot_box(true,1,"Convoluted_1");
+	plot_box(true,2,"Convoluted_2");
+	
 	
 	switch_in_and_out();
 
@@ -790,11 +793,11 @@ void LSbox::find_contour() {
 
 void LSbox::switch_in_and_out(){
 	vector<double>* temp;
+	
 	int xminTemp = xminOut;
 	int xmaxTemp = xmaxOut;
 	int yminTemp = yminOut;
-	int ymaxTemp = ymaxOut;
-	
+	int ymaxTemp = ymaxOut;	
 	temp= outputDistance;
 	
 	xminOut = xminIn;
@@ -805,7 +808,7 @@ void LSbox::switch_in_and_out(){
 	
 	
 	xminIn = xminTemp;
-	xmaxIn = xminTemp;
+	xmaxIn = xmaxTemp;
 	yminIn = yminTemp;
 	ymaxIn = ymaxTemp;
 	inputDistance = temp;
@@ -899,8 +902,7 @@ void LSbox::comparison(){
  							if( dist > (*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] ){ 	
 									if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
 										distance_2neighbor[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] = (*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)];
-									}
-									
+									}									
 									(*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)]  = dist;   
 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
 // 								}
@@ -932,11 +934,11 @@ void LSbox::comparison(){
 
 	// 	be careful for parralisation!!!!!
 	set_comparison(comparisonDistance);
-// 	plot_box(true,1,"Compare_1_set");
-// 	plot_box(true,2,"Compare_2_set");
+	plot_box(true,1,"Compare_1_set");
+	plot_box(true,2,"Compare_2_set");
 	
 	cout << "comparison complete for grain: "<<id << endl;
-// 	cin>> buffer;
+	cin>> buffer;
 	// 	write the compared values to the distanceBuffer1 array
 	delete [] distance_2neighbor;
 	
