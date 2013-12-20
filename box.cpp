@@ -889,10 +889,12 @@ void LSbox::find_contour() {
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
-// 			cout << px << "  " << py << endl;
-// 			theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
-// 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-// 				else energy += h* gamma_hagb;
+// 			cout << py << "  " << px << endl;
+// 			cout << "assoziated grid point " << int(py+0.5) << "  " << int(px+0.5) << endl;
+			if (!IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId)].empty())
+			theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
+			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+				else energy += h* gamma_hagb;
 		}				
 		stringstream dateiname;
 		dateiname << "testpoints_" << id << ".gnu";
@@ -901,6 +903,7 @@ void LSbox::find_contour() {
 		datei << s.str();
 		datei.close();
 		cerr<< "Volume of " << id << "= " << abs(volume)*0.5<< endl;
+		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl;
 	}
 	
 	
@@ -1042,8 +1045,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-	plot_box(true,1,"Redist_1");
-	plot_box(true,2,"Redist_2");
+// 	plot_box(true,1,"Redist_1");
+// 	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());
