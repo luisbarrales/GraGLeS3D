@@ -9,7 +9,7 @@ grainhdl::~grainhdl(){}
 void grainhdl::setSimulationParameter(){
 	
 // 	readInit();
-	Mode = MODE; // 2 f�r lesen;  f�r erzeugen der mikrostrukture
+	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
 	if(Mode==2) realDomainSize= M;
@@ -18,8 +18,9 @@ void grainhdl::setSimulationParameter(){
 	h = 1.0/double(realDomainSize);
 
 	grid_blowup = BORDER; 
-	totalenergy = new double[TIMESTEPS];
-		
+	totalenergy.resize(TIMESTEPS%ANALYSESTEP +1);
+	nr_grains.resize(TIMESTEPS%ANALYSESTEP +1);	
+	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 
 	LSbox* zeroBox = new LSbox();
@@ -268,24 +269,20 @@ void grainhdl::comparison_box(){
 
 
 void grainhdl::level_set(){
+	totalenergy[loop]=0;
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
 		(*it)->find_contour();
+		totalenergy[loop] += (*it)->getEnergy();
 	}
 }
 
 
 void grainhdl::redistancing(){
-// 	stringstream plotfiles;
-// 	stringstream filename;
-// 	vector<LSbox*>::iterator it2;
+ 
 	std::vector<LSbox*>::iterator it;
-	int i;
-	nr_grains.push_back(0);
-	
 	for (it = ++grains.begin(); it != grains.end(); it++) {
 		(*it)->redist_box();
-		nr_grains[loop]+=1;
 	}
 }
 
@@ -293,7 +290,8 @@ void grainhdl::redistancing(){
 void grainhdl::save_texture(){
 	FILE* myfile;
 	stringstream filename;
-	double total_energy=0;
+	double total_energy= 0;
+	int numberGrains;
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
 	double buffer = 0.24;
@@ -302,9 +300,20 @@ void grainhdl::save_texture(){
 	for(it = ++grains.begin(); it != grains.end(); it++){
 		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->phi1, (*it)->PHI, (*it)->phi2, (*it)->volume, buffer);
 		total_energy += (*it)->energy;
+		numberGrains+=1;
 	}
-    if (loop != TIMESTEPS) totalenergy[int (loop/ANALYSESTEP)]=total_energy;
-    else totalenergy[TIMESTEPS-1] = 0.5 *total_energy;
+    if (loop != TIMESTEPS) {
+		totalenergy[int (loop/ANALYSESTEP)]= 0.5*total_energy;
+		nr_grains[int (loop/ANALYSESTEP)] = numberGrains;
+		cout << "Number of grains remaining in the Network :" << nr_grains[int (loop/ANALYSESTEP)]<< endl;
+		cout << "Amount of free Energy in the Network :" << totalenergy[int (loop/ANALYSESTEP)] << endl;
+	}
+    else {
+		totalenergy.back() = 0.5 *total_energy;
+		nr_grains.back() = numberGrains;
+		cout << "Number of grains remaining in the Network :" << nr_grains.back() << endl;
+		cout << "Amount of free Energy in the Network :" << totalenergy.back() << endl;
+	}
 	fclose(myfile);
 }
  
@@ -325,11 +334,11 @@ void grainhdl::run_sim(){
 // 		if ( (loop % int(PRINTSTEP)) == 0)
 // 		      plot_contour();
 		redistancing();
-		if ( (loop % int(ANALYSESTEP)) == 0) saveAllContourlines();
-// 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-// 			cout << "Grain Volumes after Timestep " << loop << endl;
-// 			save_texture();
-// 		}
+		
+		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+			saveAllContourlines();
+			save_texture();
+		}
 	}
 }  
 

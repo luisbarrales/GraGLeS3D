@@ -107,5 +107,6 @@ public:
 	inline double get_phi1() {return phi1;}
 	inline double get_PHI() {return PHI;}
 	inline double get_phi2() {return phi2;}
+	inline double getEnergy(){ return energy;}
 };
 #endif

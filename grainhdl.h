@@ -33,7 +33,7 @@ class grainhdl{
 	public:
 	
 	int loop;
-	double* totalenergy;
+	vector<double> totalenergy;
 
 	double *ST;
 	double *part_pos;	
