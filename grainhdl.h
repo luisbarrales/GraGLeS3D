@@ -28,12 +28,13 @@ class grainhdl{
 	
 	int Mode;
    	
-	vector<int> nr_grains;	
+		
 	
 	public:
 	
 	int loop;
 	vector<double> totalenergy;
+	vector<int> nr_grains;
 
 	double *ST;
 	double *part_pos;	

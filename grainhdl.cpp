@@ -18,8 +18,6 @@ void grainhdl::setSimulationParameter(){
 	h = 1.0/double(realDomainSize);
 
 	grid_blowup = BORDER; 
-	totalenergy.resize(TIMESTEPS%ANALYSESTEP +1);
-	nr_grains.resize(TIMESTEPS%ANALYSESTEP +1);	
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 
@@ -269,11 +267,9 @@ void grainhdl::comparison_box(){
 
 
 void grainhdl::level_set(){
-	totalenergy[loop]=0;
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
 		(*it)->find_contour();
-		totalenergy[loop] += (*it)->getEnergy();
 	}
 }
 
@@ -290,7 +286,7 @@ void grainhdl::redistancing(){
 void grainhdl::save_texture(){
 	FILE* myfile;
 	stringstream filename;
-	double total_energy= 0;
+	double total_energy= 0.0;
 	int numberGrains;
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
@@ -302,25 +298,15 @@ void grainhdl::save_texture(){
 		total_energy += (*it)->energy;
 		numberGrains+=1;
 	}
-    if (loop != TIMESTEPS) {
-		totalenergy[int (loop/ANALYSESTEP)]= 0.5*total_energy;
-		nr_grains[int (loop/ANALYSESTEP)] = numberGrains;
-		cout << "Number of grains remaining in the Network :" << nr_grains[int (loop/ANALYSESTEP)]<< endl;
-		cout << "Amount of free Energy in the Network :" << totalenergy[int (loop/ANALYSESTEP)] << endl;
-	}
-    else {
-		totalenergy.back() = 0.5 *total_energy;
-		nr_grains.back() = numberGrains;
-		cout << "Number of grains remaining in the Network :" << nr_grains.back() << endl;
-		cout << "Amount of free Energy in the Network :" << totalenergy.back() << endl;
-	}
+    totalenergy.push_back(0.5*total_energy);
+	nr_grains.push_back(numberGrains);
+	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
+	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
+
 	fclose(myfile);
 }
  
- 
- 
- 
- 
+  
  
  
 void grainhdl::run_sim(){
@@ -330,16 +316,13 @@ void grainhdl::run_sim(){
 		updateSecondOrderNeighbors();
 		comparison_box();
 		level_set();
-		
-// 		if ( (loop % int(PRINTSTEP)) == 0)
-// 		      plot_contour();
 		redistancing();
-		
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 			saveAllContourlines();
 			save_texture();
 		}
 	}
+	cout << "Simulation complete." << endl;
 }  
 
 /*

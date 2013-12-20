@@ -903,7 +903,7 @@ void LSbox::find_contour() {
 		datei << s.str();
 		datei.close();
 		cerr<< "Volume of " << id << "= " << abs(volume)*0.5<< endl;
-		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl;
+		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
 	}
 	return;
 }
@@ -986,7 +986,7 @@ void LSbox::redist_box() {
 						outputDistance->setValueAt(i,j-1, candidate);
 			}
 			else {
-				candidate = outputDistance->getValueAt(i,j)  + utils::sgn( inputDistance->getValueAt(i,j-1))*h;
+				candidate = outputDistance->getValueAt(i,j)  + utils::sgn( outputDistance->getValueAt(i,j-1))*h;
 				if (abs(candidate) < abs(outputDistance->getValueAt(i,j-1)))
 					outputDistance->setValueAt(i,j-1, candidate);
 			}
@@ -1011,7 +1011,7 @@ void LSbox::redist_box() {
 					outputDistance->setValueAt(i+1,j, candidate);
 			}
 			else {
-				candidate = outputDistance->getValueAt(i,j)  -h;//+ (utils::sgn( inputDistance->getValueAt(i+1,j)) * h);
+				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( outputDistance->getValueAt(i+1,j)) * h);
 				if (abs(candidate) < abs(outputDistance->getValueAt(i+1,j)))
 					outputDistance->setValueAt(i+1,j, candidate);
 			}
@@ -1034,7 +1034,7 @@ void LSbox::redist_box() {
 					outputDistance->setValueAt(i-1, j, candidate);
 			}
 			else {
-				candidate = outputDistance->getValueAt(i,j)  -h ; //+ (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
+				candidate = outputDistance->getValueAt(i,j)  /+ (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
 				if (abs(candidate) < abs(outputDistance->getValueAt(i-1,j)))
 					outputDistance->setValueAt(i-1, j, candidate);
 			}
