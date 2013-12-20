@@ -302,7 +302,6 @@ void grainhdl::save_texture(){
 	nr_grains.push_back(numberGrains);
 	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
 	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
-
 	fclose(myfile);
 }
  

@@ -11,10 +11,9 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 10
-#define PRINTSTEP 1
-#define ANALYSESTEP 1
-#define MODE 2 // 2 für lesen;  1 für erzeugen der mikrostrukture
+#define TIMESTEPS 100
+#define ANALYSESTEP 10
+#define MODE 1 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 
 #define PARTICLES 50
@@ -24,9 +23,6 @@
 #define SAVEIMAGE false
 #define IMAGEOUT true
 
-#define SAVEREDIST true
-#define SAVECOMP true
-#define SAVECONV true
 
 #pragma once
 #include <map>
