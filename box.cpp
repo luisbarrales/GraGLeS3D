@@ -621,9 +621,12 @@ void LSbox::comparison(){
 	// 	write the compared values to the distanceBuffer1 array
 
 }
+
+
+
 double LSbox::getDistance(int i, int j){
    return inputDistance->getValueAt(i,j);
-   }
+}
 
 
 
@@ -944,7 +947,7 @@ void LSbox::redist_box() {
 	for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 	  for (int j = intersec_xmin; j < outputDistance->getMaxX()-1; j++) {
 			// x-direction forward
-			if(j <= intersec_xmax && i <= intersec_ymax){
+			if(j < intersec_xmax-1 && i < intersec_ymax ){
 				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i,j+1) <= 0.0) {
 					// interpolate
 					i_slope  = ( inputDistance->getValueAt(i,j+1) - inputDistance->getValueAt(i,j) ) / h;
@@ -968,7 +971,7 @@ void LSbox::redist_box() {
 	  for (int j = intersec_xmax-1; j >  outputDistance->getMinX(); j--) {
 	// x-direction outputDistanceward
 			//check for sign change
-			if(j >= intersec_xmin && i <= intersec_ymax){
+			if(j > intersec_xmin && i < intersec_ymax){
 // 				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i,j-1) <= 0.0) {
 // 					// interpolate
 // 					i_slope  = ( inputDistance->getValueAt(i,j-1)  - inputDistance->getValueAt(i,j) ) / h;
@@ -993,7 +996,7 @@ void LSbox::redist_box() {
 	// y-direction forward
 	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 		for (int i = intersec_ymin; i < outputDistance->getMaxY()-1; i++) {
-			if(j <= intersec_xmax && i <= intersec_ymax){
+			if(j < intersec_xmax && i < intersec_ymax-1){
 				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i+1,j) <= 0.0) {
 					// interpolate
 					i_slope  = (inputDistance->getValueAt(i+1,j) - inputDistance->getValueAt(i,j) )/ h;
@@ -1016,7 +1019,7 @@ void LSbox::redist_box() {
 
 	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 		for (int i = intersec_ymax-1; i > outputDistance->getMinY(); i--) {
-			if(j <= intersec_xmax && i >= intersec_ymin){
+			if(j < intersec_xmax && i > intersec_ymin){
 // 				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i-1,j) <= 0.0) {
 // 					// interpolate
 // 					i_slope  = (inputDistance->getValueAt(i-1,j)  - inputDistance->getValueAt(i,j))/ h;
@@ -1039,8 +1042,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-// 	plot_box(true,1,"Redist_1");
-// 	plot_box(true,2,"Redist_2");
+	plot_box(true,1,"Redist_1");
+	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());

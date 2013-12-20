@@ -326,9 +326,6 @@ void grainhdl::run_sim(){
 // 		      plot_contour();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0) saveAllContourlines();
-		
-		char buffer;
-		cin >> buffer;	
 // 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 // 			cout << "Grain Volumes after Timestep " << loop << endl;
 // 			save_texture();
