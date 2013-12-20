@@ -236,8 +236,6 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 		    j--;
 	    } 
     }
-    plot_box(true,1,"Dist_1");
-	plot_box(true,2,"Dist_2");
 }
 
 void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
@@ -339,8 +337,6 @@ void LSbox::convolution(){
 	//  set references for the convolution step
 
 	switch_in_and_out();
-	plot_box(true,1,"DistSwitch_1");
-	plot_box(true,2,"DistSwitch_2");
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int m = outputDistance->getMaxY()-outputDistance->getMinY();
@@ -549,7 +545,6 @@ void LSbox::comparison(){
 	std::vector<LSbox*>::iterator it_nn;
 
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
-			cout << endl << "starting comparison between "<< id << "  and " << (*it_nn)->get_id()<< endl;
 			if( ((**it_nn).get_status() == true )) {
 			if (checkIntersect(*it_nn)){
 				neighbors.push_back(*it_nn);
@@ -567,7 +562,7 @@ void LSbox::comparison(){
 				if(inputDistance->getMaxY() > (**it_nn).inputDistance->getMaxY()) y_max_new = (**it_nn).inputDistance->getMaxY();
 					else y_max_new = inputDistance->getMaxY();
 					
-				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
+// 				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
 	
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){					
@@ -607,7 +602,7 @@ void LSbox::comparison(){
 	}
 // 	plot_box(true,1,"Compare_1");
 // 	plot_box(true,2,"Compare_2");
-	char buffer;
+// 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
@@ -617,8 +612,8 @@ void LSbox::comparison(){
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
-	plot_box(true,1,"Compare_1_set");
-	plot_box(true,2,"Compare_2_set");
+// 	plot_box(true,1,"Compare_1_set");
+// 	plot_box(true,2,"Compare_2_set");
 
 	
 // 	cout << "comparison complete for grain: "<<id << endl;
@@ -626,7 +621,6 @@ void LSbox::comparison(){
 	// 	write the compared values to the distanceBuffer1 array
 
 }
-
 double LSbox::getDistance(int i, int j){
    return inputDistance->getValueAt(i,j);
    }
@@ -714,19 +708,14 @@ void LSbox::find_contour() {
         if (inputDistance->getValueAt(i,j)  * inputDistance->getValueAt(i,j+1)  <= 0) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
-	    next_i =i; 		next_j = j+1;
-	    exist= true;
-		cout << "zero found" << endl;
-		double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j);		
-		SPoint point;
-		point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
-		point.y = current_i;
-		 cout << current_i <<"   " << current_j << endl;
-		 cout << point.y <<"   " << point.x << endl;
-		 char buf;
-		 cin>> buf;
-		contourGrain.emplace_back(point);
-	    break;
+			next_i =i; 		next_j = j+1;
+			exist= true;
+			double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j);		
+			SPoint point;
+			point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
+			point.y = current_i;
+			contourGrain.emplace_back(point);
+			break;
         }
 	}
 	if (!exist) {
@@ -742,20 +731,15 @@ void LSbox::find_contour() {
 				exist= true;
 				direction = 2;
 				SPoint point;
-				cout << "boundary found"<< endl;
-				
+				cout << "boundary found"<< endl;				
 				double slope =  inputDistance->getValueAt(next_i,next_j) - inputDistance->getValueAt(current_i, current_j);
 				
 				cout << slope << endl;
 				slope = -1.0 *slope;
 				point.x= current_j;
 				point.y = current_i+ (inputDistance->getValueAt(current_i, current_j)/slope);
-				
+		
 				contourGrain.emplace_back(point);
-					cout << current_i <<"   " << current_j << endl;
-					cout << point.y <<"   " << point.x << endl;
-					char buf;
-					cin>> buf;
 				break;
 			}
 		}
@@ -855,7 +839,6 @@ void LSbox::find_contour() {
 				else if (inputDistance->getValueAt(next_i, current_j)  == 0.0)
 					{ point.y =  next_i;  point.x = next_j; }
 			  }
-			  cout << "new zero  " << point.y <<"   " << point.x << endl;
 			  contourGrain.emplace_back(point);	
 
 			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
@@ -897,8 +880,6 @@ void LSbox::find_contour() {
 		
 		px= (*volumeit).x;
 		py= (*volumeit).y;
-		cout << py << "  " << px << endl;
-		cout << (*(++volumeit)).y  << "  " << (*(++volumeit)).x << endl;
 		volumeit++;
 		for (; volumeit!= contourGrain.end(); volumeit++){
 			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;      
@@ -909,10 +890,7 @@ void LSbox::find_contour() {
 // 			theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
 // 			if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 // 				else energy += h* gamma_hagb;
-		}		
-		cout << (*(--volumeit)).y  << "  " << (*(--volumeit)).x << endl;
-		cout << py << "  " << px << endl;
-		
+		}				
 		stringstream dateiname;
 		dateiname << "testpoints_" << id << ".gnu";
 		ofstream datei;
@@ -934,8 +912,6 @@ void LSbox::find_contour() {
 void LSbox::redist_box() {	
 	int grid_blowup = handler->get_grid_blowup(); 
 	double h = handler->get_h();
-// 	plot_box(false);
-
 	double slope = 1;
 	double candidate, i_slope, distToZero;
 	
@@ -1041,13 +1017,13 @@ void LSbox::redist_box() {
 	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 		for (int i = intersec_ymax-1; i > outputDistance->getMinY(); i--) {
 			if(j <= intersec_xmax && i >= intersec_ymin){
-				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i-1,j) <= 0.0) {
-					// interpolate
-					i_slope  = (inputDistance->getValueAt(i-1,j)  - inputDistance->getValueAt(i,j))/ h;
-					distToZero = - inputDistance->getValueAt(i,j) / i_slope;
-					if ( abs(outputDistance->getValueAt(i,j) ) > abs(distToZero))
-						outputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
-				}
+// 				if (inputDistance->getValueAt(i,j) * inputDistance->getValueAt(i-1,j) <= 0.0) {
+// 					// interpolate
+// 					i_slope  = (inputDistance->getValueAt(i-1,j)  - inputDistance->getValueAt(i,j))/ h;
+// 					distToZero = - inputDistance->getValueAt(i,j) / i_slope;
+// 					if ( abs(outputDistance->getValueAt(i,j) ) > abs(distToZero))
+// 						outputDistance->setValueAt(i,j, -distToZero * utils::sgn(i_slope));
+// 				}
 				// calculate new distance candidate and assign if appropriate
 				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( inputDistance->getValueAt(i-1, j) ) * h);
 				if (abs(candidate) < abs(outputDistance->getValueAt(i-1, j) ))
@@ -1060,12 +1036,12 @@ void LSbox::redist_box() {
 			}
 		}		
 	}
-
-	plot_box(true,1,"Redist_1");
-	plot_box(true,2,"Redist_2");
+	
+	outputDistance->clampValues(-DELTA, DELTA);
+	
+// 	plot_box(true,1,"Redist_1");
+// 	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
-		char buf;
-	cin>>buf;
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());
 
@@ -1084,24 +1060,13 @@ void LSbox::redist_box() {
 // plot the box and all its properties
 /**************************************/
 
-void LSbox::plot_box_contour(int loop)
+void LSbox::plot_box_contour(int loop, ofstream *dateiname)
 {
-
-  stringstream filename;
-  filename<< "TempBox_"<< id <<"_T"<< loop << ".gnu";
-  
-  ofstream datei;
-  datei.open(filename.str());
   vector<SPoint>::iterator contourIterator;
-
     for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	datei << (*contourIterator).x << "\t" << (*contourIterator).y<< endl;
+	*dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< endl;
     }
-    datei << endl;
-  
-datei.close();
-
-  
+    *dateiname << endl;
 }
 
 void LSbox::plot_box(bool distanceplot, int select, string simstep){

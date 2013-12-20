@@ -321,10 +321,13 @@ void grainhdl::run_sim(){
 		updateSecondOrderNeighbors();
 		comparison_box();
 		level_set();
+		
 // 		if ( (loop % int(PRINTSTEP)) == 0)
 // 		      plot_contour();
 		redistancing();
-			char buffer;
+		if ( (loop % int(ANALYSESTEP)) == 0) saveAllContourlines();
+		
+		char buffer;
 		cin >> buffer;	
 // 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 // 			cout << "Grain Volumes after Timestep " << loop << endl;
@@ -333,11 +336,10 @@ void grainhdl::run_sim(){
 	}
 }  
 
+/*
 void grainhdl::plot_contour(){
 	stringstream filename;
 	filename << "GrainNetwork_T" << loop << ".gnu";
-
-
 	
 	vector<LSbox*>::iterator it_gr; 
 	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
@@ -358,7 +360,7 @@ void grainhdl::plot_contour(){
 // 	datei.close();
 }
  
- 
+ */
  
   
  
@@ -399,6 +401,16 @@ void grainhdl::find_neighbors(){
 }
 
 
+void grainhdl::saveAllContourlines(){	
+	stringstream filename;
+	filename<< "NetworkAtTime_"<< loop << ".gnu";  
+	ofstream dateiname;
+	dateiname.open(filename.str());
+	std::vector<LSbox*>::iterator it;	
+	for (it = ++grains.begin(); it !=grains.end(); it++)
+		(*it)->plot_box_contour(loop, &dateiname);
+	dateiname.close();
+}
 
 
  
