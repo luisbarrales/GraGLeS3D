@@ -78,10 +78,12 @@ public:
 	int  getID();
 	void resizeToSquareIn();
     void resizeToSquareOut();
+    void determineIDs();
     void comparison();
 	double getDistance(int i, int j);
     void set_comparison();
     void add_n2o();
+    
 	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();

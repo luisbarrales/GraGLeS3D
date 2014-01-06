@@ -8,7 +8,7 @@ Weightmap::mapkey::mapkey(vector<LSbox*> IDs) :
 	if(IDs.size() != 3)
 	{
 		//TODO: Replace cout with logger. Possibly investigate case of 2 IDs incoming.
-		cout<<"IDs list contains more or less than 3 ids...\n";
+		cout<<"IDs list contains "<< IDs.size() << "  ids...\n" ;
 	}
 	//Sort & store first three elements in the member fields.
 	//Sort of 3 elements based on a binary decision tree.

@@ -58,6 +58,7 @@ class grainhdl{
 	void save_conv_step();
 	void comparison_box();
 	void updateSecondOrderNeighbors();
+	void determineIDs();
 
 	void level_set();
 	void redistancing();

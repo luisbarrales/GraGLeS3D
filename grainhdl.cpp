@@ -310,6 +310,7 @@ void grainhdl::save_texture(){
  
 void grainhdl::run_sim(){
 	find_neighbors();
+	determineIDs();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
 		updateSecondOrderNeighbors();
@@ -323,6 +324,13 @@ void grainhdl::run_sim(){
 	}
 	cout << "Simulation complete." << endl;
 }  
+
+void grainhdl::determineIDs(){
+  	std::vector<LSbox*>::iterator it;
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		(*it)->determineIDs();
+	}
+}
 
 /*
 void grainhdl::plot_contour(){

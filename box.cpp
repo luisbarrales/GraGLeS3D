@@ -366,7 +366,6 @@ void LSbox::convolution(){
 	    
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
-    
 		    // 		    if ( rad < abs(ref[i][j]) ) continue;
 			weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
@@ -380,7 +379,8 @@ void LSbox::convolution(){
 	
 	IDLocal.clear();	
 	get_new_IDLocalSize();
-	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
+	IDLocal.resize((outputDistance->getMaxY()-outputDistance->getMinY())*(outputDistance->getMaxX()-outputDistance->getMinX()));
+//  IDLocal wrong resize
 
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
@@ -509,6 +509,59 @@ bool LSbox::checkIntersect(LSbox* box2) {
     return true;
 }
 
+void LSbox::determineIDs(){
+	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
+										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
+	distance_2neighbor.clearValues(-1.0);
+	inputDistance->clearValues(-1.0);
+	int loop = 0;
+	std::vector<LSbox*>::iterator it_nn;
+
+	for(it_nn = neighbors.begin(); it_nn != neighbors.end(); it_nn++){		
+
+			if (checkIntersect(*it_nn)){
+				int x_min_new, x_max_new, y_min_new, y_max_new;
+				
+				if(outputDistance->getMinX() < (**it_nn).outputDistance->getMinX()) x_min_new = (**it_nn).outputDistance->getMinX();
+					else x_min_new = outputDistance->getMinX();
+				
+				if(outputDistance->getMaxX() > (**it_nn).outputDistance->getMaxX()) x_max_new = (**it_nn).outputDistance->getMaxX();
+					else x_max_new = outputDistance->getMaxX();
+								
+				if(outputDistance->getMinY() < (**it_nn).outputDistance->getMinY()) y_min_new = (**it_nn).outputDistance->getMinY();
+					else y_min_new = outputDistance->getMinY();
+					
+				if(outputDistance->getMaxY() > (**it_nn).outputDistance->getMaxY()) y_max_new = (**it_nn).outputDistance->getMaxY();
+					else y_max_new = outputDistance->getMaxY();
+					
+// 				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
+	
+				for (int i = y_min_new; i < y_max_new; i++){
+					for (int j = x_min_new; j < x_max_new; j++){					
+						double dist = (**it_nn).outputDistance->getValueAt(i,j);
+						if( dist > inputDistance->getValueAt(i,j) ){
+							    if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
+								      distance_2neighbor.setValueAt(i,j,inputDistance->getValueAt(i,j));
+							    }
+							    inputDistance->setValueAt(i, j, dist);
+							    IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
+						}
+						else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
+						    distance_2neighbor.setValueAt(i,j, dist);	
+						    IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
+						}
+						else { 
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+						}
+					}
+				}
+			}
+			
+	}		
+
+  
+}
+
 void LSbox::comparison(){
 	if(get_status() != true ) return;
 // 	switch_in_and_out();
@@ -553,6 +606,7 @@ void LSbox::comparison(){
 							if( dist > outputDistance->getValueAt(i,j) ){
 									if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
 										distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
+									//Question: OutputDistance??? not Input?!
 									}
 									outputDistance->setValueAt(i, j, dist);
 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
