@@ -380,8 +380,7 @@ void LSbox::convolution(){
 	
 	IDLocal.clear();	
 	get_new_IDLocalSize();
-	IDLocal.resize((outputDistance->getMaxY()-outputDistance->getMinY())*(outputDistance->getMaxX()-outputDistance->getMinX()));
-//  IDLocal wrong resize
+	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
