@@ -356,18 +356,19 @@ void LSbox::convolution(){
 	    else  intersec_ymin = yminId;
 	    
 	    if (xmaxId > outputDistance->getMaxX())
-		  intersec_xmax= xmaxId;
-	    else  intersec_xmax = outputDistance->getMaxX();
+		  intersec_xmax= outputDistance->getMaxX();
+	    else  intersec_xmax = xmaxId;
 	    
 	    if (ymaxId > outputDistance->getMaxY())
-		  intersec_ymax= ymaxId;
-	    else  intersec_ymax = outputDistance->getMaxY();
+		  intersec_ymax= outputDistance->getMaxY();
+	    else  intersec_ymax = ymaxId;
 	    
 	    
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
-		    // 		    if ( rad < abs(ref[i][j]) ) continue;
-			weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
+			if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size()< 3) 
+				  weight=1;
+			else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
 		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
 			//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] = (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn] + (((*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] -(*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn]) * weight);
 			outputDistance->setValueAt(i,j,
@@ -474,7 +475,7 @@ void LSbox::set_comparison(){
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 			//if( abs((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)]) < ( 0.7 * DELTA) ) {7
-			if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) ) {
+			if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) &&  abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
 // 				 update only in a tube around the n boundary - numerical stability!s
 // 				outputDistance and comparisonDistance point to the same object!
 				//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] = 0.5 * ((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] - (*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] );
@@ -485,7 +486,7 @@ void LSbox::set_comparison(){
 				outputDistance->setValueAt(i,j, DELTA);
 			//else if((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] < 0)
 			else if(inputDistance->getValueAt(i,j) < 0)
-				outputDistance->setValueAt(i,j, -3*DELTA);
+				outputDistance->setValueAt(i,j, -DELTA);
 			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
 				outputDistance->setValueAt(i,j, -DELTA);
 			}
@@ -522,17 +523,21 @@ void LSbox::determineIDs(){
 			if (checkIntersect(*it_nn)){
 				int x_min_new, x_max_new, y_min_new, y_max_new;
 				
-				if(outputDistance->getMinX() < (**it_nn).outputDistance->getMinX()) x_min_new = (**it_nn).outputDistance->getMinX();
-					else x_min_new = outputDistance->getMinX();
+				if(outputDistance->getMinX() < (**it_nn).outputDistance->getMinX()) 
+					  x_min_new = (**it_nn).outputDistance->getMinX();
+				else x_min_new = outputDistance->getMinX();
 				
-				if(outputDistance->getMaxX() > (**it_nn).outputDistance->getMaxX()) x_max_new = (**it_nn).outputDistance->getMaxX();
-					else x_max_new = outputDistance->getMaxX();
+				if(outputDistance->getMaxX() > (**it_nn).outputDistance->getMaxX()) 
+					 x_max_new = (**it_nn).outputDistance->getMaxX();
+				else x_max_new = outputDistance->getMaxX();
 								
-				if(outputDistance->getMinY() < (**it_nn).outputDistance->getMinY()) y_min_new = (**it_nn).outputDistance->getMinY();
-					else y_min_new = outputDistance->getMinY();
+				if(outputDistance->getMinY() < (**it_nn).outputDistance->getMinY()) 
+					y_min_new = (**it_nn).outputDistance->getMinY();
+				else y_min_new = outputDistance->getMinY();
 					
-				if(outputDistance->getMaxY() > (**it_nn).outputDistance->getMaxY()) y_max_new = (**it_nn).outputDistance->getMaxY();
-					else y_max_new = outputDistance->getMaxY();
+				if(outputDistance->getMaxY() > (**it_nn).outputDistance->getMaxY()) 
+					 y_max_new = (**it_nn).outputDistance->getMaxY();
+				else y_max_new = outputDistance->getMaxY();
 					
 // 				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
 	
@@ -627,20 +632,26 @@ void LSbox::comparison(){
 		}
 		neighbors_2order.erase(it_nn);
 	}
-// 	plot_box(true,1,"Compare_1");
-// 	plot_box(true,2,"Compare_2");
+	if(loop ==44){
+	plot_box(true,1,"Compare_1");
+	plot_box(true,2,"Compare_2");
+	}
 // 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
-// 	plot_box(true,1,"Compare_1_zero");
-// 	plot_box(true,2,"Compare_2_zero");
+	if(loop ==44){
+	plot_box(true,1,"Compare_1_zero");
+	plot_box(true,2,"Compare_2_zero");
+	}
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
-// 	plot_box(true,1,"Compare_1_set");
-// 	plot_box(true,2,"Compare_2_set");
+	if(loop ==44){
+	plot_box(true,1,"Compare_1_set");
+	plot_box(true,2,"Compare_2_set");
+	}
 
 }
 
@@ -665,7 +676,7 @@ void LSbox::checkIntersect_zero_grain(){
 // 	if (checkIntersect(mid_in[0])){
 		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++){
 			for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX(); j++){
-				if ((i <= 2* grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
+				if ((i <= grid_blowup+2) || (m-grid_blowup-2 <= i) || (j <= grid_blowup+2) || (m-grid_blowup-2 <= j)){
 					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
 						outputDistance->setValueAt(i,j,boundary->outputDistance->getValueAt(i,j));
 					}
@@ -731,7 +742,6 @@ void LSbox::find_contour() {
 	int i = inputDistance->getMinY() + int(dist/2);
     // look for distToZero in row y
     for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX()-1; j++) {
-        //if ((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)]  * (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn+1)]  <= 0) {
         if (inputDistance->getValueAt(i,j)  * inputDistance->getValueAt(i,j+1)  <= 0) {
             first_i = i; 	first_j = j; 
             current_i = i; 	current_j = j;
@@ -751,7 +761,6 @@ void LSbox::find_contour() {
 		int dist = inputDistance->getMaxX() - inputDistance->getMinX();
 		int j = inputDistance->getMinX() + int(dist/2);
 		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY()-1; i++) {
-			//if ((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)]  * (*inputDistance)[(i-yminIn+1)*(xmaxIn-xminIn)+(j-xminIn)]  <= 0) {
 			if (inputDistance->getValueAt(i,j)  * inputDistance->getValueAt(i+1,j)  <= 0) {
 				first_i = i; 	first_j = j; 
 				current_i = i; 	current_j = j;
@@ -826,8 +835,6 @@ void LSbox::find_contour() {
 			  if( inputDistance->getValueAt(current_i, current_j) * inputDistance->getValueAt(next_i, next_j) != 0.0 )
 			  {
 					double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j) ;
-// 					slope = -1.0 *slope;
-				
 					if (direction == 1) {	 
 					point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
 					point.y = current_i;
@@ -846,7 +853,7 @@ void LSbox::find_contour() {
 					}		 
 			  }
 			  else {
-				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << inputDistance->getValueAt(current_i, current_j)<<"\t" << inputDistance->getValueAt(next_i, current_j)<< endl;
+// 				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << inputDistance->getValueAt(current_i, current_j)<<"\t" << inputDistance->getValueAt(next_i, next_j)<< endl;
 				if (inputDistance->getValueAt(current_i, current_j) == 0.0)
 					{ point.y =  current_i;  point.x = current_j; }
 				else if (inputDistance->getValueAt(next_i, current_j)  == 0.0)

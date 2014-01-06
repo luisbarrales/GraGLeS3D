@@ -13,13 +13,12 @@
 
 #define TIMESTEPS 100
 #define ANALYSESTEP 10
-#define MODE 1 // 2 for read Microstructure;  1 for use Voro++
+#define MODE 2 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 
 #define PARTICLES 50
 
 #define ISOTROPIC false
-
 #define SAVEIMAGE false
 #define IMAGEOUT true
 
