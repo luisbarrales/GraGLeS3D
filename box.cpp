@@ -799,11 +799,11 @@ void LSbox::find_contour() {
 	  // check for size change
 	  if (current_j-grid_blowup <= xminOut && current_j-grid_blowup >= 0) 		
 		xminOut = current_j - grid_blowup;
-	  else if (current_j+grid_blowup >= xmaxOut && current_j + grid_blowup <= m) 	
+	  if (current_j+grid_blowup >= xmaxOut && current_j + grid_blowup <= m) 	
 		xmaxOut = current_j + grid_blowup;
 	  if (current_i <= yminOut+grid_blowup && current_i-grid_blowup >= 0) 		
 		yminOut = current_i - grid_blowup;
-	  else if (current_i+grid_blowup >= ymaxOut && current_i + grid_blowup <= m) 	
+	  if (current_i+grid_blowup >= ymaxOut && current_i + grid_blowup <= m) 	
 		ymaxOut = current_i + grid_blowup ;
 	  
 	  // change search directions
@@ -1046,8 +1046,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-// 	plot_box(true,1,"Redist_1");
-// 	plot_box(true,2,"Redist_2");
+	plot_box(true,1,"Redist_1");
+	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());
