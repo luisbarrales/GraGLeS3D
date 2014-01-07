@@ -380,11 +380,10 @@ void LSbox::convolution(){
 	
 	IDLocal.clear();	
 	get_new_IDLocalSize();
-	IDLocal.resize((outputDistance->getMaxY()-outputDistance->getMinY())*(outputDistance->getMaxX()-outputDistance->getMinX()));
-//  IDLocal wrong resize
+	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
-// 	plot_box(true,1,"Convoluted_1");
-// 	plot_box(true,2,"Convoluted_2");
+	plot_box(true,1,"Convoluted_1");
+	plot_box(true,2,"Convoluted_2");
 // 	
 
 	switch_in_and_out();
@@ -472,32 +471,28 @@ void LSbox::set_comparison(){
 	double h = handler->get_h();
 	LSbox* zero = handler->zeroBox;
 
+
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-			//if( abs((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)]) < ( 0.7 * DELTA) ) {7
-			if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) &&  abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
-// 				 update only in a tube around the n boundary - numerical stability!s
-// 				outputDistance and comparisonDistance point to the same object!
-				//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] = 0.5 * ((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] - (*comparisonDistance)[(i-yminOut)*(xmaxOut-xminOut)+(j-xminOut)] );
+			if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty()) {
+				outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j)); continue;
+			}
+			if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) &&  IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0] ==  (*handler).boundary) {
+				outputDistance->setValueAt(i, j,  0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));			
+			}
+			else if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) &&  abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
 				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			}
-			//else if((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] > 0)
 			else if(inputDistance->getValueAt(i,j) > 0)
 				outputDistance->setValueAt(i,j, DELTA);
-			//else if((*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)] < 0)
 			else if(inputDistance->getValueAt(i,j) < 0)
 				outputDistance->setValueAt(i,j, -DELTA);
-			if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-				outputDistance->setValueAt(i,j, -DELTA);
+			else if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
+				outputDistance->setValueAt(i,j, -2*DELTA);
 			}
-// 			else outputDistance[(i-ymin)*(xmax-xmin)+(j-xmin)] = (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+(j-xminIn)];
 		}
 	}
-	
-// 	perhaps better to shift this line to the convolution function:
 	neighbors_old = neighbors;
-// 	update the old neighborlist - for read access by the other grains in the next timestep
-// 	delete [] distance_2neighbor;
 }
 
 
@@ -632,26 +627,26 @@ void LSbox::comparison(){
 		}
 		neighbors_2order.erase(it_nn);
 	}
-	if(loop ==44){
+
 	plot_box(true,1,"Compare_1");
 	plot_box(true,2,"Compare_2");
-	}
+	
 // 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
-	if(loop ==44){
+	
 	plot_box(true,1,"Compare_1_zero");
 	plot_box(true,2,"Compare_2_zero");
-	}
+	
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
-	if(loop ==44){
+	
 	plot_box(true,1,"Compare_1_set");
 	plot_box(true,2,"Compare_2_set");
-	}
+
 
 }
 
@@ -674,11 +669,12 @@ void LSbox::checkIntersect_zero_grain(){
 		  outputDistance->getMinY() > boundary->outputDistance->getMinY() &&
 		  outputDistance->getMaxY() < boundary->outputDistance->getMaxY())){
 // 	if (checkIntersect(mid_in[0])){
-		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++){
-			for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX(); j++){
-				if ((i <= grid_blowup+2) || (m-grid_blowup-2 <= i) || (j <= grid_blowup+2) || (m-grid_blowup-2 <= j)){
+		for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
+			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
+				if ((i <= 2*grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
 					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
-						outputDistance->setValueAt(i,j,boundary->outputDistance->getValueAt(i,j));
+						outputDistance->setValueAt(i,j,4* boundary->outputDistance->getValueAt(i,j));
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(boundary);	
 					}
 				}
 			}
@@ -800,11 +796,11 @@ void LSbox::find_contour() {
 	  // check for size change
 	  if (current_j-grid_blowup <= xminOut && current_j-grid_blowup >= 0) 		
 		xminOut = current_j - grid_blowup;
-	  else if (current_j+grid_blowup >= xmaxOut && current_j + grid_blowup <= m) 	
+	  if (current_j+grid_blowup >= xmaxOut && current_j + grid_blowup <= m) 	
 		xmaxOut = current_j + grid_blowup;
 	  if (current_i <= yminOut+grid_blowup && current_i-grid_blowup >= 0) 		
 		yminOut = current_i - grid_blowup;
-	  else if (current_i+grid_blowup >= ymaxOut && current_i + grid_blowup <= m) 	
+	  if (current_i+grid_blowup >= ymaxOut && current_i + grid_blowup <= m) 	
 		ymaxOut = current_i + grid_blowup ;
 	  
 	  // change search directions
@@ -1047,8 +1043,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-// 	plot_box(true,1,"Redist_1");
-// 	plot_box(true,2,"Redist_2");
+	plot_box(true,1,"Redist_1");
+	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());
@@ -1151,7 +1147,7 @@ void LSbox::shape_distance(){
 	int m = outputDistance->getMaxX()-outputDistance->getMinX();
 	for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++) {
 		for (int j = 0; j < m; j++) {
-			outputDistance->getRawData()[i*m +j] *= -4.0;
+			outputDistance->getRawData()[i*m +j] *= -1.0;
 		}
 	}
 }

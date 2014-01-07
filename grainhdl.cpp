@@ -131,7 +131,7 @@ void grainhdl::construct_boundary(){
 	boundary->distancefunction(4, vertices); 
 	boundary->shape_distance();
 	// get the inverse distancefunction which slope 4!
-// 	(*boundary).save_box("boundary.gnu");
+	(*boundary).plot_box(true,2,"boundary");
 }
 
 void grainhdl::readMicrostructurefromVertex(){
@@ -364,12 +364,12 @@ void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
 	myfile.open ("nr_of_rem_grains.txt");
-	for(int i=0; i< TIMESTEPS; i++)
+	for(int i=0; i< nr_grains.size(); i++)
 		myfile << nr_grains[i] << "\t";
 	myfile.close();
 
 	myfile.open ("energy.txt");
-	for(int i=0; i<TIMESTEPS; i++)
+	for(int i=0; i<totalenergy.size(); i++)
 		myfile << totalenergy[i] << "\t";
 	myfile.close();
 	
