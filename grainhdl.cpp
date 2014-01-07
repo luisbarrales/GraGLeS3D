@@ -131,7 +131,7 @@ void grainhdl::construct_boundary(){
 	boundary->distancefunction(4, vertices); 
 	boundary->shape_distance();
 	// get the inverse distancefunction which slope 4!
-// 	(*boundary).save_box("boundary.gnu");
+	(*boundary).plot_box(true,2,"boundary");
 }
 
 void grainhdl::readMicrostructurefromVertex(){
