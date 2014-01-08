@@ -1,1 +1,0 @@
-/opt/intel/Compiler/14.0/1.106/rwthlnk/bin/intel64/icpc     -fPIC CMakeFiles/oritestenv.dir/src/applic.cpp.o CMakeFiles/oritestenv.dir/src/io.cpp.o CMakeFiles/oritestenv.dir/src/main.cpp.o CMakeFiles/oritestenv.dir/src/mymath.cpp.o CMakeFiles/oritestenv.dir/src/random.cpp.o  -o oritestenv -rdynamic 
