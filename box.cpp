@@ -4,14 +4,12 @@
 
 LSbox::LSbox() {}
 
-LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
-		double PHI, double phi2, grainhdl* owner) :
-		id(id), phi1(phi1),
-		PHI(PHI), phi2(phi2)
+LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, grainhdl* owner) :
+		id(id)
 {
 
 	handler = owner;
-	
+	quaternion = new double[4];
 	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
 	
@@ -21,12 +19,15 @@ LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1,
 
 }
 
-LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), phi1(0), PHI(0), phi2(0), nvertices(0), handler(owner) {
+LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), nvertices(0), handler(owner) {
 
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
     // determine size of grain
-    
+    quaternion = new double[4];
+	
+	(*(handler->mymath)).randomOriShoemakeQuat( quaternion );
+	
     int xmax = 0; 
 	int xmin = handler->get_ngridpoints(); 
 	int ymax = 0; 
@@ -86,8 +87,12 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 
 
 
-LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), phi1(phi1), PHI(PHI), phi2(phi2), nvertices(nvertex), handler(owner){
+LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), nvertices(nvertex), handler(owner){
+	quaternion = new double[4];
 
+	double euler[3] = {phi1,PHI,phi2};
+	(*(handler->mymath)).euler2quaternion( euler, quaternion );
+	
 	int grid_blowup = owner->get_grid_blowup(); 
 	double h = owner->get_h();
     // determine size of grain
@@ -142,6 +147,9 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 }
 
 LSbox::~LSbox() {
+	delete [] quaternion;
+	delete inputDistance;
+	delete outputDistance;
 }
 
 int LSbox::getID() {
@@ -915,8 +923,10 @@ void LSbox::find_contour() {
 		datei.open(dateiname.str());
 		datei << s.str();
 		datei.close();
-		cerr<< "Volume of " << id << "= " << abs(volume)*0.5<< endl;
+		volume = abs(volume)*0.5;
+		cerr<< "Volume of " << id << "= " << volume << endl;
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
+		
 	}
 	return;
 }
@@ -1077,7 +1087,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 	  cout << " xminId, xmaxId, yminId, ymaxId :" << xminId << " || "<< xmaxId << " || " << yminId << " || " << ymaxId << endl;
 //     if (distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 // 		else cout << " no distance values in storage!" << endl;
-
+	cout << " quaternion: " << quaternion[0] << " || "<< quaternion[1]<< " || " <<quaternion[2] << " || " << quaternion[3]<< endl;
 	if(neighbors.empty()!=true){
 		cout << " List of Neighbors : ";
 		vector<LSbox*> :: iterator it;
@@ -1133,8 +1143,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 double LSbox::mis_ori(LSbox* grain_2){
 	if(get_status() != true ) {cout << "try to compute misori for are disappeared grains"; char buf; cin >> buf;}
 // 	here we could work direktly with quarternions
-	mathMethods mymath;
-	return mymath.misorientationCubic(phi1,PHI,phi2,grain_2->get_phi1(), grain_2->get_PHI(), grain_2->get_phi2());
+	return (*(handler->mymath)).misorientationCubicQxQ( quaternion[0], quaternion[1], quaternion[2], quaternion[3], grain_2->quaternion[0], grain_2->quaternion[1], grain_2->quaternion[2], grain_2->quaternion[3] );
 }
 
 

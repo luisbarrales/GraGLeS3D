@@ -2,12 +2,15 @@
 
 
 grainhdl::grainhdl(){}
-grainhdl::~grainhdl(){}
+grainhdl::~grainhdl(){
+	delete mymath;
+	delete zeroBox;
+}
 
 
 
 void grainhdl::setSimulationParameter(){
-	
+	mymath = new mathMethods();
 // 	readInit();
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
@@ -293,8 +296,13 @@ void grainhdl::save_texture(){
 	double buffer = 0.24;
 	fprintf(myfile, "%d\n", ngrains);
 	vector<LSbox*> :: iterator it;
+	
 	for(it = ++grains.begin(); it != grains.end(); it++){
-		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->phi1, (*it)->PHI, (*it)->phi2, (*it)->volume, buffer);
+		double euler[3];
+		(*mymath).quaternion2Euler( (*it)->quaternion, euler );
+// 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
+		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
+		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
 		total_energy += (*it)->energy;
 		numberGrains+=1;
 	}

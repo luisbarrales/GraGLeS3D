@@ -15,6 +15,7 @@ using namespace std;
 	
 class Weightmap;
 class LSbox;
+class mathMethods;
 
 class grainhdl{
 
@@ -32,6 +33,7 @@ class grainhdl{
 	
 	public:
 	
+	mathMethods* mymath;
 	int loop;
 	vector<double> totalenergy;
 	vector<int> nr_grains;

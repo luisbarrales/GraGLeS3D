@@ -2,6 +2,7 @@
 #include "applic.h"
 #include "random.h"
 
+
 //###LB: Unless indicated, all functions in radians.
 //###MK: Quaternion algebra: q = -q define an equivalent rotation.
 
@@ -477,9 +478,50 @@ void mathMethods::randomOri( double * result )
 }
 */
 
+void mathMethods::randomOriShoemakeQuat( double * quat )
+{
+	//K. Shoemake, Graphic Gems III (editor D. Kirk) CalTech pp124-134
+	//##MK::mind order 
+	double q[4]={0,0,0,0};
+	double qnorm;
 
+	double s = r.parkMiller();
+	double sigma1 = sqrt(1-s);
+	double sigma2 = sqrt(s);
+	double theta1 = 2 * _PI_ * r.parkMiller();
+	double theta2 = 2 * _PI_ * r.parkMiller();
 
-void mathMethods::randomOriShoemake( double * result )
+	q[0]=fabs(sigma1*sin(theta1));
+	q[1]=fabs(sigma1*cos(theta1));
+	q[2]=fabs(sigma2*sin(theta2));
+	q[3]=fabs(sigma2*cos(theta2));
+	
+	qnorm = sqrt(SQR(q[0]) + SQR(q[1]) + SQR(q[2]) + SQR(q[3]));
+	QUICKASSERT (qnorm > 0.0);
+
+	/*
+	bubbleSort( q,4 );
+	Real qr[4];
+	qr[0]=q[3];
+	qr[1]=q[2];
+	qr[2]=q[1];
+	qr[3]=q[0];
+	*/
+
+	//normalize
+    q[0] = q[0] / qnorm;
+	q[1] = q[1] / qnorm;
+	q[2] = q[2] / qnorm;
+	q[3] = q[3] / qnorm;
+	
+	quat[0] = q[0];
+	quat[1] = q[1];
+	quat[2] = q[2];
+	quat[3] = q[3];
+
+}
+
+void mathMethods::randomOriShoemakeEuler( double * result )
 {
 	//K. Shoemake, Graphic Gems III (editor D. Kirk) CalTech pp124-134
 	//##MK::mind order 
@@ -1043,7 +1085,8 @@ void mathMethods::quaternion2Euler( double * quat, double * euler )
 
 	euler[2] = phi2; //following the notation order used in Diebel, James 2006
 	euler[1] = PHI;
-	euler[0] = phi1;       
+	euler[0] = phi1;  
+	
 }
 
 

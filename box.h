@@ -52,9 +52,7 @@ class LSbox {
 	Weightmap* local_weights;
 //     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
     int nvertices;
-	double phi1;
-	double PHI;
-	double phi2;
+	double* quaternion;
 	double volume;
 	double energy;
 	grainhdl* handler;
@@ -68,7 +66,7 @@ public:
     vector<LSbox*> neighbors;
 	vector<LSbox*> neighbors_old;
 	vector<LSbox*> neighbors_2order;
-	LSbox(int id, int xmin, int xmax, int ymin, int ymax, double phi1, double PHI, double phi2, grainhdl* owner);
+	LSbox(int id, int xmin, int xmax, int ymin, int ymax, grainhdl* owner);
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
 	void distancefunction(int nvertex, double* vertices);
@@ -106,9 +104,6 @@ public:
 	inline bool get_status() { return exist;}
 	inline int get_id() { return id; }
 	inline double get_vol() {return volume ;}
-	inline double get_phi1() {return phi1;}
-	inline double get_PHI() {return PHI;}
-	inline double get_phi2() {return phi2;}
 	inline double getEnergy(){ return energy;}
 };
 #endif

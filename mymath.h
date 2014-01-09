@@ -67,7 +67,8 @@ public:
 	
 	//generate new orientations with some scatter
 	void randomOrientation( double * result );
-	void randomOriShoemake( double * result );
+	void randomOriShoemakeEuler( double * result );
+	void randomOriShoemakeQuat( double * result );
 	//void randomOri ( double * result );
 	void randomMisorientation( double theta, double* qr  );
 	void randomMisorientationAxisConsidered(  double * qref, double * qr, double maxDev  );
