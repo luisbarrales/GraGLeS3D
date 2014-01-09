@@ -4,7 +4,7 @@
 #define DIM 2
 
 #define M 200 //gridpoints in each direction
-#define EPS 1e-6
+
 #define BORDER 6
 #define DELTA BORDER * 1/double(M)
 // #define _USE_MATH_DEFINES
@@ -49,6 +49,9 @@
 #include "weightmap.h"
 #include "grainhdl.h"
 #include "mymath.h"
+#include "random.h"
+#include "applic.h"
+#include "io.h"
 
 #endif
 

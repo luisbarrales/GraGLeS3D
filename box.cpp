@@ -365,15 +365,17 @@ void LSbox::convolution(){
 	    
 	    
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
-		  for (int j = intersec_xmin; j < intersec_xmax; j++) {
-			if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size()< 3) 
-				  weight=1;
-			else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
-		    // 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
-			//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] = (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn] + (((*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] -(*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn]) * weight);
-			outputDistance->setValueAt(i,j,
-					inputDistance->getValueAt(i,j) + (outputDistance->getValueAt(i,j) - inputDistance->getValueAt(i,j))*weight );
-		  }
+			for (int j = intersec_xmin; j < intersec_xmax; j++) {
+				if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size()< 3 || IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() > 4 ) {
+					weight=1;
+					// for n < 3: here we are far away from a triple point - so we only take curvature into account.
+					// for n >4: here we are at a multiple point, which only occurs because of unregular intialisation by voronoi cells - so we only take curvature into account.
+				}
+				else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
+				// 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
+				//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] = (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn] + (((*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] -(*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn]) * weight);
+				outputDistance->setValueAt(i,j, inputDistance->getValueAt(i,j) + (outputDistance->getValueAt(i,j) - inputDistance->getValueAt(i,j))*weight );
+			}
 	   }
 	   
 	}
@@ -382,8 +384,8 @@ void LSbox::convolution(){
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
-	plot_box(true,1,"Convoluted_1");
-	plot_box(true,2,"Convoluted_2");
+// 	plot_box(true,1,"Convoluted_1");
+// 	plot_box(true,2,"Convoluted_2");
 // 	
 
 	switch_in_and_out();
@@ -564,8 +566,6 @@ void LSbox::determineIDs(){
 
 void LSbox::comparison(){
 	if(get_status() != true ) return;
-// 	switch_in_and_out();
-	//vector<double>* comparisonDistance = outputDistance;
 	
 	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
@@ -628,24 +628,24 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 
-	plot_box(true,1,"Compare_1");
-	plot_box(true,2,"Compare_2");
+// 	plot_box(true,1,"Compare_1");
+// 	plot_box(true,2,"Compare_2");
 	
 // 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
 	
-	plot_box(true,1,"Compare_1_zero");
-	plot_box(true,2,"Compare_2_zero");
+// 	plot_box(true,1,"Compare_1_zero");
+// 	plot_box(true,2,"Compare_2_zero");
 	
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
 	
-	plot_box(true,1,"Compare_1_set");
-	plot_box(true,2,"Compare_2_set");
+// 	plot_box(true,1,"Compare_1_set");
+// 	plot_box(true,2,"Compare_2_set");
 
 
 }
@@ -999,7 +999,6 @@ void LSbox::redist_box() {
 			}
 		}		
 	}
-
 		
 	// y-direction forward
 	for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
@@ -1047,11 +1046,8 @@ void LSbox::redist_box() {
 	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
 	
-	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());
-
-	
+	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
-
 }
 
 /**************************************/
@@ -1137,7 +1133,8 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 double LSbox::mis_ori(LSbox* grain_2){
 	if(get_status() != true ) {cout << "try to compute misori for are disappeared grains"; char buf; cin >> buf;}
 // 	here we could work direktly with quarternions
-	return misorientationCubic(phi1,PHI,phi2,grain_2->get_phi1(), grain_2->get_PHI(), grain_2->get_phi2());
+	mathMethods mymath;
+	return mymath.misorientationCubic(phi1,PHI,phi2,grain_2->get_phi1(), grain_2->get_PHI(), grain_2->get_phi2());
 }
 
 
