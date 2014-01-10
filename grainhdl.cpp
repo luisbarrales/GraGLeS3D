@@ -301,13 +301,14 @@ void grainhdl::save_texture(){
 		double euler[3];
 		(*mymath).quaternion2Euler( (*it)->quaternion, euler );
 // 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
-		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
+// 		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
 		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
 		total_energy += (*it)->energy;
 		numberGrains+=1;
 	}
     totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
+	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
 	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
 	fclose(myfile);

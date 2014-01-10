@@ -27,8 +27,7 @@ class grainhdl{
 	int ngridpoints;
 	int grid_blowup;
 	
-	int Mode;
-   	
+	int Mode;   	
 		
 	
 	public:
