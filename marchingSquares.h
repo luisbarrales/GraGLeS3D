@@ -96,4 +96,4 @@ private:
 	int m_right;
 
 };
-#endif		__MARCHING_SQUARES_ALGORITHM__
+#endif		//__MARCHING_SQUARES_ALGORITHM__
