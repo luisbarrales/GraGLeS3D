@@ -931,6 +931,23 @@ void LSbox::find_contour() {
 	return;
 }
 
+double LSbox::computeEnergy(vector<SPoint>& contourPoints)
+{
+  
+ //Convention: In the SPoint vector is first == last
+  
+  vector<SPoint>::iterator it = contourPoints.begin();
+  SPoint first = (*it);
+  double energy;
+  it++;
+  for (; it != contourPoints.end(); it ++){
+    double length = 
+  
+    
+  }
+  
+  return energy;
+}
 
 /**************************************/
 //  Redistancing

@@ -81,7 +81,8 @@ public:
 	double getDistance(int i, int j);
     void set_comparison();
     void add_n2o();
-    
+    double computeEnergy(vector<SPoint>& contourPoints);
+
 	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
@@ -101,8 +102,8 @@ public:
 	void switch_in_and_out();
 
 		
-	inline bool get_status() { return exist;}
-	inline int get_id() { return id; }
+	inline bool get_status(){ return exist;}
+	inline int get_id() 	{ return id; }
 	inline double get_vol() {return volume ;}
 	inline double getEnergy(){ return energy;}
 };
