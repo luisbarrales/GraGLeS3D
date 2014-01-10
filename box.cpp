@@ -494,9 +494,6 @@ void LSbox::set_comparison(){
 					if( abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
 						outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 					}
-// 					if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-// 						outputDistance->setValueAt(i,j, -DELTA);
-// 					}
 				}
 				else if(inputDistance->getValueAt(i,j) > 0)
 					outputDistance->setValueAt(i,j, DELTA);
@@ -906,7 +903,7 @@ void LSbox::find_contour() {
 		
 		px= (*volumeit).x;
 		py= (*volumeit).y;
-		volumeit++;
+
 		for (; volumeit!= contourGrain.end(); volumeit++){
 			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;      
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
