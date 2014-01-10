@@ -5,7 +5,7 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp ggLS.cpp domainCl.cpp utilities.cpp weightmap.cpp)
+set(MY_SOURCES vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp ggLS.cpp domainCl.cpp utilities.cpp weightmap.cpp marchingSquares.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 set(CMAKE_CXX_FLAGS "-g")

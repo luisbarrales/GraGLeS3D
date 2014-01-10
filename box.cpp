@@ -726,171 +726,32 @@ void LSbox::find_contour() {
 	// save old boundaries -> function will compute updates
 
     contourGrain.clear();
-    int grid_blowup = handler->get_grid_blowup(); 
-    double h = handler->get_h();
-    int loop = handler->loop;
-    int m = handler->get_ngridpoints();
+
+    MarchingSquaresAlgorithm marcher(*inputDistance);
+    exist = marcher.generateContour(contourGrain);
 	
-	
-    stringstream s;
-    int first_i, first_j;
-    int current_i, current_j;
-    int next_i, next_j;
-    char direction = 1; // x+
-    // directions 0 = y-  //  2 = y+  //  3 x-  (y- = up // y + down; (0,0)left upper corner)
-	double pointx; 
-    double pointy;
-    
-	
-	int dist = inputDistance->getMaxY() - inputDistance->getMinY();
-	int i = inputDistance->getMinY() + int(dist/2);
-    // look for distToZero in row y
-    for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX()-1; j++) {
-        if (inputDistance->getValueAt(i,j)  * inputDistance->getValueAt(i,j+1)  <= 0) {
-            first_i = i; 	first_j = j; 
-            current_i = i; 	current_j = j;
-			next_i =i; 		next_j = j+1;
-			exist= true;
-			double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j);		
-// 			slope = -1.0 *slope;
-			SPoint point;
-			point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
-			point.y = current_i;
-			contourGrain.emplace_back(point);
-			break;
-        }
-	}
-	if (!exist) {
-		cout << "search in y-direction" << endl;
-		int dist = inputDistance->getMaxX() - inputDistance->getMinX();
-		int j = inputDistance->getMinX() + int(dist/2);
-		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY()-1; i++) {
-			if (inputDistance->getValueAt(i,j)  * inputDistance->getValueAt(i+1,j)  <= 0) {
-				first_i = i; 	first_j = j; 
-				current_i = i; 	current_j = j;
-				next_i =i+1; 	next_j = j;
-				exist= true;
-				direction = 2;
-				SPoint point;
-				cout << "boundary found"<< endl;				
-				double slope =  inputDistance->getValueAt(next_i,next_j) - inputDistance->getValueAt(current_i, current_j);
-// 				slope = -1.0 *slope;
-				point.x= current_j;
-				point.y = current_i+ (inputDistance->getValueAt(current_i, current_j)/slope);
-		
-				contourGrain.emplace_back(point);
-				break;
-			}
-		}
-	}
-	if (!exist) {
-		cout << "no boundary found in box "<<  id << endl;
-		exist = false;
-		cout << "set exist status to false: " << exist << endl;
-		return;
-	}
+    int grid_blowup = handler->get_grid_blowup();
 
-    // begin zero-tracking and interpolations
-    bool newZero = true;
-    int sgn = -1; //(1 = left turn; -1 right turn)  
-    SPoint point;
-
-    // 	 begin search
-	int xmaxOut = 0, xminOut = m, ymaxOut = 0, yminOut = m;
-    while (newZero) {		
-	  current_i = next_i;
-	  current_j = next_j;
-	  
-	  // check for size change
-	  if (current_j-grid_blowup <= xminOut && current_j-grid_blowup >= 0) 		
-		xminOut = current_j - grid_blowup;
-	  if (current_j+grid_blowup >= xmaxOut && current_j + grid_blowup <= m) 	
-		xmaxOut = current_j + grid_blowup;
-	  if (current_i <= yminOut+grid_blowup && current_i-grid_blowup >= 0) 		
-		yminOut = current_i - grid_blowup;
-	  if (current_i+grid_blowup >= ymaxOut && current_i + grid_blowup <= m) 	
-		ymaxOut = current_i + grid_blowup ;
-	  
-	  // change search directions
-	  //(1 = left turn; -1 right turn)  
-
-	  //sgn = utils::sgn((*inputDistance)[(current_i-yminIn)*(xmaxIn-xminIn)+(current_j-xminIn)]);
-	  sgn = utils::sgn(inputDistance->getValueAt(current_i,current_j));
-	  if (sgn == 0) { 
-		if (direction == 0) 	{next_i = current_i-1;next_j = current_j;}
-		else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
-		else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
-		else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
-	  } 
-    
-
-	  // search next zero
-	  // turn  right
-	  direction = (direction+sgn+4) %4; 
-	  
-	  bool foundnext = false;
-	  for (int i = 0; i < 3; i++) {
-		  if (direction == 0) 	 	{next_i = current_i-1;next_j = current_j;}
-		  else if (direction == 2)  {next_i = current_i+1;next_j = current_j;}
-		  else if (direction == 1)  {next_j = current_j+1;next_i = current_i;}
-		  else if (direction == 3)  {next_j = current_j-1;next_i = current_i;}
-		  if ( inputDistance->getValueAt(current_i, current_j) * inputDistance->getValueAt(next_i, next_j) <= 0) {
-			  foundnext = true;
-			  if( inputDistance->getValueAt(current_i, current_j) * inputDistance->getValueAt(next_i, next_j) != 0.0 )
-			  {
-					double slope =  inputDistance->getValueAt(current_i, current_j) - inputDistance->getValueAt(next_i,next_j) ;
-					if (direction == 1) {	 
-					point.x= current_j + (inputDistance->getValueAt(current_i, current_j)/slope);
-					point.y = current_i;
-					}
-					else if (direction == 3){	 
-						point.x = current_j - inputDistance->getValueAt(current_i, current_j)/slope;
-						point.y = current_i;
-					}
-					else if (direction == 0) {	 				
-						point.y =  current_i - inputDistance->getValueAt(current_i, current_j)/slope;
-						point.x = current_j;
-					}
-					else if (direction == 2){	
-						point.y =  current_i + inputDistance->getValueAt(current_i, current_j)/slope;
-						point.x = current_j;
-					}		 
-			  }
-			  else {
-// 				cerr << "levelset on gridpoint  " << current_i << "\t" << current_j<<"\t" << inputDistance->getValueAt(current_i, current_j)<<"\t" << inputDistance->getValueAt(next_i, next_j)<< endl;
-				if (inputDistance->getValueAt(current_i, current_j) == 0.0)
-					{ point.y =  current_i;  point.x = current_j; }
-				else if (inputDistance->getValueAt(next_i, current_j)  == 0.0)
-					{ point.y =  next_i;  point.x = next_j; }
-			  }
-			  contourGrain.emplace_back(point);	
-
-			  break; //springen aus der for-schleife, falls nullstelle gefunden wird
-		  }        		  
-		  
-		  current_j = next_j; 
-		  current_i = next_i;
-		  // turn further if no zero found
-		  direction = (direction+sgn+4)%4; 
-	  }
-	  if (!foundnext) {
-		  break; //springen aus der while-schleife, falls keine nullstelle mehr gefunden wird
-	  }	  
-	  // check if completed contourline
-	  if (current_j == first_j && current_i == first_i) {
-		  newZero = false;	//springen aus der while-schleife, wir haben eine geschlosse kurve gefunden
-	  }
+    int xminNew = 999999, xmaxNew = -1, yminNew = 999999, ymaxNew = -1;
+    for(int i=0; i<contourGrain.size(); i++)
+    {
+    	if(int(contourGrain[i].x + 0.5) - grid_blowup < xminNew)
+    		xminNew = int(contourGrain[i].x + 0.5) - grid_blowup;
+    	if(int(contourGrain[i].x + 0.5) + grid_blowup > xmaxNew)
+    		xmaxNew = int(contourGrain[i].x + 0.5) + grid_blowup;
+    	if(int(contourGrain[i].y + 0.5) - grid_blowup < yminNew)
+    		yminNew = int(contourGrain[i].y + 0.5) - grid_blowup;
+    	if(int(contourGrain[i].y + 0.5) + grid_blowup > ymaxNew)
+    		ymaxNew = int(contourGrain[i].y + 0.5) + grid_blowup;
     }
-	
-    if (xminOut < 0) {cout <<"undefined box size for xmin: "<< xminOut << endl; abort();} //xmin = 0;
-	if (xmaxOut > m) {cout <<"undefined box size for xmax: "<< xmaxOut << endl; abort();} //xmax = m;
-	if (yminOut < 0) {cout <<"undefined box size for ymin: "<< yminOut << endl; abort();} //ymin = 0;
-	if (ymaxOut > m) {cout <<"undefined box size for ymax: "<< xmaxOut << endl; abort();} // ymax = m;
-	
-	
-    outputDistance->resize(xminOut, yminOut, xmaxOut, ymaxOut);
+
+    outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
     
+	double h = handler->get_h();
+	int loop = handler->loop;
+    int m = handler->get_ngridpoints();
+    stringstream s;
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 		vector<SPoint>::iterator volumeit=contourGrain.begin();
@@ -905,7 +766,7 @@ void LSbox::find_contour() {
 		py= (*volumeit).y;
 
 		for (; volumeit!= contourGrain.end(); volumeit++){
-			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;      
+			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
@@ -931,7 +792,7 @@ void LSbox::find_contour() {
 		volume = abs(volume)*0.5;
 		cerr<< "Volume of " << id << "= " << volume << endl;
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
-		
+
 	}
 	return;
 }

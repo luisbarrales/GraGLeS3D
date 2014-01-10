@@ -4,21 +4,13 @@
 #include <vector>
 #include "dimensionalBuffer.h"
 #include "ggLS.h"
+#include "marchingSquares.h"
 // #include "contour.h"
 using namespace std;
 
 class LSbox;
 class grainhdl;
 class Weightmap;
-
-
-struct SPoint
-{
-   SPoint(double x,double y){this->x=x;this->y=y;}
-   SPoint(){}
-   double x,y;
-};
-
 
 struct pointVal {
     int x,y;
