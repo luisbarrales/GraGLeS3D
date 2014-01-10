@@ -139,7 +139,6 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	outputDistance->clearValues(0.0);
 	
 	get_new_IDLocalSize();
-	//TODO: Fix this
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));	
 	
 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
@@ -495,9 +494,9 @@ void LSbox::set_comparison(){
 					if( abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
 						outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 					}
-					if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-						outputDistance->setValueAt(i,j, -DELTA);
-					}
+// 					if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
+// 						outputDistance->setValueAt(i,j, -DELTA);
+// 					}
 				}
 				else if(inputDistance->getValueAt(i,j) > 0)
 					outputDistance->setValueAt(i,j, DELTA);
@@ -648,16 +647,16 @@ void LSbox::comparison(){
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
 	
-// 	plot_box(true,1,"Compare_1_zero");
-// 	plot_box(true,2,"Compare_2_zero");
+	plot_box(true,1,"Compare_1_zero");
+	plot_box(true,2,"Compare_2_zero");
 	
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
 	
-// 	plot_box(true,1,"Compare_1_set");
-// 	plot_box(true,2,"Compare_2_set");
+	plot_box(true,1,"Compare_1_set");
+	plot_box(true,2,"Compare_2_set");
 
 
 }
@@ -952,9 +951,6 @@ void LSbox::redist_box() {
 	double slope = 1;
 	double candidate, i_slope, distToZero;
 	
-	//resizeToSquareOut();
-	//TODO: Check this
-
 	outputDistance->clearValues(-1.0);
 	
 // 	resize the outputDistance array. be careful because during this part of algorithm both arrays have not the same size!!
@@ -1061,9 +1057,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-// 	plot_box(true,1,"Redist_1");
-// 	plot_box(true,2,"Redist_2");
-	//TODO: Analyze this
+	plot_box(true,1,"Redist_1");
+	plot_box(true,2,"Redist_2");
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
