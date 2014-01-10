@@ -487,18 +487,22 @@ void LSbox::set_comparison(){
 			if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty()) {
 				outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j)); continue;
 			}
-			if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) &&  IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0] ==  (*handler).boundary) {
-				outputDistance->setValueAt(i, j,  0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));			
-			}
-			else if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA) &&  abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
-				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
-			}
-			else if(inputDistance->getValueAt(i,j) > 0)
-				outputDistance->setValueAt(i,j, DELTA);
-			else if(inputDistance->getValueAt(i,j) < 0)
-				outputDistance->setValueAt(i,j, -DELTA);
-			else if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
-				outputDistance->setValueAt(i,j, -2*DELTA);
+			else {
+				if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)){
+// 					if (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0] ==  (*handler).boundary) {
+// 						outputDistance->setValueAt(i, j,  0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));			
+// 					}
+					if( abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
+						outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
+					}
+					if ((i <= grid_blowup) || (m-grid_blowup <= i) || (j <= grid_blowup) || (m-grid_blowup <= j)) {
+						outputDistance->setValueAt(i,j, -DELTA);
+					}
+				}
+				else if(inputDistance->getValueAt(i,j) > 0)
+					outputDistance->setValueAt(i,j, DELTA);
+				else if(inputDistance->getValueAt(i,j) < 0)
+					outputDistance->setValueAt(i,j, -DELTA);
 			}
 		}
 	}
@@ -681,7 +685,7 @@ void LSbox::checkIntersect_zero_grain(){
 			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 				if ((i <= 2*grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
 					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
-						outputDistance->setValueAt(i,j,4* boundary->outputDistance->getValueAt(i,j));
+						outputDistance->setValueAt(i,j, boundary->outputDistance->getValueAt(i,j));
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(boundary);	
 					}
 				}
@@ -911,11 +915,16 @@ void LSbox::find_contour() {
 			py= (*volumeit).y;
 // 			cout << py << "  " << px << endl;
 // 			cout << "assoziated grid point " << int(py+0.5) << "  " << int(px+0.5) << endl;
-			if (!IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId)].empty()){
-				theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
-				if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-					else energy += h* gamma_hagb;
-			}
+// 			if(ISOTROPIC){
+// 				l= sqrt( )
+// 			}
+// 			else{
+				if (!IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId)].empty()){
+					theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
+					if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+						else energy += h* gamma_hagb;
+				}
+// 			}
 		}				
 		stringstream dateiname;
 		dateiname << "Contourline_" << id << ".gnu";
@@ -1069,8 +1078,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-	plot_box(true,1,"Redist_1");
-	plot_box(true,2,"Redist_2");
+// 	plot_box(true,1,"Redist_1");
+// 	plot_box(true,2,"Redist_2");
 	//TODO: Analyze this
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
