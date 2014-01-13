@@ -24,7 +24,7 @@ void grainhdl::setSimulationParameter(){
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 
-	LSbox* zeroBox = new LSbox();
+	zeroBox = new LSbox();
 	
 	switch (Mode) {
 		case 1: { 			
@@ -34,7 +34,8 @@ void grainhdl::setSimulationParameter(){
 			generateRandomEnergy();
 			break;
 		}
-		case 2: {			
+		case 2: {
+			ST=NULL;
 			readMicrostructurefromVertex();
 			break;
 		}		
@@ -420,7 +421,7 @@ void grainhdl::saveAllContourlines(){
 
  
 void grainhdl::clear_mem() {
-	delete  [] ST;
+	if (ST!=NULL) {delete  [] ST; }
 }
 
 

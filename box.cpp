@@ -2,7 +2,7 @@
 
 
 
-LSbox::LSbox() {}
+LSbox::LSbox() :quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){}
 
 LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, grainhdl* owner) :
 		id(id)
@@ -146,9 +146,12 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 }
 
 LSbox::~LSbox() {
-	delete [] quaternion;
-	delete inputDistance;
-	delete outputDistance;
+	if(quaternion!=NULL){
+		delete [] quaternion;
+		delete inputDistance;
+		delete outputDistance;
+		delete local_weights;
+	}
 }
 
 int LSbox::getID() {
