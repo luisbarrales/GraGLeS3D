@@ -329,7 +329,6 @@ void LSbox::convolution(){
 	switch_in_and_out();
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
-	int m = outputDistance->getMaxY()-outputDistance->getMinY();
 	int dt 	= handler->get_dt();
 	
 	fftw_complex *fftTemp;
@@ -394,8 +393,8 @@ void LSbox::convolution(){
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
-// 	plot_box(true,1,"Convoluted_1");
-// 	plot_box(true,2,"Convoluted_2");
+	plot_box(true,1,"Convoluted_1");
+	plot_box(true,2,"Convoluted_2");
 // 	
 
 	switch_in_and_out();
@@ -413,9 +412,8 @@ void LSbox::get_new_IDLocalSize(){
 void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
 { /* creates plans for FFT and IFFT */
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
-	int m = outputDistance->getMaxY() - outputDistance->getMinY();
-	*fftplan1 = fftw_plan_dft_r2c_2d(n,m,in,fftTemp,FFTW_ESTIMATE);
-	*fftplan2 = fftw_plan_dft_c2r_2d(n,m,fftTemp,out,FFTW_ESTIMATE);
+	*fftplan1 = fftw_plan_dft_r2c_2d(n,n,in,fftTemp,FFTW_ESTIMATE);
+	*fftplan2 = fftw_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
 }
 
 void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
@@ -430,12 +428,12 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	(necessary to create the plans) */
 	
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
-	int m = outputDistance->getMaxY() - outputDistance->getMinY();
+// 	int m = outputDistance->getMaxY() - outputDistance->getMinY();
 // 	assert(m!=n);
 	double dt = handler->get_dt();
 	int n2 = floor(n/2) + 1;
-	
-	double nsq =  n*n; 
+	int nn = (*handler).get_ngridpoints();
+	double nsq =  nn*nn; 
 	double k = 2.0 * PI / n;
 	double G;
 	double coski;
@@ -445,7 +443,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 		for(int j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
-			G = 1.0/(1.0+(dt*G)) / nsq;
+			G = 1.0/(1.0+(dt*G)) / (n*n);
 			//        USE this line for Richardson-type extrapolation
 			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			/* normalize G by n*n to pre-normalize convolution results */
@@ -918,8 +916,8 @@ void LSbox::redist_box() {
 	
 	outputDistance->clampValues(-DELTA, DELTA);
 	
-	plot_box(true,1,"Redist_1");
-	plot_box(true,2,"Redist_2");
+// 	plot_box(true,1,"Redist_1");
+// 	plot_box(true,2,"Redist_2");
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step

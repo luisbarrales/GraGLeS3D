@@ -165,8 +165,8 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
 }
 bool MarchingSquaresAlgorithm::isInside(int row, int column)
 {
-	if(row < 0 || row >= m_DistanceBuffer.getMaxY() ||
-	   column < 0 || column >= m_DistanceBuffer.getMaxX())
+	if(row < m_DistanceBuffer.getMinY() || row >= m_DistanceBuffer.getMaxY() ||
+	   column < m_DistanceBuffer.getMinX() || column >= m_DistanceBuffer.getMaxX())
 	   return false;
 	else
 		return m_DistanceBuffer.getValueAt(row, column) >= 0;
@@ -187,7 +187,7 @@ SPoint MarchingSquaresAlgorithm::generatePoint(E_MOVEMENT_DIRECTIONS dir)
 	{
 		case LEFT:
 			result.x = m_left;
-			if(m_top < 0)
+			if(m_top < m_DistanceBuffer.getMinY())
 			{
 				result.y = m_bottom;
 			}
@@ -226,7 +226,7 @@ SPoint MarchingSquaresAlgorithm::generatePoint(E_MOVEMENT_DIRECTIONS dir)
 			break;
 		case DOWN:
 			result.y = m_bottom;
-			if(m_left < 0)
+			if(m_left < m_DistanceBuffer.getMinX())
 			{
 				result.x = m_right;
 			}
