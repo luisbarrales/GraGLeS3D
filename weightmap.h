@@ -21,8 +21,7 @@ class Weightmap{
 			//TODO: Investigate pointer usage and possibly migrate to Box IDs.
 			LSbox* first; 	/*!< First or the "smallest address" of an LSBox.*/
 			LSbox* second; 	/*!< Second or the "second smallest address" of an LSBox.*/
-			LSbox* third; 	/*!< Second or the "biggest address" of an LSBox.*/
-
+			
 			mapkey(vector<LSbox*> IDs);
 
 			bool operator<(const mapkey & other) const; /*!< Overloaded operator that compares
@@ -54,7 +53,7 @@ public:
 	 * \brief Method to return weights.
 	 * \param IDs IDs of the neighboring cells.
 	 * \param me Unknown usage.
-	 * \param ST Unknown usage.
+	 * \param ST Surface Tension Array.
 	 */
 	double loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST);
 	/*!

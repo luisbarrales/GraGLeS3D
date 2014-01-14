@@ -323,6 +323,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 /**************************************/
 
 void LSbox::convolution(){
+	double h = handler->get_h();
 	if(get_status() != true ) return;
 	//  set references for the convolution step
 
@@ -349,12 +350,12 @@ void LSbox::convolution(){
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 	
-	if(!ISOTROPIC){
-// 	    double rad =  DELTA* 0.7; // radius in dem ein drag wirkt
-	    double weight;
-// 	    int* rep = new int[3];
+	if(!ISOTROPIC){	    
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
+		double weight;
+	    double val;
+		double tubeRadius = sqrt(2)*h + 0.00001;
 	    
 	    if (xminId < outputDistance->getMinX())
 		  intersec_xmin = outputDistance->getMinX();
@@ -372,21 +373,21 @@ void LSbox::convolution(){
 		  intersec_ymax= outputDistance->getMaxY();
 	    else  intersec_ymax = ymaxId;
 	    
-	    
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
-				if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size()< 3 || IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() > 4 ) {
-					weight=1;
-					// for n < 3: here we are far away from a triple point - so we only take curvature into account.
-					// for n >4: here we are at a multiple point, which only occurs because of unregular intialisation by voronoi cells - so we only take curvature into account.
+				val = inputDistance->getValueAt(i,j);
+				if(val <= tubeRadius ){
+					if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() != 2){ // || IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() > 4 ) {
+						weight=1;
+						// for n < 3: here we are far away from a triple point - so we only take curvature into account.
+						// for n >4: here we are at a multiple point, which only occurs because of unregular intialisation by voronoi cells - so we only take curvature into account.
+					}
+					else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
+			
+					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 				}
-				else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
-				// 	      	    weight = ( 1-abs(rad - abs(ref[i][j])) ) * weight;		nur sinnvoll um einen drag zu simulieren	
-				//(*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] = (*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn] + (((*outputDistance)[(i-yminOut)*(xmaxOut-xminOut)+j-xminOut] -(*inputDistance)[(i-yminIn)*(xmaxIn-xminIn)+j-xminIn]) * weight);
-				outputDistance->setValueAt(i,j, inputDistance->getValueAt(i,j) + (outputDistance->getValueAt(i,j) - inputDistance->getValueAt(i,j))*weight );
 			}
-	   }
-	   
+		}	   
 	}
 	
 	IDLocal.clear();	
@@ -728,7 +729,7 @@ void LSbox::find_contour() {
 
     MarchingSquaresAlgorithm marcher(*inputDistance);
     exist = marcher.generateContour(contourGrain);
-	
+	if(!exist) return;
     int grid_blowup = handler->get_grid_blowup();
 
     int xminNew = 999999, xmaxNew = -1, yminNew = 999999, ymaxNew = -1;
