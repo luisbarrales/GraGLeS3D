@@ -413,7 +413,7 @@ void grainhdl::saveAllContourEnergies(){
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
 		    
-	dateiname << "# Number of Grains: " << 10 << endl; 		// use "#" for comments in gnuplot files for documentation purpose 
+	dateiname << "#Number of Grains: " << 10 << endl; 		// use "#" for comments in gnuplot files for documentation purpose 
 	dateiname << "set palette rgbformulae 33,13,10"<< endl;
 //	dateiname << "set cbrange[0:50]"<< endl;			TODO: define a range in order to keep the data consistent
 	dateiname << "plot \"-\" w l palette" << endl;

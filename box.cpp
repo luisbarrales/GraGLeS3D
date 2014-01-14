@@ -938,7 +938,7 @@ void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunct
     if ( plotEnergyFunctional ){
 
 	for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<<"\t" << energy << endl;
+	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << energy << endl;
 										
 	  
 	}
