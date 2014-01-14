@@ -393,9 +393,8 @@ void LSbox::convolution(){
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
-	plot_box(true,1,"Convoluted_1");
-	plot_box(true,2,"Convoluted_2");
-// 	
+// 	plot_box(true,1,"Convoluted_1");
+// 	plot_box(true,2,"Convoluted_2");
 
 	switch_in_and_out();
 
@@ -458,64 +457,6 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 /**************************************/
 
 
-
-/**************************************/
-/**************************************/
-
-void LSbox::switch_in_and_out(){
-	DimensionalBuffer<double>* temp;
-	temp = inputDistance;
-	inputDistance = outputDistance;
-	outputDistance = temp;
-}
-
-// Comparison + Helperfunctions
-/**************************************/
-/**************************************/
-
-
-void LSbox::set_comparison(){
-
-	int grid_blowup = (*handler).get_grid_blowup();
-	int m = (*handler).get_ngridpoints();
-	double h = handler->get_h();
-	LSbox* zero = handler->zeroBox;
-
-
-	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
-		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-			if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty()) {
-				outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j)); continue;
-			}
-			else {
-				if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)){
-// 					if (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0] ==  (*handler).boundary) {
-// 						outputDistance->setValueAt(i, j,  0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));			
-// 					}
-					if( abs(outputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)) {
-						outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
-					}
-				}
-				else if(inputDistance->getValueAt(i,j) > 0)
-					outputDistance->setValueAt(i,j, DELTA);
-				else if(inputDistance->getValueAt(i,j) < 0)
-					outputDistance->setValueAt(i,j, -DELTA);
-			}
-		}
-	}
-	neighbors_old = neighbors;
-}
-
-
-bool LSbox::checkIntersect(LSbox* box2) {    
-    if (inputDistance->getMinX() > box2->inputDistance->getMaxX() ||
-    	inputDistance->getMaxX() < box2->inputDistance->getMinX() ||
-    	inputDistance->getMinY() > box2->inputDistance->getMaxY() ||
-    	inputDistance->getMaxY() < box2->inputDistance->getMinY())
-    	return false;
-    return true;
-}
-
 void LSbox::determineIDs(){
 	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
@@ -573,6 +514,61 @@ void LSbox::determineIDs(){
   
 }
 
+
+/**************************************/
+/**************************************/
+
+void LSbox::switch_in_and_out(){
+	DimensionalBuffer<double>* temp;
+	temp = inputDistance;
+	inputDistance = outputDistance;
+	outputDistance = temp;
+}
+
+// Comparison + Helperfunctions
+/**************************************/
+/**************************************/
+
+
+void LSbox::set_comparison(){
+
+	int grid_blowup = (*handler).get_grid_blowup();
+	int m = (*handler).get_ngridpoints();
+	double h = handler->get_h();
+	LSbox* zero = handler->zeroBox;
+
+
+	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
+		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
+			if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty()) {
+				outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j)); 
+				continue;
+			}
+			else {
+				if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)){
+					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
+				}
+				else if(inputDistance->getValueAt(i,j) > 0)
+					outputDistance->setValueAt(i,j, DELTA);
+				else if(inputDistance->getValueAt(i,j) < 0)
+					outputDistance->setValueAt(i,j, -DELTA);
+			}
+		}
+	}
+	neighbors_old = neighbors;
+}
+
+
+bool LSbox::checkIntersect(LSbox* box2) {    
+    if (inputDistance->getMinX() > box2->inputDistance->getMaxX() ||
+    	inputDistance->getMaxX() < box2->inputDistance->getMinX() ||
+    	inputDistance->getMinY() > box2->inputDistance->getMaxY() ||
+    	inputDistance->getMaxY() < box2->inputDistance->getMinY())
+    	return false;
+    return true;
+}
+
+
 void LSbox::comparison(){
 	if(get_status() != true ) return;
 	
@@ -609,24 +605,26 @@ void LSbox::comparison(){
 				for (int i = y_min_new; i < y_max_new; i++){
 					for (int j = x_min_new; j < x_max_new; j++){					
 // 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
-// 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.
-						double dist = (**it_nn).getDistance(i,j);
-						if(abs(inputDistance->getValueAt(i,j)) < (0.7*DELTA) &&  abs(dist) < (0.7*DELTA)){
-							if( dist > outputDistance->getValueAt(i,j) ){
-									if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
-										distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
-									//Question: OutputDistance??? not Input?!
-									}
-									outputDistance->setValueAt(i, j, dist);
-									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
-// 								}
-							}
-							else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
-								distance_2neighbor.setValueAt(i,j, dist);
-								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
-							}
-							else { 
-								IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+// 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.						
+						if(abs(inputDistance->getValueAt(i,j)) < (0.7*DELTA)){
+							double dist = (**it_nn).getDistance(i,j);
+							if( abs(dist) < (0.7*DELTA)){								
+								if( dist > outputDistance->getValueAt(i,j) ){
+										if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
+											distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
+										//Question: OutputDistance??? not Input?!
+										}
+										outputDistance->setValueAt(i, j, dist);
+										IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
+	// 								}
+								}
+								else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
+									distance_2neighbor.setValueAt(i,j, dist);
+									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
+								}
+								else { 
+									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+								}
 							}
 						}
 					}
@@ -645,16 +643,16 @@ void LSbox::comparison(){
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
 	
-	plot_box(true,1,"Compare_1_zero");
-	plot_box(true,2,"Compare_2_zero");
+// 	plot_box(true,1,"Compare_1_zero");
+// 	plot_box(true,2,"Compare_2_zero");
 	
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
 	
-	plot_box(true,1,"Compare_1_set");
-	plot_box(true,2,"Compare_2_set");
+// 	plot_box(true,1,"Compare_1_set");
+// 	plot_box(true,2,"Compare_2_set");
 
 
 }
