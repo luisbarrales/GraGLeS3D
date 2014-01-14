@@ -328,7 +328,7 @@ void grainhdl::run_sim(){
 		level_set();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-			saveAllContourlines();
+			saveAllContourEnergies();
 			save_texture();
 		}
 	}
@@ -406,13 +406,29 @@ void grainhdl::find_neighbors(){
 
 }
 
+void grainhdl::saveAllContourEnergies(){
+  	stringstream filename;
+	filename<< "EnergyDistributionT_"<< loop << ".gnu";  
+	ofstream dateiname;
+	dateiname.open(filename.str());
+	std::vector<LSbox*>::iterator it;	
+		    
+	dateiname << "# Number of Grains: " << 10 << endl; 		// use "#" for comments in gnuplot files for documentation purpose 
+	dateiname << "set palette rgbformulae 33,13,10"<< endl;
+//	dateiname << "set cbrange[0:50]"<< endl;			TODO: define a range in order to keep the data consistent
+	dateiname << "plot \"-\" w l palette" << endl;
+	for (it = ++grains.begin(); it !=grains.end(); it++)
+		(*it)->plot_box_contour(loop, &dateiname, true);
+	dateiname.close();
+}
 
-void grainhdl::saveAllContourlines(){	
+void grainhdl::saveAllContourLines(){	
 	stringstream filename;
 	filename<< "NetworkAtTime_"<< loop << ".gnu";  
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
+	dateiname << "# Number of Grains: " << 10 ;
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		(*it)->plot_box_contour(loop, &dateiname);
 	dateiname.close();

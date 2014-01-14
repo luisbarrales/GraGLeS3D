@@ -932,14 +932,25 @@ void LSbox::redist_box() {
 // plot the box and all its properties
 /**************************************/
 
-void LSbox::plot_box_contour(int loop, ofstream *dateiname)
+void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunctional)
 {
-  vector<SPoint>::iterator contourIterator;
-    for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	*dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< endl;
+    vector<SPoint>::iterator contourIterator;
+    if ( plotEnergyFunctional ){
+
+	for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
+	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<<"\t" << energy << endl;
+										
+	  
+	}
+    }
+    else {
+	for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
+	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y << endl;
+	}
     }
     *dateiname << endl;
 }
+
 
 void LSbox::plot_box(bool distanceplot, int select, string simstep){
 	cout <<" \nGrain  Info: " << endl;

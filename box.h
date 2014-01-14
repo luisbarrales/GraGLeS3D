@@ -81,7 +81,7 @@ public:
 	void convolution();
 	void get_new_IDLocalSize();
 
-	void plot_box_contour(int loop, ofstream *dateiname);
+	void plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunctional=false);
 
 	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);
