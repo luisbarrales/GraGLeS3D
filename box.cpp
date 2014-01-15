@@ -636,25 +636,29 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 
-// 	plot_box(true,1,"Compare_1");
-// 	plot_box(true,2,"Compare_2");
-	
+if(loop>29 && id == 48)
+{
+	plot_box(true,1,"Compare");
+	plot_box(true,2,"Compare");
+}	
 // 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
-	
-// 	plot_box(true,1,"Compare_1_zero");
-// 	plot_box(true,2,"Compare_2_zero");
-	
+if(loop>29 &&id == 48)
+{
+  
+	plot_box(true,1,"Compare_zero");
+	plot_box(true,2,"Compare_zero");
+}	
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
-	
-// 	plot_box(true,1,"Compare_1_set");
-// 	plot_box(true,2,"Compare_2_set");
-
+if(loop>29 &&id == 48){	
+	plot_box(true,1,"Compare_set");
+	plot_box(true,2,"Compare_set");
+}
 
 }
 
@@ -938,8 +942,8 @@ void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunct
     if ( plotEnergyFunctional ){
 
 	for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << energy << endl;
-										
+	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << id << endl;
+										//TODO change id to energy
 	  
 	}
     }
@@ -953,11 +957,12 @@ void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunct
 
 
 void LSbox::plot_box(bool distanceplot, int select, string simstep){
+  
 	cout <<" \nGrain  Info: " << endl;
 	cout << " ID :" <<id << endl;
-    cout << " xminIn, xmaxIn, yminIn, ymaxIn :" << inputDistance->getMinX() << " || "<< inputDistance->getMaxX() << " || " << inputDistance->getMinY() << " || " << inputDistance->getMaxY() << endl;
-	 cout << " xminOut, xmaxOut, yminOut, ymaxOut :" << outputDistance->getMinX() << " || "<< outputDistance->getMaxX() << " || " << outputDistance->getMinY() << " || " << outputDistance->getMaxY() << endl;
-	  cout << " xminId, xmaxId, yminId, ymaxId :" << xminId << " || "<< xmaxId << " || " << yminId << " || " << ymaxId << endl;
+	cout << " xminIn, xmaxIn, yminIn, ymaxIn :" << inputDistance->getMinX() << " || "<< inputDistance->getMaxX() << " || " << inputDistance->getMinY() << " || " << inputDistance->getMaxY() << endl;
+	cout << " xminOut, xmaxOut, yminOut, ymaxOut :" << outputDistance->getMinX() << " || "<< outputDistance->getMaxX() << " || " << outputDistance->getMinY() << " || " << outputDistance->getMaxY() << endl;
+	cout << " xminId, xmaxId, yminId, ymaxId :" << xminId << " || "<< xmaxId << " || " << yminId << " || " << ymaxId << endl;
 //     if (distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 // 		else cout << " no distance values in storage!" << endl;
 	cout << " quaternion: " << quaternion[0] << " || "<< quaternion[1]<< " || " <<quaternion[2] << " || " << quaternion[3]<< endl;
@@ -982,11 +987,11 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
      if (distanceplot)
      {
 		stringstream filename;
-		filename<< "BoxDistance_"<< simstep << "_" << id << ".gnu";
 		ofstream datei;
-		datei.open(filename.str());
-		
+		int loop = handler->loop;
 		if(select == 2) {
+		filename<< "BoxDistance_"<< simstep << "out_T" << loop << "_" << id << ".gnu";
+		datei.open(filename.str());
 			for (int i = 0; i < handler->get_ngridpoints(); i++){
 				for (int j = 0; j < handler->get_ngridpoints(); j++){
 					if( i >= outputDistance->getMinY() && i < outputDistance->getMaxY() && j >=outputDistance->getMinX() && j < outputDistance->getMaxX()) {
@@ -998,6 +1003,8 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 			}	
 		}		
 		if(select == 1) {
+		filename<< "BoxDistance_"<< simstep << "in_T" << loop << "_" << id << ".gnu";
+		datei.open(filename.str());
 			for (int i = 0; i < handler->get_ngridpoints(); i++){
 				for (int j = 0; j < handler->get_ngridpoints(); j++){
 					if( i >= inputDistance->getMinY() && i < inputDistance->getMaxY() && j >=inputDistance->getMinX() && j < inputDistance->getMaxX()) {

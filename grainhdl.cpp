@@ -291,7 +291,7 @@ void grainhdl::save_texture(){
 	FILE* myfile;
 	stringstream filename;
 	double total_energy= 0.0;
-	int numberGrains;
+	int numberGrains=0;
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
 	double buffer = 0.24;
@@ -332,6 +332,7 @@ void grainhdl::run_sim(){
 			save_texture();
 		}
 	}
+	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
 }  
 
@@ -412,10 +413,24 @@ void grainhdl::saveAllContourEnergies(){
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
-		    
-	dateiname << "#Number of Grains: " << 10 << endl; 		// use "#" for comments in gnuplot files for documentation purpose 
+
+	// use "#" for comments in gnuplot files for documentation purpose 
+	dateiname << "#******* PROGRAM OPTIONS: *******" << endl << endl;
+	dateiname << "#Number of Grains: " << ngrains << endl;
+	dateiname << "#simulated Timesteps: " << TIMESTEPS << endl;
+	dateiname << "#DELTA TUBE: " << DELTA << endl;
+	dateiname << "#Timestepwidth " << dt << endl;
+	dateiname << "#Number of Gridpoints: " << ngridpoints << endl << endl;
+	
 	dateiname << "set palette rgbformulae 33,13,10"<< endl;
-//	dateiname << "set cbrange[0:50]"<< endl;			TODO: define a range in order to keep the data consistent
+//TODO uncomment for energy distribution	
+// 	dateiname << "set cbrange[0:0.6]"<< endl;
+// 	dateiname << "set cbtics 0.1" << endl;
+	
+	dateiname << "set cbrange[0:50]"<< endl;
+ 	dateiname << "set cbtics 1" << endl;
+	
+	dateiname << "set title \"Energy Distribution at Timestep " << loop <<"\""<<endl;
 	dateiname << "plot \"-\" w l palette" << endl;
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		(*it)->plot_box_contour(loop, &dateiname, true);
@@ -428,7 +443,6 @@ void grainhdl::saveAllContourLines(){
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
-	dateiname << "# Number of Grains: " << 10 ;
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		(*it)->plot_box_contour(loop, &dateiname);
 	dateiname.close();
