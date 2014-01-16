@@ -327,7 +327,6 @@ void LSbox::convolution(){
 	if(get_status() != true ) return;
 	//  set references for the convolution step
 
-	switch_in_and_out();
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int dt 	= handler->get_dt();
@@ -350,12 +349,12 @@ void LSbox::convolution(){
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 	
-	if(!ISOTROPIC){	    
+	if(!ISOTROPIC && handler->loop!=0){	    
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 		double weight;
 	    double val;
-		double tubeRadius = sqrt(2)*h + 0.00001;
+		double dist2OrderNeigh;
 	    
 	    if (xminId < outputDistance->getMinX())
 		  intersec_xmin = outputDistance->getMinX();
@@ -376,14 +375,13 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if(val <= tubeRadius ){
-					if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() != 2){ // || IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() > 4 ) {
-						weight=1;
-						// for n < 3: here we are far away from a triple point - so we only take curvature into account.
-						// for n >4: here we are at a multiple point, which only occurs because of unregular intialisation by voronoi cells - so we only take curvature into account.
-					}
-					else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
-			
+				if(val <= handler->tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() >= 2){
+					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)][1]->inputDistance->getValueAt(i,j);
+					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
+// 					cout << weight << endl;
+					weight = -(dist2OrderNeigh/ double(DELTA) * (1-weight) )+ weight;
+// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -DELTA <<endl;
+					// the weight is a function of the distance to the 2 order neighbor
 					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 				}
 			}
@@ -396,8 +394,6 @@ void LSbox::convolution(){
 
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
-
-	switch_in_and_out();
 
 }
 void LSbox::get_new_IDLocalSize(){
@@ -457,7 +453,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 /**************************************/
 /**************************************/
 
-
+/*
 void LSbox::determineIDs(){
 	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
@@ -513,13 +509,13 @@ void LSbox::determineIDs(){
 	}		
 
   
-}
+}*/
 
 
 /**************************************/
 /**************************************/
 
-void LSbox::switch_in_and_out(){
+void LSbox::switchInNOut(){
 	DimensionalBuffer<double>* temp;
 	temp = inputDistance;
 	inputDistance = outputDistance;
@@ -546,7 +542,7 @@ void LSbox::set_comparison(){
 				continue;
 			}
 			else {
-				if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)){
+				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * DELTA)*/){
 					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 				}
 				else if(inputDistance->getValueAt(i,j) > 0)
@@ -607,7 +603,7 @@ void LSbox::comparison(){
 					for (int j = x_min_new; j < x_max_new; j++){					
 // 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.						
-						if(abs(inputDistance->getValueAt(i,j)) < (0.7*DELTA)){
+						if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
 							double dist = (**it_nn).getDistance(i,j);
 							if( abs(dist) < (0.7*DELTA)){								
 								if( dist > outputDistance->getValueAt(i,j) ){
@@ -638,22 +634,26 @@ void LSbox::comparison(){
 
 // if(loop>29 && id == 48)
 // {
-// 	plot_box(true,1,"Compare");
-// 	plot_box(true,2,"Compare");
+
+// // 	plot_box(true,1,"Compare");
+// // 	plot_box(true,2,"Compare");
 // }	
-// // 	char buffer;
-// // 
-// // 	  // checke schnitt zum randkorn:
+// 	char buffer;
+// 
+// 	  // checke schnitt zum randkorn:
+
 	checkIntersect_zero_grain();
 // if(loop>29 &&id == 48)
 // {
 //   
-// 	plot_box(true,1,"Compare_zero");
-// 	plot_box(true,2,"Compare_zero");
+
+// // 	plot_box(true,1,"Compare_zero");
+// // 	plot_box(true,2,"Compare_zero");
 // }	
-// 
-// 	// 	be careful for parralisation!!!!!
-// 
+
+	// 	be careful for parralisation!!!!!
+
+
 	set_comparison();
 // if(loop>29 &&id == 48){	
 // 	plot_box(true,1,"Compare_set");
@@ -724,7 +724,6 @@ void LSbox::add_n2o(){
 
 void LSbox::find_contour() {
 	if(get_status() != true ) return;
-	switch_in_and_out();
 	exist = false;
 	
 	// save old boundaries -> function will compute updates
@@ -769,13 +768,13 @@ void LSbox::find_contour() {
 		py= (*volumeit).y;
 
 		for (; volumeit!= contourGrain.end(); volumeit++){
-			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;
+			s << (*volumeit).x << "\t" << (*volumeit).y << "\t";
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
-
 		}	
 		energy = computeEnergy();
+
 		stringstream dateiname;
 		dateiname << "Contourline_" << id << ".gnu";
 		ofstream datei;
@@ -961,7 +960,7 @@ void LSbox::redist_box() {
 					outputDistance->setValueAt(i-1, j, candidate);
 			}
 			else {
-				candidate = outputDistance->getValueAt(i,j)  /+ (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
+				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
 				if (abs(candidate) < abs(outputDistance->getValueAt(i-1,j)))
 					outputDistance->setValueAt(i-1, j, candidate);
 			}
@@ -993,9 +992,8 @@ void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunct
     if ( plotEnergyFunctional ){
 
 	for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << id << endl;
-										//TODO change id to energy
-	  
+// 	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << id << endl;
+		*dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << (*contourIterator).energy << endl;
 	}
     }
     else {

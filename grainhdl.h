@@ -36,7 +36,8 @@ class grainhdl{
 	int loop;
 	vector<double> totalenergy;
 	vector<int> nr_grains;
-
+	
+	double tubeRadius;
 	double *ST;
 	double *part_pos;	
 	
@@ -74,6 +75,7 @@ class grainhdl{
 	void construct_boundary();
 	void saveAllContourLines();
 	void saveAllContourEnergies();
+	void switchDistancebuffer();
 
 	
 

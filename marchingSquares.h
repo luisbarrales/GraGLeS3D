@@ -12,14 +12,15 @@
  */
 struct SPoint
 {
-	SPoint() : x(-1), y(-1)
+	SPoint() : x(-1), y(-1),energy(0)
 	{}
-	SPoint(double _x, double _y) : x(_x), y(_y)
+	SPoint(double _x, double _y, double _energy) : x(_x), y(_y), energy(_energy)
 	{}
-	SPoint(const SPoint& other) : x(other.x), y(other.y)
+	SPoint(const SPoint& other) : x(other.x), y(other.y), energy(other.energy) 
 	{}
 	double x;
 	double y;
+	double energy;
 };
 
 /*!

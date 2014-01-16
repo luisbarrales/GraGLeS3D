@@ -11,8 +11,9 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 1000
-#define ANALYSESTEP 100
+#define TIMESTEPS 50
+#define ANALYSESTEP 10
+
 #define MODE 1 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 

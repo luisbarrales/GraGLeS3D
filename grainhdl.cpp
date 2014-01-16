@@ -11,7 +11,7 @@ grainhdl::~grainhdl(){
 
 void grainhdl::setSimulationParameter(){
 	mymath = new mathMethods();
-// 	readInit();
+	// 	readInit();
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
@@ -19,7 +19,7 @@ void grainhdl::setSimulationParameter(){
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
-
+	tubeRadius = sqrt(2)*h + 0.001;
 	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
@@ -320,11 +320,14 @@ void grainhdl::save_texture(){
  
 void grainhdl::run_sim(){
 	find_neighbors();
-	determineIDs();
+// 	determineIDs();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
+		switchDistancebuffer();
 		convolution();
+		switchDistancebuffer();
 		updateSecondOrderNeighbors();
 		comparison_box();
+		switchDistancebuffer();
 		level_set();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
@@ -336,12 +339,12 @@ void grainhdl::run_sim(){
 	cout << "Simulation complete." << endl;
 }  
 
-void grainhdl::determineIDs(){
-  	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++){
-		(*it)->determineIDs();
-	}
-}
+// void grainhdl::determineIDs(){
+//   	std::vector<LSbox*>::iterator it;
+// 	for (it = ++grains.begin(); it !=grains.end(); it++){
+// 		(*it)->determineIDs();
+// 	}
+// }
 
 /*
 void grainhdl::plot_contour(){
@@ -409,7 +412,7 @@ void grainhdl::find_neighbors(){
 
 void grainhdl::saveAllContourEnergies(){
   	stringstream filename;
-	filename<< "EnergyDistributionT_"<< loop << ".gnu";  
+	filename<< "EnergyDistribution_T"<< loop << ".gnu";  
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
@@ -427,7 +430,7 @@ void grainhdl::saveAllContourEnergies(){
 // 	dateiname << "set cbrange[0:0.6]"<< endl;
 // 	dateiname << "set cbtics 0.1" << endl;
 	
-	dateiname << "set cbrange[0:50]"<< endl;
+	dateiname << "set cbrange[0:0.6]"<< endl;
  	dateiname << "set cbtics 1" << endl;
 	
 	dateiname << "set title \"Energy Distribution at Timestep " << loop <<"\""<<endl;
@@ -449,6 +452,11 @@ void grainhdl::saveAllContourLines(){
 }
 
 
+void grainhdl::switchDistancebuffer(){
+	std::vector<LSbox*>::iterator it;
+	for (it = ++grains.begin(); it !=grains.end(); it++)
+		(*it)->switchInNOut();
+}
  
 void grainhdl::clear_mem() {
 	if (ST!=NULL) {delete  [] ST; }
