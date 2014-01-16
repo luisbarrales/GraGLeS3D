@@ -378,11 +378,12 @@ void LSbox::convolution(){
 				if(val <= handler->tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() >= 2){
 					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)][1]->inputDistance->getValueAt(i,j);
 					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
-					weight = (dist2OrderNeigh * (1-weight) / -DELTA )+ weight;
+// 					cout << weight << endl;
+					weight = -(dist2OrderNeigh/ double(DELTA) * (1-weight) )+ weight;
+// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -DELTA <<endl;
 					// the weight is a function of the distance to the 2 order neighbor
 					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 				}
-				else outputDistance->setValueAt(i,j,val);
 			}
 		}	   
 	}

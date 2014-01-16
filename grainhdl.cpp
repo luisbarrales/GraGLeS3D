@@ -19,7 +19,7 @@ void grainhdl::setSimulationParameter(){
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
-	tubeRadius = sqrt(2)*h + 0.00001;
+	tubeRadius = sqrt(2)*h + 0.001;
 	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 

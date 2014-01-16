@@ -67,7 +67,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	double sigma;
 	double gamma[3];
 	double gamma_hagb = 0.6;
-	double theta_ref = 15.0;
+	double theta_ref = 15.0 * PI /180;
 	double theta_mis;
 	double drag = 0.5;
 
@@ -93,9 +93,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 		if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 		else gamma[2] = gamma_hagb;
 	}
-
 	sigma = gamma[0] - gamma[1] + gamma[2];
-		
 	return sigma;
 }
 
