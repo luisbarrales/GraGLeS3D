@@ -98,7 +98,7 @@ namespace utils {
 	makeGif << "set output \""<< outputFile << "\"; " << endl;
 	for ( int i =0; i<= TIMESTEPS; i+= ANALYSESTEP){
 	    plotFile.str("");
-	    plotFile<< "EnergyDistributionT_" << i << ".gnu";
+	    plotFile<< "EnergyDistribution_T" << i << ".gnu";
 	      // TODO Check if file exists? 
 	    makeGif << "load \"" << plotFile.str() << "\""<< endl;
 	}

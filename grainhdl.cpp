@@ -320,7 +320,7 @@ void grainhdl::save_texture(){
  
 void grainhdl::run_sim(){
 	find_neighbors();
-	determineIDs();
+// 	determineIDs();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
 		convolution();
 		updateSecondOrderNeighbors();
@@ -409,7 +409,7 @@ void grainhdl::find_neighbors(){
 
 void grainhdl::saveAllContourEnergies(){
   	stringstream filename;
-	filename<< "EnergyDistributionT_"<< loop << ".gnu";  
+	filename<< "EnergyDistribution_T"<< loop << ".gnu";  
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
@@ -427,7 +427,7 @@ void grainhdl::saveAllContourEnergies(){
 // 	dateiname << "set cbrange[0:0.6]"<< endl;
 // 	dateiname << "set cbtics 0.1" << endl;
 	
-	dateiname << "set cbrange[0:50]"<< endl;
+	dateiname << "set cbrange[0:0.6]"<< endl;
  	dateiname << "set cbtics 1" << endl;
 	
 	dateiname << "set title \"Energy Distribution at Timestep " << loop <<"\""<<endl;

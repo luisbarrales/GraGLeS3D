@@ -43,7 +43,7 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
 			stateMask |= BOTTOM_LEFT;
 		if(isInside(m_bottom, m_right))
 			stateMask |= BOTTOM_RIGHT;
-		SPoint next(-1,-1);
+		SPoint next(-1,-1,-1);
 		switch( stateMask )
 		{
 			case TOP_LEFT:
@@ -180,7 +180,7 @@ void MarchingSquaresAlgorithm::insertPoint(std::vector<SPoint>& output, SPoint p
 }
 SPoint MarchingSquaresAlgorithm::generatePoint(E_MOVEMENT_DIRECTIONS dir)
 {
-	SPoint result(-1,-1);
+	SPoint result(-1,-1,-1);
 	double delta;
 	double position;
 	switch(dir)

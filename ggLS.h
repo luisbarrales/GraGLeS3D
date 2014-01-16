@@ -11,14 +11,14 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 100
-#define ANALYSESTEP 1
+#define TIMESTEPS 50
+#define ANALYSESTEP 10
 #define MODE 1 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 
 #define PARTICLES 50
 
-#define ISOTROPIC false
+#define ISOTROPIC true
 #define SAVEIMAGE false
 #define IMAGEOUT true
 

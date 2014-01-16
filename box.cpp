@@ -350,12 +350,13 @@ void LSbox::convolution(){
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 	
-	if(!ISOTROPIC){	    
+	if(!ISOTROPIC && handler->loop!=0){	    
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 		double weight;
 	    double val;
 		double tubeRadius = sqrt(2)*h + 0.00001;
+		double dist2OrderNeigh;
 	    
 	    if (xminId < outputDistance->getMinX())
 		  intersec_xmin = outputDistance->getMinX();
@@ -376,16 +377,14 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if(val <= tubeRadius ){
-					if(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() != 2){ // || IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() > 4 ) {
-						weight=1;
-						// for n < 3: here we are far away from a triple point - so we only take curvature into account.
-						// for n >4: here we are at a multiple point, which only occurs because of unregular intialisation by voronoi cells - so we only take curvature into account.
-					}
-					else  weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
-			
+				if(val <= tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() == 2){
+					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)][1]->inputDistance->getValueAt(i,j);
+					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
+					weight = dist2OrderNeigh * (1- weight) / -DELTA + weight;
+					// the weight is a function of the distance to the 2 order neighbor
 					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 				}
+				else outputDistance->setValueAt(i,j,val);
 			}
 		}	   
 	}
@@ -623,9 +622,10 @@ void LSbox::comparison(){
 									distance_2neighbor.setValueAt(i,j, dist);
 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
 								}
-								else { 
-									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
-								}
+// 								4th case: there are more than 2 neighbors acting at one point!
+// 								else { 
+// 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+// 								}
 							}
 						}
 					}
@@ -636,29 +636,29 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 
-if(loop>29 && id == 48)
-{
-	plot_box(true,1,"Compare");
-	plot_box(true,2,"Compare");
-}	
+// if(loop>29 && id == 48)
+// {
+// // 	plot_box(true,1,"Compare");
+// // 	plot_box(true,2,"Compare");
+// }	
 // 	char buffer;
 // 
 // 	  // checke schnitt zum randkorn:
 	checkIntersect_zero_grain();
-if(loop>29 &&id == 48)
-{
-  
-	plot_box(true,1,"Compare_zero");
-	plot_box(true,2,"Compare_zero");
-}	
+// if(loop>29 &&id == 48)
+// {
+//   
+// // 	plot_box(true,1,"Compare_zero");
+// // 	plot_box(true,2,"Compare_zero");
+// }	
 
 	// 	be careful for parralisation!!!!!
 
 	set_comparison();
-if(loop>29 &&id == 48){	
-	plot_box(true,1,"Compare_set");
-	plot_box(true,2,"Compare_set");
-}
+// if(loop>29 &&id == 48){	
+// 	plot_box(true,1,"Compare_set");
+// 	plot_box(true,2,"Compare_set");
+// }
 
 }
 
@@ -770,22 +770,22 @@ void LSbox::find_contour() {
 		py= (*volumeit).y;
 
 		for (; volumeit!= contourGrain.end(); volumeit++){
-			s << (*volumeit).x << "\t" << (*volumeit).y<<endl;
+			s << (*volumeit).x << "\t" << (*volumeit).y << "\t";
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
-// 			cout << py << "  " << px << endl;
-// 			cout << "assoziated grid point " << int(py+0.5) << "  " << int(px+0.5) << endl;
-// 			if(ISOTROPIC){
-// 				l= sqrt( )
-// 			}
-// 			else{
-				if (!IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId)].empty()){
-					theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
-					if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-						else energy += h* gamma_hagb;
+
+			if (!IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId)].empty()){
+				theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
+				if (theta_mis <= theta_ref)	{
+// 					cout << theta_mis << "  " << theta_ref << endl;
+					(*volumeit).energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 				}
-// 			}
+				else (*volumeit).energy = gamma_hagb;
+				energy += (*volumeit).energy *h;
+				s << (*volumeit).energy << "\n";
+			}
+
 		}				
 		stringstream dateiname;
 		dateiname << "Contourline_" << id << ".gnu";
@@ -942,9 +942,8 @@ void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunct
     if ( plotEnergyFunctional ){
 
 	for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << id << endl;
-										//TODO change id to energy
-	  
+// 	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << id << endl;
+		*dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << (*contourIterator).energy << endl;
 	}
     }
     else {
