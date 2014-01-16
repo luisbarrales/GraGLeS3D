@@ -355,7 +355,6 @@ void LSbox::convolution(){
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 		double weight;
 	    double val;
-		double tubeRadius = sqrt(2)*h + 0.00001;
 		double dist2OrderNeigh;
 	    
 	    if (xminId < outputDistance->getMinX())
@@ -377,7 +376,7 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if(val <= tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() == 2){
+				if(val <= handler->tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() == 2){
 					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)][1]->inputDistance->getValueAt(i,j);
 					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
 					weight = dist2OrderNeigh * (1- weight) / -DELTA + weight;
@@ -456,7 +455,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 /**************************************/
 /**************************************/
 
-
+/*
 void LSbox::determineIDs(){
 	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
@@ -512,7 +511,7 @@ void LSbox::determineIDs(){
 	}		
 
   
-}
+}*/
 
 
 /**************************************/
@@ -606,7 +605,7 @@ void LSbox::comparison(){
 					for (int j = x_min_new; j < x_max_new; j++){					
 // 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.						
-						if(abs(inputDistance->getValueAt(i,j)) < (0.7*DELTA)){
+						if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
 							double dist = (**it_nn).getDistance(i,j);
 							if( abs(dist) < (0.7*DELTA)){								
 								if( dist > outputDistance->getValueAt(i,j) ){
@@ -622,10 +621,9 @@ void LSbox::comparison(){
 									distance_2neighbor.setValueAt(i,j, dist);
 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
 								}
-// 								4th case: there are more than 2 neighbors acting at one point!
-// 								else { 
-// 									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
-// 								}
+								else { 
+									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+								}
 							}
 						}
 					}

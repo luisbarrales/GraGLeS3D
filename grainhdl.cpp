@@ -11,7 +11,7 @@ grainhdl::~grainhdl(){
 
 void grainhdl::setSimulationParameter(){
 	mymath = new mathMethods();
-// 	readInit();
+	// 	readInit();
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	if(Mode==1) realDomainSize= M-1;			
@@ -19,7 +19,7 @@ void grainhdl::setSimulationParameter(){
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
-
+	tubeRadius = sqrt(2)*2*h + 0.00001;
 	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
@@ -336,12 +336,12 @@ void grainhdl::run_sim(){
 	cout << "Simulation complete." << endl;
 }  
 
-void grainhdl::determineIDs(){
-  	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++){
-		(*it)->determineIDs();
-	}
-}
+// void grainhdl::determineIDs(){
+//   	std::vector<LSbox*>::iterator it;
+// 	for (it = ++grains.begin(); it !=grains.end(); it++){
+// 		(*it)->determineIDs();
+// 	}
+// }
 
 /*
 void grainhdl::plot_contour(){

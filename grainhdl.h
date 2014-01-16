@@ -36,7 +36,8 @@ class grainhdl{
 	int loop;
 	vector<double> totalenergy;
 	vector<int> nr_grains;
-
+	
+	double tubeRadius;
 	double *ST;
 	double *part_pos;	
 	
