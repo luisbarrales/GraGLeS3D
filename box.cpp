@@ -887,9 +887,9 @@ void LSbox::find_contour() {
     }
 	
     if (xminOut < 0) {cout <<"undefined box size for xmin: "<< xminOut << endl; abort();} //xmin = 0;
-	if (xmaxOut > m) {cout <<"undefined box size for xmax: "<< xmaxOut << endl; abort();} //xmax = m;
-	if (yminOut < 0) {cout <<"undefined box size for ymin: "<< yminOut << endl; abort();} //ymin = 0;
-	if (ymaxOut > m) {cout <<"undefined box size for ymax: "<< xmaxOut << endl; abort();} // ymax = m;
+    if (xmaxOut > m) {cout <<"undefined box size for xmax: "<< xmaxOut << endl; abort();} //xmax = m;
+    if (yminOut < 0) {cout <<"undefined box size for ymin: "<< yminOut << endl; abort();} //ymin = 0;
+    if (ymaxOut > m) {cout <<"undefined box size for ymax: "<< xmaxOut << endl; abort();} // ymax = m;
 	
 	
     outputDistance->resize(xminOut, yminOut, xmaxOut, ymaxOut);
@@ -898,12 +898,9 @@ void LSbox::find_contour() {
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 		vector<SPoint>::iterator volumeit=contourGrain.begin();
-		energy = 0.0;
-		volume = 0.0;
+		energy = 0;
+		volume = 0;
 		double px, py;
-		double gamma_hagb = 0.6;
-		double theta_ref = 15.0* PI / 180.;
-		double theta_mis;
 		
 		px= (*volumeit).x;
 		py= (*volumeit).y;
@@ -913,26 +910,16 @@ void LSbox::find_contour() {
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
-// 			cout << py << "  " << px << endl;
-// 			cout << "assoziated grid point " << int(py+0.5) << "  " << int(px+0.5) << endl;
-// 			if(ISOTROPIC){
-// 				l= sqrt( )
-// 			}
-// 			else{
-				if (!IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId)].empty()){
-					theta_mis=mis_ori( IDLocal[ ( (int(py+0.5)-yminId) * (xmaxId-xminId)) + (int(px+0.5) - xminId) ][0] ); //find the LSbox pointer to the next neighbor -> therefor find the next grid pointer
-					if (theta_mis <= theta_ref)	energy += h* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-						else energy += h* gamma_hagb;
-				}
-// 			}
-		}				
+
+		}	
+		energy = computeEnergy();
 		stringstream dateiname;
 		dateiname << "Contourline_" << id << ".gnu";
 		ofstream datei;
 		datei.open(dateiname.str());
 		datei << s.str();
 		datei.close();
-		volume = abs(volume)*0.5;
+		volume = abs(volume)	*0.5;
 		cerr<< "Volume of " << id << "= " << volume << endl;
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
 		
@@ -940,23 +927,40 @@ void LSbox::find_contour() {
 	return;
 }
 
-double LSbox::computeEnergy(vector<SPoint>& contourPoints)
+double LSbox::computeEnergy()
 {
   
- //Convention: In the SPoint vector is first == last
+//  Convention: In the SPoint vector is first == last
+
+  vector<SPoint>::iterator it = contourGrain.begin();
+  SPoint lineStart = (*it); it++;
+  SPoint lineEnd;
+  double energy; 
+  double theta_mis;
+  double theta_ref = 15* PI / 180.;
+  double gamma_hagb = 0.6;  
   
-  vector<SPoint>::iterator it = contourPoints.begin();
-  SPoint first = (*it);
-  double energy;
-  it++;
-  for (; it != contourPoints.end(); it ++){
-    double length = 
-  
-    
+  for (; it != contourGrain.end(); it ++){
+    lineEnd = *it;
+    double length = sqrt((lineStart.x-lineEnd.x)*(lineStart.x-lineEnd.x)+(lineStart.y-lineEnd.y)*(lineStart.y-lineEnd.y)); // sqrt( dx²+dy²) 
+    if (ISOTROPIC) {
+      energy = length;
+      continue;
+    }
+    else { 
+      double px =(lineEnd.x-lineStart.x)*0.5+lineStart.x;
+      double py =(lineEnd.y-lineStart.y)*0.5+lineStart.y;	
+      theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
+      
+      if (theta_mis <= theta_ref)	
+	energy += length* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+      else energy += length* gamma_hagb;
+    }	
+    lineStart = lineEnd;
   }
   
   return energy;
-}
+}	
 
 /**************************************/
 //  Redistancing

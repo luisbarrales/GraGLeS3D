@@ -81,7 +81,7 @@ public:
 	double getDistance(int i, int j);
     void set_comparison();
     void add_n2o();
-    double computeEnergy(vector<SPoint>& contourPoints);
+    double computeEnergy();
 
 	
     bool checkIntersect(LSbox* box2);   	
