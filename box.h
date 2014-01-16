@@ -4,21 +4,13 @@
 #include <vector>
 #include "dimensionalBuffer.h"
 #include "ggLS.h"
+#include "marchingSquares.h"
 // #include "contour.h"
 using namespace std;
 
 class LSbox;
 class grainhdl;
 class Weightmap;
-
-
-struct SPoint
-{
-   SPoint(double x,double y){this->x=x;this->y=y;}
-   SPoint(){}
-   double x,y;
-};
-
 
 struct pointVal {
     int x,y;
@@ -90,7 +82,7 @@ public:
 	void convolution();
 	void get_new_IDLocalSize();
 
-	void plot_box_contour(int loop, ofstream *dateiname);
+	void plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunctional=false);
 
 	void plot_box(bool distanceplot, int select, string simstep);
 	double mis_ori(LSbox* grain_2);

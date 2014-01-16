@@ -24,7 +24,7 @@ void grainhdl::setSimulationParameter(){
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 
-	LSbox* zeroBox = new LSbox();
+	zeroBox = new LSbox();
 	
 	switch (Mode) {
 		case 1: { 			
@@ -34,7 +34,8 @@ void grainhdl::setSimulationParameter(){
 			generateRandomEnergy();
 			break;
 		}
-		case 2: {			
+		case 2: {
+			ST=NULL;
 			readMicrostructurefromVertex();
 			break;
 		}		
@@ -290,7 +291,7 @@ void grainhdl::save_texture(){
 	FILE* myfile;
 	stringstream filename;
 	double total_energy= 0.0;
-	int numberGrains;
+	int numberGrains=0;
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
 	double buffer = 0.24;
@@ -327,10 +328,11 @@ void grainhdl::run_sim(){
 		level_set();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-			saveAllContourlines();
+			saveAllContourEnergies();
 			save_texture();
 		}
 	}
+	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
 }  
 
@@ -405,8 +407,37 @@ void grainhdl::find_neighbors(){
 
 }
 
+void grainhdl::saveAllContourEnergies(){
+  	stringstream filename;
+	filename<< "EnergyDistributionT_"<< loop << ".gnu";  
+	ofstream dateiname;
+	dateiname.open(filename.str());
+	std::vector<LSbox*>::iterator it;	
 
-void grainhdl::saveAllContourlines(){	
+	// use "#" for comments in gnuplot files for documentation purpose 
+	dateiname << "#******* PROGRAM OPTIONS: *******" << endl << endl;
+	dateiname << "#Number of Grains: " << ngrains << endl;
+	dateiname << "#simulated Timesteps: " << TIMESTEPS << endl;
+	dateiname << "#DELTA TUBE: " << DELTA << endl;
+	dateiname << "#Timestepwidth " << dt << endl;
+	dateiname << "#Number of Gridpoints: " << ngridpoints << endl << endl;
+	
+	dateiname << "set palette rgbformulae 33,13,10"<< endl;
+//TODO uncomment for energy distribution	
+// 	dateiname << "set cbrange[0:0.6]"<< endl;
+// 	dateiname << "set cbtics 0.1" << endl;
+	
+	dateiname << "set cbrange[0:50]"<< endl;
+ 	dateiname << "set cbtics 1" << endl;
+	
+	dateiname << "set title \"Energy Distribution at Timestep " << loop <<"\""<<endl;
+	dateiname << "plot \"-\" w l palette" << endl;
+	for (it = ++grains.begin(); it !=grains.end(); it++)
+		(*it)->plot_box_contour(loop, &dateiname, true);
+	dateiname.close();
+}
+
+void grainhdl::saveAllContourLines(){	
 	stringstream filename;
 	filename<< "NetworkAtTime_"<< loop << ".gnu";  
 	ofstream dateiname;
@@ -420,7 +451,7 @@ void grainhdl::saveAllContourlines(){
 
  
 void grainhdl::clear_mem() {
-	delete  [] ST;
+	if (ST!=NULL) {delete  [] ST; }
 }
 
 

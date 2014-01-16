@@ -67,9 +67,10 @@ inline int sgn(double x)
         return (x>.0) ? 1. : -1.;
 }
 
-void plotGnu(const char *fileName, const char *plotfiles, int len);
+    void plotGnu(const char *fileName, const char *plotfiles, int len);
     void plotGnuPNG(const char *fileName, const char *plotfiles, int len);
     void PNGtoGIF(const char *fileName);
+    void CreateMakeGif(char* outputFile= "EnergyDistribution.gif");
 
 };
 #endif

@@ -84,9 +84,31 @@ namespace utils {
     
     
     void PNGtoGIF(const char *fileName) {
+	
         FILE *pipe = popen ( "rm GrainNetwork.gif tempGrainNetwork.mp4; ../ffmpeg -i GrainNetwork%05d.png tempGrainNetwork.mp4; ../ffmpeg -i tempGrainNetwork.mp4 -pix_fmt rgb24 -s 640x480 GrainNetwork.gif; rm tempGrainNetwork.mp4;", "r" );
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
         pclose ( pipe );
+    }
+    
+    void CreateMakeGif(char* outputFile) {
+	ofstream makeGif;
+	stringstream plotFile;
+	makeGif.open("makeGif.gnu");
+	makeGif << "set term gif animate delay 40 enhanced;"<<endl;
+	makeGif << "set output \""<< outputFile << "\"; " << endl;
+	for ( int i =0; i<= TIMESTEPS; i+= ANALYSESTEP){
+	    plotFile.str("");
+	    plotFile<< "EnergyDistributionT_" << i << ".gnu";
+	      // TODO Check if file exists? 
+	    makeGif << "load \"" << plotFile.str() << "\""<< endl;
+	}
+	makeGif.close();
+	plotFile.str("");
+	plotFile << "load \"makeGif.gnu\"";
+	FILE *pipe = popen ("gnuplot", "w" );
+	fprintf ( pipe,"%s\n",plotFile.str().c_str()); 
+	fflush ( pipe );                                   // Plotten (flush ~ Enter)
+	pclose ( pipe );
     }
     
     

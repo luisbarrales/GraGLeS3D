@@ -72,7 +72,9 @@ class grainhdl{
 	
 	void compute_Boundary_Energy();
 	void construct_boundary();
-	void saveAllContourlines();
+	void saveAllContourLines();
+	void saveAllContourEnergies();
+
 	
 
 	
