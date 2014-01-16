@@ -90,7 +90,7 @@ public:
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
-	void switch_in_and_out();
+	void switchInNOut();
 
 		
 	inline bool get_status() { return exist;}

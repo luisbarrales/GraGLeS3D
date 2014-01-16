@@ -19,7 +19,7 @@ void grainhdl::setSimulationParameter(){
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
-	tubeRadius = sqrt(2)*2*h + 0.00001;
+	tubeRadius = sqrt(2)*h + 0.00001;
 	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
@@ -322,9 +322,12 @@ void grainhdl::run_sim(){
 	find_neighbors();
 // 	determineIDs();
 	for(loop=0; loop <= TIMESTEPS; loop++){		
+		switchDistancebuffer();
 		convolution();
+		switchDistancebuffer();
 		updateSecondOrderNeighbors();
 		comparison_box();
+		switchDistancebuffer();
 		level_set();
 		redistancing();
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
@@ -449,6 +452,11 @@ void grainhdl::saveAllContourLines(){
 }
 
 
+void grainhdl::switchDistancebuffer(){
+	std::vector<LSbox*>::iterator it;
+	for (it = ++grains.begin(); it !=grains.end(); it++)
+		(*it)->switchInNOut();
+}
  
 void grainhdl::clear_mem() {
 	if (ST!=NULL) {delete  [] ST; }

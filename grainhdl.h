@@ -75,6 +75,7 @@ class grainhdl{
 	void construct_boundary();
 	void saveAllContourLines();
 	void saveAllContourEnergies();
+	void switchDistancebuffer();
 
 	
 

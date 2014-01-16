@@ -327,7 +327,6 @@ void LSbox::convolution(){
 	if(get_status() != true ) return;
 	//  set references for the convolution step
 
-	switch_in_and_out();
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int dt 	= handler->get_dt();
@@ -376,10 +375,10 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if(val <= handler->tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() == 2){
+				if(val <= handler->tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() >= 2){
 					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)][1]->inputDistance->getValueAt(i,j);
 					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
-					weight = dist2OrderNeigh * (1- weight) / -DELTA + weight;
+					weight = (dist2OrderNeigh * (1-weight) / -DELTA )+ weight;
 					// the weight is a function of the distance to the 2 order neighbor
 					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 				}
@@ -394,8 +393,6 @@ void LSbox::convolution(){
 
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
-
-	switch_in_and_out();
 
 }
 void LSbox::get_new_IDLocalSize(){
@@ -517,7 +514,7 @@ void LSbox::determineIDs(){
 /**************************************/
 /**************************************/
 
-void LSbox::switch_in_and_out(){
+void LSbox::switchInNOut(){
 	DimensionalBuffer<double>* temp;
 	temp = inputDistance;
 	inputDistance = outputDistance;
@@ -544,7 +541,7 @@ void LSbox::set_comparison(){
 				continue;
 			}
 			else {
-				if( abs(inputDistance->getValueAt(i,j)) < ( 0.7 * DELTA)){
+				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * DELTA)*/){
 					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 				}
 				else if(inputDistance->getValueAt(i,j) > 0)
@@ -722,7 +719,6 @@ void LSbox::add_n2o(){
 
 void LSbox::find_contour() {
 	if(get_status() != true ) return;
-	switch_in_and_out();
 	exist = false;
 	
 	// save old boundaries -> function will compute updates
@@ -908,7 +904,7 @@ void LSbox::redist_box() {
 					outputDistance->setValueAt(i-1, j, candidate);
 			}
 			else {
-				candidate = outputDistance->getValueAt(i,j)  /+ (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
+				candidate = outputDistance->getValueAt(i,j)  + (utils::sgn( outputDistance->getValueAt(i-1, j) ) * h);
 				if (abs(candidate) < abs(outputDistance->getValueAt(i-1,j)))
 					outputDistance->setValueAt(i-1, j, candidate);
 			}
