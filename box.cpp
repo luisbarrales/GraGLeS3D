@@ -805,7 +805,6 @@ double h = handler->get_h();
   for (; lineEnd != contourGrain.end(); lineEnd ++){
 //     lineEnd = lineStart;
     double length = sqrt( ((*lineStart).x-(*lineEnd).x)*((*lineStart).x-(*lineEnd).x) + ((*lineStart).y-(*lineEnd).y)*((*lineStart).y-(*lineEnd).y) ) * h; // sqrt( dx²+dy²) 
-	cout << length << endl;
     if (ISOTROPIC) {
       (*lineStart).energy = length;
     }

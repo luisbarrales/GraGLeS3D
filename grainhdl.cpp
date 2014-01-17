@@ -295,17 +295,19 @@ void grainhdl::save_texture(){
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
 	double buffer = 0.24;
-	fprintf(myfile, "%d\n", ngrains);
+// 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
 	
 	for(it = ++grains.begin(); it != grains.end(); it++){
-		double euler[3];
-		(*mymath).quaternion2Euler( (*it)->quaternion, euler );
-// 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
-// 		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
-		fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
-		total_energy += (*it)->energy;
-		numberGrains+=1;
+		if((*it)->get_status()){
+			double euler[3];
+			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
+	// 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
+	// 		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
+			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
+			total_energy += (*it)->energy;
+			numberGrains+=1;
+		}
 	}
     totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
@@ -377,16 +379,13 @@ void grainhdl::plot_contour(){
 void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
-	myfile.open ("nr_of_rem_grains.txt");
-	for(int i=0; i< nr_grains.size(); i++)
+	myfile.open ("NrGrains&EnergyStatistics.txt");
+	for(int i=0; i< nr_grains.size(); i++){
 		myfile << nr_grains[i] << "\t";
+		myfile << totalenergy[i] << "\n";
+	}
 	myfile.close();
 
-	myfile.open ("energy.txt");
-	for(int i=0; i<totalenergy.size(); i++)
-		myfile << totalenergy[i] << "\t";
-	myfile.close();
-	
 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
