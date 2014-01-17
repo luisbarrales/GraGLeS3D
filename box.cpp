@@ -768,12 +768,11 @@ void LSbox::find_contour() {
 		py= (*volumeit).y;
 
 		for (; volumeit!= contourGrain.end(); volumeit++){
-			s << (*volumeit).x << "\t" << (*volumeit).y << "\t";
 			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
 			px= (*volumeit).x;
 			py= (*volumeit).y;
 		}	
-		energy = computeEnergy();
+		energy = computeEnergy(s);
 
 		stringstream dateiname;
 		dateiname << "Contourline_" << id << ".gnu";
@@ -789,14 +788,13 @@ void LSbox::find_contour() {
 	return;
 }
 
-double LSbox::computeEnergy()
+double LSbox::computeEnergy(stringstream &s)
 {
   
 //  Convention: In the SPoint vector is first == last
-
-  vector<SPoint>::iterator it = contourGrain.begin();
-  SPoint lineStart = (*it); it++;
-  SPoint lineEnd;
+double h = handler->get_h();
+  vector<SPoint>::iterator lineStart = contourGrain.begin();
+  vector<SPoint>::iterator lineEnd = contourGrain.begin(); lineEnd++;
   double energy; 
   double energylineStart;
   double energylineEnd;
@@ -804,25 +802,24 @@ double LSbox::computeEnergy()
   double theta_ref = 15* PI / 180.;
   double gamma_hagb = 0.6;  
   
-  for (; it != contourGrain.end(); it ++){
-    lineEnd = *it;
-    double length = sqrt((lineStart.x-lineEnd.x)*(lineStart.x-lineEnd.x)+(lineStart.y-lineEnd.y)*(lineStart.y-lineEnd.y)); // sqrt( dx²+dy²) 
+  for (; lineEnd != contourGrain.end(); lineEnd ++){
+//     lineEnd = lineStart;
+    double length = sqrt( ((*lineStart).x-(*lineEnd).x)*((*lineStart).x-(*lineEnd).x) + ((*lineStart).y-(*lineEnd).y)*((*lineStart).y-(*lineEnd).y) ) * h; // sqrt( dx²+dy²) 
+	cout << length << endl;
     if (ISOTROPIC) {
-      energy = length;
-      continue;
+      (*lineStart).energy = length;
     }
-    else { 
-      
+    else {       
       /*****************************************/
       // calculate energy with one point in the middle of the line between the points
       /***************************************/
       
-      double px =(lineEnd.x-lineStart.x)*0.5+lineStart.x;
-      double py =(lineEnd.y-lineStart.y)*0.5+lineStart.y;	
+      double px =((*lineEnd).x-(*lineStart).x)*0.5+(*lineStart).x;
+      double py =((*lineEnd).y-(*lineStart).y)*0.5+(*lineStart).y;	
       theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
-      if (theta_mis <= theta_ref)	
-	energy += length* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-      else energy += length* gamma_hagb;
+      if (theta_mis <= theta_ref)			
+		(*lineStart).energy = length * gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+      else (*lineStart).energy = length * gamma_hagb;
       
       /*****************************************/
       // calculate energy with the start und the end
@@ -835,7 +832,7 @@ double LSbox::computeEnergy()
 	   energylineStart += length* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
       else energylineStart += length* gamma_hagb;
       
-         
+         make
       px = lineEnd.x;
       py = lineEnd.y;	
       theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
@@ -846,9 +843,12 @@ double LSbox::computeEnergy()
       energy += (energylineStart+energylineEnd)/2;
       */
     }	
+	s << (*lineStart).x << "\t" << (*lineStart).y << "\t" << (*lineStart).energy << endl;
+    energy += (*lineStart).energy;
     lineStart = lineEnd;
   }
-  
+  (*lineStart).energy = contourGrain.begin()->energy;
+  s << (*lineStart).x << "\t" << (*lineStart).y << "\t" << (*lineStart).energy << endl;
   return energy;
 }	
 
