@@ -41,6 +41,9 @@ class grainhdl{
 	double *ST;
 	double *part_pos;	
 	
+	double *bunge;
+	double deviation;
+	
 	vector<LSbox*> grains;		
 	LSbox* zeroBox;
 

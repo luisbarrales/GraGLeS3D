@@ -20,6 +20,7 @@
 #define PARTICLES 50
 
 #define ISOTROPIC false
+#define TEXTURE true // generates a Texture round a bunge orientation whith a deviation -> see grainhandler
 #define SAVEIMAGE false
 #define IMAGEOUT true
 

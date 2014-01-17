@@ -27,7 +27,12 @@ void grainhdl::setSimulationParameter(){
 	zeroBox = new LSbox();
 	
 	switch (Mode) {
-		case 1: { 			
+		case 1: {
+			if(TEXTURE){
+				bunge = new double[3]{PI/2, PI/2, PI/2};
+				deviation = 15*PI/180;
+			}
+			else { bunge = NULL; deviation = 0;}
 			ST = new double [ngrains*ngrains];
 			std::fill_n(ST,ngrains*ngrains,0);
 			VOROMicrostructure();
@@ -35,6 +40,7 @@ void grainhdl::setSimulationParameter(){
 			break;
 		}
 		case 2: {
+			bunge = NULL; deviation = 0;
 			ST=NULL;
 			readMicrostructurefromVertex();
 			break;

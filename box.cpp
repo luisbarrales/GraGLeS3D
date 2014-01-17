@@ -26,7 +26,13 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
     // determine size of grain
     quaternion = new double[4];
 	
-	(*(handler->mymath)).randomOriShoemakeQuat( quaternion );
+	
+	if(TEXTURE){
+		double newOri[3];
+		(*(handler->mymath)).newOrientationFromReference( handler->bunge, handler->deviation, newOri );
+		(*(handler->mymath)).euler2quaternion(newOri, quaternion);
+	}
+	else (*(handler->mymath)).randomOriShoemakeQuat( quaternion );
 	
     int xmax = 0; 
 	int xmin = handler->get_ngridpoints(); 
