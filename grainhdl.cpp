@@ -218,26 +218,26 @@ void grainhdl::readMicrostructurefromVertex(){
 }
  
 
-void grainhdl::compute_Boundary_Energy(){
-	double energy;
-	double gamma_hagb = 0.6;
-	double theta_ref = 15.0* PI / 180.;
-	double theta_mis;
-	for(int i= 0; i<ngrains; i++) {
-		for(int j=0; j <=i; j++){	
-			if(i==j) ST[j+(ngrains*i)] = 1.0;
-			else{
-				theta_mis = grains[i+1]->mis_ori(grains[j+1]);
-				if (theta_mis <= theta_ref)	energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-				else energy = gamma_hagb;
-				//richtiger Logarithmus??????
-				ST[i+(ngrains*j)] = energy;
-				ST[j+(ngrains*i)] = energy;
-			}			
-		}
-	}
-}
- 
+// void grainhdl::compute_Boundary_Energy(){
+// 	double energy;
+// 	double gamma_hagb = 0.6;
+// 	double theta_ref = 15.0* PI / 180.;
+// 	double theta_mis;
+// 	for(int i= 0; i<ngrains; i++) {
+// 		for(int j=0; j <=i; j++){	
+// 			if(i==j) ST[j+(ngrains*i)] = 1.0;
+// 			else{
+// 				theta_mis = grains[i+1]->mis_ori(grains[j+1]);
+// 				if (theta_mis <= theta_ref)	energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 				else energy = gamma_hagb;
+// 				//richtiger Logarithmus??????
+// 				ST[i+(ngrains*j)] = energy;
+// 				ST[j+(ngrains*i)] = energy;
+// 			}			
+// 		}
+// 	}
+// }
+//  
  
  
 void grainhdl::generateRandomEnergy(){	
