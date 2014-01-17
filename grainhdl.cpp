@@ -416,33 +416,9 @@ void grainhdl::find_neighbors(){
 }
 
 void grainhdl::saveAllContourEnergies(){
-  	stringstream filename;
-	filename<< "EnergyDistribution_T"<< loop << ".gnu";  
-	ofstream dateiname;
-	dateiname.open(filename.str());
-	std::vector<LSbox*>::iterator it;	
-
-	// use "#" for comments in gnuplot files for documentation purpose 
-	dateiname << "#******* PROGRAM OPTIONS: *******" << endl << endl;
-	dateiname << "#Number of Grains: " << ngrains << endl;
-	dateiname << "#simulated Timesteps: " << TIMESTEPS << endl;
-	dateiname << "#DELTA TUBE: " << DELTA << endl;
-	dateiname << "#Timestepwidth " << dt << endl;
-	dateiname << "#Number of Gridpoints: " << ngridpoints << endl << endl;
-	
-	dateiname << "set palette rgbformulae 33,13,10"<< endl;
-//TODO uncomment for energy distribution	
-// 	dateiname << "set cbrange[0:0.6]"<< endl;
-// 	dateiname << "set cbtics 0.1" << endl;
-	
-	dateiname << "set cbrange[0:0.6]"<< endl;
- 	dateiname << "set cbtics 1" << endl;
-	
-	dateiname << "set title \"Energy Distribution at Timestep " << loop <<"\""<<endl;
-	dateiname << "plot \"-\" w l palette" << endl;
+	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it !=grains.end(); it++)
-		(*it)->plot_box_contour(loop, &dateiname, true);
-	dateiname.close();
+		(*it)->plot_box_contour(loop, true);
 }
 
 void grainhdl::saveAllContourLines(){	
@@ -452,7 +428,7 @@ void grainhdl::saveAllContourLines(){
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
 	for (it = ++grains.begin(); it !=grains.end(); it++)
-		(*it)->plot_box_contour(loop, &dateiname);
+		(*it)->plot_box_contour(loop, false);
 	dateiname.close();
 }
 

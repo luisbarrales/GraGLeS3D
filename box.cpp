@@ -764,38 +764,18 @@ void LSbox::find_contour() {
     		ymaxNew = int(contourGrain[i].y + 0.5) + grid_blowup;
     }
 
-
     outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
-
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
     
 	double h = handler->get_h();
 	int loop = handler->loop;
     int m = handler->get_ngridpoints();
-    stringstream s;
+
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-		vector<SPoint>::iterator volumeit=contourGrain.begin();
-		energy = 0;
-		volume = 0;
-		double px, py;
-		
-		px= (*volumeit).x;
-		py= (*volumeit).y;
+    	computeVolumeAndEnergy();
 
-		for (; volumeit!= contourGrain.end(); volumeit++){
-			volume += (py+(*volumeit).y)*(px-(*volumeit).x);
-			px= (*volumeit).x;
-			py= (*volumeit).y;
-		}	
-		energy = computeEnergy(s);
 
-		stringstream dateiname;
-		dateiname << "Contourline_" << id << ".gnu";
-		ofstream datei;
-		datei.open(dateiname.str());
-		datei << s.str();
-		datei.close();
 		volume = abs(volume)	*0.5;
 		cerr<< "Volume of " << id << "= " << volume << endl;
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
@@ -804,69 +784,39 @@ void LSbox::find_contour() {
 	return;
 }
 
-double LSbox::computeEnergy(stringstream &s)
+void LSbox::computeVolumeAndEnergy()
 {
-  
-//  Convention: In the SPoint vector is first == last
-double h = handler->get_h();
-	vector<SPoint>::iterator lineStart = contourGrain.begin();
-	vector<SPoint>::iterator lineEnd = contourGrain.begin(); lineEnd++;
-	double energy; 
-	double energylineStart;
-	double energylineEnd;
+	volume = 0;
+	energy = 0;
+
+	double h = handler->get_h();
 	double theta_mis;
-	double theta_ref = 15* PI / 180.;
-	double gamma_hagb = 0.6;  
-  
-	for (; lineEnd != contourGrain.end(); lineEnd ++){
+	double theta_ref = 15.0 * PI / 180.0;
+	double gamma_hagb = 0.6;
 
-		double length = sqrt( ((*lineStart).x-(*lineEnd).x)*((*lineStart).x-(*lineEnd).x) + ((*lineStart).y-(*lineEnd).y)*((*lineStart).y-(*lineEnd).y) ); // sqrt( dx²+dy²) 
-		
-		if (ISOTROPIC) {
-			(*lineStart).energy = 1;
+	for(int i=0; i<contourGrain.size() - 1; i++)
+	{
+		volume += (contourGrain[i].y+contourGrain[i+1].y)*(contourGrain[i].x-contourGrain[i+1].x);
+		if(ISOTROPIC)
+		{
+			contourGrain[i].energy = 1.0;
 		}
-		else {       
-			/*****************************************/
-			// calculate energy with one point in the middle of the line between the points
-			/***************************************/
-			
-			double px =((*lineEnd).x-(*lineStart).x)*0.5+(*lineStart).x;
-			double py =((*lineEnd).y-(*lineStart).y)*0.5+(*lineStart).y;	
+		else
+		{
+			double px =(contourGrain[i+1].x-contourGrain[i].x)*0.5+contourGrain[i].x;
+			double py =(contourGrain[i+1].y-contourGrain[i].y)*0.5+contourGrain[i].y;
 			theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
-			if (theta_mis <= theta_ref)	(*lineStart).energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-			else (*lineStart).energy = gamma_hagb;
-			
-			/*****************************************/
-			// calculate energy with the start und the end
-			/***************************************/
-		/*      
-			double px = lineStart.x;
-			double py = lineStart.y;	
-			theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
-			if (theta_mis <= theta_ref)	
-			energylineStart += length* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-			else energylineStart += length* gamma_hagb;
-			
-				make
-			px = lineEnd.x;
-			py = lineEnd.y;	
-			theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
-			if (theta_mis <= theta_ref)	
-			energylineEnd += length* gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-			else energylineEnd += length* gamma_hagb;
-			
-			energy += (energylineStart+energylineEnd)/2;
-			*/
-		}	
-		s << (*lineStart).x << "\t" << (*lineStart).y << "\t" << (*lineStart).energy << endl;
-		energy += ((*lineStart).energy *length*h);
-		lineStart = lineEnd;
+			if (theta_mis <= theta_ref)
+				contourGrain[i].energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else
+				contourGrain[i].energy = gamma_hagb;
+		}
+		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +
+			(contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
+		energy += (contourGrain[i].energy *line_length*h);
 	}
-	(*lineStart).energy = contourGrain.begin()->energy;
-	s << (*lineStart).x << "\t" << (*lineStart).y << "\t" << (*lineStart).energy << endl;
-	return energy;
-}	
-
+	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
+}
 /**************************************/
 //  Redistancing
 /**************************************/
@@ -1001,21 +951,30 @@ void LSbox::redist_box() {
 // plot the box and all its properties
 /**************************************/
 
-void LSbox::plot_box_contour(int loop, ofstream *dateiname, bool plotEnergyFunctional)
+void LSbox::plot_box_contour(int timestep, bool plot_energy)
 {
-    vector<SPoint>::iterator contourIterator;
-    if ( plotEnergyFunctional ){
-		for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-	// 	    *dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << id << endl;
-			*dateiname << (*contourIterator).x << "\t" << (*contourIterator).y<< "\t" << (*contourIterator).energy << endl;
+    ofstream file;
+    stringstream filename;
+    filename<<"Contourline_"<< id;
+    if(timestep > 0)
+    	filename<<"_Timestep_"<<timestep;
+    filename<<".gnu";
+    file.open(filename.str());
+    if ( plot_energy)
+    {
+		for(const auto& iterator : contourGrain)
+		{
+			file << iterator.x << "\t" << iterator.y<< "\t" << iterator.energy << endl;
 		}
     }
     else {
-		for (contourIterator= contourGrain.begin(); contourIterator != contourGrain.end(); contourIterator++){
-			*dateiname << (*contourIterator).x << "\t" << (*contourIterator).y << endl;
+		for(const auto& iterator : contourGrain)
+		{
+			file << iterator.x << "\t" << iterator.y << endl;
 		}
     }
-    *dateiname << endl;
+    file<<endl;
+    file.close();
 }
 
 
