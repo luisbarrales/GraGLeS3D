@@ -614,7 +614,7 @@ void LSbox::comparison(){
 							if( abs(dist) < (0.7*DELTA)){								
 								if( dist > outputDistance->getValueAt(i,j) ){
 										if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
-											distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
+											distance_2neighbor.setValueAt(i,j,dist); //outputDistance->getValueAt(i,j)
 										//Question: OutputDistance??? not Input?!
 										}
 										outputDistance->setValueAt(i, j, dist);
@@ -682,18 +682,28 @@ void LSbox::checkIntersect_zero_grain(){
 	int grid_blowup = handler->get_grid_blowup();
 	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
+	double dist;
 	if (!(outputDistance->getMinX() > boundary->outputDistance->getMinX() &&
 		  outputDistance->getMaxX() < boundary->outputDistance->getMaxX() &&
 		  outputDistance->getMinY() > boundary->outputDistance->getMinY() &&
-		  outputDistance->getMaxY() < boundary->outputDistance->getMaxY())){
-// 	if (checkIntersect(mid_in[0])){
+		  outputDistance->getMaxY() < boundary->outputDistance->getMaxY()))
+	{
 		for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 				if ((i <= 2*grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
-						outputDistance->setValueAt(i,j, boundary->outputDistance->getValueAt(i,j));
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(boundary);	
+					dist = boundary->outputDistance->getValueAt(i,j);					
+					if( dist > outputDistance->getValueAt(i,j) ){
+						outputDistance->setValueAt(i, j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
 					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+					}	
+								
+	// 					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
+	// 						outputDistance->setValueAt(i,j, boundary->outputDistance->getValueAt(i,j));
+	// 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(boundary);	
+	// 					}
 				}
 			}
 		}
@@ -1074,7 +1084,11 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 
 
 double LSbox::mis_ori(LSbox* grain_2){
-	if(get_status() != true ) {cout << "try to compute misori for are disappeared grains"; char buf; cin >> buf;}
+	if(get_status() != true ) {
+		cout << "try to compute misori for are disappeared grains" << endl; 
+		cout << "grains are: " << id << "  " << grain_2->get_id();
+		char buf; cin >> buf;
+	}
 // 	here we could work direktly with quarternions
 	return (*(handler->mymath)).misorientationCubicQxQ( quaternion[0], quaternion[1], quaternion[2], quaternion[3], grain_2->quaternion[0], grain_2->quaternion[1], grain_2->quaternion[2], grain_2->quaternion[3] );
 }
