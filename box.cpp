@@ -615,8 +615,8 @@ void LSbox::comparison(){
 							if( abs(dist) < (0.7*DELTA)){								
 								if( dist > outputDistance->getValueAt(i,j) ){
 										if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
-											distance_2neighbor.setValueAt(i,j,dist); //outputDistance->getValueAt(i,j)
-										//Question: OutputDistance??? not Input?!
+											// here we found a new first order neighbor, but before saving his distance value, we do a copy of the old to hold as second prder neighbor
+											distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
 										}
 										outputDistance->setValueAt(i, j, dist);
 										IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
@@ -765,8 +765,7 @@ void LSbox::find_contour() {
     		ymaxNew = int(contourGrain[i].y + 0.5) + grid_blowup;
     }
 
-    outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
-	outputDistance->resizeToSquare(handler->get_ngridpoints());
+    
     
 	double h = handler->get_h();
 	int loop = handler->loop;
@@ -782,6 +781,9 @@ void LSbox::find_contour() {
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
 
 	}
+	
+	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
+	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	return;
 }
 
@@ -791,7 +793,7 @@ void LSbox::computeVolumeAndEnergy()
 	energy = 0;
 
 	double h = handler->get_h();
-	double theta_mis;
+	double thetaMis;
 	double theta_ref = 15.0 * PI / 180.0;
 	double gamma_hagb = 0.6;
 
@@ -804,13 +806,23 @@ void LSbox::computeVolumeAndEnergy()
 		}
 		else
 		{
-			double px =(contourGrain[i+1].x-contourGrain[i].x)*0.5+contourGrain[i].x;
-			double py =(contourGrain[i+1].y-contourGrain[i].y)*0.5+contourGrain[i].y;
-			theta_mis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);
-			if (theta_mis <= theta_ref)
-				contourGrain[i].energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+// 			double px =(contourGrain[i+1].x-contourGrain[i].x)*0.5+contourGrain[i].x;
+// 			double py =(contourGrain[i+1].y-contourGrain[i].y)*0.5+contourGrain[i].y;
+// 			thetaMis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);			
+			thetaMis = mis_ori( IDLocal[((int(contourGrain[i].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i].x + 0.5) - xminId)][0]);			
+			if (thetaMis <= theta_ref)
+				contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
 			else
 				contourGrain[i].energy = gamma_hagb;
+			
+// 			thetaMis = mis_ori( IDLocal[((int(contourGrain[i+1].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i+1].x + 0.5) - xminId)][0]);
+// 			if (thetaMis <= theta_ref)
+// 				contourGrain[i].energy += gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+// 			else
+// 				contourGrain[i].energy += gamma_hagb;
+			
+// 			contourGrain[i].energy/=2;
+			
 		}
 		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +
 			(contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
