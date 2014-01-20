@@ -68,6 +68,15 @@ public:
 		//TODO: Analyze performance and replace with [] if needed.
 		m_values.at((row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)) = value;
 	}
+	/*\brief Method that checks whether a point lies within the dimensional buffer.
+	 *
+	 * \param row the y coordinate of the point to test.
+	 * \param column the x coordinate of the point to test.
+	 */
+	bool isPointInside(unsigned int row, unsigned int column)
+	{
+		return row >= m_yMin && row < m_yMax && column >= m_xMin && column < m_xMax;
+	}
 	/*!
 	* \brief This method resizes the dimensions.
 	*
