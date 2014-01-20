@@ -381,20 +381,20 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if(val <= handler->tubeRadius && IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)].size() >= 2){
-					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)][1]->inputDistance->getValueAt(i,j);
-					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId) + (j-xminId)], this, handler->ST);
+				if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2)){
+					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
+					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
 // 					cout << weight << endl;
 					weight = -(dist2OrderNeigh/ double(DELTA) * (1-weight) )+ weight;
 // 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -DELTA <<endl;
 					// the weight is a function of the distance to the 2 order neighbor
 					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 				}
+				IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
 			}
 		}	   
 	}
-	
-	IDLocal.clear();	
+	IDLocal.clear(); 
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
@@ -544,6 +544,7 @@ void LSbox::set_comparison(){
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 			if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty()) {
+				
 				outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j)); 
 				continue;
 			}
@@ -817,6 +818,10 @@ void LSbox::computeVolumeAndEnergy()
 	}
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
 }
+
+
+
+
 /**************************************/
 //  Redistancing
 /**************************************/
@@ -1046,7 +1051,7 @@ double LSbox::mis_ori(LSbox* grain_2){
 	if(get_status() != true ) {
 		cout << "try to compute misori for are disappeared grains" << endl; 
 		cout << "grains are: " << id << "  " << grain_2->get_id();
-		char buf; cin >> buf;
+// 		char buf; cin >> buf;
 	}
 // 	here we could work direktly with quarternions
 	return (*(handler->mymath)).misorientationCubicQxQ( quaternion[0], quaternion[1], quaternion[2], quaternion[3], grain_2->quaternion[0], grain_2->quaternion[1], grain_2->quaternion[2], grain_2->quaternion[3] );
