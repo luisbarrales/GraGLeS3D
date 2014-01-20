@@ -976,6 +976,8 @@ void LSbox::redist_box() {
 
 void LSbox::plot_box_contour(int timestep, bool plot_energy)
 {
+	if(exist == false)
+		return;
     ofstream file;
     stringstream filename;
     filename<<"Contourline_"<< id;
