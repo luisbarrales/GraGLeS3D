@@ -139,7 +139,7 @@ void grainhdl::construct_boundary(){
 	boundary = new LSbox(0, 4, vertices, 0, 0, 0, this);
 	grains[0]= boundary;
 	boundary->distancefunction(4, vertices); 
-	boundary->shape_distance();
+	boundary->inversDistance();
 	// get the inverse distancefunction which slope 4!
 	(*boundary).plot_box(true,2,"boundary");
 }

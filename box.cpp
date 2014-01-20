@@ -691,8 +691,8 @@ void LSbox::checkIntersect_zero_grain(){
 	{
 		for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-				if ((i <= 2*grid_blowup) || (m-2*grid_blowup <= i) || (j <= 2*grid_blowup) || (m-2*grid_blowup <= j)){
-					dist = boundary->outputDistance->getValueAt(i,j);					
+				if ((i <= grid_blowup +2) || (m-grid_blowup -2 <= i) || (j <= grid_blowup + 2) || (m-grid_blowup -2<= j)){
+					dist = boundary->outputDistance->getValueAt(i,j);
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
@@ -700,11 +700,6 @@ void LSbox::checkIntersect_zero_grain(){
 					else { 
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
 					}	
-								
-	// 					if(outputDistance->getValueAt(i,j) < boundary->outputDistance->getValueAt(i,j)){
-	// 						outputDistance->setValueAt(i,j, boundary->outputDistance->getValueAt(i,j));
-	// 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(boundary);	
-	// 					}
 				}
 			}
 		}
@@ -806,23 +801,34 @@ void LSbox::computeVolumeAndEnergy()
 		}
 		else
 		{
-// 			double px =(contourGrain[i+1].x-contourGrain[i].x)*0.5+contourGrain[i].x;
-// 			double py =(contourGrain[i+1].y-contourGrain[i].y)*0.5+contourGrain[i].y;
-// 			thetaMis = mis_ori( IDLocal[((int(py + 0.5)-yminId) * (xmaxId - xminId)) + (int(px + 0.5) - xminId)][0]);			
-			thetaMis = mis_ori( IDLocal[((int(contourGrain[i].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i].x + 0.5) - xminId)][0]);			
-			if (thetaMis <= theta_ref)
-				contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-			else
-				contourGrain[i].energy = gamma_hagb;
+// 			double px =(contourGrain[i+1].x-contourGrain[i].x)*0.5 + contourGrain[i].x;
+// 			double py =(contourGrain[i+1].y-contourGrain[i].y)*0.5 + contourGrain[i].y;
+			double px =contourGrain[i].x;
+			double py =contourGrain[i].y;
+			int pxGrid = int(px+0.5);
+			int pyGrid = int(py+0.5);
 			
-// 			thetaMis = mis_ori( IDLocal[((int(contourGrain[i+1].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i+1].x + 0.5) - xminId)][0]);
-// 			if (thetaMis <= theta_ref)
-// 				contourGrain[i].energy += gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-// 			else
-// 				contourGrain[i].energy += gamma_hagb;
 			
-// 			contourGrain[i].energy/=2;
-			
+// 			if(IDLocal[(pyGrid-yminId)*(xmaxId-xminId)+(pxGrid-xminId)].size() >= 2){
+// 				if( IDLocal[(pyGrid-yminId)*(xmaxId-xminId)+(pxGrid-xminId)][1]->inputDistance->getValueAt(pyGrid,pxGrid) > -h  )				
+// 					contourGrain[i].energy = 0.0;
+// 				else{				
+// 					thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
+// 		// 			thetaMis = mis_ori( IDLocal[((int(contourGrain[i].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i].x + 0.5) - xminId)][0]);			
+// 					if (thetaMis <= theta_ref)
+// 						contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+// 					else
+// 						contourGrain[i].energy = gamma_hagb;
+// 				}
+// 			}
+// 			else{
+				thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
+	// 			thetaMis = mis_ori( IDLocal[((int(contourGrain[i].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i].x + 0.5) - xminId)][0]);			
+				if (thetaMis <= theta_ref)
+					contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+				else
+					contourGrain[i].energy = gamma_hagb;
+// 			}
 		}
 		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +
 			(contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
@@ -1071,7 +1077,8 @@ double LSbox::mis_ori(LSbox* grain_2){
 
 
 
-void LSbox::shape_distance(){
+void LSbox::inversDistance(){
+	
 	//TODO: WORK ON THIS
 	int m = outputDistance->getMaxX()-outputDistance->getMinX();
 	for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++) {
