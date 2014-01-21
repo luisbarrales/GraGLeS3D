@@ -2,6 +2,7 @@
 #define		__DIMENSIONAL_BUFFER__
 
 #include <vector>
+#include "FFTWVector.h"
 
 /*!
  * \class DimensionalBuffer
@@ -194,6 +195,6 @@ private:
 	int 	m_xMax;
 	int 	m_yMin;
 	int 	m_yMax;
-	std::vector<T>	m_values;
+	std::vector<T, FFTW_allocator<T> >	m_values;
 };
 #endif		//__DISTANCE_BUFFER__
