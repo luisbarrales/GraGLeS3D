@@ -11,7 +11,11 @@ else
 	echo "Usage: produceAnimation.sh <output_filename.gif> <timestep_size> [network grain] [grain_number]"
 	exit 2
 fi
-
+#Make a pipe because the input string will be significantly long
+GNUPLOTPIPE=/tmp/gnuplotpipe
+mkfifo $GNUPLOTPIPE
+#Open the pipe as a file for this terminal
+exec 3<> $GNUPLOTPIPE
 #Check if we should plot the network or just a grain and set PATTERN accordingly
 if [ -z "$3" ]; then
 	PATTERN=./Contourline_*_Timestep_
@@ -32,7 +36,9 @@ else
 fi
 
 TIMESTEP=$2
-GNUPLOT_STRING="gnuplot -e \"set term gif animate delay 40 enhanced; set output '$1'"
+gnuplot < $GNUPLOTPIPE &
+echo "set term gif animate delay 40 enhanced" >&3
+echo "set output '$1'" >&3
 while true; do
 	CURRENT_PATTERN=$PATTERN$TIMESTEP
 	CURRENT_PATTERN=$CURRENT_PATTERN".gnu"
@@ -43,13 +49,14 @@ while true; do
 			break
 		fi
 		if [ -z "$FIRST" ]; then 
-			GNUPLOT_STRING="$GNUPLOT_STRING; plot '$CURRENT_PATTERN' w l palette title 'Timestep $TIMESTEP'"
+			GNUPLOT_STRING="plot '$CURRENT_PATTERN' w l palette title 'Timestep $TIMESTEP'"
 		else
-			GNUPLOT_STRING="$GNUPLOT_STRING; plot '$CURRENT_PATTERN' w l palette notitle"
+			GNUPLOT_STRING="plot '$CURRENT_PATTERN' w l palette notitle"
 		fi
+		echo "$GNUPLOT_STRING" >&3
 	else
-		if [ "$CURRENT_PATTERN" != "$(echo $CURRENT_PATTERN)" ]; then
-			GNUPLOT_STRING="$GNUPLOT_STRING; plot"
+		if [ "$CURRENT_PATTERN" != "$(echo $CURRENT_PATTERN)" ]; then			
+			GNUPLOT_STRING="plot"
 			for name in $CURRENT_PATTERN; do
 				if [ -z "$FIRST" ]; then
 					GNUPLOT_STRING="$GNUPLOT_STRING '$name' w l palette title 'Timestep $TIMESTEP'"
@@ -58,13 +65,14 @@ while true; do
 					GNUPLOT_STRING="$GNUPLOT_STRING, '$name' w l palette notitle"
 				fi
 			done
+			echo "$GNUPLOT_STRING" >&3
 		else
 			break;
 		fi
 	fi
 	TIMESTEP=`expr $TIMESTEP + $2`
 done
-echo "here"
 GNUPLOT_STRING="$GNUPLOT_STRING\""
-eval $GNUPLOT_STRING
+exec 3>&-
+rm -f $GNUPLOTPIPE
 echo "Done. Creted file $1."
