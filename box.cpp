@@ -382,13 +382,16 @@ void LSbox::convolution(){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
 				if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2)){
-					dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
-					weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
-// 					cout << weight << endl;
-					weight = -(dist2OrderNeigh/ double(DELTA) * (1-weight) )+ weight;
-// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -DELTA <<endl;
-					// the weight is a function of the distance to the 2 order neighbor
-					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
+					if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
+					{
+						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
+						weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
+	// 					cout << weight << endl;
+						weight = -(dist2OrderNeigh/ double(DELTA) * (1-weight) )+ weight;
+	// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -DELTA <<endl;
+						// the weight is a function of the distance to the 2 order neighbor
+						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
+					}
 				}
 				IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
 			}

@@ -343,7 +343,7 @@ void grainhdl::run_sim(){
 			save_texture();
 		}
 	}
-	utils::CreateMakeGif();
+// 	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
 }  
 
