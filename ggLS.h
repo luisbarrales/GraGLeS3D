@@ -3,7 +3,7 @@
 
 #define DIM 2
 
-#define M 200 //gridpoints in each direction
+#define M 500 //gridpoints in each direction
 
 #define BORDER 6
 #define DELTA BORDER * 1/double(M)
@@ -12,12 +12,12 @@
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
 #define TIMESTEPS 1000
-#define ANALYSESTEP 25
+#define ANALYSESTEP 50
 
 #define MODE 1 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 
-#define PARTICLES 500
+#define PARTICLES 1000
 
 #define ISOTROPIC false
 #define TEXTURE true // generates a Texture round a bunge orientation whith a deviation -> see grainhandler
