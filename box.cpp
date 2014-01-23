@@ -378,6 +378,7 @@ void LSbox::convolution(){
 		  intersec_ymax= outputDistance->getMaxY();
 	    else  intersec_ymax = ymaxId;
 	    
+	    
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
@@ -769,10 +770,20 @@ void LSbox::find_contour() {
     }
 
     
-    
 	double h = handler->get_h();
 	int loop = handler->loop;
     int m = handler->get_ngridpoints();
+
+	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
+		cout << "WARNING - undefined Boxsize in Box: "<< id <<" !!" <<endl;
+		for(int i=0; i<contourGrain.size(); i++){
+			cout << contourGrain[i].y << "   " << contourGrain[i].x << endl;
+		}
+		char buf;
+		cin >> buf;
+	}
+    
+
 
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
