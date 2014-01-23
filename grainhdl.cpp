@@ -338,6 +338,7 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();
+		saveSpecialContourEnergies(243);
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 			saveAllContourEnergies();
 			save_texture();
@@ -413,6 +414,10 @@ void grainhdl::find_neighbors(){
 				if ((*it)->checkIntersect(*itc))
 					(*it)->neighbors.push_back(*itc);
 
+}
+
+void grainhdl::saveSpecialContourEnergies(int id){
+	grains[id]->plot_box_contour(loop, true);
 }
 
 void grainhdl::saveAllContourEnergies(){

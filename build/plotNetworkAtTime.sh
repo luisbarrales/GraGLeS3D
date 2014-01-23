@@ -14,7 +14,7 @@ for name in $PATTERN; do
 			echo "Files for the selected timestep do not exist !"
 			exit 2
 		fi
-		COMMAND="$COMMAND '$name' w l palette notitle"
+		COMMAND="$COMMAND '$name' w l palette title 'Timestep $TIMESTEP'"
 		FIRST=1
 	else
 		COMMAND="$COMMAND, '$name' w l palette notitle"

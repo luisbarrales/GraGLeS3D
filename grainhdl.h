@@ -79,6 +79,8 @@ class grainhdl{
 	void saveAllContourLines();
 	void saveAllContourEnergies();
 	void switchDistancebuffer();
+	
+	void saveSpecialContourEnergies(int id);
 
 	
 

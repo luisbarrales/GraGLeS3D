@@ -393,11 +393,16 @@ void LSbox::convolution(){
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 					}
 				}
-				IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
+// 				IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
 			}
 		}	   
 	}
-	IDLocal.clear(); 
+	for (int i = yminId; i < ymaxId; i++)
+		for (int j = xminId; j < yminId; j++) 
+			IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
+		
+		
+// 	IDLocal.clear(); 
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 
@@ -804,34 +809,17 @@ void LSbox::computeVolumeAndEnergy()
 		}
 		else
 		{
-// 			double px =(contourGrain[i+1].x-contourGrain[i].x)*0.5 + contourGrain[i].x;
-// 			double py =(contourGrain[i+1].y-contourGrain[i].y)*0.5 + contourGrain[i].y;
 			double px =contourGrain[i].x;
 			double py =contourGrain[i].y;
 			int pxGrid = int(px+0.5);
 			int pyGrid = int(py+0.5);
-			
-			
-// 			if(IDLocal[(pyGrid-yminId)*(xmaxId-xminId)+(pxGrid-xminId)].size() >= 2){
-// 				if( IDLocal[(pyGrid-yminId)*(xmaxId-xminId)+(pxGrid-xminId)][1]->inputDistance->getValueAt(pyGrid,pxGrid) > -h  )				
-// 					contourGrain[i].energy = 0.0;
-// 				else{				
-// 					thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
-// 		// 			thetaMis = mis_ori( IDLocal[((int(contourGrain[i].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i].x + 0.5) - xminId)][0]);			
-// 					if (thetaMis <= theta_ref)
-// 						contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-// 					else
-// 						contourGrain[i].energy = gamma_hagb;
-// 				}
-// 			}
-// 			else{
-				thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
-	// 			thetaMis = mis_ori( IDLocal[((int(contourGrain[i].y + 0.5)-yminId) * (xmaxId - xminId)) + (int(contourGrain[i].x + 0.5) - xminId)][0]);			
-				if (thetaMis <= theta_ref)
-					contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-				else
-					contourGrain[i].energy = gamma_hagb;
-// 			}
+
+			thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
+			if (thetaMis <= theta_ref)
+				contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+			else
+				contourGrain[i].energy = gamma_hagb;
+
 		}
 		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +
 			(contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
@@ -984,8 +972,7 @@ void LSbox::plot_box_contour(int timestep, bool plot_energy)
     ofstream file;
     stringstream filename;
     filename<<"Contourline_"<< id;
-    if(timestep > 0)
-    	filename<<"_Timestep_"<<timestep;
+    filename<<"_Timestep_"<<timestep;
     filename<<".gnu";
     file.open(filename.str());
     if ( plot_energy)
