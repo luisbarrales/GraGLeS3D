@@ -398,9 +398,11 @@ void LSbox::convolution(){
 			}
 		}	   
 	}
-	for (int i = yminId; i < ymaxId; i++)
-		for (int j = xminId; j < yminId; j++) 
+	for (int i = yminId; i < ymaxId; i++){
+		for (int j = xminId; j < xmaxId; j++) {
 			IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
+		}
+	}
 		
 		
 // 	IDLocal.clear(); 
@@ -648,33 +650,25 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 
-// if(loop>29 && id == 48)
-// {
-
-// // 	plot_box(true,1,"Compare");
-// // 	plot_box(true,2,"Compare");
-// }	
-// 	char buffer;
-// 
-// 	  // checke schnitt zum randkorn:
-
+if(loop=99 &&id == 243){
+	plot_box(true,1,"Compare");
+	plot_box(true,2,"Compare");
+}	
 	checkIntersect_zero_grain();
-// if(loop>29 &&id == 48)
-// {
-//   
-
-// // 	plot_box(true,1,"Compare_zero");
-// // 	plot_box(true,2,"Compare_zero");
-// }	
+	
+if(loop=99 &&id == 243){
+	plot_box(true,1,"Compare_zero");
+	plot_box(true,2,"Compare_zero");
+}	
 
 	// 	be careful for parralisation!!!!!
 
 
 	set_comparison();
-// if(loop>29 &&id == 48){	
-// 	plot_box(true,1,"Compare_set");
-// 	plot_box(true,2,"Compare_set");
-// }
+if(loop=99 &&id == 243){
+	plot_box(true,1,"Compare_set");
+	plot_box(true,2,"Compare_set");
+}
 
 }
 
@@ -700,7 +694,7 @@ void LSbox::checkIntersect_zero_grain(){
 	{
 		for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-				if ((i <= grid_blowup +2) || (m-grid_blowup -2 <= i) || (j <= grid_blowup + 2) || (m-grid_blowup -2<= j)){
+				if ((i <= 2* grid_blowup) || (m-2*grid_blowup  <= i) || (j <= 2*grid_blowup ) || (m-2*grid_blowup<= j)){
 					dist = boundary->outputDistance->getValueAt(i,j);
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
@@ -775,12 +769,12 @@ void LSbox::find_contour() {
     int m = handler->get_ngridpoints();
 
 	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
-		cout << "WARNING - undefined Boxsize in Box: "<< id <<" !!" <<endl;
+		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
+		cout << "Number of gridpoints: " << m << endl;
+		cout << yminNew << " || " << xminNew << " || " << ymaxNew  << " || " << xmaxNew << endl; 
 		for(int i=0; i<contourGrain.size(); i++){
 			cout << contourGrain[i].y << "   " << contourGrain[i].x << endl;
 		}
-		char buf;
-		cin >> buf;
 	}
     
 

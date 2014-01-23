@@ -3,7 +3,7 @@
 
 #define DIM 2
 
-#define M 100 //gridpoints in each direction
+#define M 500 //gridpoints in each direction
 
 #define BORDER 6
 #define DELTA BORDER * 1/double(M)

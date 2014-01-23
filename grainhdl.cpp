@@ -14,11 +14,13 @@ void grainhdl::setSimulationParameter(){
 	// 	readInit();
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
+	
 	if(Mode==1) realDomainSize= M-1;			
 	if(Mode==2) realDomainSize= M;
 	
 	dt = 1.0/double(M*M);
 	h = 1.0/double(realDomainSize);
+	
 	tubeRadius = sqrt(2)*h + 0.001;
 	grid_blowup = BORDER; 
 	
