@@ -647,21 +647,18 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 
+
 /*if(loop=99 &&id == 243){
 	plot_box(true,1,"Compare");
 	plot_box(true,2,"Compare");
 }*/	
 // 	checkIntersect_zero_grain();
+
 	boundaryCondition();
-	
 // if(loop=99 &&id == 243){
 	plot_box(true,1,"Compare_zero");
 	plot_box(true,2,"Compare_zero");
 // }	
-
-	// 	be careful for parralisation!!!!!
-
-
 	set_comparison();
 // if(loop=99 &&id == 243){
 	plot_box(true,1,"Compare_set");
@@ -1159,16 +1156,21 @@ void LSbox::redist_box() {
 // plot the box and all its properties
 /**************************************/
 
-void LSbox::plot_box_contour(int timestep, bool plot_energy)
+void LSbox::plot_box_contour(int timestep, bool plot_energy, ofstream* dest_file)
 {
 	if(exist == false)
 		return;
-    ofstream file;
-    stringstream filename;
-    filename<<"Contourline_"<< id;
-    filename<<"_Timestep_"<<timestep;
-    filename<<".gnu";
-    file.open(filename.str());
+    ofstream* output_file = dest_file;
+    if(dest_file == NULL)
+    {
+    	output_file = new ofstream();
+        stringstream filename;
+        filename<<"Contourline_"<< id;
+        filename<<"_Timestep_"<<timestep;
+        filename<<".gnu";
+        output_file->open(filename.str());
+    }
+	ofstream& file = *output_file;
     if ( plot_energy)
     {
 		for(const auto& iterator : contourGrain)
@@ -1183,7 +1185,11 @@ void LSbox::plot_box_contour(int timestep, bool plot_energy)
 		}
     }
     file<<endl;
-    file.close();
+    if(dest_file == NULL)
+    {
+    	file.close();
+    	delete output_file;
+    }
 }
 
 

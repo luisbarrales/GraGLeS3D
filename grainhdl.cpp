@@ -1,5 +1,5 @@
 #include "grainhdl.h"
-
+#include <sys/time.h>
 
 grainhdl::grainhdl(){}
 grainhdl::~grainhdl(){
@@ -341,7 +341,6 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();
-// 		saveSpecialContourEnergies(243);
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 			saveAllContourEnergies();
 			save_texture();
@@ -424,9 +423,16 @@ void grainhdl::saveSpecialContourEnergies(int id){
 }
 
 void grainhdl::saveAllContourEnergies(){
+	ofstream output;
+	stringstream filename;
+	filename << "Network_Timestep_"<<loop<<".gnu";
+	output.open(filename.str());
+
 	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it !=grains.end(); it++)
-		(*it)->plot_box_contour(loop, true);
+		(*it)->plot_box_contour(loop, true, &output);
+
+	output.close();
 }
 
 void grainhdl::saveAllContourLines(){	

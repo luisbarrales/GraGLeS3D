@@ -18,10 +18,10 @@ mkfifo $GNUPLOTPIPE
 exec 3<> $GNUPLOTPIPE
 #Check if we should plot the network or just a grain and set PATTERN accordingly
 if [ -z "$3" ]; then
-	PATTERN=./Contourline_*_Timestep_
+	PATTERN=./Network_Timestep_
 else
 	if [ "$3" == "network" ]; then
-		PATTERN=./Contourline_*_Timestep_
+		PATTERN=./Network_Timestep_
 	elif [ "$3" == "grain" ]; then
 		if [ -z "$4" ]; then
 			echo "Specify grain number!"
@@ -55,16 +55,10 @@ while true; do
 		fi
 		echo "$GNUPLOT_STRING" >&3
 	else
-		if [ "$CURRENT_PATTERN" != "$(echo $CURRENT_PATTERN)" ]; then			
+		if [ -f  $CURRENT_PATTERN ]; then			
 			GNUPLOT_STRING="plot"
-			for name in $CURRENT_PATTERN; do
-				if [ -z "$FIRST" ]; then
-					GNUPLOT_STRING="$GNUPLOT_STRING '$name' w l palette title 'Timestep $TIMESTEP'"
-					FIRST="done"
-				else
-					GNUPLOT_STRING="$GNUPLOT_STRING, '$name' w l palette notitle"
-				fi
-			done
+			GNUPLOT_STRING="$GNUPLOT_STRING '$CURRENT_PATTERN' w l palette title 'Timestep $TIMESTEP'"
+			FIRST="done"
 			echo "$GNUPLOT_STRING" >&3
 		else
 			break;
