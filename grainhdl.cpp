@@ -4,7 +4,7 @@
 grainhdl::grainhdl(){}
 grainhdl::~grainhdl(){
 	delete mymath;
-	delete zeroBox;
+	delete boundary;
 }
 
 
@@ -15,7 +15,7 @@ void grainhdl::setSimulationParameter(){
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	
-	if(Mode==1) realDomainSize= M-1;			
+	if(Mode==1) realDomainSize= M-1;	// half open container of VORO++
 	if(Mode==2) realDomainSize= M;
 	
 	dt = 1.0/double(M*M);
@@ -26,7 +26,8 @@ void grainhdl::setSimulationParameter(){
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 
-	zeroBox = new LSbox();
+	boundary = new LSbox(0, 0, 0, 0, this);
+// 	(*boundary).plot_box(false,2,"no.gnu");
 	
 	switch (Mode) {
 		case 1: {
@@ -35,20 +36,20 @@ void grainhdl::setSimulationParameter(){
 				deviation = 15*PI/180;
 			}
 			else { bunge = NULL; deviation = 0;}
-			ST = new double [ngrains*ngrains];
-			std::fill_n(ST,ngrains*ngrains,0);
+			ST = NULL;			
 			VOROMicrostructure();
-			generateRandomEnergy();
+// 			generateRandomEnergy();
 			break;
 		}
 		case 2: {
 			bunge = NULL; deviation = 0;
-			ST=NULL;
+			ST=new double [ngrains*ngrains];
+			std::fill_n(ST,ngrains*ngrains,0);
 			readMicrostructurefromVertex();
 			break;
 		}		
 	}		
-	construct_boundary();
+// 	construct_boundary();
 	//program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << ngrains << endl;
@@ -143,7 +144,7 @@ void grainhdl::construct_boundary(){
 	boundary->distancefunction(4, vertices); 
 	boundary->inversDistance();
 	// get the inverse distancefunction which slope 4!
-	(*boundary).plot_box(true,2,"boundary");
+// 	(*boundary).plot_box(true,2,"boundary");
 }
 
 void grainhdl::readMicrostructurefromVertex(){
@@ -340,7 +341,7 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();
-		saveSpecialContourEnergies(243);
+// 		saveSpecialContourEnergies(243);
 		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 			saveAllContourEnergies();
 			save_texture();

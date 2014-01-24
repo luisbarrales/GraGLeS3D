@@ -4,17 +4,15 @@
 
 LSbox::LSbox() :quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){}
 
-LSbox::LSbox(int id, int xmin, int xmax, int ymin, int ymax, grainhdl* owner) :
-		id(id)
+LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
+		id(id), handler(owner)
 {
-
-	handler = owner;
 	quaternion = new double[4];
-	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	
-	IDLocal.resize((xmax - xmin) * (ymax - ymin));
-
+	double euler[3] = {phi1,PHI,phi2};
+	(*(handler->mymath)).euler2quaternion( euler, quaternion );
+	inputDistance = new DimensionalBuffer<double>(0, 0, 0, 0);
+	outputDistance = new DimensionalBuffer<double>(0, 0, 0, 0);	
+// 	IDLocal.resize((xmax - xmin) * (ymax - ymin));
 	local_weights = new Weightmap(owner);
 
 }
@@ -549,7 +547,6 @@ void LSbox::set_comparison(){
 	int grid_blowup = (*handler).get_grid_blowup();
 	int m = (*handler).get_ngridpoints();
 	double h = handler->get_h();
-	LSbox* zero = handler->zeroBox;
 
 
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
@@ -650,25 +647,26 @@ void LSbox::comparison(){
 		neighbors_2order.erase(it_nn);
 	}
 
-if(loop=99 &&id == 243){
+/*if(loop=99 &&id == 243){
 	plot_box(true,1,"Compare");
 	plot_box(true,2,"Compare");
-}	
-	checkIntersect_zero_grain();
+}*/	
+// 	checkIntersect_zero_grain();
+	boundaryCondition();
 	
-if(loop=99 &&id == 243){
+// if(loop=99 &&id == 243){
 	plot_box(true,1,"Compare_zero");
 	plot_box(true,2,"Compare_zero");
-}	
+// }	
 
 	// 	be careful for parralisation!!!!!
 
 
 	set_comparison();
-if(loop=99 &&id == 243){
+// if(loop=99 &&id == 243){
 	plot_box(true,1,"Compare_set");
 	plot_box(true,2,"Compare_set");
-}
+// }
 
 }
 
@@ -676,6 +674,191 @@ if(loop=99 &&id == 243){
 
 double LSbox::getDistance(int i, int j){
    return inputDistance->getValueAt(i,j);
+}
+
+
+
+void LSbox::boundaryCondition(){
+	LSbox* boundary = handler->boundary;
+	int grid_blowup = handler->get_grid_blowup();
+	double h = handler->get_h();
+	int m = handler->get_ngridpoints();
+	double dist;
+	double dist2;
+	
+	// upper box-boundary out of domain range
+	if( inputDistance->getMinY() < grid_blowup ){	
+				int xminLoc;
+		if (2*grid_blowup < inputDistance->getMinX()) xminLoc = inputDistance->getMinX();
+			else xminLoc = 2*grid_blowup;
+		
+		int xmaxLoc;
+		if( m- 2*grid_blowup >	inputDistance->getMaxX()) xmaxLoc =	inputDistance->getMaxX();
+			else xmaxLoc = m- 2*grid_blowup;	
+			
+		for (int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
+			for (int j=xminLoc; j< xmaxLoc; j++ ){
+				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+					dist= -(i-grid_blowup)*h;
+					if( dist > outputDistance->getValueAt(i,j) ){
+						outputDistance->setValueAt(i, j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+					}
+				}
+			}
+		}	
+	}
+
+	// left box-boundary out of domain range
+	if( inputDistance->getMinX() < grid_blowup ){
+		
+		// do not double the corner of the domain!
+		int yminLoc;
+		if (2*grid_blowup < inputDistance->getMinY()) yminLoc = inputDistance->getMinY();
+			else yminLoc = 2*grid_blowup;
+		
+		int ymaxLoc;
+		if( m- 2*grid_blowup >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
+			else ymaxLoc = m- 2*grid_blowup;
+
+		for (int j=inputDistance->getMinX(); j< 2*grid_blowup; j++ ){
+			for (int i=yminLoc; i< ymaxLoc; i++ ){
+				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+					dist= -(j-grid_blowup)*h;
+					if( dist > outputDistance->getValueAt(i,j) ){
+						outputDistance->setValueAt(i, j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+					}
+				}
+			}		
+		}
+	}
+	
+	// lower box-boundary out of domain range
+	if( inputDistance->getMaxY() > m-grid_blowup ){
+		
+		int xminLoc;
+		if (2*grid_blowup < inputDistance->getMinX()) xminLoc = inputDistance->getMinX();
+			else xminLoc = 2*grid_blowup;
+		
+		int xmaxLoc;
+		if( m- 2*grid_blowup >	inputDistance->getMaxX()) xmaxLoc =	inputDistance->getMaxX();
+			else xmaxLoc = m- 2*grid_blowup;	
+			
+		for (int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
+			for (int j=xminLoc; j< xmaxLoc; j++ ){
+				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+					dist=(i-(m-grid_blowup))*h;	
+
+					if( dist > outputDistance->getValueAt(i,j) ){
+						outputDistance->setValueAt(i, j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+					}
+				}
+			}
+		}	
+	}
+
+	// right box-boundary out of domain range
+	if( inputDistance->getMaxX() > m-grid_blowup ){		
+		// do not double the corner of the domain!
+		int yminLoc;
+		if (2*grid_blowup < inputDistance->getMinY()) yminLoc = inputDistance->getMinY();
+			else yminLoc = 2*grid_blowup;
+		
+		int ymaxLoc;
+		if( m- 2*grid_blowup >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
+			else ymaxLoc = m- 2*grid_blowup;			
+
+		for (int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){			
+			for (int i=yminLoc; i< ymaxLoc; i++ ){
+				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+					dist=(j-(m-grid_blowup))*h;							
+					if( dist > outputDistance->getValueAt(i,j) ){
+						outputDistance->setValueAt(i, j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+					}
+				}
+			}		
+		}
+	}
+	
+	// check corners:
+	//lower right corner:
+// 	if( inputDistance->getMaxX() > m-(2*grid_blowup) 	&& inputDistance->getMaxY() > m-2*grid_blowup){
+// 		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
+// 			for(int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){
+// 				if ( inputDistance->isPointInside(i,j) ){
+// 					dist = 	-(j-grid_blowup)*h;
+// 					dist2 = (i-(m-grid_blowup))*h;				
+// 					if(abs(dist) > abs(dist2)) dist = dist2 ;
+// 					if( dist > outputDistance->getValueAt(i,j) ){
+// 						outputDistance->setValueAt(i, j, dist);
+// 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+// 					}
+// 					else { 
+// 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}	
+	
+	
+	//lower left corner:
+	if( inputDistance->getMinX() < grid_blowup 	&& inputDistance->getMaxY() > m-grid_blowup){
+		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
+			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
+				if ( inputDistance->isPointInside(i,j)){
+					
+					//TODO correct next 3 lines
+					dist = 	-(j-grid_blowup)*h;
+					dist2 = (i-(m-grid_blowup))*h;
+					
+					if(dist<=0 && dist2>0 ) dist =dist2;
+					else if(dist2<=0 && dist >0 ) dist =dist;
+					else if(dist2 <0 && dist < 0) {
+						if(dist < dist2) dist =dist2;
+					}
+					else if(dist >0 && dist2 >0) dist = sqrt(( (6-j)*(6-j) )+ ((i-(m-grid_blowup))* (i-(m-grid_blowup))))*h;
+// 					if(dist <= 0 && dist2 >0 ) dist = dist2 ;
+// 					else if (dist2 <= 0 && dist >0 ) dist = dist;
+// 					else if (abs(dist) > abs(dist2)) dist = dist2;
+					
+					
+					if( dist > outputDistance->getValueAt(i,j) ){
+						outputDistance->setValueAt(i, j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+					}
+				}
+			}
+		}
+	}
+	
+	//upper right corner:
+	if( inputDistance->getMaxX() > m-grid_blowup 	&& inputDistance->getMinY() < grid_blowup){
+	}
+	//upper left corner:
+	if( inputDistance->getMinX() < grid_blowup 		&& inputDistance->getMinY() < grid_blowup){
+	}
+	
+	
+
 }
 
 
@@ -694,16 +877,21 @@ void LSbox::checkIntersect_zero_grain(){
 	{
 		for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-				if ((i <= 2* grid_blowup) || (m-2*grid_blowup  <= i) || (j <= 2*grid_blowup ) || (m-2*grid_blowup<= j)){
-					dist = boundary->outputDistance->getValueAt(i,j);
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+// 				if ((i < grid_blowup) || (m- grid_blowup  < i) || (j < grid_blowup ) || (m-grid_blowup< j)){
+// 					dist = 
+					if ((i <= 2* grid_blowup) || (m-2*grid_blowup  <= i) || (j <= 2*grid_blowup ) || (m-2*grid_blowup<= j)){
+// 						dist = (grid_blowup -i) * h + (grid_blowup-j) * h + ()
+						dist = boundary->outputDistance->getValueAt(i,j);					
+						
+						if( dist > outputDistance->getValueAt(i,j) ){
+							outputDistance->setValueAt(i, j, dist);
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+						}
+						else { 
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+						}	
 					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}	
-				}
+// 				}
 			}
 		}
 	}
@@ -768,7 +956,7 @@ void LSbox::find_contour() {
 	int loop = handler->loop;
     int m = handler->get_ngridpoints();
 
-	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
+	if(xminNew < 0 || yminNew < 0 || ymaxNew >= m|| xmaxNew >= m) {
 		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
 		cout << "Number of gridpoints: " << m << endl;
 		cout << yminNew << " || " << xminNew << " || " << ymaxNew  << " || " << xmaxNew << endl; 
@@ -781,7 +969,7 @@ void LSbox::find_contour() {
 
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-    	computeVolumeAndEnergy();
+//     	computeVolumeAndEnergy();
 
 
 		volume = abs(volume)	*0.5;
@@ -819,6 +1007,7 @@ void LSbox::computeVolumeAndEnergy()
 			int pxGrid = int(px+0.5);
 			int pyGrid = int(py+0.5);
 
+			cout << IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]->get_id() << endl;
 			thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
 			if (thetaMis <= theta_ref)
 				contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));

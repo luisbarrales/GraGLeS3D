@@ -45,7 +45,6 @@ class grainhdl{
 	double deviation;
 	
 	vector<LSbox*> grains;		
-	LSbox* zeroBox;
 
 	LSbox* boundary;
 	grainhdl();
