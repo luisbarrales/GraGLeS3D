@@ -54,6 +54,7 @@
 #include "random.h"
 #include "applic.h"
 #include "io.h"
+#include "dimensionalBuffer.h"
 #include "marchingSquares.h"
 
 #endif

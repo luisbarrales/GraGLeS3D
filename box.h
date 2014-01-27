@@ -1,8 +1,6 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include <vector>
-#include "dimensionalBuffer.h"
 #include "ggLS.h"
 
 // #include "contour.h"
@@ -11,7 +9,14 @@ using namespace std;
 class LSbox;
 class grainhdl;
 class Weightmap;
+
+template<class T>
+class DimensionalBuffer;
+
+class MarchingSquaresAlgorithm;
+
 struct SPoint;
+
 
 // struct pointVal {
 //     int x,y;
