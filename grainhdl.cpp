@@ -15,13 +15,13 @@ void grainhdl::setSimulationParameter(){
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	
-	if(Mode==1) realDomainSize= M-1;	// half open container of VORO++
-	if(Mode==2) realDomainSize= M;
+	if(Mode==1) realDomainSize= sqrt(PARTICLES*100)-1;	// half open container of VORO++
+	if(Mode==2) realDomainSize= sqrt(PARTICLES*100);
 	
-	dt = 1.0/double(M*M);
+	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
-	
-	tubeRadius = sqrt(2)*h + 0.001;
+	delta = BORDER * 1/double(realDomainSize);
+	tubeRadius = sqrt(2)*1.5*h + 0.001;
 	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
@@ -54,7 +54,7 @@ void grainhdl::setSimulationParameter(){
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << ngrains << endl;
     cout << "simulated Timesteps: " << TIMESTEPS << endl;
-	cout << "DELTA TUBE: " << DELTA << endl;
+	cout << "DELTA TUBE: " << delta << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << ngridpoints << endl << endl;
     

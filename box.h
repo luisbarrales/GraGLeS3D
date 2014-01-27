@@ -4,20 +4,21 @@
 #include <vector>
 #include "dimensionalBuffer.h"
 #include "ggLS.h"
-#include "marchingSquares.h"
+
 // #include "contour.h"
 using namespace std;
 
 class LSbox;
 class grainhdl;
 class Weightmap;
+struct SPoint;
 
-struct pointVal {
-    int x,y;
-    double val;
-	int direction;
-    pointVal(int yy, int xx, double aVal, int dir):x(xx), y(yy), val(aVal), direction(dir){}
-};
+// struct pointVal {
+//     int x,y;
+//     double val;
+// 	int direction;
+//     pointVal(int yy, int xx, double aVal, int dir):x(xx), y(yy), val(aVal), direction(dir){}
+// };
 
 
 

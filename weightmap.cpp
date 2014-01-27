@@ -6,8 +6,13 @@ Weightmap::mapkey::mapkey(vector<LSbox*> IDs) :
 	//Debug checks
 	if(IDs.size() != 2)
 	{
-		//TODO: Replace cout with logger. Possibly investigate case of 2 IDs incoming.
-// 		cout<<"IDs list contains "<< IDs.size() << "  ids...\n" ;
+		//TODO:
+		//	Here we can detect a quadrupel junction - > find some proper solution for this!
+		// look for possible triple points
+		// add missing ones 
+		// set all weights to one special weight (computed by a weighting average e.a)
+		// weights should get deleted after some timesteps , when?? how to find out?
+		
 	}
 	//Sort & store first three elements in the member fields.
 	//Sort of 3 elements based on a binary decision tree.
@@ -45,8 +50,6 @@ double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 {
 	Weightmap::mapkey key_tuple(IDs);
 	double weight;
-
-	//TODO: Why ?
 	std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
 	if (it == m_Weights.end())	//If value is not present, calculate and store it.
 	{

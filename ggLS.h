@@ -2,11 +2,11 @@
 #define GGLS_h
 
 #define DIM 2
-
-#define M 800 //gridpoints in each direction
+#define PARTICLES 50000
+ //gridpoints in each direction
 
 #define BORDER 6
-#define DELTA BORDER * 1/double(M)
+
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
@@ -17,7 +17,7 @@
 #define MODE 1 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 
-#define PARTICLES 5000
+
 
 #define ISOTROPIC false
 #define TEXTURE true // generates a Texture round a bunge orientation whith a deviation -> see grainhandler
@@ -54,6 +54,7 @@
 #include "random.h"
 #include "applic.h"
 #include "io.h"
+#include "marchingSquares.h"
 
 #endif
 

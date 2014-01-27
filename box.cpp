@@ -191,11 +191,11 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 					if(abs(d)< abs(dmin)) dmin=d;
 				}
             }
-			if (abs(dmin) < DELTA){
+			if (abs(dmin) < handler->delta){
 				outputDistance->setValueAt(i, j, dmin);
 			}
 			else{
-				outputDistance->setValueAt(i, j, DELTA * utils::sgn(dmin));
+				outputDistance->setValueAt(i, j, handler->delta * utils::sgn(dmin));
 			}
         }
 	}
@@ -272,13 +272,13 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 					}
 				}
 			}
-			if (abs(dmin) < DELTA)
+			if (abs(dmin) < handler->delta)
 			{
 				outputDistance->setValueAt(i, j, dmin);
 			}
 			else
 			{
-				outputDistance->setValueAt(i, j, DELTA * utils::sgn(dmin));
+				outputDistance->setValueAt(i, j, handler->delta * utils::sgn(dmin));
 			}
 		}
     }
@@ -387,8 +387,8 @@ void LSbox::convolution(){
 						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
 						weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
 	// 					cout << weight << endl;
-						weight = -(dist2OrderNeigh/ double(DELTA) * (1-weight) )+ weight;
-	// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -DELTA <<endl;
+						weight = -(dist2OrderNeigh/ double(handler->delta) * (1-weight) )+ weight;
+	// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -handler->delta <<endl;
 						// the weight is a function of the distance to the 2 order neighbor
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 					}
@@ -558,13 +558,13 @@ void LSbox::set_comparison(){
 				continue;
 			}
 			else {
-				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * DELTA)*/){
+				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * handler->delta)*/){
 					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 				}
 				else if(inputDistance->getValueAt(i,j) > 0)
-					outputDistance->setValueAt(i,j, DELTA);
+					outputDistance->setValueAt(i,j, handler->delta);
 				else if(inputDistance->getValueAt(i,j) < 0)
-					outputDistance->setValueAt(i,j, -DELTA);
+					outputDistance->setValueAt(i,j, -handler->delta);
 			}
 		}
 	}
@@ -584,7 +584,8 @@ bool LSbox::checkIntersect(LSbox* box2) {
 
 void LSbox::comparison(){
 	if(get_status() != true ) return;
-	
+	int m = handler->get_ngridpoints();
+	int grid_blowup = handler->get_grid_blowup();
 	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
 
@@ -621,7 +622,7 @@ void LSbox::comparison(){
 // 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.						
 						if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
 							double dist = (**it_nn).getDistance(i,j);
-							if( abs(dist) < (0.7*DELTA)){								
+							if( abs(dist) < (0.7*handler->delta)){								
 								if( dist > outputDistance->getValueAt(i,j) ){
 										if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
 											// here we found a new first order neighbor, but before saving his distance value, we do a copy of the old to hold as second prder neighbor
@@ -654,8 +655,10 @@ void LSbox::comparison(){
 	plot_box(true,2,"Compare");
 }*/	
 // 	checkIntersect_zero_grain();
-
+if (!(outputDistance->getMinX() >= grid_blowup &&  outputDistance->getMaxX() <= m-grid_blowup && outputDistance->getMinY() >= grid_blowup &&   outputDistance->getMaxY() <= m-grid_blowup))
+{	
 	boundaryCondition();
+}
 // if(loop=99 &&id == 243){
 // 	plot_box(true,1,"Compare_zero");
 // 	plot_box(true,2,"Compare_zero");
@@ -696,7 +699,7 @@ void LSbox::boundaryCondition(){
 			
 		for (int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
 			for (int j=xminLoc; j< xmaxLoc; j++ ){
-				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
 					dist= -(i-grid_blowup)*h;
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
@@ -724,7 +727,7 @@ void LSbox::boundaryCondition(){
 
 		for (int j=inputDistance->getMinX(); j< 2*grid_blowup; j++ ){
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
-				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
 					dist= -(j-grid_blowup)*h;
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
@@ -751,7 +754,7 @@ void LSbox::boundaryCondition(){
 			
 		for (int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
 			for (int j=xminLoc; j< xmaxLoc; j++ ){
-				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
 					dist=(i-(m-grid_blowup))*h;	
 
 					if( dist > outputDistance->getValueAt(i,j) ){
@@ -779,7 +782,7 @@ void LSbox::boundaryCondition(){
 
 		for (int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){			
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
-				if (inputDistance->getValueAt(i,j) < 0.7*DELTA){
+				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
 					dist=(j-(m-grid_blowup))*h;							
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
@@ -1186,7 +1189,7 @@ void LSbox::redist_box() {
 		}		
 	}
 	
-	outputDistance->clampValues(-DELTA, DELTA);
+	outputDistance->clampValues(-handler->delta, handler->delta);
 	
 // 	plot_box(true,1,"Redist_1");
 // 	plot_box(true,2,"Redist_2");
@@ -1283,7 +1286,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 					if( i >= outputDistance->getMinY() && i < outputDistance->getMaxY() && j >=outputDistance->getMinX() && j < outputDistance->getMaxX()) {
 						datei << ::std::fixed << outputDistance->getValueAt(i,j) << "\t";
 					}
-					else datei << ::std::fixed << -DELTA<< "\t";
+					else datei << ::std::fixed << -handler->delta<< "\t";
 				}
 			datei << endl;
 			}	
@@ -1296,7 +1299,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 					if( i >= inputDistance->getMinY() && i < inputDistance->getMaxY() && j >=inputDistance->getMinX() && j < inputDistance->getMaxX()) {
 						datei << ::std::fixed << inputDistance->getValueAt(i,j)<< "\t";
 					}
-					else datei << ::std::fixed << -DELTA<< "\t";
+					else datei << ::std::fixed << -handler->delta<< "\t";
 				}
 			datei << endl;
 			}	

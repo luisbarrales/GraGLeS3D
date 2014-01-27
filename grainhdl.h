@@ -40,7 +40,7 @@ class grainhdl{
 	double tubeRadius;
 	double *ST;
 	double *part_pos;	
-	
+	double delta;
 	double *bunge;
 	double deviation;
 	
