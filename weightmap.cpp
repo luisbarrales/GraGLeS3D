@@ -69,7 +69,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	
 	double sigma;
 	double gamma[3];
-	double gamma_hagb = 0.6;
+	double gamma_hagb = m_pHandler->hagb;//0.6;
 	double theta_ref = 15.0 * PI /180;
 	double theta_mis;
 	double drag = 0.5;

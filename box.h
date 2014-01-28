@@ -22,7 +22,8 @@ struct characteristics{
     double length;
     double energyDensity;
     double mis_ori;
-    	characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori)
+	double mobility;
+    characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(1)
 	{}
 };
 
@@ -52,9 +53,9 @@ class LSbox {
 	double* quaternion;
 	double energy, volume, perimeter;
 	grainhdl* handler;
-	double*   discreteEnergyDistribution;
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
+	
 	DimensionalBuffer<double>* inputDistance;
 	DimensionalBuffer<double>* outputDistance;
 

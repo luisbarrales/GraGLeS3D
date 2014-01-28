@@ -36,6 +36,7 @@ class grainhdl{
 	int loop;
 	vector<double> totalenergy;
 	vector<int> nr_grains;
+	vector<double> discreteEnergyDistribution;
 	
 	double tubeRadius;
 	double *ST;
@@ -43,10 +44,11 @@ class grainhdl{
 	double delta;
 	double *bunge;
 	double deviation;
+	double hagb;
 	
-	vector<LSbox*> grains;		
-
+	vector<LSbox*> grains;	
 	LSbox* boundary;
+	
 	grainhdl();
 	~grainhdl();
 		
@@ -62,7 +64,7 @@ class grainhdl{
 	void save_conv_step();
 	void comparison_box();
 	void updateSecondOrderNeighbors();
-	void determineIDs();
+// 	void determineIDs();
 
 	void level_set();
 	void redistancing();
@@ -74,7 +76,7 @@ class grainhdl{
 	void plot_contour();
 	
 	void compute_Boundary_Energy();
-	void construct_boundary();
+// 	void construct_boundary();
 	void saveAllContourLines();
 	void saveAllContourEnergies();
 	void switchDistancebuffer();

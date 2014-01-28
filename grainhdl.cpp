@@ -15,9 +15,10 @@ void grainhdl::setSimulationParameter(){
 	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	
+	hagb = HAGB;
 	if(Mode==1) realDomainSize= sqrt(PARTICLES*100)-1;	// half open container of VORO++
 	if(Mode==2) realDomainSize= sqrt(PARTICLES*100);
-	
+	discreteEnergyDistribution.resize(DISCRETESAMPLING);
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
 	delta = BORDER * 1/double(realDomainSize);
@@ -132,7 +133,7 @@ void grainhdl::VOROMicrostructure(){
 	delete [] part_pos;
 }
 
-
+/*
 void grainhdl::construct_boundary(){
 	int nvertex;
 	double p1 = 0.0;
@@ -145,7 +146,7 @@ void grainhdl::construct_boundary(){
 	boundary->inversDistance();
 	// get the inverse distancefunction which slope 4!
 // 	(*boundary).plot_box(true,2,"boundary");
-}
+}*/
 
 void grainhdl::readMicrostructurefromVertex(){
 	FILE * levelset;	
@@ -243,23 +244,23 @@ void grainhdl::readMicrostructurefromVertex(){
 //  
  
  
-void grainhdl::generateRandomEnergy(){	
-	const double MIN = 0.6;
-	const double MAX = 1.5;
-	for(int i=0; i < ngrains; i++){
-		for(int j=0; j <=i; j++){			
-			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
-// 			if (i==6 && j ==5) { 
-// 				ST[i+(PARTICLES*j)] = 0.1;
-// 				ST[j+(PARTICLES*i)] = 0.1;
-// 			}
-			ST[i+(ngrains*j)] = zahl;
-			ST[j+(ngrains*i)] = zahl;
-			if(i==j) ST[j+(ngrains*i)] = 1.0;
-		}
-	} 
-}
- 
+// void grainhdl::generateRandomEnergy(){	
+// 	const double MIN = 0.6;
+// 	const double MAX = 1.5;
+// 	for(int i=0; i < ngrains; i++){
+// 		for(int j=0; j <=i; j++){			
+// 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
+// // 			if (i==6 && j ==5) { 
+// // 				ST[i+(PARTICLES*j)] = 0.1;
+// // 				ST[j+(PARTICLES*i)] = 0.1;
+// // 			}
+// 			ST[i+(ngrains*j)] = zahl;
+// 			ST[j+(ngrains*i)] = zahl;
+// 			if(i==j) ST[j+(ngrains*i)] = 1.0;
+// 		}
+// 	} 
+// }
+//  
  
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
@@ -309,34 +310,36 @@ void grainhdl::save_texture(){
 	filename.str("");
 	filename << "EnergyLengthDistribution_" << loop<< ".txt";
 	enLenDis = fopen(filename.str().c_str(), "w");
-	
+	double dh= hagb / double(DISCRETESAMPLING);
 	double buffer = 0.24;
+	double euler[3];
+	vector<characteristics> :: iterator it2;
 // 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
-	double discreteEnergyDistribution[DISCRETESAMPLING];
-	std::fill_n ( discreteEnergyDistribution, DISCRETESAMPLING, 0);
+	
+	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0);
 	for(it = ++grains.begin(); it != grains.end(); it++){
+// 		if(*it == NULL){ ??? better / faster
 		if((*it)->get_status()){
-			double euler[3];
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
-	// 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
-	// 		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
 			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);			
 			total_energy += (*it)->energy;
 			numberGrains+=1;
-			for (int i=0; i < DISCRETESAMPLING; i++){
-			   discreteEnergyDistribution[i]+= (*it)->discreteEnergyDistribution[i];
-			}
+			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
+				discreteEnergyDistribution[int((*it2).energyDensity/dh) /*+0.5*/] += (*it2).length;
+			}		
 		}
 	}
 	for (int i=0; i < DISCRETESAMPLING; i++){
-		fprintf(enLenDis, "%lf\t%lf\n",(float)(0.6/DISCRETESAMPLING)*(i+1),(float)discreteEnergyDistribution[i]);
+		fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+		printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
 	}
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
 	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
+	
 	fclose(myfile);
 	fclose(enLenDis);
 }

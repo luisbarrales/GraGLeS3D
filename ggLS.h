@@ -18,7 +18,7 @@
 #define MODE 1 // 2 for read Microstructure;  1 for use Voro++
 #define NDEBUG
 
-
+#define HAGB 0.6;
 
 #define ISOTROPIC false
 #define TEXTURE true 	// generates a Texture round a bunge orientation whith a deviation -> see grainhandler
