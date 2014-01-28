@@ -1015,17 +1015,12 @@ void LSbox::find_contour() {
 		}
 	}
     
-
-
     // compute Volume and Energy
     if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
     	computeVolumeAndEnergy();
-
-
-		volume = abs(volume)	*0.5;
+		volume = abs(volume);
 		cerr<< "Volume of " << id << "= " << volume << endl;
-		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
-
+		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
 	}
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);

@@ -326,7 +326,7 @@ void grainhdl::save_texture(){
 			total_energy += (*it)->energy;
 			numberGrains+=1;
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
-				discreteEnergyDistribution[int((*it2).energyDensity/dh) /*+0.5*/] += (*it2).length;
+				discreteEnergyDistribution[int((*it2).energyDensity/dh) +0.5] += (*it2).length;
 			}		
 		}
 	}
