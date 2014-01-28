@@ -152,12 +152,10 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 }
 
 LSbox::~LSbox() {
-	if(quaternion!=NULL){
-		delete [] quaternion;
-		delete inputDistance;
-		delete outputDistance;
-		delete local_weights;
-	}
+	if(quaternion!=NULL) delete [] quaternion;
+	delete inputDistance;
+	delete outputDistance;
+	if(local_weights!=NULL) delete local_weights;
 }
 
 int LSbox::getID() {
@@ -756,8 +754,8 @@ void LSbox::boundaryCondition(){
 		for (int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
 			for (int j=xminLoc; j< xmaxLoc; j++ ){
 				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
-					dist=(i-(m-grid_blowup))*h;	
-
+					
+					dist=(i-(m-grid_blowup-1))*h;	
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
@@ -779,7 +777,7 @@ void LSbox::boundaryCondition(){
 		
 		int ymaxLoc;
 		if( m- 2*grid_blowup >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
-			else ymaxLoc = m- 2*grid_blowup;			
+			else ymaxLoc = m- 2*grid_blowup ;			
 
 		for (int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){			
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
@@ -798,6 +796,8 @@ void LSbox::boundaryCondition(){
 	}
 	
 	// check corners:
+	
+	//***********************************************//
 	//lower right corner:
 	if( inputDistance->getMaxX() > m-(2*grid_blowup) 	&& inputDistance->getMaxY() > m-(2*grid_blowup)){
 		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
@@ -1022,10 +1022,53 @@ void LSbox::find_contour() {
 		cerr<< "Volume of " << id << "= " << volume << endl;
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
 	}
+	else updateFirstOrderNeigbors();
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	return;
+}
+
+void LSbox::updateFirstOrderNeigbors(){
+	grainCharacteristics.clear();
+	vector<characteristics>::iterator it;	
+	double h = handler->get_h();
+	double line_length;
+	double thetaMis=0;	
+	double theta_ref = 15.0 * PI / 180.0;
+	double gamma_hagb = handler->hagb;
+	int i;
+	
+	for(i=0; i<contourGrain.size() - 1; i++){		
+		double px =contourGrain[i].x;
+		double py =contourGrain[i].y;
+		int pxGrid = int(px+0.5);
+		int pyGrid = int(py+0.5);
+		
+		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
+				break;
+		}
+		if (it == grainCharacteristics.end()){
+			if(ISOTROPIC){
+				contourGrain[i].energy = 1.0;
+			}		
+			else{
+				thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
+				if (thetaMis <= theta_ref)
+					contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+				else
+					contourGrain[i].energy = gamma_hagb;
+			}			
+			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0,contourGrain[i].energy,thetaMis));
+			it = grainCharacteristics.end();
+			it--;
+		}	
+		line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
+		//save length in GrainCharaczeristics
+		it->length += (line_length*h);
+	}
+
 }
 
 void LSbox::computeVolumeAndEnergy()
@@ -1040,9 +1083,7 @@ void LSbox::computeVolumeAndEnergy()
 	double gamma_hagb = handler->hagb;
 	int i;
 	grainCharacteristics.clear();
-	vector<characteristics>::iterator it;
-	
-	
+	vector<characteristics>::iterator it;	
 
 	for(i=0; i<contourGrain.size() - 1; i++){
 		
@@ -1053,12 +1094,6 @@ void LSbox::computeVolumeAndEnergy()
 		double py =contourGrain[i].y;
 		int pxGrid = int(px+0.5);
 		int pyGrid = int(py+0.5);
-		
-		// check if pxGrid inside box: should not be neccesary!!
-// 		if ( pxGrid < xminId )	{ pxGrid = xminId;}
-// 		if ( pyGrid < yminId )	{ pyGrid = yminId;}
-// 		if ( pxGrid >= xmaxId )	{ pxGrid = xmaxId-1;}
-// 		if ( pyGrid >= ymaxId )	{ pyGrid = ymaxId-1;}
 		if(ISOTROPIC){
 		  contourGrain[i].energy = 1.0;
 		}		
@@ -1084,11 +1119,12 @@ void LSbox::computeVolumeAndEnergy()
 		line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
 		
 		//save length in GrainCharaczeristics
-		it->length += (line_length*h);
+		line_length *=h;
+		it->length += line_length;
 		
 		// save Grain properties:
-		perimeter += line_length*h;
-		energy += (contourGrain[i].energy * line_length * h);
+		perimeter += line_length;
+		energy += (contourGrain[i].energy * line_length);
 	}
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
 }

@@ -4,7 +4,6 @@
 grainhdl::grainhdl(){}
 grainhdl::~grainhdl(){
 	delete mymath;
-	delete boundary;
 }
 
 
@@ -12,7 +11,7 @@ grainhdl::~grainhdl(){
 void grainhdl::setSimulationParameter(){
 	mymath = new mathMethods();
 	// 	readInit();
-	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
+	Mode = MODE; // 2 fuer lesen;  1 fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	
 	hagb = HAGB;
@@ -36,7 +35,10 @@ void grainhdl::setSimulationParameter(){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
 				deviation = 15*PI/180;
 			}
-			else { bunge = NULL; deviation = 0;}
+			else { 
+				bunge = NULL; 
+				deviation = 0;
+			}
 			ST = NULL;			
 			VOROMicrostructure();
 // 			generateRandomEnergy();
@@ -310,14 +312,15 @@ void grainhdl::save_texture(){
 	filename.str("");
 	filename << "EnergyLengthDistribution_" << loop<< ".txt";
 	enLenDis = fopen(filename.str().c_str(), "w");
-	double dh= hagb / double(DISCRETESAMPLING);
+	double dh= hagb / (double)DISCRETESAMPLING;
 	double buffer = 0.24;
 	double euler[3];
 	vector<characteristics> :: iterator it2;
 // 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
 	
-	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0);
+	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0.0);
+	
 	for(it = ++grains.begin(); it != grains.end(); it++){
 // 		if(*it == NULL){ ??? better / faster
 		if((*it)->get_status()){
@@ -326,7 +329,8 @@ void grainhdl::save_texture(){
 			total_energy += (*it)->energy;
 			numberGrains+=1;
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
-				discreteEnergyDistribution[int((*it2).energyDensity/dh) +0.5] += (*it2).length;
+				//take into account that every line is twice in the model
+				discreteEnergyDistribution[(int)(((*it2).energyDensity)/dh -0.5) ] += 0.5 * (*it2).length;
 			}		
 		}
 	}
@@ -413,7 +417,7 @@ void grainhdl::save_sim(){
 	}
 	myfile.close();
 
-	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
+// 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
 

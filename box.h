@@ -101,6 +101,7 @@ public:
 	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
 	void switchInNOut();
 	void boundaryCondition();
+	void updateFirstOrderNeigbors();
 
 		
 	inline bool get_status(){ return exist;}
