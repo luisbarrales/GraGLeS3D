@@ -9,7 +9,7 @@ set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grain
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
-set(CMAKE_CXX_FLAGS "-g -o2")
+set(CMAKE_CXX_FLAGS "-g")
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
@@ -46,8 +46,8 @@ link_directories(${Boost_LIBRARY_DIR})
 
 #find_package(MPI REQUIRED)
 
-
 ADD_DEFINITIONS("-std=c++0x")
+
 
 
 

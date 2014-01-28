@@ -298,32 +298,47 @@ void grainhdl::redistancing(){
 
 void grainhdl::save_texture(){
 	FILE* myfile;
+	FILE* enLenDis;
 	stringstream filename;
 	double total_energy= 0.0;
 	int numberGrains=0;
+	
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
+	
+	filename.str("");
+	filename << "EnergyLengthDistribution_" << loop<< ".txt";
+	enLenDis = fopen(filename.str().c_str(), "w");
+	
 	double buffer = 0.24;
 // 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
-	
+	double discreteEnergyDistribution[DISCRETESAMPLING];
+	std::fill_n ( discreteEnergyDistribution, DISCRETESAMPLING, 0);
 	for(it = ++grains.begin(); it != grains.end(); it++){
 		if((*it)->get_status()){
 			double euler[3];
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
 	// 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
 	// 		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
-			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
+			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);			
 			total_energy += (*it)->energy;
 			numberGrains+=1;
+			for (int i=0; i < DISCRETESAMPLING; i++){
+			   discreteEnergyDistribution[i]+= (*it)->discreteEnergyDistribution[i];
+			}
 		}
 	}
-    totalenergy.push_back(0.5*total_energy);
+	for (int i=0; i < DISCRETESAMPLING; i++){
+		fprintf(enLenDis, "%lf\t%lf\n",(float)(0.6/DISCRETESAMPLING)*(i+1),(float)discreteEnergyDistribution[i]);
+	}
+	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
 	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
 	fclose(myfile);
+	fclose(enLenDis);
 }
  
   

@@ -17,19 +17,18 @@ class MarchingSquaresAlgorithm;
 
 struct SPoint;
 
-
-// struct pointVal {
-//     int x,y;
-//     double val;
-// 	int direction;
-//     pointVal(int yy, int xx, double aVal, int dir):x(xx), y(yy), val(aVal), direction(dir){}
-// };
-
-
+struct characteristics{
+    LSbox* directNeighbour;
+    double length;
+    double energyDensity;
+    double mis_ori;
+    	characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori)
+	{}
+};
 
 /*!
  * \class LSBox
- * \brief Class encapsulating an Level Set Box.
+ * \brief Class encapsulating a Level Set Box.
  *
  * LSbox class contains the coordinates of the box in the actual grid. <br>
  * For each point that the LSbox covers, it stores: <br>
@@ -48,15 +47,17 @@ class LSbox {
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
 	Weightmap* local_weights;
-//     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
-    int nvertices;
+
+	int nvertices;
 	double* quaternion;
-	double volume;
-	double energy;
+	double energy, volume, perimeter;
 	grainhdl* handler;
-	vector <SPoint> contourGrain;
+	double*   discreteEnergyDistribution;
+	vector<SPoint> contourGrain;
+	vector<characteristics> grainCharacteristics;
 	DimensionalBuffer<double>* inputDistance;
 	DimensionalBuffer<double>* outputDistance;
+
 public:
 	friend class grainhdl;
     LSbox();

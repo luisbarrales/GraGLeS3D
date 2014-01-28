@@ -2,11 +2,12 @@
 
 
 
-LSbox::LSbox() :quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){}
+LSbox::LSbox() :exist(false), quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){  }
 
 LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 		id(id), handler(owner)
-{
+{	
+	discreteEnergyDistribution= new double[DISCRETESAMPLING];
 	exist = true;
 	quaternion = new double[4];
 	double euler[3] = {phi1,PHI,phi2};
@@ -19,14 +20,15 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 }
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), nvertices(0), handler(owner) {
-
+	
 	int grid_blowup = owner->get_grid_blowup(); 
+	discreteEnergyDistribution= new double[DISCRETESAMPLING];
+
 	double h = owner->get_h();
     // determine size of grain
-    quaternion = new double[4];
+	quaternion = new double[4];
 	
-	
-	if(TEXTURE){
+		if(TEXTURE){
 		double newOri[3];
 		(*(handler->mymath)).newOrientationFromReference( handler->bunge, handler->deviation, newOri );
 		(*(handler->mymath)).euler2quaternion(newOri, quaternion);
@@ -65,8 +67,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
             if (x1[1]/h < xmin) xmin = x1[1]/h;
             if (x2[1]/h < xmin) xmin = x2[1]/h;
             
-            if (x1[1]/h > xmax) xmax = (x1[1]/h);
-            if (x2[1]/h > xmax) xmax = (x2[1]/h);           
+            if (x1[1]/h > xmax) xmax = x1[1]/h;
+            if (x2[1]/h > xmax) xmax = x2[1]/h;           
         }
     }
     
@@ -93,8 +95,9 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 
 
 LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), nvertices(nvertex), handler(owner){
+  
+	discreteEnergyDistribution= new double[DISCRETESAMPLING];
 	quaternion = new double[4];
-
 	double euler[3] = {phi1,PHI,phi2};
 	(*(handler->mymath)).euler2quaternion( euler, quaternion );
 	
@@ -106,12 +109,12 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	int ymax = 0; 
 	int ymin = xmin;
 	    
-    vektor x1(2), x2(2);
-    exist = true;
+	vektor x1(2), x2(2);
+	exist = true;
 
-   for (unsigned int k=0; k < nvertex; k++){       
-		x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-		x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
+	for (unsigned int k=0; k < nvertex; k++){       
+	  x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+	  x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
 		
 		//	for convention: 
 		//	x[i][j]:
@@ -156,6 +159,8 @@ LSbox::~LSbox() {
 		delete inputDistance;
 		delete outputDistance;
 		delete local_weights;
+		delete [] discreteEnergyDistribution;
+	  
 	}
 }
 
@@ -246,7 +251,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
     
     int i,j,k;
     double d, dmin,lambda;
-
+    
     vektor u(2), a(2), p(2), x1(2), x2(2);
     vector<double> vv;
     c.vertices (part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
@@ -1035,42 +1040,73 @@ void LSbox::find_contour() {
 void LSbox::computeVolumeAndEnergy()
 {
 	volume = 0;
+	perimeter = 0;
 	energy = 0;
-
 	double h = handler->get_h();
-	double thetaMis;
+	double thetaMis=0;	
 	double theta_ref = 15.0 * PI / 180.0;
 	double gamma_hagb = 0.6;
+	grainCharacteristics.clear();
+	vector<characteristics>::iterator it;
+	std::fill_n(discreteEnergyDistribution,DISCRETESAMPLING,0);
+	
+	double dh = 0.6/DISCRETESAMPLING;	// Interval size for the discreteEnergyDistribution 
 
-	for(int i=0; i<contourGrain.size() - 1; i++)
-	{
+	for(int i=0; i<contourGrain.size() - 1; i++){
 		volume += (contourGrain[i].y+contourGrain[i+1].y)*(contourGrain[i].x-contourGrain[i+1].x);
-		if(ISOTROPIC)
-		{
-			contourGrain[i].energy = 1.0;
+	  
+		double px =contourGrain[i].x;
+		double py =contourGrain[i].y;
+		int pxGrid = int(px+0.5);
+		int pyGrid = int(py+0.5);
+		
+	// 	Necessary?
+		if ( pxGrid < xminId )	{ pxGrid = xminId;}
+		if ( pyGrid < yminId )	{ pyGrid = yminId;}
+		if ( pxGrid >= xmaxId )	{ pxGrid = xmaxId-1;}
+		if ( pyGrid >= ymaxId )	{ pyGrid = ymaxId-1;}
+		
+		
+		
+		if(ISOTROPIC){
+		  contourGrain[i].energy = 1.0;
 		}
-		else
-		{
-			double px =contourGrain[i].x;
-			double py =contourGrain[i].y;
-			int pxGrid = int(px+0.5);
-			int pyGrid = int(py+0.5);
-
-// 			cout << IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]->get_id() << endl;
-			thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
-			if (thetaMis <= theta_ref)
-				contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-			else
-				contourGrain[i].energy = gamma_hagb;
-
+		
+		else{
+		  thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
+		  if (thetaMis <= theta_ref)
+		    contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+		  else
+		    contourGrain[i].energy = gamma_hagb;
+		    contourGrain[i].energy = 1.0;
 		}
-		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +
-			(contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
-		energy += (contourGrain[i].energy *line_length*h);
+		
+// 	Check if the direct neigbourGrain is already in the vector 
+		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++)
+		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
+		      break;
+		if (it == grainCharacteristics.end()){
+		    grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], \
+		    0,contourGrain[i].energy,thetaMis));
+		    it = grainCharacteristics.end();
+		    it--;
+		}
+		
+		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +\
+					   (contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
+		
+	// add length to the corresponding energyDistribution	
+		discreteEnergyDistribution[(int)(contourGrain[i].energy/dh)]+= line_length;
+					
+	
+		perimeter += line_length*h;
+		energy += (contourGrain[i].energy * line_length * h);
+		it->length += line_length;
+		
+		
 	}
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
 }
-
 
 
 
