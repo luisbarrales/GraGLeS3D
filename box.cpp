@@ -783,7 +783,7 @@ void LSbox::boundaryCondition(){
 		for (int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){			
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
 				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
-					dist=(j-(m-grid_blowup))*h;							
+					dist=(j-(m-grid_blowup-1))*h;							
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
@@ -802,8 +802,8 @@ void LSbox::boundaryCondition(){
 		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
 			for(int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){
 				if ( inputDistance->isPointInside(i,j) ){
-					dist = 	(j-(m-grid_blowup))*h;
-					dist2 = (i-(m-grid_blowup))*h;				
+					dist = 	(j-(m-grid_blowup-1))*h;
+					dist2 = (i-(m-grid_blowup-1))*h;				
 					
 					if(dist<=0 && dist2>0 ) dist =dist2;
 					else if(dist2<=0 && dist >0 ) dist =dist;
@@ -832,7 +832,7 @@ void LSbox::boundaryCondition(){
 			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
 				if ( inputDistance->isPointInside(i,j)){
 					dist = 	-(j-grid_blowup)*h;
-					dist2 = (i-(m-grid_blowup))*h;
+					dist2 = (i-(m-grid_blowup-1))*h;
 					
 					if(dist<=0 && dist2>0 ) dist =dist2;
 					else if(dist2<=0 && dist >0 ) dist =dist;
@@ -858,7 +858,7 @@ void LSbox::boundaryCondition(){
 		for(int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
 			for(int j= m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){	
 				if ( inputDistance->isPointInside(i,j)){
-					dist = 	(j-(m-grid_blowup))*h;
+					dist = 	(j-(m-grid_blowup-1))*h;
 					dist2 = -(i-grid_blowup)*h;
 					
 					if(dist<=0 && dist2>0 ) dist =dist2;
