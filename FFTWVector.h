@@ -46,6 +46,10 @@ public:
 	{
 		new ((pointer) p) T(val);
 	}
+	void construct(pointer p)
+	{
+		new ((pointer) p) T();
+	}
 	void destroy(pointer p)
 	{
 		p->~T();
