@@ -135,20 +135,7 @@ void grainhdl::VOROMicrostructure(){
 	delete [] part_pos;
 }
 
-/*
-void grainhdl::construct_boundary(){
-	int nvertex;
-	double p1 = 0.0;
-	double p2 = 1.0  ;
-	double vertices[16] = {p1,p1,p1,p2,p1,p2,p2,p2,p2,p2,p2,p1,p2,p1,p1,p1};
-	
-	boundary = new LSbox(0, 4, vertices, 0, 0, 0, this);
-	grains[0]= boundary;
-	boundary->distancefunction(4, vertices); 
-	boundary->inversDistance();
-	// get the inverse distancefunction which slope 4!
-// 	(*boundary).plot_box(true,2,"boundary");
-}*/
+
 
 void grainhdl::readMicrostructurefromVertex(){
 	FILE * levelset;	
@@ -194,8 +181,6 @@ void grainhdl::readMicrostructurefromVertex(){
 	ST = new double [ngrains*ngrains];			//Create ST array and fill with zeros
 	std::fill_n(ST,ngrains*ngrains,0);
 	
-// 	compute_Boundary_Energy();
-	
 	for(unsigned int i=0; i<ngrains; i++){
 		double buffer;
 		fscanf(levelset, "%lf\t", &buffer);		
@@ -224,27 +209,6 @@ void grainhdl::readMicrostructurefromVertex(){
 }
  
 
-// void grainhdl::compute_Boundary_Energy(){
-// 	double energy;
-// 	double gamma_hagb = 0.6;
-// 	double theta_ref = 15.0* PI / 180.;
-// 	double theta_mis;
-// 	for(int i= 0; i<ngrains; i++) {
-// 		for(int j=0; j <=i; j++){	
-// 			if(i==j) ST[j+(ngrains*i)] = 1.0;
-// 			else{
-// 				theta_mis = grains[i+1]->mis_ori(grains[j+1]);
-// 				if (theta_mis <= theta_ref)	energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-// 				else energy = gamma_hagb;
-// 				//richtiger Logarithmus??????
-// 				ST[i+(ngrains*j)] = energy;
-// 				ST[j+(ngrains*i)] = energy;
-// 			}			
-// 		}
-// 	}
-// }
-//  
- 
  
 // void grainhdl::generateRandomEnergy(){	
 // 	const double MIN = 0.6;
@@ -372,40 +336,7 @@ void grainhdl::run_sim(){
 	cout << "Simulation complete." << endl;
 }  
 
-// void grainhdl::determineIDs(){
-//   	std::vector<LSbox*>::iterator it;
-// 	for (it = ++grains.begin(); it !=grains.end(); it++){
-// 		(*it)->determineIDs();
-// 	}
-// }
 
-/*
-void grainhdl::plot_contour(){
-	stringstream filename;
-	filename << "GrainNetwork_T" << loop << ".gnu";
-	
-	vector<LSbox*>::iterator it_gr; 
-	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
-	  (*it_gr)->plot_box_contour(loop);
-	}
-	//change to openmp reduce
-	stringstream dateinamen;
-	int len=0;
-	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
-	  if (len !=0) dateinamen << ", ";
-	  dateinamen << "\"TempBox_"<< (*it_gr)->get_id() <<"_T"<< loop << ".gnu\"";
-	  len+=15;
-	}
-	
-	utils::plotContour(filename.str().c_str(), dateinamen.str().c_str(), len);
-	
-// 	datei << s.str();
-// 	datei.close();
-}
- 
- */
- 
-  
  
 void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
@@ -431,14 +362,13 @@ void grainhdl::updateSecondOrderNeighbors(){
 }
 
 void grainhdl::find_neighbors(){
-	std::vector<LSbox*>::iterator it,itc;
-	
+	std::vector<LSbox*>::iterator it,itc;	
 	for (it = ++grains.begin(); it !=grains.end(); it++)
 		for (itc = ++grains.begin(); itc !=grains.end(); itc++)
 			if(*it!=*itc) 
 				if ((*it)->checkIntersect(*itc))
-					(*it)->neighbors.push_back(*itc);
-
+					(*it)->grainCharacteristics.push_back(characteristics(*itc,0,0,0));
+					
 }
 
 void grainhdl::saveSpecialContourEnergies(int id){

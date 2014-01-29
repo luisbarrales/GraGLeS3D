@@ -63,8 +63,7 @@ public:
 	friend class grainhdl;
     LSbox();
     ~LSbox();
-    vector<LSbox*> neighbors;
-	vector<LSbox*> neighbors_old;
+	vector<LSbox*> neighbourCandidates;
 	vector<LSbox*> neighbors_2order;
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);

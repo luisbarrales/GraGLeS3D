@@ -63,9 +63,8 @@ class grainhdl{
 	void convolution();
 	void save_conv_step();
 	void comparison_box();
+	
 	void updateSecondOrderNeighbors();
-// 	void determineIDs();
-
 	void level_set();
 	void redistancing();
 	
@@ -74,9 +73,7 @@ class grainhdl{
 	void clear_mem(); 
 	void save_texture();
 	void plot_contour();
-	
-	void compute_Boundary_Energy();
-// 	void construct_boundary();
+
 	void saveAllContourLines();
 	void saveAllContourEnergies();
 	void switchDistancebuffer();
