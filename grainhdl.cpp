@@ -15,7 +15,7 @@ void grainhdl::setSimulationParameter(){
 	ngrains = PARTICLES;
 	
 	hagb = HAGB;
-	if(Mode==1) realDomainSize= sqrt(PARTICLES*100)-1;	// half open container of VORO++
+	if(Mode==1) realDomainSize= 200;//sqrt(PARTICLES*100)-1;	// half open container of VORO++
 	if(Mode==2) realDomainSize= sqrt(PARTICLES*100);
 	discreteEnergyDistribution.resize(DISCRETESAMPLING);
 	dt = 1.0/double(realDomainSize*realDomainSize);
@@ -423,8 +423,9 @@ void grainhdl::save_sim(){
 
 void grainhdl::updateSecondOrderNeighbors(){
 	std::vector<LSbox*>::iterator it,itc;
-	for (it = ++grains.begin(); it !=grains.end(); it++){
-		(*it)->add_n2o();
+	for (it = ++grains.begin(); it !=grains.end(); it++){		
+// 		(*it)->add_n2o();
+		(*it)->add_n2o_2();
 // 		(*it)->plot_box(false,1, "nothing");
 	}
 }

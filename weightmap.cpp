@@ -3,17 +3,6 @@ Weightmap::mapkey::mapkey(vector<LSbox*> IDs) :
 	first(NULL),
 	second(NULL)
 {
-	//Debug checks
-	if(IDs.size() != 2)
-	{
-		//TODO:
-		//	Here we can detect a quadrupel junction - > find some proper solution for this!
-		// look for possible triple points
-		// add missing ones 
-		// set all weights to one special weight (computed by a weighting average e.a)
-		// weights should get deleted after some timesteps , when?? how to find out?
-		
-	}
 	//Sort & store first three elements in the member fields.
 	//Sort of 3 elements based on a binary decision tree.
 	if(IDs[0] < IDs[1])
@@ -48,20 +37,28 @@ Weightmap::~Weightmap()
 
 double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 {
-	Weightmap::mapkey key_tuple(IDs);
-	double weight;
-	std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
-	if (it == m_Weights.end())	//If value is not present, calculate and store it.
+	if(IDs.size() == 2)
 	{
-		weight = computeWeights(key_tuple, me, ST);
-		m_Weights[key_tuple] = weight;
-	}
-	else						//If present just fetch.
-	{
-		weight = (*it).second;
-	}
+			Weightmap::mapkey key_tuple(IDs);
+		double weight;
+		std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
+		
+		if (it == m_Weights.end())	//If value is not present, calculate and store it.
+		{
+			weight = computeWeights(key_tuple, me, ST);
+			m_Weights[key_tuple] = weight;
+		}
+		else						//If present just fetch.
+		{
+			weight = (*it).second;
+		}
 
-	return weight;
+		return weight;
+	}
+// 	else if (IDs.size() >= 2)
+// TODO
+	else return m_pHandler->hagb;
+
 }
 
 double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)

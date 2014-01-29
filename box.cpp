@@ -356,7 +356,7 @@ void LSbox::convolution(){
 	if(!ISOTROPIC && handler->loop!=0){	    
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
-		double weight;
+		double weight, gamma;
 	    double val;
 		double dist2OrderNeigh;
 	    
@@ -380,19 +380,31 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
+				
 				if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2)){
 					if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
 					{
 						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
 						weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
 	// 					cout << weight << endl;
-						weight = -(dist2OrderNeigh/ double(handler->delta) * (1-weight) )+ weight;
+						gamma = findGBEnergy(i,j);
+// 						cout << "gamma "<< gamma << endl;
+						weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
 	// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -handler->delta <<endl;
 						// the weight is a function of the distance to the 2 order neighbor
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 					}
 				}
-// 				IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
+				else if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 1)){
+					gamma = findGBEnergy(i,j);
+					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );				
+				}
+				else if ((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2)){
+				//TODO:
+				// possible to fix this case in the weightmap
+				// here are more than 2 neighbors active 
+				//-> change the condition in the first if to "==2" and handle this case by a weighted average
+				}
 			}
 		}	   
 	}
@@ -411,6 +423,30 @@ void LSbox::convolution(){
 // 	plot_box(true,2,"Convoluted_2");
 
 }
+
+double LSbox::findGBEnergy(int i,int j){
+	LSbox* neighbor = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0];
+	vector<characteristics>::iterator it;	
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbor == (*it).directNeighbour){
+			if((*it).energyDensity> 0.6 || (*it).energyDensity <0)
+			cout << (*it).energyDensity << endl;
+			return (*it).energyDensity;
+		}
+	}
+	neighbor = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1];
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbor == (*it).directNeighbour){
+			if((*it).energyDensity> 0.6 || (*it).energyDensity <0)
+			cout << (*it).energyDensity << endl;
+			return (*it).energyDensity;
+		}
+	}
+	
+}
+
+
+
 void LSbox::get_new_IDLocalSize(){
 	xmaxId = outputDistance->getMaxX();
 	xminId = outputDistance->getMinX();
@@ -963,7 +999,32 @@ void LSbox::add_n2o(){
 			if(just_in == false) neighbors_2order.push_back(*it_n2o);
 		}
 	}
+// 	plot_box(false,1,"no");
 }
+
+
+void LSbox::add_n2o_2(){
+	if(get_status() != true ) return;
+	vector<LSbox*> ::iterator it_com, it_n2o, it;
+	bool just_in;						
+	for(it = neighbors.begin(); it != neighbors.end(); it++){
+		for( it_n2o = (*it)->neighbors_old.begin(); it_n2o != (*it)->neighbors_old.end(); it_n2o++){
+			if(checkIntersect(*it_n2o)){
+				neighbors.push_back((*it_n2o));
+			}
+		}
+	}
+	for(it = neighbors.begin(); it != neighbors.end(); it++){
+		just_in=false;
+		for(it_com= neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
+			if((*it_com)==(*it)) just_in = true;
+		}
+		if((!just_in) && ((*it)->get_status()==true)) neighbors_2order.push_back((*it));
+	}
+	neighbors.clear();
+// 	plot_box(false,1,"no");
+}
+
 
 /**************************************/
 // end of Comparison
@@ -1059,8 +1120,8 @@ void LSbox::updateFirstOrderNeigbors(){
 					contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
 				else
 					contourGrain[i].energy = gamma_hagb;
-			}			
-			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0,contourGrain[i].energy,thetaMis));
+			}	
+			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis));
 			it = grainCharacteristics.end();
 			it--;
 		}	
@@ -1110,6 +1171,7 @@ void LSbox::computeVolumeAndEnergy()
 		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
 				break;
 		}
+		
 		if (it == grainCharacteristics.end()){
 			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0,contourGrain[i].energy,thetaMis));
 			it = grainCharacteristics.end();
@@ -1127,6 +1189,10 @@ void LSbox::computeVolumeAndEnergy()
 		energy += (contourGrain[i].energy * line_length);
 	}
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
+	
+// 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+// 		 printf("%d\t %lf\t %lf\t%lf\n", (*it).directNeighbour->get_id(),(*it).length,(*it).energyDensity,(*it).mis_ori);
+// 	}
 }
 
 

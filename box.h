@@ -81,7 +81,9 @@ public:
 	double getDistance(int i, int j);
     void set_comparison();
     void add_n2o();
+	void add_n2o_2();
     void computeVolumeAndEnergy();
+	double findGBEnergy(int i,int j);
 
 	
     bool checkIntersect(LSbox* box2);   	
