@@ -19,6 +19,7 @@
 #define NDEBUG
 
 #define HAGB 0.6;
+#define MOBILITY true
 
 #define ISOTROPIC false
 #define TEXTURE true 	// generates a Texture round a bunge orientation whith a deviation -> see grainhandler

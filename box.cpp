@@ -632,7 +632,7 @@ void LSbox::comparison(){
 	std::vector<LSbox*>::iterator it_nn;
 
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){	
-		if((*it_nn)->get_status()==false) continue;
+// 		if((*it_nn)->get_status()==false) continue;
 		int x_min_new, x_max_new, y_min_new, y_max_new;
 		
 		if(inputDistance->getMinX() < (**it_nn).inputDistance->getMinX()) x_min_new = (**it_nn).inputDistance->getMinX();
@@ -661,13 +661,14 @@ void LSbox::comparison(){
 							outputDistance->setValueAt(i, j, dist);
 							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
 						}
-					}
+					
 					else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
 						distance_2neighbor.setValueAt(i,j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
 					}
 					else { 
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+					}
 					}
 				}
 			}
@@ -975,7 +976,7 @@ void LSbox::add_n2o_2(){
 		if((!just_in) && ((*it_nC)->get_status()==true)) neighbors_2order.push_back((*it_nC));
 	}
 	neighbourCandidates.clear();
-	plot_box(false,1,"no");
+// 	plot_box(false,1,"no");
 }
 
 
@@ -1048,7 +1049,7 @@ void LSbox::updateFirstOrderNeigbors(){
 	vector<characteristics>::iterator it;	
 	double h = handler->get_h();
 	double line_length;
-	double thetaMis=0;	
+	double thetaMis=0, mu;	
 	double theta_ref = 15.0 * PI / 180.0;
 	double gamma_hagb = handler->hagb;
 	int i;
@@ -1073,8 +1074,10 @@ void LSbox::updateFirstOrderNeigbors(){
 					contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
 				else
 					contourGrain[i].energy = gamma_hagb;
-			}	
-			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis));
+			}
+			if(MOBILITY) mu = GBmobilityModel(thetaMis);
+			else mu = 1;
+			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
 			it = grainCharacteristics.end();
 			it--;
 		}	
@@ -1090,7 +1093,7 @@ void LSbox::computeVolumeAndEnergy()
 	volume = 0;
 	perimeter = 0;
 	energy = 0;
-	double line_length;
+	double line_length, mu;
 	double h = handler->get_h();
 	double thetaMis=0;	
 	double theta_ref = 15.0 * PI / 180.0;
@@ -1126,7 +1129,9 @@ void LSbox::computeVolumeAndEnergy()
 		}
 		
 		if (it == grainCharacteristics.end()){
-			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0,contourGrain[i].energy,thetaMis));
+			if(MOBILITY) mu = GBmobilityModel(thetaMis);
+			else mu = 1;
+			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
 			it = grainCharacteristics.end();
 			it--;
 		}
@@ -1395,7 +1400,19 @@ double LSbox::mis_ori(LSbox* grain_2){
 	return (*(handler->mymath)).misorientationCubicQxQ( quaternion[0], quaternion[1], quaternion[2], quaternion[3], grain_2->quaternion[0], grain_2->quaternion[1], grain_2->quaternion[2], grain_2->quaternion[3] );
 }
 
-
+double LSbox::GBmobilityModel(double thetaMis){
+	double theta_ref = 15.0 * PI / 180.0;
+	double theta_ref_2 = 35.0 * PI / 180.0;
+	double tubeWidth= 10.0 * PI / 180.0;
+	double lagbM = 0.1;
+	double hagbM = 0.9;
+	double mu;
+	if(thetaMis < theta_ref) mu = 0.1;
+	else if(thetaMis > theta_ref && thetaMis < theta_ref_2) mu = hagbM;
+	else if(thetaMis > (theta_ref_2+tubeWidth)) mu = hagbM;
+	else  mu = cos((2*PI*thetaMis/ tubeWidth )- (0.5*tubeWidth));	
+	return mu;
+}
 
 void LSbox::inversDistance(){
 	

@@ -25,6 +25,8 @@ struct characteristics{
 	double mobility;
     characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(1)
 	{}
+	characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori, double mu) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(mu)
+	{}
 };
 
 /*!
@@ -103,6 +105,7 @@ public:
 	void switchInNOut();
 	void boundaryCondition();
 	void updateFirstOrderNeigbors();
+	double GBmobilityModel(double thetaMis);
 
 		
 	inline bool get_status(){ return exist;}
