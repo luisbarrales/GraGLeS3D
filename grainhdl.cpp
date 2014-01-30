@@ -273,6 +273,7 @@ void grainhdl::save_texture(){
 	stringstream filename;
 	double total_energy= 0.0;
 	int numberGrains=0;
+	double totalLength=0;
 	
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
@@ -297,21 +298,27 @@ void grainhdl::save_texture(){
 			total_energy += (*it)->energy;
 			numberGrains+=1;
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
+				if(!ISOTROPIC){
 				//take into account that every line is twice in the model
 				discreteEnergyDistribution[(int)(((*it2).energyDensity)/dh -0.5) ] += 0.5 * (*it2).length;
-			}		
+				}
+				totalLength += 0.5 * (*it2).length;
+			}	
+			
 		}
 	}
+	if(!ISOTROPIC){
 	for (int i=0; i < DISCRETESAMPLING; i++){
-		fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
-		printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+			fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+			printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+		}
 	}
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
-	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
-	
+	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl;
+	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
 	fclose(enLenDis);
 }
