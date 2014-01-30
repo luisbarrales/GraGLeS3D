@@ -991,7 +991,11 @@ void LSbox::add_n2o_2(){
 /**************************************/
 
 void LSbox::find_contour() {
-	if(get_status() != true ) return;
+	if(get_status() == false ) {
+	  handler->removeGrain(id);
+	  delete this;
+	  return;
+	}
 	exist = false;
 	
 	// save old boundaries -> function will compute updates

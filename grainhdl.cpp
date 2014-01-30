@@ -231,6 +231,7 @@ void grainhdl::readMicrostructurefromVertex(){
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it !=grains.end(); it++){	
+		if(*it==NULL) continue;
 		(*it)->convolution();
 	}
 }
@@ -241,6 +242,7 @@ void grainhdl::comparison_box(){
 	stringstream filename;
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++){	
+		if(*it==NULL) continue;
 		(*it)->comparison();
 	}
 }
@@ -249,6 +251,7 @@ void grainhdl::comparison_box(){
 void grainhdl::level_set(){
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
+		if(*it==NULL) continue;
 		(*it)->find_contour();
 	}
 }
@@ -258,6 +261,7 @@ void grainhdl::redistancing(){
  
 	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
+		if(*it==NULL) continue;
 		(*it)->redist_box();
 	}
 }
@@ -287,7 +291,7 @@ void grainhdl::save_texture(){
 	
 	for(it = ++grains.begin(); it != grains.end(); it++){
 // 		if(*it == NULL){ ??? better / faster
-		if((*it)->get_status()){
+		if(*it!=NULL&&(*it)->get_status()){
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
 			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);			
 			total_energy += (*it)->energy;
@@ -331,6 +335,7 @@ void grainhdl::run_sim(){
 			saveAllContourEnergies();
 			save_texture();
 		}
+		
 	}
 // 	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
@@ -354,7 +359,8 @@ void grainhdl::save_sim(){
 
 void grainhdl::updateSecondOrderNeighbors(){
 	std::vector<LSbox*>::iterator it,itc;
-	for (it = ++grains.begin(); it !=grains.end(); it++){		
+	for (it = ++grains.begin(); it !=grains.end(); it++){	
+		if(*it==NULL) continue;
 // 		(*it)->add_n2o();
 		(*it)->add_n2o_2();
 // 		(*it)->plot_box(false,1, "nothing");
@@ -363,15 +369,19 @@ void grainhdl::updateSecondOrderNeighbors(){
 
 void grainhdl::find_neighbors(){
 	std::vector<LSbox*>::iterator it,itc;	
-	for (it = ++grains.begin(); it !=grains.end(); it++)
-		for (itc = ++grains.begin(); itc !=grains.end(); itc++)
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		if(*it== NULL) continue;
+		for (itc = ++grains.begin(); itc !=grains.end(); itc++){
+			if(*itc== NULL) continue;
 			if(*it!=*itc) 
 				if ((*it)->checkIntersect(*itc))
 					(*it)->grainCharacteristics.push_back(characteristics(*itc,0,0,0));
-					
+		}
+	}				
 }
 
 void grainhdl::saveSpecialContourEnergies(int id){
+	if (grains[id]==NULL) return;
 	grains[id]->plot_box_contour(loop, true);
 }
 
@@ -382,9 +392,10 @@ void grainhdl::saveAllContourEnergies(){
 	output.open(filename.str());
 
 	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++)
-		(*it)->plot_box_contour(loop, true, &output);
-
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+	  if(*it== NULL) continue;
+	  (*it)->plot_box_contour(loop, true, &output);
+	}
 	output.close();
 }
 
@@ -394,16 +405,22 @@ void grainhdl::saveAllContourLines(){
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
-	for (it = ++grains.begin(); it !=grains.end(); it++)
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		 if(*it== NULL) continue;
 		(*it)->plot_box_contour(loop, false);
+	}
 	dateiname.close();
 }
-
+void grainhdl::removeGrain(int id){
+    grains[id]=NULL;
+}
 
 void grainhdl::switchDistancebuffer(){
 	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++)
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		if(*it== NULL) continue;
 		(*it)->switchInNOut();
+	}
 }
  
 void grainhdl::clear_mem() {

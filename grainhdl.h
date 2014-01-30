@@ -79,6 +79,7 @@ class grainhdl{
 	void switchDistancebuffer();
 	
 	void saveSpecialContourEnergies(int id);
+	void removeGrain(int id);
 
 	
 
