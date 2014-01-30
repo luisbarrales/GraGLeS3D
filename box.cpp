@@ -1297,7 +1297,7 @@ void LSbox::redist_box() {
 	outputDistance->clampValues(-handler->delta, handler->delta);
 	
 // 	plot_box(true,1,"Redist_1");
-// 	plot_box(true,2,"Redist_2");
+ 	plot_box(true,2,"Redist_out_");
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
