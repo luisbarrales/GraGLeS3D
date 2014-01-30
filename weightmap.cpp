@@ -81,19 +81,41 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	}	
 	
 	if(MODE == 1){
-		theta_mis = me->mis_ori(rep.first);
-		if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[0] = gamma_hagb;
-		
-		theta_mis = rep.first->mis_ori(rep.second);
-		if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[1] = gamma_hagb;
-		
-		theta_mis = me->mis_ori(rep.second);
-		if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[2] = gamma_hagb;
+		if(!MOBILITY){
+			theta_mis = me->mis_ori(rep.first);		
+			if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else gamma[0] = gamma_hagb;
+			
+			
+			theta_mis = rep.first->mis_ori(rep.second);			
+			if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else gamma[1] = gamma_hagb;
+			
+			
+			theta_mis = me->mis_ori(rep.second);
+			if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else gamma[2] = gamma_hagb;
+			
+// 			gamma[0] = me->getGBEnergy(rep.first);
+// 			gamma[1] = rep.first->getGBEnergy(rep.second);
+// 			gamma[2] = me->getGBEnergy(rep.second);
+		}
+		else {
+			gamma[0] = me->getGBEnergyTimesGBMobility(rep.first);
+			gamma[1] = rep.first->getGBEnergyTimesGBMobility(rep.second);
+			gamma[2] = me->getGBEnergyTimesGBMobility(rep.second);
+		}
 	}
 	sigma = gamma[0] - gamma[1] + gamma[2];
+	
+	if(sigma < 0.05) {
+		cout << sigma << endl;
+		cout <<"gamma in weighmap :  ";
+		cout << gamma[0] << "    " << gamma[1] << "    "  << gamma[2] << endl;
+		sigma=0.05;
+		char buf;
+		cin >> buf;
+	}
 	return sigma;
 }
 
