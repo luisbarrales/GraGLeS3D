@@ -15,8 +15,8 @@ void grainhdl::setSimulationParameter(){
 	ngrains = PARTICLES;
 	
 	hagb = HAGB;
-	if(Mode==1) realDomainSize= 200;//sqrt(PARTICLES*100)-1;	// half open container of VORO++
-	if(Mode==2) realDomainSize= sqrt(PARTICLES*100);
+	if(Mode==1) realDomainSize= sqrt(PARTICLES)*30-1;	// half open container of VORO++
+	if(Mode==2) realDomainSize= sqrt(PARTICLES)*30;
 	discreteEnergyDistribution.resize(DISCRETESAMPLING);
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);

@@ -387,17 +387,22 @@ void LSbox::convolution(){
 						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
 						weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
 	// 					cout << weight << endl;
-						gamma = findGBEnergy(i,j);
+// 						weight *=getGBMobility(i,j);
+						gamma = getGBEnergyTimesGBMobility(i,j);
 // 						cout << "gamma "<< gamma << endl;
-						weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
-	// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -handler->delta <<endl;
+						double weight1 = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+						if(weight < 0){
+							cout << weight << "    "<< weight1<< "    "<< gamma << "    "<< -handler->delta <<endl;
+							char buf;
+							cin >> buf;
+						}
 						// the weight is a function of the distance to the 2 order neighbor
-						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
+						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight1 );
 					}
 				}
 				else if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 1)){
-					gamma = findGBEnergy(i,j);
-					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );				
+					gamma = getGBEnergyTimesGBMobility(i,j);
+					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
 				}
 				else if ((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2)){
 				//TODO:
@@ -424,27 +429,42 @@ void LSbox::convolution(){
 
 }
 
-double LSbox::findGBEnergy(int i,int j){
-	LSbox* neighbor = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0];
+double LSbox::getGBEnergyTimesGBMobility(int i,int j){
+	LSbox* neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0];
 	vector<characteristics>::iterator it;	
 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-		if (neighbor == (*it).directNeighbour){
-			if((*it).energyDensity> 0.6 || (*it).energyDensity <0)
-			cout << (*it).energyDensity << endl;
-			return (*it).energyDensity;
+		if (neighbour == (*it).directNeighbour){
+// 			cout << (*it).mobility << endl;
+			return (*it).energyDensity*(*it).mobility ;
 		}
 	}
-	neighbor = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1];
+	neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1];
 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-		if (neighbor == (*it).directNeighbour){
-			if((*it).energyDensity> 0.6 || (*it).energyDensity <0)
-			cout << (*it).energyDensity << endl;
-			return (*it).energyDensity;
+		if (neighbour == (*it).directNeighbour){
+// 			cout << (*it).mobility << endl;			
+			return (*it).energyDensity*(*it).mobility ;
 		}
 	}
 	
 }
 
+double LSbox::getGBEnergyTimesGBMobility(LSbox* neighbour){
+	vector<characteristics>::iterator it;	
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbour == (*it).directNeighbour){
+			return (*it).energyDensity*(*it).mobility ;
+		}
+	}
+}
+
+double LSbox::getGBEnergy(LSbox* neighbour){
+	vector<characteristics>::iterator it;	
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbour == (*it).directNeighbour){
+			return (*it).energyDensity;
+		}
+	}
+}
 
 
 void LSbox::get_new_IDLocalSize(){
@@ -1409,12 +1429,15 @@ double LSbox::GBmobilityModel(double thetaMis){
 	double theta_ref_2 = 35.0 * PI / 180.0;
 	double tubeWidth= 10.0 * PI / 180.0;
 	double lagbM = 0.1;
-	double hagbM = 0.9;
+	double hagbM = 0.5;
 	double mu;
 	if(thetaMis < theta_ref) mu = 0.1;
 	else if(thetaMis > theta_ref && thetaMis < theta_ref_2) mu = hagbM;
 	else if(thetaMis > (theta_ref_2+tubeWidth)) mu = hagbM;
-	else  mu = cos((2*PI*thetaMis/ tubeWidth )- (0.5*tubeWidth));	
+	else  mu = hagbM + (0.5 *sin((2*PI*thetaMis/ (2*tubeWidth ))));	
+// 	cout << thetaMis << "  " << theta_ref << "  "<< theta_ref_2 << "  "<< mu <<endl;
+// 	char buf;
+// 	cin >> buf;
 	return mu;
 }
 

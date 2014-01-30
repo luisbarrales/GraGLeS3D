@@ -84,8 +84,9 @@ public:
     void add_n2o();
 	void add_n2o_2();
     void computeVolumeAndEnergy();
-	double findGBEnergy(int i,int j);
-
+	double getGBEnergyTimesGBMobility(int i,int j);
+	double getGBEnergyTimesGBMobility(LSbox* neighbour);
+	double getGBEnergy(LSbox* neighbour);
 	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
