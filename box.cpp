@@ -423,7 +423,7 @@ void LSbox::convolution(){
 // 	IDLocal.clear(); 
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
-
+	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
 
@@ -694,18 +694,18 @@ void LSbox::comparison(){
 			}
 		}
 	}
-	
+	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_first");
 	if(!(outputDistance->getMinX() >= grid_blowup &&  outputDistance->getMaxX() <= m-grid_blowup && outputDistance->getMinY() >= grid_blowup &&   outputDistance->getMaxY() <= m-grid_blowup))
 	{	
 		boundaryCondition();
 	}
 // 	plot_box(true,1,"Compare_zero");
-// 	plot_box(true,2,"Compare_zero");
+	if(id==15 &&handler->loop >120)  	plot_box(true,2,"Compare_zero");
 
 	set_comparison();
 
 // 	plot_box(true,1,"Compare_set");
-// 	plot_box(true,2,"Compare_set");
+	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_set");
 }
 
 
@@ -1024,6 +1024,7 @@ void LSbox::find_contour() {
 
     MarchingSquaresAlgorithm marcher(*inputDistance);
     exist = marcher.generateContour(contourGrain);
+	if(contourGrain.size() < 3) exist = false;
 	if(!exist) return;
     int grid_blowup = handler->get_grid_blowup();
 	int m = handler->get_ngridpoints();
@@ -1055,13 +1056,16 @@ void LSbox::find_contour() {
 	}
     
     // compute Volume and Energy
-    if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-    	computeVolumeAndEnergy();
+	if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+		computeVolumeAndEnergy();
 		volume = abs(volume);
 		cerr<< "Volume of " << id << "= " << volume << endl;
 		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
 	}
 	else updateFirstOrderNeigbors();
+	
+	if(grainCharacteristics.size() <2) exist =false;
+	
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -1109,6 +1113,7 @@ void LSbox::updateFirstOrderNeigbors(){
 		//save length in GrainCharaczeristics
 		it->length += (line_length*h);
 	}
+	
 
 }
 
@@ -1297,7 +1302,7 @@ void LSbox::redist_box() {
 	outputDistance->clampValues(-handler->delta, handler->delta);
 	
 // 	plot_box(true,1,"Redist_1");
- 	plot_box(true,2,"Redist_out_");
+ 	if(id == 15 && handler->loop >90)plot_box(true,2,"Redist");
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
