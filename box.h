@@ -107,6 +107,7 @@ public:
 	void boundaryCondition();
 	void updateFirstOrderNeigbors();
 	double GBmobilityModel(double thetaMis);
+	bool isNeighbour(LSbox* candidate);
 
 		
 	inline bool get_status(){ return exist;}

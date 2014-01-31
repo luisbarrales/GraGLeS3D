@@ -334,6 +334,7 @@ void LSbox::convolution(){
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int dt 	= handler->get_dt();
+
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
@@ -359,6 +360,9 @@ void LSbox::convolution(){
 		double weight, gamma;
 	    double val;
 		double dist2OrderNeigh;
+		int nActiveGrains;
+		vector<LSbox*> IDs;
+		vector<LSbox*> IDsActive;
 	    
 	    if (xminId < outputDistance->getMinX())
 		  intersec_xmin = outputDistance->getMinX();
@@ -405,10 +409,31 @@ void LSbox::convolution(){
 					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
 				}
 				else if ((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2)){
-				//TODO:
-				// possible to fix this case in the weightmap
-				// here are more than 2 neighbors active 
-				//-> change the condition in the first if to "==2" and handle this case by a weighted average
+					nActiveGrains = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size();
+					IDs.clear();
+					for (int ii = 0;ii < nActiveGrains; ii++){
+						if(isNeighbour(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii])) { 
+							IDs.push_back(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii]);
+						}
+					}
+					if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
+					else if (IDs.size()==3){
+						weight =0;
+						IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
+						weight += local_weights->isTriplePoint(IDsActive);
+						IDsActive.clear();
+						IDsActive.push_back(IDs[1]);IDsActive.push_back(IDs[2]);
+						weight += local_weights->isTriplePoint(IDsActive);
+						IDsActive.clear();
+						IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[2]);
+						weight += local_weights->isTriplePoint(IDsActive);						
+						weight /= 3;
+					}	
+					else weight = handler-> hagb;
+// 					
+					gamma = getGBEnergyTimesGBMobility(i,j);
+					double weight1 = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * handler->hagb );
 				}
 			}
 		}	   
@@ -423,7 +448,7 @@ void LSbox::convolution(){
 // 	IDLocal.clear(); 
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
-	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
+// 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
 
@@ -694,18 +719,18 @@ void LSbox::comparison(){
 			}
 		}
 	}
-	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_first");
+// 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_first");
 	if(!(outputDistance->getMinX() >= grid_blowup &&  outputDistance->getMaxX() <= m-grid_blowup && outputDistance->getMinY() >= grid_blowup &&   outputDistance->getMaxY() <= m-grid_blowup))
 	{	
 		boundaryCondition();
 	}
 // 	plot_box(true,1,"Compare_zero");
-	if(id==15 &&handler->loop >120)  	plot_box(true,2,"Compare_zero");
+// 	if(id==15 &&handler->loop >120)  	plot_box(true,2,"Compare_zero");
 
 	set_comparison();
 
 // 	plot_box(true,1,"Compare_set");
-	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_set");
+// 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_set");
 }
 
 
@@ -1302,7 +1327,7 @@ void LSbox::redist_box() {
 	outputDistance->clampValues(-handler->delta, handler->delta);
 	
 // 	plot_box(true,1,"Redist_1");
- 	if(id == 15 && handler->loop >90)plot_box(true,2,"Redist");
+//  	if(id == 15 && handler->loop >90)plot_box(true,2,"Redist");
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
@@ -1437,9 +1462,10 @@ double LSbox::GBmobilityModel(double thetaMis){
 	double hagbM = 0.5;
 	double mu;
 	if(thetaMis < theta_ref) mu = 0.1;
-	else if(thetaMis > theta_ref && thetaMis < theta_ref_2) mu = hagbM;
-	else if(thetaMis > (theta_ref_2+tubeWidth)) mu = hagbM;
-	else  mu = hagbM + (0.5 *sin((2*PI*thetaMis/ (2*tubeWidth ))));	
+	else mu = hagbM;
+// 	else if(thetaMis > theta_ref && thetaMis < theta_ref_2) mu = hagbM;
+// 	else if(thetaMis > (theta_ref_2+tubeWidth)) mu = hagbM;
+// 	else  mu = hagbM + (0.5 *sin((2*PI*thetaMis/ (2*tubeWidth ))));	
 // 	cout << thetaMis << "  " << theta_ref << "  "<< theta_ref_2 << "  "<< mu <<endl;
 // 	char buf;
 // 	cin >> buf;
@@ -1457,4 +1483,10 @@ void LSbox::inversDistance(){
 	}
 }
 
-
+bool LSbox::isNeighbour(LSbox* candidate){
+	vector<characteristics>::iterator it;	
+	for(it = grainCharacteristics.begin(); it!=grainCharacteristics.end(); it++){
+		if((*it).directNeighbour==candidate) return true;
+	}
+	return false;
+}

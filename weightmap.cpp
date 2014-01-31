@@ -61,6 +61,17 @@ double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 
 }
 
+double Weightmap::isTriplePoint(vector<LSbox*> IDs){
+	Weightmap::mapkey key_tuple(IDs);
+	std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
+	if (it == m_Weights.end())	//If value is not present, calculate and store it.
+		{
+			return 0.0;
+		}
+	else return (*it).second;
+}
+
+
 double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 {
 	
@@ -81,7 +92,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	}	
 	
 	if(MODE == 1){
-		if(!MOBILITY){
+// 		if(!MOBILITY){
 			theta_mis = me->mis_ori(rep.first);		
 			if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 			else gamma[0] = gamma_hagb;
@@ -99,12 +110,12 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 // 			gamma[0] = me->getGBEnergy(rep.first);
 // 			gamma[1] = rep.first->getGBEnergy(rep.second);
 // 			gamma[2] = me->getGBEnergy(rep.second);
-		}
-		else {
-			gamma[0] = me->getGBEnergyTimesGBMobility(rep.first);
-			gamma[1] = rep.first->getGBEnergyTimesGBMobility(rep.second);
-			gamma[2] = me->getGBEnergyTimesGBMobility(rep.second);
-		}
+// 		}
+// 		else {
+// 			gamma[0] = me->getGBEnergyTimesGBMobility(rep.first);
+// 			gamma[1] = rep.first->getGBEnergyTimesGBMobility(rep.second);
+// 			gamma[2] = me->getGBEnergyTimesGBMobility(rep.second);
+// 		}
 	}
 	sigma = gamma[0] - gamma[1] + gamma[2];
 	

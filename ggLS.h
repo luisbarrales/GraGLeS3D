@@ -2,7 +2,7 @@
 #define GGLS_h
 
 #define DIM 2
-#define PARTICLES 50
+#define PARTICLES 100
  //gridpoints in each direction
 
 #define BORDER 6
@@ -11,7 +11,7 @@
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 150
+#define TIMESTEPS 1000
 #define ANALYSESTEP 10
 #define DISCRETESAMPLING 25
 
