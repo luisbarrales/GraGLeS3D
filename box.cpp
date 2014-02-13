@@ -84,7 +84,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 	
 	local_weights=new Weightmap(owner);
-	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+// 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
 
@@ -147,7 +147,7 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));	
 	
-	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+// 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new Weightmap(owner);
 }
 
@@ -1121,19 +1121,20 @@ void LSbox::updateFirstOrderNeigbors(){
 				break;
 		}
 		if (it == grainCharacteristics.end()){
+			double energyLocal;
 			if(ISOTROPIC){
-				contourGrain[i].energy = 1.0;
+				energy = 1.0;
 			}		
 			else{
 				thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
 				if (thetaMis <= theta_ref)
-					contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+					energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
 				else
-					contourGrain[i].energy = gamma_hagb;
+					energyLocal = gamma_hagb;
 			}
-			if(MOBILITY) mu = GBmobilityModel(thetaMis);
+			if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
 			else mu = 1;
-			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
+			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
 			it = grainCharacteristics.end();
 			it--;
 		}	
@@ -1183,12 +1184,11 @@ void LSbox::computeVolumeAndEnergy()
 		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
 				break;
-		}
-		
+		}		
 		if (it == grainCharacteristics.end()){
 			if(MOBILITY) mu = GBmobilityModel(thetaMis);
 			else mu = 1;
-			grainCharacteristics.emplace_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
+			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
 			it = grainCharacteristics.end();
 			it--;
 		}

@@ -119,7 +119,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	}
 	sigma = gamma[0] - gamma[1] + gamma[2];
 	
-	if(sigma < 0.05) {
+	if(sigma < 0.0) {
 		cout << sigma << endl;
 		cout <<"gamma in weighmap :  ";
 		cout << gamma[0] << "    " << gamma[1] << "    "  << gamma[2] << endl;
