@@ -384,56 +384,57 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				
-				if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2)){
-					if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
-					{
-						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
-						weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
-	// 					cout << weight << endl;
-// 						weight *=getGBMobility(i,j);
+				if (val <= handler->tubeRadius) {
+					if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 2){
+						if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
+						{
+							dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
+							weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
+		// 					cout << weight << endl;
+	// 						weight *=getGBMobility(i,j);
+							gamma = getGBEnergyTimesGBMobility(i,j);
+	// 						cout << "gamma "<< gamma << endl;
+							weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+	// 						if(weight < 0){
+	// 							cout << weight << "    "<< weight1<< "    "<< gamma << "    "<< -handler->delta <<endl;
+	// 							char buf;
+	// 							cin >> buf;
+	// 						}
+							// the weight is a function of the distance to the 2 order neighbor
+							outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
+						}
+					}
+					else if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 1){
 						gamma = getGBEnergyTimesGBMobility(i,j);
-// 						cout << "gamma "<< gamma << endl;
-						double weight1 = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
-						if(weight < 0){
-							cout << weight << "    "<< weight1<< "    "<< gamma << "    "<< -handler->delta <<endl;
-							char buf;
-							cin >> buf;
-						}
-						// the weight is a function of the distance to the 2 order neighbor
-						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight1 );
+						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
 					}
-				}
-				else if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 1)){
-					gamma = getGBEnergyTimesGBMobility(i,j);
-					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
-				}
-				else if ((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2)){
-					nActiveGrains = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size();
-					IDs.clear();
-					for (int ii = 0;ii < nActiveGrains; ii++){
-						if(isNeighbour(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii])) { 
-							IDs.push_back(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii]);
+					else if (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2){
+						nActiveGrains = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size();
+						IDs.clear();
+						for (int ii = 0;ii < nActiveGrains; ii++){
+							if(isNeighbour(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii])) { 
+								IDs.push_back(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii]);
+							}
 						}
+						if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
+						else if (IDs.size()==3){
+							weight =0;
+							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
+							weight += local_weights->isTriplePoint(IDsActive);
+							IDsActive.clear();
+							IDsActive.push_back(IDs[1]);IDsActive.push_back(IDs[2]);
+							weight += local_weights->isTriplePoint(IDsActive);
+							IDsActive.clear();
+							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[2]);
+							weight += local_weights->isTriplePoint(IDsActive);						
+							weight /= 3;
+						}	
+						else weight = handler-> hagb;
+	// 					
+						gamma = getGBEnergyTimesGBMobility(i,j);
+						weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
 					}
-					if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
-					else if (IDs.size()==3){
-						weight =0;
-						IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
-						weight += local_weights->isTriplePoint(IDsActive);
-						IDsActive.clear();
-						IDsActive.push_back(IDs[1]);IDsActive.push_back(IDs[2]);
-						weight += local_weights->isTriplePoint(IDsActive);
-						IDsActive.clear();
-						IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[2]);
-						weight += local_weights->isTriplePoint(IDsActive);						
-						weight /= 3;
-					}	
-					else weight = handler-> hagb;
-// 					
-					gamma = getGBEnergyTimesGBMobility(i,j);
-					double weight1 = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
-					outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * handler->hagb );
 				}
 			}
 		}	   
@@ -470,6 +471,7 @@ double LSbox::getGBEnergyTimesGBMobility(int i,int j){
 			return (*it).energyDensity*(*it).mobility ;
 		}
 	}
+	return 1.0;
 	
 }
 
@@ -480,6 +482,7 @@ double LSbox::getGBEnergyTimesGBMobility(LSbox* neighbour){
 			return (*it).energyDensity*(*it).mobility ;
 		}
 	}
+	return 1.;
 }
 
 double LSbox::getGBEnergy(LSbox* neighbour){
@@ -1472,8 +1475,7 @@ double LSbox::GBmobilityModel(double thetaMis){
 	return mu;
 }
 
-void LSbox::inversDistance(){
-	
+void LSbox::inversDistance(){	
 	//TODO: WORK ON THIS
 	int m = outputDistance->getMaxX()-outputDistance->getMinX();
 	for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++) {

@@ -2,7 +2,7 @@
 #define GGLS_h
 
 #define DIM 2
-#define PARTICLES 100
+#define PARTICLES 5000
  //gridpoints in each direction
 
 #define BORDER 6
@@ -22,7 +22,7 @@
 #define MOBILITY false
 
 #define ISOTROPIC false
-#define TEXTURE false 	// generates a Texture round a bunge orientation whith a deviation -> see grainhandler
+#define TEXTURE true 	// generates a Texture round a bunge orientation whith a deviation -> see grainhandler
 // #define SAVEIMAGE false
 #define IMAGEOUT true
 
