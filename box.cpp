@@ -1005,12 +1005,14 @@ void LSbox::add_n2o_2(){
 // 	neighbors.clear();
 	neighbors_2order.clear();
 	for(it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-		neighbourCandidates.push_back((*it).directNeighbour);
-		for( it_ngC = (*it).directNeighbour->grainCharacteristics.begin(); it_ngC != (*it).directNeighbour->grainCharacteristics.end(); it_ngC++){			
-			if(checkIntersect((*it_ngC).directNeighbour)){
-				neighbourCandidates.push_back((*it_ngC).directNeighbour);
-			}
-		}
+		if((*it).directNeighbour->get_status()==true) 
+			neighbourCandidates.push_back((*it).directNeighbour);
+		for( it_ngC = (*it).directNeighbour->grainCharacteristics.begin(); it_ngC != (*it).directNeighbour->grainCharacteristics.end(); it_ngC++){	
+			if((*it_ngC).directNeighbour->get_status()==true)
+				if(checkIntersect((*it_ngC).directNeighbour)){
+					neighbourCandidates.push_back((*it_ngC).directNeighbour);
+				}
+		}		
 	}
 	for(it_nC = neighbourCandidates.begin(); it_nC != neighbourCandidates.end(); it_nC++){
 		just_in=false;
@@ -1021,7 +1023,7 @@ void LSbox::add_n2o_2(){
 				break;
 			}
 		}
-		if((!just_in) && ((*it_nC)->get_status()==true)) neighbors_2order.push_back((*it_nC));
+		if((!just_in)) neighbors_2order.push_back((*it_nC));
 	}
 	neighbourCandidates.clear();
 // 	plot_box(false,1,"no");
