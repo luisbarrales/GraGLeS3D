@@ -27,6 +27,9 @@ struct characteristics{
 	{}
 	characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori, double mu) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(mu)
 	{}
+	characteristics( const characteristics& other ) :
+		directNeighbour(other.directNeighbour), length(other.length), energyDensity(other.energyDensity), mis_ori(other.mis_ori), mobility(other.mobility)
+	{}
 };
 
 /*!
