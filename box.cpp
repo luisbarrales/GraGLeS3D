@@ -1041,6 +1041,7 @@ void LSbox::add_n2o_2(){
 /**************************************/
 
 void LSbox::find_contour() {
+	if(id == 10) plot_box(true,2, "grain10", true);
 	if(get_status() == false ) {
 	  handler->removeGrain(id);
 	  delete this;
@@ -1101,7 +1102,7 @@ void LSbox::find_contour() {
 		plot_box(true, 2, "error_grain.gnu", true);
 		exist =false;
 	}
-	if(id = 10) plot_box(true,2, "grain10", true);
+	if(id == 10) plot_box(true,2, "grain10", true);
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -1440,8 +1441,8 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
 		if(select == 2 && local) {
 		filename<< "BoxDistance_"<< simstep << "out_T" << loop << "_" << id << ".gnu";
 		datei.open(filename.str());
-			for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++){
-				for (int j = 0; j < outputDistance->getMaxX()-outputDistance->getMinX(); j++){
+			for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
+				for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 					if( i >= outputDistance->getMinY() && i < outputDistance->getMaxY() && j >=outputDistance->getMinX() && j < outputDistance->getMaxX()) {
 						datei << ::std::fixed << outputDistance->getValueAt(i,j) << "\t";
 					}
@@ -1453,8 +1454,8 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
 		if(select == 1 && local) {
 		filename<< "BoxDistance_"<< simstep << "in_T" << loop << "_" << id << ".gnu";
 		datei.open(filename.str());
-			for (int i = 0; i < inputDistance->getMaxY()-inputDistance->getMinY(); i++){
-				for (int j = 0; j < inputDistance->getMaxX()-inputDistance->getMinX(); j++){
+			for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++){
+				for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX(); j++){
 					if( i >= inputDistance->getMinY() && i < inputDistance->getMaxY() && j >=inputDistance->getMinX() && j < inputDistance->getMaxX()) {
 						datei << ::std::fixed << inputDistance->getValueAt(i,j)<< "\t";
 					}
