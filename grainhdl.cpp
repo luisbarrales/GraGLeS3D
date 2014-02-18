@@ -308,10 +308,10 @@ void grainhdl::save_texture(){
 		}
 	}
 	if(!ISOTROPIC){
-	for (int i=0; i < DISCRETESAMPLING; i++){
-			fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
-			printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
-		}
+		for (int i=0; i < DISCRETESAMPLING; i++){
+				fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+				printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+			}
 	}
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);

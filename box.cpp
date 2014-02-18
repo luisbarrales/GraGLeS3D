@@ -947,7 +947,7 @@ void LSbox::boundaryCondition(){
 		}
 	}
 	//upper left corner:
-	if( inputDistance->getMinX() < 2*grid_blowup 		&& inputDistance->getMinY() < 2*grid_blowup){
+	if( inputDistance->getMinX() < 2*grid_blowup && inputDistance->getMinY() < 2*grid_blowup){
 		for(int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
 			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
 				if ( inputDistance->isPointInside(i,j)){
@@ -1094,7 +1094,12 @@ void LSbox::find_contour() {
 	}
 	else updateFirstOrderNeigbors();
 	
-	if(grainCharacteristics.size() <2) exist =false;
+	
+	if(grainCharacteristics.size() <2) {
+		cout << "GRAIN: " << id << " has a positive Volume but lesse than 2 neighbors" << endl;
+		plot_box(true, 2, "error_grain.gnu");
+		exist =false;
+	}
 	
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
@@ -1188,7 +1193,7 @@ void LSbox::computeVolumeAndEnergy()
 				break;
 		}		
 		if (it == grainCharacteristics.end()){
-			if(MOBILITY) mu = GBmobilityModel(thetaMis);
+			if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
 			else mu = 1;
 			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
 			it = grainCharacteristics.end();
