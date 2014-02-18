@@ -1098,10 +1098,10 @@ void LSbox::find_contour() {
 	
 	if(grainCharacteristics.size() <2) {
 		cout << "GRAIN: " << id << " has a positive Volume but lesse than 2 neighbors" << endl;
-		plot_box(true, 2, "error_grain.gnu");
+		plot_box(true, 2, "error_grain.gnu", true);
 		exist =false;
 	}
-	
+	if(id = 10) plot_box(true,2, "grain10", true);
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -1391,7 +1391,7 @@ void LSbox::plot_box_contour(int timestep, bool plot_energy, ofstream* dest_file
 }
 
 
-void LSbox::plot_box(bool distanceplot, int select, string simstep){
+void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
   
 	cout <<" \nGrain  Info: " << endl;
 	cout << " ID :" <<id << endl;
@@ -1424,7 +1424,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 		stringstream filename;
 		ofstream datei;
 		int loop = handler->loop;
-		if(select == 2) {
+		if(select == 2 && !local) {
 		filename<< "BoxDistance_"<< simstep << "out_T" << loop << "_" << id << ".gnu";
 		datei.open(filename.str());
 			for (int i = 0; i < handler->get_ngridpoints(); i++){
@@ -1437,7 +1437,33 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 			datei << endl;
 			}	
 		}		
-		if(select == 1) {
+		if(select == 2 && local) {
+		filename<< "BoxDistance_"<< simstep << "out_T" << loop << "_" << id << ".gnu";
+		datei.open(filename.str());
+			for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++){
+				for (int j = 0; j < outputDistance->getMaxX()-outputDistance->getMinX(); j++){
+					if( i >= outputDistance->getMinY() && i < outputDistance->getMaxY() && j >=outputDistance->getMinX() && j < outputDistance->getMaxX()) {
+						datei << ::std::fixed << outputDistance->getValueAt(i,j) << "\t";
+					}
+					else datei << ::std::fixed << -handler->delta<< "\t";
+				}
+			datei << endl;
+			}	
+		}
+		if(select == 1 && local) {
+		filename<< "BoxDistance_"<< simstep << "in_T" << loop << "_" << id << ".gnu";
+		datei.open(filename.str());
+			for (int i = 0; i < inputDistance->getMaxY()-inputDistance->getMinY(); i++){
+				for (int j = 0; j < inputDistance->getMaxX()-inputDistance->getMinX(); j++){
+					if( i >= inputDistance->getMinY() && i < inputDistance->getMaxY() && j >=inputDistance->getMinX() && j < inputDistance->getMaxX()) {
+						datei << ::std::fixed << inputDistance->getValueAt(i,j)<< "\t";
+					}
+					else datei << ::std::fixed << -handler->delta<< "\t";
+				}
+			datei << endl;
+			}	
+		}		
+		if(select == 1 && !local) {
 		filename<< "BoxDistance_"<< simstep << "in_T" << loop << "_" << id << ".gnu";
 		datei.open(filename.str());
 			for (int i = 0; i < handler->get_ngridpoints(); i++){

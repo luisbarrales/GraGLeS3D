@@ -99,7 +99,7 @@ public:
 
 	void plot_box_contour(int timestep = -1, bool plot_energy=false, ofstream* dest_file = NULL);
 
-	void plot_box(bool distanceplot, int select, string simstep);
+	void plot_box(bool distanceplot, int select, string simstep, bool local);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();
 	void inversDistance();

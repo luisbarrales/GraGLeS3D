@@ -2,7 +2,7 @@
 #define GGLS_h
 
 #define DIM 2
-#define PARTICLES 5000
+#define PARTICLES 50
  //gridpoints in each direction
 
 #define BORDER 6
@@ -12,7 +12,7 @@
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
 #define TIMESTEPS 100
-#define ANALYSESTEP 10
+#define ANALYSESTEP 1
 #define DISCRETESAMPLING 25
 
 #define MODE 1 // 2 for read Microstructure;  1 for use Voro++
