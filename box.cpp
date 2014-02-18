@@ -699,7 +699,7 @@ void LSbox::comparison(){
 
 		for (int i = y_min_new; i < y_max_new; i++){
 			for (int j = x_min_new; j < x_max_new; j++){					
-				if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
+				if(abs(inputDistance->getValueAt(i,j)) < 0.7*handler->delta){
 					double dist = (**it_nn).getDistance(i,j);
 					if( abs(dist) < (0.7*handler->delta)){								
 						if( dist > outputDistance->getValueAt(i,j) ){
@@ -1400,11 +1400,11 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 //     if (distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 // 		else cout << " no distance values in storage!" << endl;
 	cout << " quaternion: " << quaternion[0] << " || "<< quaternion[1]<< " || " <<quaternion[2] << " || " << quaternion[3]<< endl;
-	if(neighbourCandidates.empty()!=true){
+	if(grainCharacteristics.empty()!=true){
 		cout << " List of Neighbors : ";
-		vector<LSbox*> :: iterator it;
-		for (it = neighbourCandidates.begin(); it != neighbourCandidates.end(); it++){
-			cout << (*it)->getID() << " || ";
+		vector<characteristics> :: iterator it;
+		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+			cout << (*it).directNeighbour->getID() << " || ";
 		}
 		cout << endl;
 	} else cout << " neighbors unknown " << endl;
