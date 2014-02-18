@@ -2,11 +2,11 @@
 
 
 
-LSbox::LSbox() :quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){}
+LSbox::LSbox() :exist(false), quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){  }
 
 LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 		id(id), handler(owner)
-{
+{	
 	exist = true;
 	quaternion = new double[4];
 	double euler[3] = {phi1,PHI,phi2};
@@ -19,14 +19,14 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 }
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), nvertices(0), handler(owner) {
-
+	
 	int grid_blowup = owner->get_grid_blowup(); 
+	exist = true;
 	double h = owner->get_h();
     // determine size of grain
-    quaternion = new double[4];
+	quaternion = new double[4];
 	
-	
-	if(TEXTURE){
+		if(TEXTURE){
 		double newOri[3];
 		(*(handler->mymath)).newOrientationFromReference( handler->bunge, handler->deviation, newOri );
 		(*(handler->mymath)).euler2quaternion(newOri, quaternion);
@@ -65,8 +65,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
             if (x1[1]/h < xmin) xmin = x1[1]/h;
             if (x2[1]/h < xmin) xmin = x2[1]/h;
             
-            if (x1[1]/h > xmax) xmax = (x1[1]/h);
-            if (x2[1]/h > xmax) xmax = (x2[1]/h);           
+            if (x1[1]/h > xmax) xmax = x1[1]/h;
+            if (x2[1]/h > xmax) xmax = x2[1]/h;           
         }
     }
     
@@ -84,7 +84,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 	
 	local_weights=new Weightmap(owner);
-	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+// 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
 
@@ -93,8 +93,9 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 
 
 LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), nvertices(nvertex), handler(owner){
-	quaternion = new double[4];
+	exist = true;
 
+	quaternion = new double[4];
 	double euler[3] = {phi1,PHI,phi2};
 	(*(handler->mymath)).euler2quaternion( euler, quaternion );
 	
@@ -106,12 +107,12 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	int ymax = 0; 
 	int ymin = xmin;
 	    
-    vektor x1(2), x2(2);
-    exist = true;
+	vektor x1(2), x2(2);
+	exist = true;
 
-   for (unsigned int k=0; k < nvertex; k++){       
-		x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-		x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
+	for (unsigned int k=0; k < nvertex; k++){       
+	  x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+	  x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
 		
 		//	for convention: 
 		//	x[i][j]:
@@ -146,17 +147,15 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));	
 	
-	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+// 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new Weightmap(owner);
 }
 
 LSbox::~LSbox() {
-	if(quaternion!=NULL){
-		delete [] quaternion;
-		delete inputDistance;
-		delete outputDistance;
-		delete local_weights;
-	}
+	if(quaternion!=NULL) delete [] quaternion;
+	delete inputDistance;
+	delete outputDistance;
+	if(local_weights!=NULL) delete local_weights;
 }
 
 int LSbox::getID() {
@@ -246,7 +245,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
     
     int i,j,k;
     double d, dmin,lambda;
-
+    
     vektor u(2), a(2), p(2), x1(2), x2(2);
     vector<double> vv;
     c.vertices (part_pos[3*(id-1)],part_pos[3*(id-1)+1],part_pos[3*(id-1)+2],vv);
@@ -335,6 +334,7 @@ void LSbox::convolution(){
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int dt 	= handler->get_dt();
+
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
@@ -357,9 +357,12 @@ void LSbox::convolution(){
 	if(!ISOTROPIC && handler->loop!=0){	    
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
-		double weight;
+		double weight, gamma;
 	    double val;
 		double dist2OrderNeigh;
+		int nActiveGrains;
+		vector<LSbox*> IDs;
+		vector<LSbox*> IDsActive;
 	    
 	    if (xminId < outputDistance->getMinX())
 		  intersec_xmin = outputDistance->getMinX();
@@ -381,19 +384,58 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if((val <= handler->tubeRadius) && (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2)){
-					if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
-					{
-						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
-						weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
-	// 					cout << weight << endl;
-						weight = -(dist2OrderNeigh/ double(handler->delta) * (1-weight) )+ weight;
-	// 					cout << weight << "    "<< dist2OrderNeigh << "    "<< -handler->delta <<endl;
-						// the weight is a function of the distance to the 2 order neighbor
-						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
+				if (val <= handler->tubeRadius) {
+					if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 2){
+						if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
+						{
+							dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
+							weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
+		// 					cout << weight << endl;
+	// 						weight *=getGBMobility(i,j);
+							gamma = getGBEnergyTimesGBMobility(i,j);
+	// 						cout << "gamma "<< gamma << endl;
+							weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+	// 						if(weight < 0){
+	// 							cout << weight << "    "<< weight1<< "    "<< gamma << "    "<< -handler->delta <<endl;
+	// 							char buf;
+	// 							cin >> buf;
+	// 						}
+							// the weight is a function of the distance to the 2 order neighbor
+							outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
+						}
+					}
+					else if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 1){
+						gamma = getGBEnergyTimesGBMobility(i,j);
+						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
+					}
+					else if (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2){
+						nActiveGrains = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size();
+						IDs.clear();
+						for (int ii = 0;ii < nActiveGrains; ii++){
+							if(isNeighbour(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii])) { 
+								IDs.push_back(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii]);
+							}
+						}
+						if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
+						else if (IDs.size()==3){
+							weight =0;
+							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
+							weight += local_weights->isTriplePoint(IDsActive);
+							IDsActive.clear();
+							IDsActive.push_back(IDs[1]);IDsActive.push_back(IDs[2]);
+							weight += local_weights->isTriplePoint(IDsActive);
+							IDsActive.clear();
+							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[2]);
+							weight += local_weights->isTriplePoint(IDsActive);						
+							weight /= 3;
+						}	
+						else weight = handler-> hagb;
+	// 					
+						gamma = getGBEnergyTimesGBMobility(i,j);
+						weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
 					}
 				}
-// 				IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].clear();
 			}
 		}	   
 	}
@@ -407,11 +449,52 @@ void LSbox::convolution(){
 // 	IDLocal.clear(); 
 	get_new_IDLocalSize();
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
-
+// 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
 // 	plot_box(true,1,"Convoluted_1");
 // 	plot_box(true,2,"Convoluted_2");
 
 }
+
+double LSbox::getGBEnergyTimesGBMobility(int i,int j){
+	LSbox* neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0];
+	vector<characteristics>::iterator it;	
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbour == (*it).directNeighbour){
+// 			cout << (*it).mobility << endl;
+			return (*it).energyDensity*(*it).mobility ;
+		}
+	}
+	neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1];
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbour == (*it).directNeighbour){
+// 			cout << (*it).mobility << endl;			
+			return (*it).energyDensity*(*it).mobility ;
+		}
+	}
+	return 1.0;
+	
+}
+
+double LSbox::getGBEnergyTimesGBMobility(LSbox* neighbour){
+	vector<characteristics>::iterator it;	
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbour == (*it).directNeighbour){
+			return (*it).energyDensity*(*it).mobility ;
+		}
+	}
+	return 1.;
+}
+
+double LSbox::getGBEnergy(LSbox* neighbour){
+	vector<characteristics>::iterator it;	
+	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if (neighbour == (*it).directNeighbour){
+			return (*it).energyDensity;
+		}
+	}
+}
+
+
 void LSbox::get_new_IDLocalSize(){
 	xmaxId = outputDistance->getMaxX();
 	xminId = outputDistance->getMinX();
@@ -568,7 +651,7 @@ void LSbox::set_comparison(){
 			}
 		}
 	}
-	neighbors_old = neighbors;
+// 	neighbors_old = neighbors;
 }
 
 
@@ -596,79 +679,61 @@ void LSbox::comparison(){
 	int loop = handler->loop;
 	std::vector<LSbox*>::iterator it_nn;
 
-	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end();){		
-			if( ((**it_nn).get_status() == true )) {
-			if (checkIntersect(*it_nn)){
-				neighbors.push_back(*it_nn);
-				int x_min_new, x_max_new, y_min_new, y_max_new;
-				
-				if(inputDistance->getMinX() < (**it_nn).inputDistance->getMinX()) x_min_new = (**it_nn).inputDistance->getMinX();
-					else x_min_new = inputDistance->getMinX();
-				
-				if(inputDistance->getMaxX() > (**it_nn).inputDistance->getMaxX()) x_max_new = (**it_nn).inputDistance->getMaxX();
-					else x_max_new = inputDistance->getMaxX();
-								
-				if(inputDistance->getMinY() < (**it_nn).inputDistance->getMinY()) y_min_new = (**it_nn).inputDistance->getMinY();
-					else y_min_new = inputDistance->getMinY();
-					
-				if(inputDistance->getMaxY() > (**it_nn).inputDistance->getMaxY()) y_max_new = (**it_nn).inputDistance->getMaxY();
-					else y_max_new = inputDistance->getMaxY();
-					
-// 				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
-	
-				for (int i = y_min_new; i < y_max_new; i++){
-					for (int j = x_min_new; j < x_max_new; j++){					
-// 						after the Convolution the updated distancefunction is in the distanceBuffer2 array of each box. so we have to compare with this array. 
-// 						the nearest value we save for comparison in the distanceBuffer2 array of the current grain.						
-						if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
-							double dist = (**it_nn).getDistance(i,j);
-							if( abs(dist) < (0.7*handler->delta)){								
-								if( dist > outputDistance->getValueAt(i,j) ){
-										if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
-											// here we found a new first order neighbor, but before saving his distance value, we do a copy of the old to hold as second prder neighbor
-											distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
-										}
-										outputDistance->setValueAt(i, j, dist);
-										IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
-	// 								}
-								}
-								else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
-									distance_2neighbor.setValueAt(i,j, dist);
-									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
-								}
-								else { 
-									IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
-								}
+	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){	
+// 		if((*it_nn)->get_status()==false) continue;
+		int x_min_new, x_max_new, y_min_new, y_max_new;
+		
+		if(inputDistance->getMinX() < (**it_nn).inputDistance->getMinX()) x_min_new = (**it_nn).inputDistance->getMinX();
+			else x_min_new = inputDistance->getMinX();
+		
+		if(inputDistance->getMaxX() > (**it_nn).inputDistance->getMaxX()) x_max_new = (**it_nn).inputDistance->getMaxX();
+			else x_max_new = inputDistance->getMaxX();
+						
+		if(inputDistance->getMinY() < (**it_nn).inputDistance->getMinY()) y_min_new = (**it_nn).inputDistance->getMinY();
+			else y_min_new = inputDistance->getMinY();
+			
+		if(inputDistance->getMaxY() > (**it_nn).inputDistance->getMaxY()) y_max_new = (**it_nn).inputDistance->getMaxY();
+			else y_max_new = inputDistance->getMaxY();
+			
+// 		cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
+
+		for (int i = y_min_new; i < y_max_new; i++){
+			for (int j = x_min_new; j < x_max_new; j++){					
+				if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
+					double dist = (**it_nn).getDistance(i,j);
+					if( abs(dist) < (0.7*handler->delta)){								
+						if( dist > outputDistance->getValueAt(i,j) ){
+							if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
+								distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
 							}
+							outputDistance->setValueAt(i, j, dist);
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
 						}
+					
+					else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
+						distance_2neighbor.setValueAt(i,j, dist);
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
+					}
+					else { 
+						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+					}
 					}
 				}
 			}
-			
 		}
-		neighbors_2order.erase(it_nn);
 	}
-
-
-/*if(loop=99 &&id == 243){
-	plot_box(true,1,"Compare");
-	plot_box(true,2,"Compare");
-}*/	
-// 	checkIntersect_zero_grain();
-if (!(outputDistance->getMinX() >= grid_blowup &&  outputDistance->getMaxX() <= m-grid_blowup && outputDistance->getMinY() >= grid_blowup &&   outputDistance->getMaxY() <= m-grid_blowup))
-{	
-	boundaryCondition();
-}
-// if(loop=99 &&id == 243){
+// 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_first");
+	if(!(outputDistance->getMinX() >= grid_blowup &&  outputDistance->getMaxX() <= m-grid_blowup && outputDistance->getMinY() >= grid_blowup &&   outputDistance->getMaxY() <= m-grid_blowup))
+	{	
+		boundaryCondition();
+	}
 // 	plot_box(true,1,"Compare_zero");
-// 	plot_box(true,2,"Compare_zero");
-// }	
-	set_comparison();
-// if(loop=99 &&id == 243){
-// 	plot_box(true,1,"Compare_set");
-// 	plot_box(true,2,"Compare_set");
-// }
+// 	if(id==15 &&handler->loop >120)  	plot_box(true,2,"Compare_zero");
 
+	set_comparison();
+
+// 	plot_box(true,1,"Compare_set");
+// 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_set");
 }
 
 
@@ -755,8 +820,8 @@ void LSbox::boundaryCondition(){
 		for (int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
 			for (int j=xminLoc; j< xmaxLoc; j++ ){
 				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
-					dist=(i-(m-grid_blowup))*h;	
-
+					
+					dist=(i-(m-grid_blowup-1))*h;	
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
@@ -778,12 +843,12 @@ void LSbox::boundaryCondition(){
 		
 		int ymaxLoc;
 		if( m- 2*grid_blowup >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
-			else ymaxLoc = m- 2*grid_blowup;			
+			else ymaxLoc = m- 2*grid_blowup ;			
 
 		for (int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){			
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
 				if (inputDistance->getValueAt(i,j) < 0.7*handler->delta){
-					dist=(j-(m-grid_blowup))*h;							
+					dist=(j-(m-grid_blowup-1))*h;							
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
@@ -797,13 +862,15 @@ void LSbox::boundaryCondition(){
 	}
 	
 	// check corners:
+	
+	//***********************************************//
 	//lower right corner:
 	if( inputDistance->getMaxX() > m-(2*grid_blowup) 	&& inputDistance->getMaxY() > m-(2*grid_blowup)){
 		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
 			for(int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){
 				if ( inputDistance->isPointInside(i,j) ){
-					dist = 	(j-(m-grid_blowup))*h;
-					dist2 = (i-(m-grid_blowup))*h;				
+					dist = 	(j-(m-grid_blowup-1))*h;
+					dist2 = (i-(m-grid_blowup-1))*h;				
 					
 					if(dist<=0 && dist2>0 ) dist =dist2;
 					else if(dist2<=0 && dist >0 ) dist =dist;
@@ -832,7 +899,7 @@ void LSbox::boundaryCondition(){
 			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
 				if ( inputDistance->isPointInside(i,j)){
 					dist = 	-(j-grid_blowup)*h;
-					dist2 = (i-(m-grid_blowup))*h;
+					dist2 = (i-(m-grid_blowup-1))*h;
 					
 					if(dist<=0 && dist2>0 ) dist =dist2;
 					else if(dist2<=0 && dist >0 ) dist =dist;
@@ -858,7 +925,7 @@ void LSbox::boundaryCondition(){
 		for(int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
 			for(int j= m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){	
 				if ( inputDistance->isPointInside(i,j)){
-					dist = 	(j-(m-grid_blowup))*h;
+					dist = 	(j-(m-grid_blowup-1))*h;
 					dist2 = -(i-grid_blowup)*h;
 					
 					if(dist<=0 && dist2>0 ) dist =dist2;
@@ -880,7 +947,7 @@ void LSbox::boundaryCondition(){
 		}
 	}
 	//upper left corner:
-	if( inputDistance->getMinX() < 2*grid_blowup 		&& inputDistance->getMinY() < 2*grid_blowup){
+	if( inputDistance->getMinX() < 2*grid_blowup && inputDistance->getMinY() < 2*grid_blowup){
 		for(int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
 			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
 				if ( inputDistance->isPointInside(i,j)){
@@ -910,43 +977,7 @@ void LSbox::boundaryCondition(){
 
 }
 
-
-
-
-// void LSbox::checkIntersect_zero_grain(){
-// 	LSbox* boundary = handler->boundary;
-// 	int grid_blowup = handler->get_grid_blowup();
-// 	double h = handler->get_h();
-// 	int m = handler->get_ngridpoints();
-// 	double dist;
-// 	if (!(outputDistance->getMinX() > boundary->outputDistance->getMinX() &&
-// 		  outputDistance->getMaxX() < boundary->outputDistance->getMaxX() &&
-// 		  outputDistance->getMinY() > boundary->outputDistance->getMinY() &&
-// 		  outputDistance->getMaxY() < boundary->outputDistance->getMaxY()))
-// 	{
-// 		for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
-// 			for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-// // 				if ((i < grid_blowup) || (m- grid_blowup  < i) || (j < grid_blowup ) || (m-grid_blowup< j)){
-// // 					dist = 
-// 					if ((i <= 2* grid_blowup) || (m-2*grid_blowup  <= i) || (j <= 2*grid_blowup ) || (m-2*grid_blowup<= j)){
-// // 						dist = (grid_blowup -i) * h + (grid_blowup-j) * h + ()
-// 						dist = boundary->outputDistance->getValueAt(i,j);					
-// 						
-// 						if( dist > outputDistance->getValueAt(i,j) ){
-// 							outputDistance->setValueAt(i, j, dist);
-// 							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-// 						}
-// 						else { 
-// 							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-// 						}	
-// 					}
-// // 				}
-// 			}
-// 		}
-// 	}
-// }
-
-
+/*
 void LSbox::add_n2o(){
 	if(get_status() != true ) return;
 	neighbors_2order = neighbors;
@@ -962,7 +993,42 @@ void LSbox::add_n2o(){
 			if(just_in == false) neighbors_2order.push_back(*it_n2o);
 		}
 	}
+// 	plot_box(false,1,"no");
+}*/
+
+
+void LSbox::add_n2o_2(){
+	if(get_status() != true ) return;
+	vector<characteristics> ::iterator it, it_ngC;
+	vector<LSbox*> ::iterator it_com, it_nC;
+	bool just_in;
+// 	neighbors.clear();
+	neighbors_2order.clear();
+	for(it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		if((*it).directNeighbour->get_status()==true) 
+			neighbourCandidates.push_back((*it).directNeighbour);
+		for( it_ngC = (*it).directNeighbour->grainCharacteristics.begin(); it_ngC != (*it).directNeighbour->grainCharacteristics.end(); it_ngC++){	
+			if((*it_ngC).directNeighbour->get_status()==true)
+				if(checkIntersect((*it_ngC).directNeighbour)){
+					neighbourCandidates.push_back((*it_ngC).directNeighbour);
+				}
+		}		
+	}
+	for(it_nC = neighbourCandidates.begin(); it_nC != neighbourCandidates.end(); it_nC++){
+		just_in=false;
+		if((*it_nC)==this) continue;
+		for(it_com= neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
+			if((*it_com)==(*it_nC)) {
+				just_in = true;
+				break;
+			}
+		}
+		if((!just_in)) neighbors_2order.push_back((*it_nC));
+	}
+	neighbourCandidates.clear();
+// 	plot_box(false,1,"no");
 }
+
 
 /**************************************/
 // end of Comparison
@@ -975,7 +1041,11 @@ void LSbox::add_n2o(){
 /**************************************/
 
 void LSbox::find_contour() {
-	if(get_status() != true ) return;
+	if(get_status() == false ) {
+	  handler->removeGrain(id);
+	  delete this;
+	  return;
+	}
 	exist = false;
 	
 	// save old boundaries -> function will compute updates
@@ -984,6 +1054,7 @@ void LSbox::find_contour() {
 
     MarchingSquaresAlgorithm marcher(*inputDistance);
     exist = marcher.generateContour(contourGrain);
+	if(contourGrain.size() < 3) exist = false;
 	if(!exist) return;
     int grid_blowup = handler->get_grid_blowup();
 	int m = handler->get_ngridpoints();
@@ -1015,63 +1086,137 @@ void LSbox::find_contour() {
 		}
 	}
     
-
-
     // compute Volume and Energy
-    if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
-    	computeVolumeAndEnergy();
-
-
-		volume = abs(volume)	*0.5;
+	if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+		computeVolumeAndEnergy();
+		volume = abs(volume);
 		cerr<< "Volume of " << id << "= " << volume << endl;
-		cerr<< "Surface Energy of " << id << "= " << abs(energy)*0.5<< endl << endl;
-
+		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
 	}
+	else updateFirstOrderNeigbors();
+	
+	
+	if(grainCharacteristics.size() <2) {
+		cout << "GRAIN: " << id << " has a positive Volume but lesse than 2 neighbors" << endl;
+		plot_box(true, 2, "error_grain.gnu");
+		exist =false;
+	}
+	
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	return;
 }
 
+void LSbox::updateFirstOrderNeigbors(){
+	grainCharacteristics.clear();
+	vector<characteristics>::iterator it;	
+	double h = handler->get_h();
+	double line_length;
+	double thetaMis=0, mu;	
+	double theta_ref = 15.0 * PI / 180.0;
+	double gamma_hagb = handler->hagb;
+	int i;
+	
+	for(i=0; i<contourGrain.size() - 1; i++){		
+		double px =contourGrain[i].x;
+		double py =contourGrain[i].y;
+		int pxGrid = int(px+0.5);
+		int pyGrid = int(py+0.5);
+		
+		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
+				break;
+		}
+		if (it == grainCharacteristics.end()){
+			double energyLocal;
+			if(ISOTROPIC){
+				energy = 1.0;
+			}		
+			else{
+				thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
+				if (thetaMis <= theta_ref)
+					energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+				else
+					energyLocal = gamma_hagb;
+			}
+			if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
+			else mu = 1;
+			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
+			it = grainCharacteristics.end();
+			it--;
+		}	
+		line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
+		//save length in GrainCharaczeristics
+		it->length += (line_length*h);
+	}
+	
+
+}
+
 void LSbox::computeVolumeAndEnergy()
 {
 	volume = 0;
+	perimeter = 0;
 	energy = 0;
-
+	double line_length, mu;
 	double h = handler->get_h();
-	double thetaMis;
+	double thetaMis=0;	
 	double theta_ref = 15.0 * PI / 180.0;
-	double gamma_hagb = 0.6;
+	double gamma_hagb = handler->hagb;
+	int i;
+	grainCharacteristics.clear();
+	vector<characteristics>::iterator it;	
 
-	for(int i=0; i<contourGrain.size() - 1; i++)
-	{
+	for(i=0; i<contourGrain.size() - 1; i++){
+		
+		// Gaussian Trapez Formula:
 		volume += (contourGrain[i].y+contourGrain[i+1].y)*(contourGrain[i].x-contourGrain[i+1].x);
-		if(ISOTROPIC)
-		{
-			contourGrain[i].energy = 1.0;
+	  
+		double px =contourGrain[i].x;
+		double py =contourGrain[i].y;
+		int pxGrid = int(px+0.5);
+		int pyGrid = int(py+0.5);
+		if(ISOTROPIC){
+		  contourGrain[i].energy = 1.0;
+		}		
+		else{
+		  thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
+		  if (thetaMis <= theta_ref)
+		    contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+		  else
+		    contourGrain[i].energy = gamma_hagb;
 		}
-		else
-		{
-			double px =contourGrain[i].x;
-			double py =contourGrain[i].y;
-			int pxGrid = int(px+0.5);
-			int pyGrid = int(py+0.5);
-
-// 			cout << IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]->get_id() << endl;
-			thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);			
-			if (thetaMis <= theta_ref)
-				contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-			else
-				contourGrain[i].energy = gamma_hagb;
-
+		
+		// 	Check if the direct neigbourGrain is already in the vector 
+		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
+				break;
+		}		
+		if (it == grainCharacteristics.end()){
+			if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
+			else mu = 1;
+			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
+			it = grainCharacteristics.end();
+			it--;
 		}
-		double line_length = sqrt((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x) +
-			(contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y));
-		energy += (contourGrain[i].energy *line_length*h);
+	
+		line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
+		
+		//save length in GrainCharaczeristics
+		line_length *=h;
+		it->length += line_length;
+		
+		// save Grain properties:
+		perimeter += line_length;
+		energy += (contourGrain[i].energy * line_length);
 	}
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
+	
+// 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+// 		 printf("%d\t %lf\t %lf\t%lf\n", (*it).directNeighbour->get_id(),(*it).length,(*it).energyDensity,(*it).mis_ori);
+// 	}
 }
-
 
 
 
@@ -1193,7 +1338,7 @@ void LSbox::redist_box() {
 	outputDistance->clampValues(-handler->delta, handler->delta);
 	
 // 	plot_box(true,1,"Redist_1");
-// 	plot_box(true,2,"Redist_2");
+//  	if(id == 15 && handler->loop >90)plot_box(true,2,"Redist");
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
@@ -1256,10 +1401,10 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep){
 //     if (distanceplot==true) utils::print_2dim_array(distance,ymax-ymin,xmax-xmin);
 // 		else cout << " no distance values in storage!" << endl;
 	cout << " quaternion: " << quaternion[0] << " || "<< quaternion[1]<< " || " <<quaternion[2] << " || " << quaternion[3]<< endl;
-	if(neighbors.empty()!=true){
+	if(neighbourCandidates.empty()!=true){
 		cout << " List of Neighbors : ";
 		vector<LSbox*> :: iterator it;
-		for (it = neighbors.begin(); it != neighbors.end(); it++){
+		for (it = neighbourCandidates.begin(); it != neighbourCandidates.end(); it++){
 			cout << (*it)->getID() << " || ";
 		}
 		cout << endl;
@@ -1320,10 +1465,25 @@ double LSbox::mis_ori(LSbox* grain_2){
 	return (*(handler->mymath)).misorientationCubicQxQ( quaternion[0], quaternion[1], quaternion[2], quaternion[3], grain_2->quaternion[0], grain_2->quaternion[1], grain_2->quaternion[2], grain_2->quaternion[3] );
 }
 
+double LSbox::GBmobilityModel(double thetaMis){
+	double theta_ref = 15.0 * PI / 180.0;
+	double theta_ref_2 = 35.0 * PI / 180.0;
+	double tubeWidth= 10.0 * PI / 180.0;
+	double lagbM = 0.1;
+	double hagbM = 0.5;
+	double mu;
+	if(thetaMis < theta_ref) mu = 0.1;
+	else mu = hagbM;
+// 	else if(thetaMis > theta_ref && thetaMis < theta_ref_2) mu = hagbM;
+// 	else if(thetaMis > (theta_ref_2+tubeWidth)) mu = hagbM;
+// 	else  mu = hagbM + (0.5 *sin((2*PI*thetaMis/ (2*tubeWidth ))));	
+// 	cout << thetaMis << "  " << theta_ref << "  "<< theta_ref_2 << "  "<< mu <<endl;
+// 	char buf;
+// 	cin >> buf;
+	return mu;
+}
 
-
-void LSbox::inversDistance(){
-	
+void LSbox::inversDistance(){	
 	//TODO: WORK ON THIS
 	int m = outputDistance->getMaxX()-outputDistance->getMinX();
 	for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++) {
@@ -1333,4 +1493,10 @@ void LSbox::inversDistance(){
 	}
 }
 
-
+bool LSbox::isNeighbour(LSbox* candidate){
+	vector<characteristics>::iterator it;	
+	for(it = grainCharacteristics.begin(); it!=grainCharacteristics.end(); it++){
+		if((*it).directNeighbour==candidate) return true;
+	}
+	return false;
+}

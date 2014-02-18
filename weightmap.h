@@ -48,6 +48,16 @@ public:
 	/*!
 		 * \brief Basic destructor.
 	*/
+	
+	double isTriplePoint(vector<LSbox*> IDs);
+	/*!
+	 * \brief Method to return a weight if Triple Point exist else returns 0.0.
+	 * \param IDs IDs of the neighboring cells.
+	 * 
+	 * 
+	 */
+	
+	
 	~Weightmap();
 	/*!
 	 * \brief Method to return weights.

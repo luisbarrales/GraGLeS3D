@@ -4,7 +4,6 @@
 grainhdl::grainhdl(){}
 grainhdl::~grainhdl(){
 	delete mymath;
-	delete boundary;
 }
 
 
@@ -12,12 +11,13 @@ grainhdl::~grainhdl(){
 void grainhdl::setSimulationParameter(){
 	mymath = new mathMethods();
 	// 	readInit();
-	Mode = MODE; // 2 fuer lesen;  fuer erzeugen der mikrostrukture
+	Mode = MODE; // 2 fuer lesen;  1 fuer erzeugen der mikrostrukture
 	ngrains = PARTICLES;
 	
-	if(Mode==1) realDomainSize= sqrt(PARTICLES*100)-1;	// half open container of VORO++
-	if(Mode==2) realDomainSize= sqrt(PARTICLES*100);
-	
+	hagb = HAGB;
+	if(Mode==1) realDomainSize= sqrt(PARTICLES)*30-1;	// half open container of VORO++
+	if(Mode==2) realDomainSize= sqrt(PARTICLES)*30;
+	discreteEnergyDistribution.resize(DISCRETESAMPLING);
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
 	delta = BORDER * 1/double(realDomainSize);
@@ -35,7 +35,10 @@ void grainhdl::setSimulationParameter(){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
 				deviation = 15*PI/180;
 			}
-			else { bunge = NULL; deviation = 0;}
+			else { 
+				bunge = NULL; 
+				deviation = 0;
+			}
 			ST = NULL;			
 			VOROMicrostructure();
 // 			generateRandomEnergy();
@@ -133,19 +136,6 @@ void grainhdl::VOROMicrostructure(){
 }
 
 
-void grainhdl::construct_boundary(){
-	int nvertex;
-	double p1 = 0.0;
-	double p2 = 1.0  ;
-	double vertices[16] = {p1,p1,p1,p2,p1,p2,p2,p2,p2,p2,p2,p1,p2,p1,p1,p1};
-	
-	boundary = new LSbox(0, 4, vertices, 0, 0, 0, this);
-	grains[0]= boundary;
-	boundary->distancefunction(4, vertices); 
-	boundary->inversDistance();
-	// get the inverse distancefunction which slope 4!
-// 	(*boundary).plot_box(true,2,"boundary");
-}
 
 void grainhdl::readMicrostructurefromVertex(){
 	FILE * levelset;	
@@ -191,8 +181,6 @@ void grainhdl::readMicrostructurefromVertex(){
 	ST = new double [ngrains*ngrains];			//Create ST array and fill with zeros
 	std::fill_n(ST,ngrains*ngrains,0);
 	
-// 	compute_Boundary_Energy();
-	
 	for(unsigned int i=0; i<ngrains; i++){
 		double buffer;
 		fscanf(levelset, "%lf\t", &buffer);		
@@ -221,49 +209,29 @@ void grainhdl::readMicrostructurefromVertex(){
 }
  
 
-// void grainhdl::compute_Boundary_Energy(){
-// 	double energy;
-// 	double gamma_hagb = 0.6;
-// 	double theta_ref = 15.0* PI / 180.;
-// 	double theta_mis;
-// 	for(int i= 0; i<ngrains; i++) {
-// 		for(int j=0; j <=i; j++){	
+ 
+// void grainhdl::generateRandomEnergy(){	
+// 	const double MIN = 0.6;
+// 	const double MAX = 1.5;
+// 	for(int i=0; i < ngrains; i++){
+// 		for(int j=0; j <=i; j++){			
+// 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
+// // 			if (i==6 && j ==5) { 
+// // 				ST[i+(PARTICLES*j)] = 0.1;
+// // 				ST[j+(PARTICLES*i)] = 0.1;
+// // 			}
+// 			ST[i+(ngrains*j)] = zahl;
+// 			ST[j+(ngrains*i)] = zahl;
 // 			if(i==j) ST[j+(ngrains*i)] = 1.0;
-// 			else{
-// 				theta_mis = grains[i+1]->mis_ori(grains[j+1]);
-// 				if (theta_mis <= theta_ref)	energy = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-// 				else energy = gamma_hagb;
-// 				//richtiger Logarithmus??????
-// 				ST[i+(ngrains*j)] = energy;
-// 				ST[j+(ngrains*i)] = energy;
-// 			}			
 // 		}
-// 	}
+// 	} 
 // }
 //  
- 
- 
-void grainhdl::generateRandomEnergy(){	
-	const double MIN = 0.6;
-	const double MAX = 1.5;
-	for(int i=0; i < ngrains; i++){
-		for(int j=0; j <=i; j++){			
-			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
-// 			if (i==6 && j ==5) { 
-// 				ST[i+(PARTICLES*j)] = 0.1;
-// 				ST[j+(PARTICLES*i)] = 0.1;
-// 			}
-			ST[i+(ngrains*j)] = zahl;
-			ST[j+(ngrains*i)] = zahl;
-			if(i==j) ST[j+(ngrains*i)] = 1.0;
-		}
-	} 
-}
- 
  
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it !=grains.end(); it++){	
+		if(*it==NULL) continue;
 		(*it)->convolution();
 	}
 }
@@ -274,6 +242,7 @@ void grainhdl::comparison_box(){
 	stringstream filename;
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++){	
+		if(*it==NULL) continue;
 		(*it)->comparison();
 	}
 }
@@ -282,6 +251,7 @@ void grainhdl::comparison_box(){
 void grainhdl::level_set(){
 	vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
+		if(*it==NULL) continue;
 		(*it)->find_contour();
 	}
 }
@@ -291,6 +261,7 @@ void grainhdl::redistancing(){
  
 	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it != grains.end(); it++) {
+		if(*it==NULL) continue;
 		(*it)->redist_box();
 	}
 }
@@ -298,32 +269,58 @@ void grainhdl::redistancing(){
 
 void grainhdl::save_texture(){
 	FILE* myfile;
+	FILE* enLenDis;
 	stringstream filename;
 	double total_energy= 0.0;
 	int numberGrains=0;
+	double totalLength=0;
+	
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
+	
+	filename.str("");
+	filename << "EnergyLengthDistribution_" << loop<< ".txt";
+	enLenDis = fopen(filename.str().c_str(), "w");
+	double dh= hagb / (double)DISCRETESAMPLING;
 	double buffer = 0.24;
+	double euler[3];
+	vector<characteristics> :: iterator it2;
 // 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
 	
+	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0.0);
+	
 	for(it = ++grains.begin(); it != grains.end(); it++){
-		if((*it)->get_status()){
-			double euler[3];
+// 		if(*it == NULL){ ??? better / faster
+		if(*it!=NULL&&(*it)->get_status()){
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
-	// 		printf( "%lf\t%lf\t%lf\t%lf\n", (*it)->quaternion[0], (*it)->quaternion[1], (*it)->quaternion[2], (*it)->quaternion[3]);
-	// 		printf( "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
-			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, buffer);
+			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);			
 			total_energy += (*it)->energy;
 			numberGrains+=1;
+			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
+				if(!ISOTROPIC){
+				//take into account that every line is twice in the model
+				discreteEnergyDistribution[(int)(((*it2).energyDensity)/dh -0.5) ] += 0.5 * (*it2).length;
+				}
+				totalLength += 0.5 * (*it2).length;
+			}	
+			
 		}
 	}
-    totalenergy.push_back(0.5*total_energy);
+	if(!ISOTROPIC){
+		for (int i=0; i < DISCRETESAMPLING; i++){
+				fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+				printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+			}
+	}
+	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
-	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl << endl;
+	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl;
+	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
+	fclose(enLenDis);
 }
  
   
@@ -345,45 +342,13 @@ void grainhdl::run_sim(){
 			saveAllContourEnergies();
 			save_texture();
 		}
+		
 	}
 // 	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
 }  
 
-// void grainhdl::determineIDs(){
-//   	std::vector<LSbox*>::iterator it;
-// 	for (it = ++grains.begin(); it !=grains.end(); it++){
-// 		(*it)->determineIDs();
-// 	}
-// }
 
-/*
-void grainhdl::plot_contour(){
-	stringstream filename;
-	filename << "GrainNetwork_T" << loop << ".gnu";
-	
-	vector<LSbox*>::iterator it_gr; 
-	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
-	  (*it_gr)->plot_box_contour(loop);
-	}
-	//change to openmp reduce
-	stringstream dateinamen;
-	int len=0;
-	for( it_gr= grains.begin(); it_gr!= grains.end(); it_gr++){
-	  if (len !=0) dateinamen << ", ";
-	  dateinamen << "\"TempBox_"<< (*it_gr)->get_id() <<"_T"<< loop << ".gnu\"";
-	  len+=15;
-	}
-	
-	utils::plotContour(filename.str().c_str(), dateinamen.str().c_str(), len);
-	
-// 	datei << s.str();
-// 	datei.close();
-}
- 
- */
- 
-  
  
 void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
@@ -395,30 +360,35 @@ void grainhdl::save_sim(){
 	}
 	myfile.close();
 
-	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
+// 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 }
 
 void grainhdl::updateSecondOrderNeighbors(){
 	std::vector<LSbox*>::iterator it,itc;
-	for (it = ++grains.begin(); it !=grains.end(); it++){
-		(*it)->add_n2o();
+	for (it = ++grains.begin(); it !=grains.end(); it++){	
+		if(*it==NULL) continue;
+// 		(*it)->add_n2o();
+		(*it)->add_n2o_2();
 // 		(*it)->plot_box(false,1, "nothing");
 	}
 }
 
 void grainhdl::find_neighbors(){
-	std::vector<LSbox*>::iterator it,itc;
-	
-	for (it = ++grains.begin(); it !=grains.end(); it++)
-		for (itc = ++grains.begin(); itc !=grains.end(); itc++)
+	std::vector<LSbox*>::iterator it,itc;	
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		if(*it== NULL) continue;
+		for (itc = ++grains.begin(); itc !=grains.end(); itc++){
+			if(*itc== NULL) continue;
 			if(*it!=*itc) 
 				if ((*it)->checkIntersect(*itc))
-					(*it)->neighbors.push_back(*itc);
-
+					(*it)->grainCharacteristics.push_back(characteristics(*itc,0,0,0));
+		}
+	}				
 }
 
 void grainhdl::saveSpecialContourEnergies(int id){
+	if (grains[id]==NULL) return;
 	grains[id]->plot_box_contour(loop, true);
 }
 
@@ -429,9 +399,10 @@ void grainhdl::saveAllContourEnergies(){
 	output.open(filename.str());
 
 	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++)
-		(*it)->plot_box_contour(loop, true, &output);
-
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+	  if(*it== NULL) continue;
+	  (*it)->plot_box_contour(loop, true, &output);
+	}
 	output.close();
 }
 
@@ -441,16 +412,22 @@ void grainhdl::saveAllContourLines(){
 	ofstream dateiname;
 	dateiname.open(filename.str());
 	std::vector<LSbox*>::iterator it;	
-	for (it = ++grains.begin(); it !=grains.end(); it++)
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		 if(*it== NULL) continue;
 		(*it)->plot_box_contour(loop, false);
+	}
 	dateiname.close();
 }
-
+void grainhdl::removeGrain(int id){
+    grains[id]=NULL;
+}
 
 void grainhdl::switchDistancebuffer(){
 	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++)
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+		if(*it== NULL) continue;
 		(*it)->switchInNOut();
+	}
 }
  
 void grainhdl::clear_mem() {

@@ -3,17 +3,6 @@ Weightmap::mapkey::mapkey(vector<LSbox*> IDs) :
 	first(NULL),
 	second(NULL)
 {
-	//Debug checks
-	if(IDs.size() != 2)
-	{
-		//TODO:
-		//	Here we can detect a quadrupel junction - > find some proper solution for this!
-		// look for possible triple points
-		// add missing ones 
-		// set all weights to one special weight (computed by a weighting average e.a)
-		// weights should get deleted after some timesteps , when?? how to find out?
-		
-	}
 	//Sort & store first three elements in the member fields.
 	//Sort of 3 elements based on a binary decision tree.
 	if(IDs[0] < IDs[1])
@@ -48,31 +37,50 @@ Weightmap::~Weightmap()
 
 double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 {
+	if(IDs.size() == 2)
+	{
+			Weightmap::mapkey key_tuple(IDs);
+		double weight;
+		std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
+		
+		if (it == m_Weights.end())	//If value is not present, calculate and store it.
+		{
+			weight = computeWeights(key_tuple, me, ST);
+			m_Weights[key_tuple] = weight;
+		}
+		else						//If present just fetch.
+		{
+			weight = (*it).second;
+		}
+
+		return weight;
+	}
+// 	else if (IDs.size() >= 2)
+// TODO
+	else return m_pHandler->hagb;
+
+}
+
+double Weightmap::isTriplePoint(vector<LSbox*> IDs){
 	Weightmap::mapkey key_tuple(IDs);
-	double weight;
 	std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
 	if (it == m_Weights.end())	//If value is not present, calculate and store it.
-	{
-		weight = computeWeights(key_tuple, me, ST);
-		m_Weights[key_tuple] = weight;
-	}
-	else						//If present just fetch.
-	{
-		weight = (*it).second;
-	}
-
-	return weight;
+		{
+			return 0.0;
+		}
+	else return (*it).second;
 }
+
 
 double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 {
 	
 	double sigma;
 	double gamma[3];
-	double gamma_hagb = 0.6;
+	double gamma_hagb = m_pHandler->hagb;//0.6;
 	double theta_ref = 15.0 * PI /180;
 	double theta_mis;
-	double drag = 0.5;
+// 	double drag = 0.5;
 
 	if(MODE == 2){
 		gamma[0] = ST[(me->get_id() - 1)
@@ -84,19 +92,41 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	}	
 	
 	if(MODE == 1){
-		theta_mis = me->mis_ori(rep.first);
-		if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[0] = gamma_hagb;
-		
-		theta_mis = rep.first->mis_ori(rep.second);
-		if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[1] = gamma_hagb;
-		
-		theta_mis = me->mis_ori(rep.second);
-		if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-		else gamma[2] = gamma_hagb;
+// 		if(!MOBILITY){
+			theta_mis = me->mis_ori(rep.first);		
+			if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else gamma[0] = gamma_hagb;
+			
+			
+			theta_mis = rep.first->mis_ori(rep.second);			
+			if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else gamma[1] = gamma_hagb;
+			
+			
+			theta_mis = me->mis_ori(rep.second);
+			if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+			else gamma[2] = gamma_hagb;
+			
+// 			gamma[0] = me->getGBEnergy(rep.first);
+// 			gamma[1] = rep.first->getGBEnergy(rep.second);
+// 			gamma[2] = me->getGBEnergy(rep.second);
+// 		}
+// 		else {
+// 			gamma[0] = me->getGBEnergyTimesGBMobility(rep.first);
+// 			gamma[1] = rep.first->getGBEnergyTimesGBMobility(rep.second);
+// 			gamma[2] = me->getGBEnergyTimesGBMobility(rep.second);
+// 		}
 	}
 	sigma = gamma[0] - gamma[1] + gamma[2];
+	
+	if(sigma < 0.0) {
+		cout << sigma << endl;
+		cout <<"gamma in weighmap :  ";
+		cout << gamma[0] << "    " << gamma[1] << "    "  << gamma[2] << endl;
+		sigma=0.05;
+		char buf;
+		cin >> buf;
+	}
 	return sigma;
 }
 

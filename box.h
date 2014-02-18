@@ -17,19 +17,24 @@ class MarchingSquaresAlgorithm;
 
 struct SPoint;
 
-
-// struct pointVal {
-//     int x,y;
-//     double val;
-// 	int direction;
-//     pointVal(int yy, int xx, double aVal, int dir):x(xx), y(yy), val(aVal), direction(dir){}
-// };
-
-
+struct characteristics{
+    LSbox* directNeighbour;
+    double length;
+    double energyDensity;
+    double mis_ori;
+	double mobility;
+    characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(1)
+	{}
+	characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori, double mu) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(mu)
+	{}
+	characteristics( const characteristics& other ) :
+		directNeighbour(other.directNeighbour), length(other.length), energyDensity(other.energyDensity), mis_ori(other.mis_ori), mobility(other.mobility)
+	{}
+};
 
 /*!
  * \class LSBox
- * \brief Class encapsulating an Level Set Box.
+ * \brief Class encapsulating a Level Set Box.
  *
  * LSbox class contains the coordinates of the box in the actual grid. <br>
  * For each point that the LSbox covers, it stores: <br>
@@ -48,21 +53,22 @@ class LSbox {
 	bool exist;
 	vector<vector<LSbox*>> IDLocal;
 	Weightmap* local_weights;
-//     LSbox **IDLocal[2]; 	// local array to asign a cell id to each grid point
-    int nvertices;
+
+	int nvertices;
 	double* quaternion;
-	double volume;
-	double energy;
+	double energy, volume, perimeter;
 	grainhdl* handler;
-	vector <SPoint> contourGrain;
+	vector<SPoint> contourGrain;
+	vector<characteristics> grainCharacteristics;
+	
 	DimensionalBuffer<double>* inputDistance;
 	DimensionalBuffer<double>* outputDistance;
+
 public:
 	friend class grainhdl;
     LSbox();
     ~LSbox();
-    vector<LSbox*> neighbors;
-	vector<LSbox*> neighbors_old;
+	vector<LSbox*> neighbourCandidates;
 	vector<LSbox*> neighbors_2order;
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);
@@ -79,8 +85,11 @@ public:
 	double getDistance(int i, int j);
     void set_comparison();
     void add_n2o();
+	void add_n2o_2();
     void computeVolumeAndEnergy();
-
+	double getGBEnergyTimesGBMobility(int i,int j);
+	double getGBEnergyTimesGBMobility(LSbox* neighbour);
+	double getGBEnergy(LSbox* neighbour);
 	
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
@@ -99,6 +108,9 @@ public:
 	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
 	void switchInNOut();
 	void boundaryCondition();
+	void updateFirstOrderNeigbors();
+	double GBmobilityModel(double thetaMis);
+	bool isNeighbour(LSbox* candidate);
 
 		
 	inline bool get_status(){ return exist;}

@@ -1208,3 +1208,4 @@ void mathMethods::patalaQuat2RGB ( double *q, unsigned char *rgb)
 }
 
 
+

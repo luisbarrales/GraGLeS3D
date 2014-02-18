@@ -100,6 +100,7 @@ public:
 	double misorientationCubicOrigInv( double pa1, double Pa, double pa2, double pb1, double Pb, double pb2 );
 	double misorientationCubicCOReV2( double pa1, double Pa, double pa2, double pb1, double Pb, double pb2 );
 	double misorientationCubicCorrectCOReV2InvertAndMult( double pa1, double Pa, double pa2, double pb1, double Pb, double pb2 );
+		
 };
 
 #endif
