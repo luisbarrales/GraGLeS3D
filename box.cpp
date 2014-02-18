@@ -1090,8 +1090,8 @@ void LSbox::find_contour() {
 	if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
 		computeVolumeAndEnergy();
 		volume = abs(volume);
-		cerr<< "Volume of " << id << "= " << volume << endl;
-		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
+// 		cerr<< "Volume of " << id << "= " << volume << endl;
+// 		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
 	}
 	else updateFirstOrderNeigbors();
 	
@@ -1109,6 +1109,7 @@ void LSbox::find_contour() {
 	if(grainCharacteristics.size() <2) {
 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
 		plot_box(true, 2, "error_grain.gnu", true);
+		plot_box(true, 1, "error_grain.gnu", true);
 		plot_box_contour(handler->loop, true);
 		exist =false;
 	}
