@@ -1005,6 +1005,7 @@ void LSbox::find_contour() {
 	double h = handler->get_h();
 	int loop = handler->loop;
 
+
 	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
 		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
 		cout << "Number of gridpoints: " << m << endl;
