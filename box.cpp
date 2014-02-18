@@ -708,15 +708,14 @@ void LSbox::comparison(){
 							}
 							outputDistance->setValueAt(i, j, dist);
 							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
+						}					
+						else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
+							distance_2neighbor.setValueAt(i,j, dist);
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
 						}
-					
-					else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
-						distance_2neighbor.setValueAt(i,j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
-					}
+						else { 
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+						}
 					}
 				}
 			}
@@ -1041,7 +1040,7 @@ void LSbox::add_n2o_2(){
 /**************************************/
 
 void LSbox::find_contour() {
-	if(id == 10) plot_box(true,2, "grain10", true);
+// 	if(id == 7) plot_box(true,2, "grain10", true);
 	if(get_status() == false ) {
 	  handler->removeGrain(id);
 	  delete this;
@@ -1055,7 +1054,7 @@ void LSbox::find_contour() {
 
     MarchingSquaresAlgorithm marcher(*inputDistance);
     exist = marcher.generateContour(contourGrain);
-	if(contourGrain.size() < 3) exist = false;
+
 	if(!exist) return;
     int grid_blowup = handler->get_grid_blowup();
 	int m = handler->get_ngridpoints();
@@ -1098,11 +1097,11 @@ void LSbox::find_contour() {
 	
 	
 	if(grainCharacteristics.size() <2) {
-		cout << "GRAIN: " << id << " has a positive Volume but lesse than 2 neighbors" << endl;
+		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
 		plot_box(true, 2, "error_grain.gnu", true);
 		exist =false;
 	}
-	if(id == 10) plot_box(true,2, "grain10", true);
+// 	if(id == 7) plot_box(true,2, "grain10", true);
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -1118,39 +1117,43 @@ void LSbox::updateFirstOrderNeigbors(){
 	double theta_ref = 15.0 * PI / 180.0;
 	double gamma_hagb = handler->hagb;
 	int i;
-	
-	for(i=0; i<contourGrain.size() - 1; i++){		
-		double px =contourGrain[i].x;
-		double py =contourGrain[i].y;
-		int pxGrid = int(px+0.5);
-		int pyGrid = int(py+0.5);
-		
-		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-		    if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
-				break;
-		}
-		if (it == grainCharacteristics.end()){
-			double energyLocal;
-			if(ISOTROPIC){
-				energy = 1.0;
-			}		
-			else{
-				thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
-				if (thetaMis <= theta_ref)
-					energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-				else
-					energyLocal = gamma_hagb;
-			}
-			if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
-			else mu = 1;
-			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
-			it = grainCharacteristics.end();
-			it--;
-		}	
-		line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
-		//save length in GrainCharaczeristics
-		it->length += (line_length*h);
-	}
+// 	if (contourGrain.size() < 15) {
+// 	  
+// // 	}
+// 	else{
+	  for(i=0; i<contourGrain.size() - 1; i++){		
+		  double px =contourGrain[i].x;
+		  double py =contourGrain[i].y;
+		  int pxGrid = int(px+0.5);
+		  int pyGrid = int(py+0.5);
+		  
+		  for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+			  if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
+				  break;
+		  }
+		  if (it == grainCharacteristics.end()){
+			  double energyLocal;
+			  if(ISOTROPIC){
+				  energy = 1.0;
+			  }		
+			  else{
+				  thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
+				  if (thetaMis <= theta_ref)
+					  energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+				  else
+					  energyLocal = gamma_hagb;
+			  }
+			  if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
+			  else mu = 1;
+			  grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
+			  it = grainCharacteristics.end();
+			  it--;
+		  }	
+		  line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
+		  //save length in GrainCharaczeristics
+		  it->length += (line_length*h);
+	  }
+// 	}
 	
 
 }
@@ -1479,13 +1482,18 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
 		}		
 		datei.close();
     }
+    for(int i=0; i<contourGrain.size() - 1; i++){
+		double px =contourGrain[i].x;
+		double py =contourGrain[i].y;
+		cout << py << "   "<< px << endl;
+	}
 }
 
 
 double LSbox::mis_ori(LSbox* grain_2){
 	if(get_status() != true ) {
-		cout << "try to compute misori for are disappeared grains" << endl; 
-		cout << "grains are: " << id << "  " << grain_2->get_id();
+		cout << "try to compute misori for are disappeared grains :   " ; 
+		cout << "grains are: " << id << "  " << grain_2->get_id() << endl;
 // 		char buf; cin >> buf;
 	}
 // 	here we could work direktly with quarternions
