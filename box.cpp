@@ -1096,15 +1096,22 @@ void LSbox::find_contour() {
 	else updateFirstOrderNeigbors();
 	
 	
-	if(grainCharacteristics.size() <2) {
-		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
-		plot_box(true, 2, "error_grain.gnu", true);
-		exist =false;
-	}
+// 	if(grainCharacteristics.size() <2) {
+// 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
+// 		plot_box(true, 2, "error_grain.gnu", true);
+// 		plot_box_contour(handler->loop, true);
+// 		exist =false;
+// 	}
 // 	if(id == 7) plot_box(true,2, "grain10", true);
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
 	outputDistance->resizeToSquare(handler->get_ngridpoints());
+	if(grainCharacteristics.size() <2) {
+		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
+		plot_box(true, 2, "error_grain.gnu", true);
+		plot_box_contour(handler->loop, true);
+		exist =false;
+	}
 	return;
 }
 
