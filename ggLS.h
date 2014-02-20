@@ -2,7 +2,7 @@
 #define GGLS_h
 
 #define DIM 2
-#define PARTICLES 5000
+#define PARTICLES 500
  //gridpoints in each direction
 
 #define BORDER 6

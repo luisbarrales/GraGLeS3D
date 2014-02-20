@@ -111,6 +111,7 @@ public:
 	void updateFirstOrderNeigbors();
 	double GBmobilityModel(double thetaMis);
 	bool isNeighbour(LSbox* candidate);
+	bool BoundaryIntersection();
 
 		
 	inline bool get_status(){ return exist;}

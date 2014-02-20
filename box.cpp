@@ -722,8 +722,7 @@ void LSbox::comparison(){
 		}
 	}
 // 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_first");
-	if(!(outputDistance->getMinX() >= grid_blowup &&  outputDistance->getMaxX() <= m-grid_blowup && outputDistance->getMinY() >= grid_blowup &&   outputDistance->getMaxY() <= m-grid_blowup))
-	{	
+	if (BoundaryIntersection){		
 		boundaryCondition();
 	}
 // 	plot_box(true,1,"Compare_zero");
@@ -735,6 +734,17 @@ void LSbox::comparison(){
 // 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_set");
 }
 
+bool LSbox::BoundaryIntersection(){
+  int xMinBoundary = handler->get_grid_blowup()+ handler->getBoundaryGrainTube();
+  int yMinBoundary = xMinBoundary;
+  
+  int xMaxBoundary = handler->get_ngridpoints() - handler->get_grid_blowup() - handler->getBoundaryGrainTube();
+  int yMaxBoundary = xMaxBoundary;
+  
+  if(outputDistance->getMinX() > xMinBoundary &&  outputDistance->getMaxX() < xMaxBoundary && outputDistance->getMinY() > yMinBoundary &&   outputDistance->getMaxY() < yMaxBoundary)
+	return false;
+  else return true;
+}
 
 
 double LSbox::getDistance(int i, int j){
@@ -742,29 +752,35 @@ double LSbox::getDistance(int i, int j){
 }
 
 
+void LSbox
+
+
 
 void LSbox::boundaryCondition(){
 	LSbox* boundary = handler->boundary;
+	int compRange = handler->get_grid_blowup() +2;
 	int grid_blowup = handler->get_grid_blowup();
 	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
 	double dist;
 	double dist2;
+	int xmin, xmax, ymin, ymax;
 	
-	// upper box-boundary out of domain range
-	if( inputDistance->getMinY() < grid_blowup ){	
-				int xminLoc;
-		if (2*grid_blowup < inputDistance->getMinX()) xminLoc = inputDistance->getMinX();
-			else xminLoc = 2*grid_blowup;
+	// left boundary of the domain;
+	
+	xmin=0; xmax=compRange; ymin = compRange; ymax = m- compRange-1;
+	if (!(inputDistance->getMinX() >xmax ||	inputDistance->getMaxX() < xmin ||inputDistance->getMinY() > ymax ||inputDistance->getMaxY() < ymin))
+    {	
+		int yMinLoc, yMaxLoc;
+		if( inputDistance->getMinY() < ymin) yMinLoc = ymin;
+		  else yMinLoc = inputDistance->getMinY();
+		 if( inputDistance->getMaxY() > ymax) yMinLoc = ymax;
+		  else yMaxLoc = inputDistance->getMaxY();
 		
-		int xmaxLoc;
-		if( m- 2*grid_blowup >	inputDistance->getMaxX()) xmaxLoc =	inputDistance->getMaxX();
-			else xmaxLoc = m- 2*grid_blowup  ;	
-			
-		for (int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
-			for (int j=xminLoc; j< xmaxLoc; j++ ){
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist= -(i-grid_blowup)*h;
+		for (int i=yMinLoc; i< yMinLoc ; i++ ){
+			for (int j=inputDistance->getMinX(); j<xmax ; j++ ){
+			  	if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
+					dist= -(j-grid_blowup)*h;
 					if( dist > outputDistance->getValueAt(i,j) ){
 						outputDistance->setValueAt(i, j, dist);
 						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
@@ -777,19 +793,17 @@ void LSbox::boundaryCondition(){
 		}	
 	}
 
-	// left box-boundary out of domain range
-	if( inputDistance->getMinX() < grid_blowup ){
-		
-		// do not double the corner of the domain!
-		int yminLoc;
-		if (2*grid_blowup < inputDistance->getMinY()) yminLoc = inputDistance->getMinY();
-			else yminLoc = 2*grid_blowup;
-		
-		int ymaxLoc;
-		if( m- 2*grid_blowup >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
-			else ymaxLoc = m- 2*grid_blowup ;
-
-		for (int j=inputDistance->getMinX(); j< 2*grid_blowup; j++ ){
+	// upper box-boundary out of domain range
+	xmin=compRange; xmax= m- compRange -1; ymin = 0; ymax = compRange;
+	if (!(inputDistance->getMinX() >xmax ||	inputDistance->getMaxX() < xmin ||inputDistance->getMinY() > ymax ||inputDistance->getMaxY() < ymin))
+    {	
+		int xMinLoc, xMaxLoc;
+		if( inputDistance->getMinX() < xmin) xMinLoc = xmin;
+		  else xMinLoc = inputDistance->getMinX();
+		 if( inputDistance->getMaxX() > xmax) xMinLoc = xmax;
+		  else xMaxLoc = inputDistance->getMaxX();
+		  
+		for (int j=inputDistance->getMinX(); j< compRange; j++ ){
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
 				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					dist= -(j-grid_blowup)*h;
@@ -816,7 +830,7 @@ void LSbox::boundaryCondition(){
 		if( m- 2*grid_blowup >	inputDistance->getMaxX()) xmaxLoc =	inputDistance->getMaxX();
 			else xmaxLoc = m- 2*grid_blowup;	
 			
-		for (int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
+		for (int i=m-compRange; i< inputDistance->getMaxY(); i++ ){
 			for (int j=xminLoc; j< xmaxLoc; j++ ){
 				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					
@@ -841,10 +855,10 @@ void LSbox::boundaryCondition(){
 			else yminLoc = 2*grid_blowup;
 		
 		int ymaxLoc;
-		if( m- 2*grid_blowup >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
+		if( m- (2*grid_blowup) >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
 			else ymaxLoc = m- 2*grid_blowup ;			
 
-		for (int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){			
+		for (int j=m-compRange; j< inputDistance->getMaxX(); j++ ){			
 			for (int i=yminLoc; i< ymaxLoc; i++ ){
 				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					dist=(j-(m-grid_blowup-1))*h;							
@@ -865,9 +879,10 @@ void LSbox::boundaryCondition(){
 	//***********************************************//
 	//lower right corner:
 	if( inputDistance->getMaxX() > m-(2*grid_blowup) 	&& inputDistance->getMaxY() > m-(2*grid_blowup)){
-		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
-			for(int j=m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){
-				if ( inputDistance->isPointInside(i,j) ){
+		for(int i=m-compRange; i< inputDistance->getMaxY(); i++ ){
+			for(int j=m-compRange; j< inputDistance->getMaxX(); j++ ){
+			  if ( inputDistance->isPointInside(i,j))
+				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					dist = 	(j-(m-grid_blowup-1))*h;
 					dist2 = (i-(m-grid_blowup-1))*h;				
 					
@@ -893,10 +908,11 @@ void LSbox::boundaryCondition(){
 	
 	
 	//lower left corner:
-	if( inputDistance->getMinX() < (2*grid_blowup) 	&& inputDistance->getMaxY() > m-(2*grid_blowup)){
-		for(int i=m-(2*grid_blowup); i< inputDistance->getMaxY(); i++ ){
-			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
-				if ( inputDistance->isPointInside(i,j)){
+	if( inputDistance->getMinX() < grid_blowup 	&& inputDistance->getMaxY() > m-grid_blowup){
+		for(int i=m-compRange; i< inputDistance->getMaxY(); i++ ){
+			for(int j=inputDistance->getMinX() ; j< compRange; j++ ){
+			  if ( inputDistance->isPointInside(i,j))
+				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					dist = 	-(j-grid_blowup)*h;
 					dist2 = (i-(m-grid_blowup-1))*h;
 					
@@ -921,9 +937,10 @@ void LSbox::boundaryCondition(){
 	
 	//upper right corner:
 	if( inputDistance->getMaxX() > m-(2*grid_blowup)&& inputDistance->getMinY() < 2*grid_blowup){
-		for(int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
-			for(int j= m-(2*grid_blowup); j< inputDistance->getMaxX(); j++ ){	
-				if ( inputDistance->isPointInside(i,j)){
+		for(int i=inputDistance->getMinY(); i< compRange; i++ ){
+			for(int j= m-compRange; j< inputDistance->getMaxX(); j++ ){	
+			  if ( inputDistance->isPointInside(i,j))
+				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					dist = 	(j-(m-grid_blowup-1))*h;
 					dist2 = -(i-grid_blowup)*h;
 					
@@ -947,9 +964,10 @@ void LSbox::boundaryCondition(){
 	}
 	//upper left corner:
 	if( inputDistance->getMinX() < 2*grid_blowup && inputDistance->getMinY() < 2*grid_blowup){
-		for(int i=inputDistance->getMinY(); i< 2*grid_blowup; i++ ){
-			for(int j=inputDistance->getMinX() ; j< 2*grid_blowup; j++ ){	
-				if ( inputDistance->isPointInside(i,j)){
+		for(int i=inputDistance->getMinY(); i< compRange; i++ ){
+			for(int j=inputDistance->getMinX() ; j< compRange; j++ ){	
+				if ( inputDistance->isPointInside(i,j))
+				  if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
 					dist = 	-(j-grid_blowup)*h;
 					dist2 = -(i-grid_blowup)*h;
 					
@@ -1099,6 +1117,7 @@ void LSbox::find_contour() {
 	if(grainCharacteristics.size() <2) {
 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
 		plot_box(true, 2, "error_grain.gnu", true);
+		plot_box(true, 1, "error_grain.gnu", true);
 		plot_box_contour(handler->loop, true);
 		exist =false;
 	}
