@@ -45,6 +45,7 @@ class grainhdl{
 	double *bunge;
 	double deviation;
 	double hagb;
+	double BoundaryGrainTube;
 	
 	vector<LSbox*> grains;	
 	LSbox* boundary;
@@ -93,5 +94,7 @@ class grainhdl{
 	inline int get_grid_blowup() { return grid_blowup; }
 	inline int get_loop() { return loop; }
 	inline double get_dt() { return dt; }
+	inline double getBoundaryGrainTube() { return BoundaryGrainTube ;}
+	
 };
 #endif

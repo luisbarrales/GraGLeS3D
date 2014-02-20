@@ -722,7 +722,7 @@ void LSbox::comparison(){
 		}
 	}
 // 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_first");
-	if (BoundaryIntersection){		
+	if (BoundaryIntersection()){		
 		boundaryCondition();
 	}
 // 	plot_box(true,1,"Compare_zero");
@@ -752,246 +752,50 @@ double LSbox::getDistance(int i, int j){
 }
 
 
-void LSbox
-
-
-
 void LSbox::boundaryCondition(){
 	LSbox* boundary = handler->boundary;
-	int compRange = handler->get_grid_blowup() +2;
 	int grid_blowup = handler->get_grid_blowup();
 	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
+	double distXMin, distXMax, distX;
+	double distYMin, distYMax, distY;
 	double dist;
-	double dist2;
-	int xmin, xmax, ymin, ymax;
-	
-	// left boundary of the domain;
-	
-	xmin=0; xmax=compRange; ymin = compRange; ymax = m- compRange-1;
-	if (!(inputDistance->getMinX() >xmax ||	inputDistance->getMaxX() < xmin ||inputDistance->getMinY() > ymax ||inputDistance->getMaxY() < ymin))
-    {	
-		int yMinLoc, yMaxLoc;
-		if( inputDistance->getMinY() < ymin) yMinLoc = ymin;
-		  else yMinLoc = inputDistance->getMinY();
-		 if( inputDistance->getMaxY() > ymax) yMinLoc = ymax;
-		  else yMaxLoc = inputDistance->getMaxY();
-		
-		for (int i=yMinLoc; i< yMinLoc ; i++ ){
-			for (int j=inputDistance->getMinX(); j<xmax ; j++ ){
-			  	if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist= -(j-grid_blowup)*h;
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}
-		}	
-	}
-
-	// upper box-boundary out of domain range
-	xmin=compRange; xmax= m- compRange -1; ymin = 0; ymax = compRange;
-	if (!(inputDistance->getMinX() >xmax ||	inputDistance->getMaxX() < xmin ||inputDistance->getMinY() > ymax ||inputDistance->getMaxY() < ymin))
-    {	
-		int xMinLoc, xMaxLoc;
-		if( inputDistance->getMinX() < xmin) xMinLoc = xmin;
-		  else xMinLoc = inputDistance->getMinX();
-		 if( inputDistance->getMaxX() > xmax) xMinLoc = xmax;
-		  else xMaxLoc = inputDistance->getMaxX();
-		  
-		for (int j=inputDistance->getMinX(); j< compRange; j++ ){
-			for (int i=yminLoc; i< ymaxLoc; i++ ){
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist= -(j-grid_blowup)*h;
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}		
-		}
-	}
-	
-	// lower box-boundary out of domain range
-	if( inputDistance->getMaxY() > m-grid_blowup ){
-		
-		int xminLoc;
-		if (2*grid_blowup < inputDistance->getMinX()) xminLoc = inputDistance->getMinX();
-			else xminLoc = 2*grid_blowup;
-		
-		int xmaxLoc;
-		if( m- 2*grid_blowup >	inputDistance->getMaxX()) xmaxLoc =	inputDistance->getMaxX();
-			else xmaxLoc = m- 2*grid_blowup;	
+	int xMin, xMax, yMin, yMax;	
+				
+	for (int i=inputDistance->getMinY(); i< inputDistance->getMaxY() ; i++ ){
+		for (int j=inputDistance->getMinX(); j<inputDistance->getMaxX() ; j++ ){	
+			distXMin	= 	-(j-grid_blowup)*h;
+			distYMin 	= 	-(i-grid_blowup)*h;
+			distXMax	=	(i-(m-grid_blowup-1))*h;
+			distYMax 	= 	(j-(m-grid_blowup-1))*h;
 			
-		for (int i=m-compRange; i< inputDistance->getMaxY(); i++ ){
-			for (int j=xminLoc; j< xmaxLoc; j++ ){
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					
-					dist=(i-(m-grid_blowup-1))*h;	
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}
-		}	
-	}
-
-	// right box-boundary out of domain range
-	if( inputDistance->getMaxX() > m-grid_blowup ){		
-		// do not double the corner of the domain!
-		int yminLoc;
-		if (2*grid_blowup < inputDistance->getMinY()) yminLoc = inputDistance->getMinY();
-			else yminLoc = 2*grid_blowup;
-		
-		int ymaxLoc;
-		if( m- (2*grid_blowup) >	inputDistance->getMaxY()) ymaxLoc =	inputDistance->getMaxY();
-			else ymaxLoc = m- 2*grid_blowup ;			
-
-		for (int j=m-compRange; j< inputDistance->getMaxX(); j++ ){			
-			for (int i=yminLoc; i< ymaxLoc; i++ ){
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist=(j-(m-grid_blowup-1))*h;							
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}		
-		}
-	}
-	
-	// check corners:
-	
-	//***********************************************//
-	//lower right corner:
-	if( inputDistance->getMaxX() > m-(2*grid_blowup) 	&& inputDistance->getMaxY() > m-(2*grid_blowup)){
-		for(int i=m-compRange; i< inputDistance->getMaxY(); i++ ){
-			for(int j=m-compRange; j< inputDistance->getMaxX(); j++ ){
-			  if ( inputDistance->isPointInside(i,j))
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist = 	(j-(m-grid_blowup-1))*h;
-					dist2 = (i-(m-grid_blowup-1))*h;				
-					
-					if(dist<=0 && dist2>0 ) dist =dist2;
-					else if(dist2<=0 && dist >0 ) dist =dist;
-					else if(dist2 <=0 && dist <=0) {
-						if(dist < dist2) dist =dist2;
-					}
-					else if(dist >0 && dist2 >0) dist = sqrt( (dist*dist) + (dist2*dist2));
-					
-					
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}
-		}
-	}	
-	
-	
-	//lower left corner:
-	if( inputDistance->getMinX() < grid_blowup 	&& inputDistance->getMaxY() > m-grid_blowup){
-		for(int i=m-compRange; i< inputDistance->getMaxY(); i++ ){
-			for(int j=inputDistance->getMinX() ; j< compRange; j++ ){
-			  if ( inputDistance->isPointInside(i,j))
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist = 	-(j-grid_blowup)*h;
-					dist2 = (i-(m-grid_blowup-1))*h;
-					
-					if(dist<=0 && dist2>0 ) dist =dist2;
-					else if(dist2<=0 && dist >0 ) dist =dist;
-					else if(dist2 <=0 && dist <= 0) {
-						if(dist < dist2) dist =dist2;
-					}
-					else if(dist >0 && dist2 >0) dist = sqrt(( dist*dist)+ (dist2*dist2));
-					
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
+			if(abs(distXMin) < abs(distXMax)) distX = distXMin;
+			  else distX = distXMax;
+			if(abs(distYMin) < abs(distYMax)) distY = distYMin;
+			  else distY = distYMax;
+			  
+			if(distX > 0 && distY > 0) 
+			  dist = sqrt(distX*distX + distY *distY);
+			else if (distX > 0 && distY < 0)
+			  dist = distX;
+			else if(distX < 0 && distY > 0)
+			  dist = distY;
+			else if (distX <0 && distY < 0)
+			  dist = max(distX, distY);
+			else if(distX == 0 || distY == 0)
+			  dist = 0;	
+			
+			if (dist >= -handler->getBoundaryGrainTube()*h){
+			  if( dist > outputDistance->getValueAt(i,j) ){
+				  outputDistance->setValueAt(i, j, dist);
+				  IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
+			  }
+			  else { 
+				  IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
+			  }
 			}
 		}
 	}
-	
-	//upper right corner:
-	if( inputDistance->getMaxX() > m-(2*grid_blowup)&& inputDistance->getMinY() < 2*grid_blowup){
-		for(int i=inputDistance->getMinY(); i< compRange; i++ ){
-			for(int j= m-compRange; j< inputDistance->getMaxX(); j++ ){	
-			  if ( inputDistance->isPointInside(i,j))
-				if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist = 	(j-(m-grid_blowup-1))*h;
-					dist2 = -(i-grid_blowup)*h;
-					
-					if(dist<=0 && dist2>0 ) dist =dist2;
-					else if(dist2<=0 && dist >0 ) dist =dist;
-					else if(dist2 <=0 && dist <= 0) {
-						if(dist < dist2) dist =dist2;
-					}
-					else if(dist >0 && dist2 >0) dist = sqrt(( dist*dist)+ (dist2*dist2));
-					
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}
-		}
-	}
-	//upper left corner:
-	if( inputDistance->getMinX() < 2*grid_blowup && inputDistance->getMinY() < 2*grid_blowup){
-		for(int i=inputDistance->getMinY(); i< compRange; i++ ){
-			for(int j=inputDistance->getMinX() ; j< compRange; j++ ){	
-				if ( inputDistance->isPointInside(i,j))
-				  if (inputDistance->getValueAt(i,j) < handler->tubeRadius){
-					dist = 	-(j-grid_blowup)*h;
-					dist2 = -(i-grid_blowup)*h;
-					
-					if(dist<=0 && dist2>0 ) dist =dist2;
-					else if(dist2<=0 && dist >0 ) dist =dist;
-					else if(dist2 <=0 && dist <= 0) {
-						if(dist < dist2) dist =dist2;
-					}
-					else if(dist >0 && dist2 >0) dist = sqrt(( dist*dist)+ (dist2*dist2));
-					
-					if( dist > outputDistance->getValueAt(i,j) ){
-						outputDistance->setValueAt(i, j, dist);
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
-					}
-					else { 
-						IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
-					}
-				}
-			}
-		}
-	}
-	
-	
-
 }
 
 /*

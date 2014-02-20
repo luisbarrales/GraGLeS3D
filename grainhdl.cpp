@@ -25,7 +25,7 @@ void grainhdl::setSimulationParameter(){
 	grid_blowup = BORDER; 
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
-
+	BoundaryGrainTube = 2; // defines the number of gridpoints the boundray grain influences other grains into the inner of the domain
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
 	
