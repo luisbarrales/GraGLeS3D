@@ -1,5 +1,5 @@
 #include "utilities.h"
-
+#include "Settings.h"
 namespace utils {
     
     
@@ -23,7 +23,7 @@ namespace utils {
         // cout << plotfiles;
         // cout << string_gnupl_command << flush;
         FILE *pipe = popen ( "gnuplot", "w" );             // Instanz von Gnuplot
-        fprintf ( pipe, "%s\n", string_gnupl_command );    // Füllen der Rohrpost zu Gnuplot
+        fprintf ( pipe, "%s\n", string_gnupl_command );    // F?llen der Rohrpost zu Gnuplot
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
         pclose ( pipe );
         // Beenden der Rohrpost ;) am Ende
@@ -48,7 +48,7 @@ namespace utils {
 //         cout << plotfiles;
 //         cout << string_gnupl_command << endl << endl;
 	    FILE *pipe = popen ( "gnuplot", "w" );             // Instanz von Gnuplot
-        fprintf ( pipe, "%s\n", string_gnupl_command );    // Füllen der Rohrpost zu Gnuplot
+        fprintf ( pipe, "%s\n", string_gnupl_command );    // F?llen der Rohrpost zu Gnuplot
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
         pclose ( pipe );
         // Beenden der Rohrpost ;) am Ende
@@ -76,7 +76,7 @@ namespace utils {
         // 	cout << plotfiles;
         // 	cout << string_gnupl_command << flush;
         FILE *pipe = popen ( "gnuplot", "w" );             // Instanz von Gnuplot
-        fprintf ( pipe, "%s\n", string_gnupl_command );    // Füllen der Rohrpost zu Gnuplot
+        fprintf ( pipe, "%s\n", string_gnupl_command );    // F?llen der Rohrpost zu Gnuplot
         fflush ( pipe );                                   // Plotten (flush ~ Enter)
         pclose ( pipe );
         // Beenden der Rohrpost ;) am Ende
@@ -96,7 +96,7 @@ namespace utils {
 	makeGif.open("makeGif.gnu");
 	makeGif << "set term gif animate delay 40 enhanced;"<<endl;
 	makeGif << "set output \""<< outputFile << "\"; " << endl;
-	for ( int i =0; i<= TIMESTEPS; i+= ANALYSESTEP){
+	for ( int i =0; i<= Settings::NumberOfParticles; i+= Settings::AnalysysTimestep){
 	    plotFile.str("");
 	    plotFile<< "EnergyDistribution_T" << i << ".gnu";
 	      // TODO Check if file exists? 
