@@ -69,7 +69,7 @@ class grainhdl{
 	void level_set();
 	void redistancing();
 	
-	void run_sim();
+	virtual void run_sim();
 	void save_sim();
 	void clear_mem(); 
 	void save_texture();

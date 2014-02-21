@@ -1,29 +1,12 @@
 #ifndef GGLS_h
 #define GGLS_h
 
-#define DIM 2
-#define PARTICLES 500
- //gridpoints in each direction
 
-#define BORDER 6
 
 // #define _USE_MATH_DEFINES
 #define PI 3.14159265358979323846
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
-#define TIMESTEPS 200
-#define ANALYSESTEP 5
-#define DISCRETESAMPLING 25
-
-#define MODE 1 // 2 for read Microstructure;  1 for use Voro++
-#define NDEBUG
-
-#define HAGB 0.6;
-#define MOBILITY false
-
-#define ISOTROPIC false
-#define TEXTURE true 	// generates a Texture round a bunge orientation whith a deviation -> see grainhandler
-// #define SAVEIMAGE false
 #define IMAGEOUT true
 
 

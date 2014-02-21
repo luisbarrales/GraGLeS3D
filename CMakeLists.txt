@@ -5,11 +5,11 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp domainCl.cpp utilities.cpp weightmap.cpp marchingSquares.cpp)
+set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp domainCl.cpp utilities.cpp weightmap.cpp marchingSquares.cpp Settings.cpp parallelHandler.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
-set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS "-g -fopenmp -O3")
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
@@ -29,7 +29,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-#die nächste Zeile sollte eigentlich funktionieren, tut es aber nicht, da die lokale Installation von voro++ die FindVoro++.cmake unnötigt macht,und die Pfade lokale zum Source bleiben (jaja, kann man ändern).
+
 #find_package(Voro++ REQUIRED)
 
 
@@ -42,7 +42,6 @@ include_directories(${VORO++_INCLUDE_DIRS})
 #include_directories(${MPI_INCLUDE_PATH})
 
 link_directories(${Boost_LIBRARY_DIR})
-# dies hier hinzufügen...
 
 #find_package(MPI REQUIRED)
 

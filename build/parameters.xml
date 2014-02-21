@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Parameters>
+   <NumberOfParticles> 1000 </NumberOfParticles> 
+   <AnalysysTimestep> 25 </AnalysysTimestep>
+   <NumberOfTimesteps> 1000 </NumberOfTimesteps>
+   <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
+   <DomainBorderSize> 6 </DomainBorderSize>
+   <MicrostructureGenMode> 1 </MicrostructureGenMode>
+   <HAGB> 0.6 </HAGB>
+   <UseMobilityFactor> 0 </UseMobilityFactor>
+   <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
+   <UseTexture> 1 </UseTexture>
+   <ExecuteInParallel> 1 </ExecuteInParallel>
+</Parameters>

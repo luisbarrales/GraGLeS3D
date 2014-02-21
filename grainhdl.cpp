@@ -1,4 +1,5 @@
 #include "grainhdl.h"
+#include "Settings.h"
 #include <sys/time.h>
 
 grainhdl::grainhdl(){}
@@ -9,29 +10,31 @@ grainhdl::~grainhdl(){
 
 
 void grainhdl::setSimulationParameter(){
+
+
 	mymath = new mathMethods();
 	// 	readInit();
-	Mode = MODE; // 2 fuer lesen;  1 fuer erzeugen der mikrostrukture
-	ngrains = PARTICLES;
+	Mode = (int)Settings::MicrostructureGenMode;
+	ngrains = Settings::NumberOfParticles;
 	
-	hagb = HAGB;
-	if(Mode==1) realDomainSize= sqrt(PARTICLES)*30-1;	// half open container of VORO++
-	if(Mode==2) realDomainSize= sqrt(PARTICLES)*30;
-	discreteEnergyDistribution.resize(DISCRETESAMPLING);
+	hagb = Settings::HAGB;
+	if(Mode==1) realDomainSize= sqrt(ngrains)*30-1;	// half open container of VORO++
+	if(Mode==2) realDomainSize= sqrt(ngrains)*30;
+	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
-	delta = BORDER * 1/double(realDomainSize);
+	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
 	tubeRadius = sqrt(2)*1.5*h + 0.001;
-	grid_blowup = BORDER; 
+	grid_blowup = Settings::DomainBorderSize;
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
-	BoundaryGrainTube = 2; // defines the number of gridpoints the boundray grain influences other grains into the inner of the domain
+
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
 	
 	switch (Mode) {
 		case 1: {
-			if(TEXTURE){
+			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
 				deviation = 15*PI/180;
 			}
@@ -56,7 +59,7 @@ void grainhdl::setSimulationParameter(){
 	//program options:
     cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
     cout << "Number of Grains: " << ngrains << endl;
-    cout << "simulated Timesteps: " << TIMESTEPS << endl;
+    cout << "simulated Timesteps: " << Settings::NumberOfTimesteps << endl;
 	cout << "DELTA TUBE: " << delta << endl;
     cout << "Timestepwidth " << dt << endl;
     cout << "Number of Gridpoints: " << ngridpoints << endl << endl;
@@ -239,30 +242,28 @@ void grainhdl::convolution(){
 
 
 void grainhdl::comparison_box(){
-	stringstream filename;
-	vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it != grains.end(); it++){	
-		if(*it==NULL) continue;
-		(*it)->comparison();
+	for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		grains[i]->comparison();
 	}
 }
 
 
 void grainhdl::level_set(){
-	vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it != grains.end(); it++) {
-		if(*it==NULL) continue;
-		(*it)->find_contour();
+	for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		grains[i]->find_contour();
 	}
 }
 
 
 void grainhdl::redistancing(){
- 
-	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it != grains.end(); it++) {
-		if(*it==NULL) continue;
-		(*it)->redist_box();
+	for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		grains[i]->redist_box();
 	}
 }
 
@@ -281,7 +282,7 @@ void grainhdl::save_texture(){
 	filename.str("");
 	filename << "EnergyLengthDistribution_" << loop<< ".txt";
 	enLenDis = fopen(filename.str().c_str(), "w");
-	double dh= hagb / (double)DISCRETESAMPLING;
+	double dh= hagb / (double)Settings::DiscreteSamplingRate;
 	double buffer = 0.24;
 	double euler[3];
 	vector<characteristics> :: iterator it2;
@@ -298,7 +299,7 @@ void grainhdl::save_texture(){
 			total_energy += (*it)->energy;
 			numberGrains+=1;
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
-				if(!ISOTROPIC){
+				if(!Settings::IsIsotropicNetwork){
 				//take into account that every line is twice in the model
 				discreteEnergyDistribution[(int)(((*it2).energyDensity)/dh -0.5) ] += 0.5 * (*it2).length;
 				}
@@ -307,8 +308,8 @@ void grainhdl::save_texture(){
 			
 		}
 	}
-	if(!ISOTROPIC){
-		for (int i=0; i < DISCRETESAMPLING; i++){
+	if(!Settings::IsIsotropicNetwork){
+		for (int i=0; i < Settings::DiscreteSamplingRate; i++){
 				fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
 				printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
 			}
@@ -329,7 +330,7 @@ void grainhdl::save_texture(){
 void grainhdl::run_sim(){
 	find_neighbors();
 // 	determineIDs();
-	for(loop=0; loop <= TIMESTEPS; loop++){		
+	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
 		switchDistancebuffer();
 		convolution();
 		switchDistancebuffer();
@@ -338,7 +339,7 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();
-		if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
 		}
@@ -365,12 +366,10 @@ void grainhdl::save_sim(){
 }
 
 void grainhdl::updateSecondOrderNeighbors(){
-	std::vector<LSbox*>::iterator it,itc;
-	for (it = ++grains.begin(); it !=grains.end(); it++){	
-		if(*it==NULL) continue;
-// 		(*it)->add_n2o();
-		(*it)->add_n2o_2();
-// 		(*it)->plot_box(false,1, "nothing");
+	for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		grains[i]->add_n2o_2();
 	}
 }
 
@@ -423,10 +422,10 @@ void grainhdl::removeGrain(int id){
 }
 
 void grainhdl::switchDistancebuffer(){
-	std::vector<LSbox*>::iterator it;
-	for (it = ++grains.begin(); it !=grains.end(); it++){
-		if(*it== NULL) continue;
-		(*it)->switchInNOut();
+	for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		grains[i]->switchInNOut();
 	}
 }
  

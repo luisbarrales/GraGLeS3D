@@ -1,4 +1,5 @@
 #include "weightmap.h"
+#include "Settings.h"
 Weightmap::mapkey::mapkey(vector<LSbox*> IDs) :
 	first(NULL),
 	second(NULL)
@@ -82,7 +83,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	double theta_mis;
 // 	double drag = 0.5;
 
-	if(MODE == 2){
+	if(Settings::MicrostructureGenMode == 2){
 		gamma[0] = ST[(me->get_id() - 1)
 				+ (m_pHandler->get_ngrains() * (rep.first->get_id() - 1))];
 		gamma[1] = ST[(rep.first->get_id() - 1)
@@ -91,7 +92,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 				+ (m_pHandler->get_ngrains() * (rep.second->get_id() - 1))];
 	}	
 	
-	if(MODE == 1){
+	if(Settings::MicrostructureGenMode == 1){
 // 		if(!MOBILITY){
 			theta_mis = me->mis_ori(rep.first);		
 			if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));

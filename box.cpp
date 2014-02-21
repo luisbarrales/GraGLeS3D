@@ -1,5 +1,5 @@
 #include "box.h"
-
+#include "Settings.h"
 
 
 LSbox::LSbox() :exist(false), quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){  }
@@ -26,7 +26,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
     // determine size of grain
 	quaternion = new double[4];
 	
-		if(TEXTURE){
+		if(Settings::UseTexture){
 		double newOri[3];
 		(*(handler->mymath)).newOrientationFromReference( handler->bunge, handler->deviation, newOri );
 		(*(handler->mymath)).euler2quaternion(newOri, quaternion);
@@ -354,7 +354,7 @@ void LSbox::convolution(){
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 	
-	if(!ISOTROPIC && handler->loop!=0){	    
+	if(!Settings::IsIsotropicNetwork && handler->loop!=0){
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 		double weight, gamma;
@@ -909,7 +909,7 @@ void LSbox::find_contour() {
 	}
     
     // compute Volume and Energy
-	if ( (loop % int(ANALYSESTEP)) == 0 || loop == TIMESTEPS ) {
+	if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		computeVolumeAndEnergy();
 		volume = abs(volume);
 // 		cerr<< "Volume of " << id << "= " << volume << endl;
@@ -958,7 +958,7 @@ void LSbox::updateFirstOrderNeigbors(){
 		  }
 		  if (it == grainCharacteristics.end()){
 			  double energyLocal;
-			  if(ISOTROPIC){
+			  if(Settings::IsIsotropicNetwork){
 				  energy = 1.0;
 			  }		
 			  else{
@@ -968,7 +968,7 @@ void LSbox::updateFirstOrderNeigbors(){
 				  else
 					  energyLocal = gamma_hagb;
 			  }
-			  if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
+			  if(Settings::UseMobilityFactor && (!Settings::IsIsotropicNetwork)) mu = GBmobilityModel(thetaMis);
 			  else mu = 1;
 			  grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
 			  it = grainCharacteristics.end();
@@ -1006,7 +1006,7 @@ void LSbox::computeVolumeAndEnergy()
 		double py =contourGrain[i].y;
 		int pxGrid = int(px+0.5);
 		int pyGrid = int(py+0.5);
-		if(ISOTROPIC){
+		if(Settings::IsIsotropicNetwork){
 		  contourGrain[i].energy = 1.0;
 		}		
 		else{
@@ -1023,7 +1023,7 @@ void LSbox::computeVolumeAndEnergy()
 				break;
 		}		
 		if (it == grainCharacteristics.end()){
-			if(MOBILITY && (!ISOTROPIC)) mu = GBmobilityModel(thetaMis);
+			if(Settings::UseMobilityFactor && (!Settings::IsIsotropicNetwork)) mu = GBmobilityModel(thetaMis);
 			else mu = 1;
 			grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
 			it = grainCharacteristics.end();
