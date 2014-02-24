@@ -357,7 +357,7 @@ void grainhdl::save_sim(){
 	myfile.open ("NrGrains&EnergyStatistics.txt");
 	for(int i=0; i< nr_grains.size(); i++){
 		myfile << nr_grains[i] << "\t";
-		myfile << totalenergy[i] << "\n";
+		myfile << totalenergy[i] << endl;
 	}
 	myfile.close();
 

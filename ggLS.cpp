@@ -11,7 +11,7 @@ int main() {
 
 	if(Settings::ExecuteInParallel)
 	{
-		my_sim = new parallelHandler();
+		my_sim = new parallelHandler() ;
 	}
 	else
 	{

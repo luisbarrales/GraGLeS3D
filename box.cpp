@@ -384,8 +384,8 @@ void LSbox::convolution(){
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if (val <= handler->tubeRadius) {
-					if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 2){
+//				if (val <= handler->tubeRadius) {
+					if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2){
 						if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
 						{
 							dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
@@ -435,7 +435,7 @@ void LSbox::convolution(){
 						weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
 					}
-				}
+//				}
 			}
 		}	   
 	}
@@ -451,7 +451,7 @@ void LSbox::convolution(){
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 // 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
 // 	plot_box(true,1,"Convoluted_1");
-// 	plot_box(true,2,"Convoluted_2");
+	plot_box(true,2,"Convoluted_2",true);
 
 }
 
@@ -523,22 +523,23 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	(necessary to create the plans) */
 	
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
-// 	int m = outputDistance->getMaxY() - outputDistance->getMinY();
+	int m = outputDistance->getMaxY() - outputDistance->getMinY();
 // 	assert(m!=n);
 	double dt = handler->get_dt();
 	int n2 = floor(n/2) + 1;
 	int nn = (*handler).get_ngridpoints();
 	double nsq =  nn*nn; 
-	double k = 2.0 * PI / n;
+	double kn = 2.0 * PI / n;
+	double km = 2.0 * PI / m;
 	double G;
 	double coski;
 	fftw_execute(fftplan1);
 	for(int i=0;i<n2;i++) {
-		coski=cos(k*i);
+		coski=cos(km*i);
 		for(int j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
-			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
-			G = 1.0/(1.0+(dt*G)) / (n*n);
+			G = 2.0*(2.0 - coski - cos(kn*j)) * nsq;
+			G = 1.0/(1.0+(dt*G)) / (m*n);
 			//        USE this line for Richardson-type extrapolation
 			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			/* normalize G by n*n to pre-normalize convolution results */
@@ -635,25 +636,24 @@ void LSbox::set_comparison(){
 
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-			if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty()) {
-				
-				outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j)); 
-				continue;
+//			outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
+			if(inputDistance->getValueAt(i,j) > -0.75*handler->delta ) {
+				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			}
-			else {
-				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * handler->delta)*/){
-					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
-				}
-				else if(inputDistance->getValueAt(i,j) > 0)
-					outputDistance->setValueAt(i,j, handler->delta);
-				else if(inputDistance->getValueAt(i,j) < 0)
-					outputDistance->setValueAt(i,j, -handler->delta);
-			}
+			else outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j));
+//			else {
+//				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * handler->delta)*/){
+//					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
+//				}
+//				else if(inputDistance->getValueAt(i,j) > 0)
+//					outputDistance->setValueAt(i,j, handler->delta);
+//				else if(inputDistance->getValueAt(i,j) < 0)
+//					outputDistance->setValueAt(i,j, -handler->delta);
+//			}
 		}
 	}
 // 	neighbors_old = neighbors;
 }
-
 
 bool LSbox::checkIntersect(LSbox* box2) {    
     if (inputDistance->getMinX() > box2->inputDistance->getMaxX() ||
@@ -699,9 +699,8 @@ void LSbox::comparison(){
 
 		for (int i = y_min_new; i < y_max_new; i++){
 			for (int j = x_min_new; j < x_max_new; j++){					
-				if(abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius){
+//				if(inputDistance->getValueAt(i,j) > -0.75*handler->delta ) {
 					double dist = (**it_nn).getDistance(i,j);
-					if( abs(dist) < (0.7*handler->delta)){								
 						if( dist > outputDistance->getValueAt(i,j) ){
 							if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
 								distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
@@ -716,8 +715,8 @@ void LSbox::comparison(){
 						else { 
 							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
 						}
-					}
-				}
+//			}
+//				else outputDistance->setValueAt(i,j,inputDistance->getValueAt(i,j));
 			}
 		}
 	}
@@ -725,12 +724,12 @@ void LSbox::comparison(){
 	if (BoundaryIntersection()){		
 		boundaryCondition();
 	}
-// 	plot_box(true,1,"Compare_zero");
+// 	plot_box(true,2,"Compare_zero", false);
 // 	if(id==15 &&handler->loop >120)  	plot_box(true,2,"Compare_zero");
 
 	set_comparison();
 
-// 	plot_box(true,1,"Compare_set");
+// 	plot_box(true,2,"Compare_set", false);
 // 	if(id==15 &&handler->loop >120) 	plot_box(true,2,"Compare_set");
 }
 
@@ -757,17 +756,17 @@ void LSbox::boundaryCondition(){
 	int grid_blowup = handler->get_grid_blowup();
 	double h = handler->get_h();
 	int m = handler->get_ngridpoints();
-	double distXMin, distXMax, distX;
-	double distYMin, distYMax, distY;
+	int distXMin, distXMax, distX;
+	int distYMin, distYMax, distY;
 	double dist;
 	int xMin, xMax, yMin, yMax;	
-				
+
 	for (int i=inputDistance->getMinY(); i< inputDistance->getMaxY() ; i++ ){
 		for (int j=inputDistance->getMinX(); j<inputDistance->getMaxX() ; j++ ){	
-			distXMin	= 	-(j-grid_blowup)*h;
-			distYMin 	= 	-(i-grid_blowup)*h;
-			distXMax	=	(i-(m-grid_blowup-1))*h;
-			distYMax 	= 	(j-(m-grid_blowup-1))*h;
+			distXMin	= 	-(j-grid_blowup);
+			distYMin 	= 	-(i-grid_blowup);
+			distXMax	=	(j-(m-grid_blowup));
+			distYMax 	= 	(i-(m-grid_blowup));
 			
 			if(abs(distXMin) < abs(distXMax)) distX = distXMin;
 			  else distX = distXMax;
@@ -775,25 +774,33 @@ void LSbox::boundaryCondition(){
 			  else distY = distYMax;
 			  
 			if(distX > 0 && distY > 0) 
-			  dist = sqrt(distX*distX + distY *distY);
-			else if (distX > 0 && distY < 0)
-			  dist = distX;
+				dist = sqrt((double)distX*distX + distY*distY);
+
 			else if(distX < 0 && distY > 0)
-			  dist = distY;
-			else if (distX <0 && distY < 0)
-			  dist = max(distX, distY);
-			else if(distX == 0 || distY == 0)
-			  dist = 0;	
-			
-			if (dist >= -handler->getBoundaryGrainTube()*h){
-			  if( dist > outputDistance->getValueAt(i,j) ){
-				  outputDistance->setValueAt(i, j, dist);
+				dist = distY;
+			else if (distX > 0 && distY < 0)
+				dist = distX;
+			else if(distX < 0 && distY < 0)
+				dist=max(distX,distY);
+			else if (distX == 0){
+				if (distY == 0) dist = 0;
+				else if(distY < 0) dist = 0;
+				else if(distY > 0) dist = distY;
+			}
+			else if (distY == 0){
+				if(distX < 0) dist = 0;
+				else if(distX > 0) dist =distX;
+			}
+
+//			if (dist >= -handler->getBoundaryGrainTube()*h){
+			  if( dist*h > outputDistance->getValueAt(i,j) ){
+				  outputDistance->setValueAt(i, j, dist*h);
 				  IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);	
 			  }
 			  else { 
 				  IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);						  
 			  }
-			}
+//			}
 		}
 	}
 }
@@ -838,6 +845,7 @@ void LSbox::add_n2o_2(){
 	for(it_nC = neighbourCandidates.begin(); it_nC != neighbourCandidates.end(); it_nC++){
 		just_in=false;
 		if((*it_nC)==this) continue;
+		if((*it_nC)==handler->boundary) continue;
 		for(it_com= neighbors_2order.begin(); it_com != neighbors_2order.end(); it_com++){
 			if((*it_com)==(*it_nC)) {
 				just_in = true;
@@ -928,7 +936,7 @@ void LSbox::find_contour() {
 // 	if(id == 7) plot_box(true,2, "grain10", true);
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
-	outputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	
 	return;
 }
@@ -1307,11 +1315,13 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
 		}		
 		datei.close();
     }
-    for(int i=0; i<contourGrain.size() - 1; i++){
-		double px =contourGrain[i].x;
-		double py =contourGrain[i].y;
-		cout << py << "   "<< px << endl;
-	}
+    if(!contourGrain.empty()){
+		for(int i=0; i<contourGrain.size() - 1; i++){
+			double px =contourGrain[i].x;
+			double py =contourGrain[i].y;
+			cout << py << "   "<< px << endl;
+		}
+    }
 }
 
 
