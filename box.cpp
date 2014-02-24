@@ -75,8 +75,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	
 	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	inputDistance->resizeToSquare(handler->get_ngridpoints());
-	outputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	inputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
 	outputDistance->clearValues(0.0);
 	
@@ -139,8 +139,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 
 	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	inputDistance->resizeToSquare(handler->get_ngridpoints());
-	outputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	inputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
 	outputDistance->clearValues(0.0);
 	
