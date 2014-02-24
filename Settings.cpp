@@ -15,6 +15,7 @@ unsigned int Settings::AnalysysTimestep = 0;
 unsigned int Settings::DiscreteSamplingRate = 0;
 unsigned int Settings::DomainBorderSize = 0;
 E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VALUE;
+string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
 bool Settings::UseMobilityFactor = false;
 bool Settings::IsIsotropicNetwork = false;
@@ -78,6 +79,10 @@ void Settings::initializeParameters(string filename)
 		MicrostructureGenMode = (E_MICROSTRUCTURE_GEN_MODE)std::stoi(rootNode->first_node("MicrostructureGenMode")->value());
 		if(MicrostructureGenMode >= E_INVALID_VALUE)
 			MicrostructureGenMode = E_INVALID_VALUE;
+	}
+	if( 0 != rootNode->first_node("ReadFromFilename") )
+	{
+		ReadFromFilename = rootNode->first_node("ReadFromFilename")->value();
 	}
 	if( 0 != rootNode->first_node("HAGB") )
 	{

@@ -19,11 +19,13 @@ class Settings
 	static unsigned int DiscreteSamplingRate;
 	static unsigned int DomainBorderSize;
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;
+	static std::string ReadFromFilename;
 	static double HAGB;
 	static bool UseMobilityFactor;
 	static bool IsIsotropicNetwork;
 	static bool UseTexture;
 	static bool ExecuteInParallel;
+
 
 	void static initializeParameters(std::string filename = "");
 
