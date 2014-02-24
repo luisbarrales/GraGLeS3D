@@ -75,8 +75,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	
 	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	inputDistance->resizeToSquare(handler->get_ngridpoints());
-	outputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	inputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
 	outputDistance->clearValues(0.0);
 	
@@ -139,8 +139,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 
 	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	inputDistance->resizeToSquare(handler->get_ngridpoints());
-	outputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	inputDistance->resizeToSquare(handler->get_ngridpoints());
+// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
 	outputDistance->clearValues(0.0);
 	
@@ -319,6 +319,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    j--;
 	    } 
     }
+    plot_box(true,2,"Dist",true);
 }
 
 
@@ -333,13 +334,14 @@ void LSbox::convolution(){
 
 	double* ST = handler->ST;
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
+	int m = outputDistance->getMaxY()-outputDistance->getMinY();
 	int dt 	= handler->get_dt();
 
 	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
 	
-	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(m/2)+1)*sizeof(fftw_complex));
 		
 	makeFFTPlans(inputDistance->getRawData(),outputDistance->getRawData(), fftTemp, &fwdPlan, &bwdPlan);
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
@@ -507,8 +509,9 @@ void LSbox::get_new_IDLocalSize(){
 void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
 { /* creates plans for FFT and IFFT */
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
-	*fftplan1 = fftw_plan_dft_r2c_2d(n,n,in,fftTemp,FFTW_ESTIMATE);
-	*fftplan2 = fftw_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
+	int m = outputDistance->getMaxY() - outputDistance->getMinY();
+	*fftplan1 = fftw_plan_dft_r2c_2d(n,m,in,fftTemp,FFTW_ESTIMATE);
+	*fftplan2 = fftw_plan_dft_c2r_2d(n,m,fftTemp,out,FFTW_ESTIMATE);
 }
 
 void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
@@ -526,7 +529,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 //	int m = outputDistance->getMaxY() - outputDistance->getMinY();
 // 	assert(m!=n);
 	double dt = handler->get_dt();
-	int n2 = floor(n/2) + 1;
+	int n2 = floor(m/2) + 1;
 	int nn = (*handler).get_ngridpoints();
 	double nsq =  nn*nn; 
 	double k = 2.0 * PI / n;
