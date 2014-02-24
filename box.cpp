@@ -920,8 +920,8 @@ void LSbox::find_contour() {
 	
 	if(grainCharacteristics.size() <2) {
 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
-		plot_box(true, 2, "error_grain.gnu", true);
-		plot_box(true, 1, "error_grain.gnu", true);
+		plot_box(true, 2, "error_grain", true);
+		plot_box(true, 1, "error_grain", true);
 		plot_box_contour(handler->loop, true);
 		exist =false;
 	}
@@ -1359,4 +1359,13 @@ bool LSbox::isNeighbour(LSbox* candidate){
 		if((*it).directNeighbour==candidate) return true;
 	}
 	return false;
+}
+
+void LSbox::saveGrain(ofstream* destfile ){
+	 ofstream& file = *destfile;
+	 file << id << "\t" << contourGrain.size() << "\t" << quaternion[0] << "\t" << quaternion[1]<< "\t" << quaternion[2]<< "\t" << quaternion[3] << endl;
+
+	 for(const auto& iterator : contourGrain){
+		file << iterator.x << "\t" << iterator.y<<  endl;
+	 }
 }

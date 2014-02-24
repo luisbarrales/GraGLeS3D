@@ -98,6 +98,7 @@ public:
 	void get_new_IDLocalSize();
 
 	void plot_box_contour(int timestep = -1, bool plot_energy=false, ofstream* dest_file = NULL);
+	void saveGrain(ofstream* dest_file);
 
 	void plot_box(bool distanceplot, int select, string simstep, bool local);
 	double mis_ori(LSbox* grain_2);

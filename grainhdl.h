@@ -22,6 +22,7 @@ class grainhdl{
 	int ngrains;
 	double dt;
 	double h;
+	int currentNrGrains;
 	
 	int realDomainSize;
 	int ngridpoints;
@@ -57,7 +58,9 @@ class grainhdl{
 	void generateRandomEnergy();
 	
 	void VOROMicrostructure();
-	void readMicrostructurefromVertex();
+	void readMicrostructureFromVertex();
+	void readMicrostructure();
+	void saveMicrostructure();
 	
 	void find_neighbors();
 	 

@@ -51,9 +51,22 @@ void grainhdl::setSimulationParameter(){
 			bunge = NULL; deviation = 0;
 			ST=new double [ngrains*ngrains];
 			std::fill_n(ST,ngrains*ngrains,0);
-			readMicrostructurefromVertex();
+			readMicrostructureFromVertex();
 			break;
-		}		
+		}
+		case 3:{
+			if(Settings::UseTexture){
+				bunge = new double[3]{PI/2, PI/2, PI/2};
+				deviation = 15*PI/180;
+			}
+			else {
+				bunge = NULL;
+				deviation = 0;
+			}
+			ST = NULL;
+			readMicrostructure();
+			break;
+		}
 	}		
 // 	construct_boundary();
 	//program options:
@@ -138,11 +151,48 @@ void grainhdl::VOROMicrostructure(){
 	delete [] part_pos;
 }
 
+void grainhdl::readMicrostructure(){
+	FILE * levelset;
+		levelset = fopen(Settings::ReadFromFilename.c_str(), "r");
 
+		long id;
+		int nvertex;
+		double phi1, PHI, phi2, xr, yr, xl, yl;
+		double* vertices;
 
-void grainhdl::readMicrostructurefromVertex(){
-	FILE * levelset;	
-	levelset = fopen( "lsInput.dat", "r" );
+		fscanf(levelset, "%d\n", &ngrains);
+		cout << "ngrains : " << ngrains << endl;;
+		grains.resize(ngrains+1);
+
+		int i=0;
+		for(int nn=0; nn< ngrains; nn++){
+
+			fscanf(levelset, "%ld\t %d\t %lf\t %lf\t%lf\n", &id, &nvertex, &phi1, &PHI, &phi2);
+			vertices = new double [nvertex * 4];
+			cout << id << " || " << nvertex << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
+
+			for(unsigned int j=0; j<nvertex; j++){
+				fscanf(levelset, "%lf\t %lf\t %lf\t%lf\n", &xl, &yl, &xr, &yr);
+				cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
+				int k = 4*j;
+				vertices[k]   = xl;
+				vertices[k+1] = yl;
+				vertices[k+2] = xr;
+				vertices[k+3] = yr;
+			}
+
+			LSbox* newBox = new LSbox(id, nvertex, vertices, phi1, PHI, phi2, this);
+			grains[id]= newBox;
+
+		    // calculate distances
+		    newBox->distancefunction(nvertex, vertices);
+
+			delete [] vertices;
+		}
+}
+
+void grainhdl::readMicrostructureFromVertex(){
+	FILE * levelset;
 // 	levelset = fopen( "lsInput_DRAG.dat", "r" );
 // 	levelset = fopen( "lsInput_quadrat.dat", "r" );
 
@@ -260,9 +310,11 @@ void grainhdl::level_set(){
 
 
 void grainhdl::redistancing(){
+	currentNrGrains=0;
 	for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)
 			continue;
+		currentNrGrains +=1;
 		grains[i]->redist_box();
 	}
 }
@@ -342,6 +394,7 @@ void grainhdl::run_sim(){
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
+			saveMicrostructure();
 		}
 		
 	}
@@ -349,13 +402,26 @@ void grainhdl::run_sim(){
 	cout << "Simulation complete." << endl;
 }  
 
+void grainhdl::saveMicrostructure(){
+	stringstream filename;
+	filename<< "MicrostructureAtTime_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".txt";
+	ofstream myfile;
+	myfile.open (filename.str());
+	std::vector<LSbox*>::iterator it;
+	myfile << currentNrGrains << endl;
+	for (it = ++grains.begin(); it !=grains.end(); it++){
+			if(*it== NULL) continue;
+			(*it)->saveGrain(&myfile);
+	}
+	myfile.close();
+}
 
  
 void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
 	myfile.open ("NrGrains&EnergyStatistics.txt");
-	for(int i=0; i< nr_grains.size(); i++){
+	for(int i=1; i< nr_grains.size(); i++){
 		myfile << nr_grains[i] << "\t";
 		myfile << totalenergy[i] << "\n";
 	}
