@@ -153,47 +153,45 @@ void grainhdl::VOROMicrostructure(){
 
 void grainhdl::readMicrostructure(){
 	FILE * levelset;
-		levelset = fopen(Settings::ReadFromFilename.c_str(), "r");
+	levelset = fopen(Settings::ReadFromFilename.c_str(), "r");
+	int id;
+	int nvertex;
+	double q1, q2, q3, q4, xr, yr, xl, yl;
+	double* vertices;
 
-		long id;
-		int nvertex;
-		double phi1, PHI, phi2, xr, yr, xl, yl;
-		double* vertices;
+	fscanf(levelset, "%d\n", &ngrains);
+	cout << "ngrains : " << ngrains << endl;;
+	grains.resize(ngrains+1);
 
-		fscanf(levelset, "%d\n", &ngrains);
-		cout << "ngrains : " << ngrains << endl;;
-		grains.resize(ngrains+1);
+	int i=0;
+	for(int nn=0; nn< ngrains; nn++){
+		fscanf(levelset, "%d\t %d\t %lf\t %lf\t%lf\t%lf\n", &id, &nvertex, &q1, &q2, &q3, &q4);
+		vertices = new double [nvertex * 4];
+		cout << id << " || " << nvertex << " || " << q1 << " || " << q2 << " || " << q3<< " || " << q4 << endl;
 
-		int i=0;
-		for(int nn=0; nn< ngrains; nn++){
-
-			fscanf(levelset, "%ld\t %d\t %lf\t %lf\t%lf\n", &id, &nvertex, &phi1, &PHI, &phi2);
-			vertices = new double [nvertex * 4];
-			cout << id << " || " << nvertex << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
-
-			for(unsigned int j=0; j<nvertex; j++){
-				fscanf(levelset, "%lf\t %lf\t %lf\t%lf\n", &xl, &yl, &xr, &yr);
-				cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
-				int k = 4*j;
-				vertices[k]   = xl;
-				vertices[k+1] = yl;
-				vertices[k+2] = xr;
-				vertices[k+3] = yr;
-			}
-
-			LSbox* newBox = new LSbox(id, nvertex, vertices, phi1, PHI, phi2, this);
-			grains[id]= newBox;
-
-		    // calculate distances
-		    newBox->distancefunction(nvertex, vertices);
-
-			delete [] vertices;
+		for(unsigned int j=0; j<nvertex; j++){
+			fscanf(levelset, "%lf\t %lf\t %lf\t%lf\n", &xl, &yl, &xr, &yr);
+			cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
+			int k = 4*j;
+			vertices[k]   = xl;
+			vertices[k+1] = yl;
+			vertices[k+2] = xr;
+			vertices[k+3] = yr;
 		}
+
+		LSbox* newBox = new LSbox(id, nvertex, vertices, q1, q2, q3, q4, this);
+		grains[id]= newBox;
+
+		// calculate distances
+		newBox->distancefunction(nvertex, vertices);
+
+		delete [] vertices;
+	}
 }
 
 void grainhdl::readMicrostructureFromVertex(){
 	FILE * levelset;
-// 	levelset = fopen( "lsInput_DRAG.dat", "r" );
+ 	levelset = fopen( "lsInput_DRAG.dat", "r" );
 // 	levelset = fopen( "lsInput_quadrat.dat", "r" );
 
 	long id;

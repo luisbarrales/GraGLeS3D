@@ -5,8 +5,8 @@
    <NumberOfTimesteps> 100 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
-   <MicrostructureGenMode> 1 </MicrostructureGenMode>
-   <ReadFromFilename>  MicrostructureAtTime_0_GRAINS_50000.txt </ReadFromFilename>
+   <MicrostructureGenMode> 3 </MicrostructureGenMode>
+   <ReadFromFilename>MicrostructureAtTime_0_GRAINS_50.txt</ReadFromFilename>
    <HAGB> 0.6 </HAGB>
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 1 </IsIsotropicNetwork>

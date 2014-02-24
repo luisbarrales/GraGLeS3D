@@ -88,7 +88,66 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 }
 
 
+LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner) : id(id), nvertices(nvertex), handler(owner){
+	exist = true;
 
+	quaternion = new double[4];
+	quaternion[0]=q1 ;
+	quaternion[1]=q2 ;
+	quaternion[2]=q3 ;
+	quaternion[3]=q4 ;
+
+	int grid_blowup = owner->get_grid_blowup();
+	double h = owner->get_h();
+    // determine size of grain
+    int xmax = 0;
+	int xmin = handler->get_ngridpoints();
+	int ymax = 0;
+	int ymin = xmin;
+
+	vektor x1(2), x2(2);
+	exist = true;
+
+	for (unsigned int k=0; k < nvertex; k++){
+	  x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
+	  x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
+
+		//	for convention:
+		//	x[i][j]:
+		//	i = Zeilenindex(y-direction)
+		// 	j = Spaltenindex(x-direction)
+
+		// check for "Zeilen" Minima/Maxima
+		if (x1[0]/h < ymin) ymin = x1[0]/h;
+		if (x2[0]/h < ymin) ymin = x2[0]/h;
+
+		if (x1[0]/h > ymax) ymax = (x1[0]/h);
+		if (x2[0]/h > ymax) ymax = (x2[0]/h);
+
+		// check for "Spalten" Minima/Maxima
+		if (x1[1]/h < xmin) xmin = x1[1]/h;
+		if (x2[1]/h < xmin) xmin = x2[1]/h;
+
+		if (x1[1]/h > xmax) xmax = (x1[1]/h);
+		if (x2[1]/h > xmax) xmax = (x2[1]/h);
+    }
+	xmax += 2*grid_blowup;
+	ymax += 2*grid_blowup;
+
+
+	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
+ 	inputDistance->resizeToSquare(handler->get_ngridpoints());
+ 	outputDistance->resizeToSquare(handler->get_ngridpoints());
+	inputDistance->clearValues(0.0);
+	outputDistance->clearValues(0.0);
+
+	get_new_IDLocalSize();
+	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
+
+// 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
+	local_weights=new Weightmap(owner);
+}
 
 
 
