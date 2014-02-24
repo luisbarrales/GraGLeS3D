@@ -451,7 +451,7 @@ void LSbox::convolution(){
 	IDLocal.resize((xmaxId-xminId)*(ymaxId-yminId));
 // 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
 // 	plot_box(true,1,"Convoluted_1");
-	plot_box(true,2,"Convoluted_2",true);
+//	plot_box(true,2,"Convoluted_2",true);
 
 }
 
@@ -523,23 +523,22 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	(necessary to create the plans) */
 	
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
-	int m = outputDistance->getMaxY() - outputDistance->getMinY();
+//	int m = outputDistance->getMaxY() - outputDistance->getMinY();
 // 	assert(m!=n);
 	double dt = handler->get_dt();
 	int n2 = floor(n/2) + 1;
 	int nn = (*handler).get_ngridpoints();
 	double nsq =  nn*nn; 
-	double kn = 2.0 * PI / n;
-	double km = 2.0 * PI / m;
+	double k = 2.0 * PI / n;
 	double G;
 	double coski;
 	fftw_execute(fftplan1);
 	for(int i=0;i<n2;i++) {
-		coski=cos(km*i);
+		coski=cos(k*i);
 		for(int j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
-			G = 2.0*(2.0 - coski - cos(kn*j)) * nsq;
-			G = 1.0/(1.0+(dt*G)) / (m*n);
+			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+			G = 1.0/(1.0+(dt*G)) / (n*n);
 			//        USE this line for Richardson-type extrapolation
 			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			/* normalize G by n*n to pre-normalize convolution results */
@@ -936,7 +935,7 @@ void LSbox::find_contour() {
 // 	if(id == 7) plot_box(true,2, "grain10", true);
 	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
-// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
+ 	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	
 	return;
 }
