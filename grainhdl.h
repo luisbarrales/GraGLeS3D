@@ -22,7 +22,6 @@ class grainhdl{
 	int ngrains;
 	double dt;
 	double h;
-	int currentNrGrains;
 	
 	int realDomainSize;
 	int ngridpoints;
@@ -32,7 +31,7 @@ class grainhdl{
 		
 	
 	public:
-	
+	int currentNrGrains;
 	mathMethods* mymath;
 	int loop;
 	vector<double> totalenergy;
@@ -62,6 +61,8 @@ class grainhdl{
 	void readMicrostructure();
 	void saveMicrostructure();
 	
+	void createParamsForSim(const char* param_filename, const char* vertex_dum_filename = NULL);
+
 	void find_neighbors();
 	 
 	void convolution();
@@ -84,7 +85,6 @@ class grainhdl{
 	
 	void saveSpecialContourEnergies(int id);
 	void removeGrain(int id);
-
 	
 
 	

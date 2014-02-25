@@ -1,6 +1,10 @@
 #include "grainhdl.h"
 #include "Settings.h"
 #include <sys/time.h>
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
+
+using namespace rapidxml;
 
 grainhdl::grainhdl(){}
 grainhdl::~grainhdl(){
@@ -18,8 +22,8 @@ void grainhdl::setSimulationParameter(){
 	ngrains = Settings::NumberOfParticles;
 	
 	hagb = Settings::HAGB;
-	if(Mode==1) realDomainSize= sqrt(ngrains)*30-1;	// half open container of VORO++
-	if(Mode==2) realDomainSize= sqrt(ngrains)*30;
+	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
+	if(Mode==2) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
@@ -154,6 +158,11 @@ void grainhdl::VOROMicrostructure(){
 void grainhdl::readMicrostructure(){
 	FILE * levelset;
 	levelset = fopen(Settings::ReadFromFilename.c_str(), "r");
+	if ( levelset == NULL )
+	{
+		cout << "Could not read from specified file !";
+		exit(2);
+	}
 	int id;
 	int nvertex;
 	double q1, q2, q3, q4, xr, yr, xl, yl;
@@ -401,17 +410,31 @@ void grainhdl::run_sim(){
 }  
 
 void grainhdl::saveMicrostructure(){
-	stringstream filename;
-	filename<< "MicrostructureAtTime_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".txt";
-	ofstream myfile;
-	myfile.open (filename.str());
-	std::vector<LSbox*>::iterator it;
-	myfile << currentNrGrains << endl;
-	for (it = ++grains.begin(); it !=grains.end(); it++){
-			if(*it== NULL) continue;
-			(*it)->saveGrain(&myfile);
-	}
-	myfile.close();
+	stringstream param_xml_name;
+	param_xml_name<< "PARAMETERS_SIM_NONAME_TIMESTEP_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".xml";
+	stringstream vertex_dump_name;
+	vertex_dump_name<< "NETWORK_NONAME_TIMESTEP_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".xml";
+
+	createParamsForSim(param_xml_name.str().c_str(), vertex_dump_name.str().c_str());
+
+}
+void grainhdl::createParamsForSim(const char* param_filename, const char* vertex_dump_filename)
+{
+	xml_document<> doc_tree;
+
+	xml_node<>* declaration = doc_tree.allocate_node(node_declaration);
+	declaration->append_attribute(doc_tree.allocate_attribute("version", "1.0"));
+	declaration->append_attribute(doc_tree.allocate_attribute("encoding", "utf-8"));
+	doc_tree.append_node(declaration);
+
+	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename));
+	ofstream output;
+	output.open(param_filename);
+	output<<doc_tree;
+	output.close();
+
+	cout<<doc_tree;
+	int p =2;
 }
 
  

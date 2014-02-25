@@ -864,7 +864,7 @@ void LSbox::boundaryCondition(){
 
 /*
 void LSbox::add_n2o(){
-	if(get_status() != true ) return;katefsf
+	if(get_status() != true ) return;
 	neighbors_2order = neighbors;
 	neighbors.clear();
 	vector<LSbox*> ::iterator it_com, it_n2o, it;

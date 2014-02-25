@@ -7,6 +7,8 @@ class parallelHandler : public grainhdl
 {
 public:
 	void run_sim();
+private:
+	void initParallelEnvironment();
 };
 
 #endif

@@ -3,7 +3,8 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
-	omp_set_num_threads(8);
+	initParallelEnvironment();
+
 	find_neighbors();
 
 	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
@@ -53,18 +54,34 @@ void parallelHandler::run_sim()
 			grains[i]->find_contour();
 		}
 		//redistancing
+#pragma omp single
+		currentNrGrains=0;
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
 			grains[i]->redist_box();
+#pragma omp atomic
+			currentNrGrains++;
 		}
 }
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
+			saveMicrostructure();
 		}
 
 	}
 	cout << "Simulation complete." << endl;
+}
+
+void parallelHandler::initParallelEnvironment()
+{
+	if (Settings::MaximumNumberOfThreads == 0)
+	{
+		Settings::MaximumNumberOfThreads = omp_get_max_threads();
+	}
+	omp_set_num_threads(Settings::MaximumNumberOfThreads);
+
+
 }
