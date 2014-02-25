@@ -2,23 +2,26 @@
 #define __SETTINGS_H__
 
 #include <string>
+#include "rapidxml.hpp"
+
 
 enum E_MICROSTRUCTURE_GEN_MODE
 {
 	E_READ_FROM_FILE,
 	E_GENERATE_WITH_VORONOY,
-	E_READMICROSTRUCTURE,
+	E_READ_MICROSTRUCTURE,
 	E_INVALID_VALUE
 };
 
 class Settings
 {
 	public:
-	static unsigned int NumberOfParticles;
-	static unsigned int NumberOfTimesteps;
-	static unsigned int AnalysysTimestep;
-	static unsigned int DiscreteSamplingRate;
-	static unsigned int DomainBorderSize;
+	static unsigned long NumberOfParticles;
+	static unsigned long NumberOfPointsPerGrain;
+	static unsigned long NumberOfTimesteps;
+	static unsigned long AnalysysTimestep;
+	static unsigned long DiscreteSamplingRate;
+	static unsigned long DomainBorderSize;
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;
 	static std::string ReadFromFilename;
 	static double HAGB;
@@ -26,10 +29,10 @@ class Settings
 	static bool IsIsotropicNetwork;
 	static bool UseTexture;
 	static bool ExecuteInParallel;
+	static unsigned long  MaximumNumberOfThreads;
 
-
-	void static initializeParameters(std::string filename = "");
-
+	static void initializeParameters(std::string filename = "");
+	static rapidxml::xml_node<>* generateXMLParametersNode(rapidxml::xml_document<>* root, const char* filename);
 };
 
 #endif	//__SETTINGS_H__
