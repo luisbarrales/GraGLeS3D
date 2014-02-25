@@ -378,7 +378,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    j--;
 	    } 
     }
-    plot_box(true,2,"Dist",true);
+//    plot_box(true,2,"Dist",true);
 }
 
 
@@ -694,7 +694,7 @@ void LSbox::set_comparison(){
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 //			outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
-			if(inputDistance->getValueAt(i,j) > -0.75*handler->delta ) {
+			if(inputDistance->getValueAt(i,j) > -0.5*handler->delta ) {
 				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			}
 			else outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j));
@@ -864,7 +864,7 @@ void LSbox::boundaryCondition(){
 
 /*
 void LSbox::add_n2o(){
-	if(get_status() != true ) return;
+	if(get_status() != true ) return;katefsf
 	neighbors_2order = neighbors;
 	neighbors.clear();
 	vector<LSbox*> ::iterator it_com, it_n2o, it;
@@ -965,6 +965,8 @@ void LSbox::find_contour() {
 
 
 	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
+		cout <<endl << "Timestep: " <<handler->loop << endl << endl;
+
 		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
 		cout << "Number of gridpoints: " << m << endl;
 		cout << yminNew << " || " << xminNew << " || " << ymaxNew  << " || " << xmaxNew << endl; 
@@ -984,6 +986,7 @@ void LSbox::find_contour() {
 	
 	
 	if(grainCharacteristics.size() <2) {
+		cout << endl << "Timestep: " <<handler->loop << endl;
 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
 		plot_box(true, 2, "error_grain", true);
 		plot_box(true, 1, "error_grain", true);
@@ -1014,8 +1017,17 @@ void LSbox::updateFirstOrderNeigbors(){
 	  for(i=0; i<contourGrain.size() - 1; i++){		
 		  double px =contourGrain[i].x;
 		  double py =contourGrain[i].y;
-		  int pxGrid = int(px+0.5);
-		  int pyGrid = int(py+0.5);
+		  int pxGrid = int(px);
+		  int pyGrid = int(py);
+		  if(inputDistance->getValueAt(pyGrid,pxGrid) > 0) {
+				pxGrid = int(px+1);
+				if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
+					pyGrid = int(py +1);
+					if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
+						pxGrid = int(px);
+					}
+				}
+			}
 		  
 		  for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 			  if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
@@ -1071,6 +1083,16 @@ void LSbox::computeVolumeAndEnergy()
 		double py =contourGrain[i].y;
 		int pxGrid = int(px+0.5);
 		int pyGrid = int(py+0.5);
+		// evaluate the ID at a outer point -> there must be one, we are at the boundray
+		if(inputDistance->getValueAt(pyGrid,pxGrid) > 0) {
+			pxGrid = int(px+1);
+			if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
+				pyGrid = int(py +1);
+				if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
+					pxGrid = int(px);
+				}
+			}
+		}
 		if(Settings::IsIsotropicNetwork){
 		  contourGrain[i].energy = 1.0;
 		}		

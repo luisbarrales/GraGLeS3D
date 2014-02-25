@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 50000 </NumberOfParticles> 
-   <AnalysysTimestep> 1 </AnalysysTimestep>
+   <NumberOfParticles> 5000 </NumberOfParticles> 
+   <AnalysysTimestep> 25 </AnalysysTimestep>
    <NumberOfTimesteps> 3000 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
@@ -10,6 +10,6 @@
    <HAGB> 0.6 </HAGB>
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 1 </IsIsotropicNetwork>
-   <UseTexture> 0 </UseTexture>
+   <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
 </Parameters>
