@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
    <NumberOfParticles> 5000 </NumberOfParticles> 
+   <NumberOfPointsPerGrain> 30 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 25 </AnalysysTimestep>
    <NumberOfTimesteps> 3000 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
