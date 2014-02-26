@@ -430,13 +430,7 @@ void grainhdl::createParamsForSim(const char* param_filename, const char* vertex
 	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename));
 	ofstream output;
 	output.open(param_filename);
-	output<<doc_tree;
-	output.close();
-
-	cout<<doc_tree;
-	int p =2;
 }
-
  
 void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
