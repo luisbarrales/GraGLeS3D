@@ -61,8 +61,8 @@ class LSbox {
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
 	
-	DimensionalBuffer<double>* inputDistance;
-	DimensionalBuffer<double>* outputDistance;
+	DimensionalBuffer<varprecision>* inputDistance;
+	DimensionalBuffer<varprecision>* outputDistance;
 
 public:
 	friend class grainhdl;
@@ -107,7 +107,13 @@ public:
 	void inversDistance();
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
-	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
+	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
+	void executeFFTW(fftw_plan fftplan);
+	void executeFFTW(fftwf_plan fftplan);
+	void destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan, fftw_complex *fftTemp);
+	void destroyFFTWs(fftwf_plan fwdPlan, fftwf_plan bwdPlan, fftwf_complex *fftTemp);
+
+	void conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void switchInNOut();
 	void boundaryCondition();
 	void updateFirstOrderNeigbors();

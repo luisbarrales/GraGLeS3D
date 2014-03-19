@@ -2,6 +2,7 @@
 #define		__MARCHING_SQUARES_ALGORITHM__
 
 #include "dimensionalBuffer.h"
+#include "ggLS.h"
 
 /*!
  * \struct SPoint
@@ -62,7 +63,7 @@ public:
 	/*!
 		 * \brief Basic constructor. Requires a dimensional that defines the shape of the object.
 	*/
-	MarchingSquaresAlgorithm(DimensionalBuffer<double>& distance_buffer);
+	MarchingSquaresAlgorithm(DimensionalBuffer<varprecision>& distance_buffer);
 	/*!
 		 * \brief Basic destructor. Virtual so that the class can be easily inherited.
 	*/
@@ -90,7 +91,7 @@ public:
 			void	insertPoint(std::vector<SPoint>& output, SPoint p);
 private:
 
-	DimensionalBuffer<double>& m_DistanceBuffer;
+	DimensionalBuffer<varprecision>& m_DistanceBuffer;
 	int m_top;
 	int m_bottom;
 	int m_left;

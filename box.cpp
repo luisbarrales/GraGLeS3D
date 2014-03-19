@@ -11,8 +11,8 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	quaternion = new double[4];
 	double euler[3] = {phi1,PHI,phi2};
 	(*(handler->mymath)).euler2quaternion( euler, quaternion );
-	inputDistance = new DimensionalBuffer<double>(0, 0, 0, 0);
-	outputDistance = new DimensionalBuffer<double>(0, 0, 0, 0);	
+	inputDistance = new DimensionalBuffer<varprecision>(0, 0, 0, 0);
+	outputDistance = new DimensionalBuffer<varprecision>(0, 0, 0, 0);	
 // 	IDLocal.resize((xmax - xmin) * (ymax - ymin));
 	local_weights = new Weightmap(owner);
 
@@ -73,8 +73,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
 	
-	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
+	inputDistance = new DimensionalBuffer<varprecision>(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBuffer<varprecision>(xmin, ymin, xmax, ymax);
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
@@ -135,8 +135,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double
 	ymax += 2*grid_blowup;
 
 
-	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
+	inputDistance = new DimensionalBuffer<varprecision>(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBuffer<varprecision>(xmin, ymin, xmax, ymax);
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
@@ -196,8 +196,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	ymax += 2*grid_blowup;
 
 
-	inputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBuffer<double>(xmin, ymin, xmax, ymax);
+	inputDistance = new DimensionalBuffer<varprecision>(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBuffer<varprecision>(xmin, ymin, xmax, ymax);
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
@@ -396,18 +396,15 @@ void LSbox::convolution(){
 	int dt 	= handler->get_dt();
 
 	
-	fftw_complex *fftTemp;
-	fftw_plan fwdPlan, bwdPlan;
+	fftwp_complex *fftTemp;
+	fftwp_plan fwdPlan, bwdPlan;
 	
-	fftTemp = (fftw_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftw_complex));
+	fftTemp = (fftwp_complex*) fftw_malloc(n*(floor(n/2)+1)*sizeof(fftwp_complex));
 		
 	makeFFTPlans(inputDistance->getRawData(),outputDistance->getRawData(), fftTemp, &fwdPlan, &bwdPlan);
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
 
-	fftw_destroy_plan(fwdPlan);
-	fftw_destroy_plan(bwdPlan);
-
-	fftw_free (fftTemp);
+	destroyFFTWs(fwdPlan, bwdPlan, fftTemp);
 	/*********************************************************************************/
 	// Velocity Corrector Step: 
 	/*********************************************************************************/
@@ -418,7 +415,7 @@ void LSbox::convolution(){
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 		double weight, gamma;
-	    double val;
+		double val;
 		double dist2OrderNeigh;
 		int nActiveGrains;
 		vector<LSbox*> IDs;
@@ -514,6 +511,17 @@ void LSbox::convolution(){
 //	plot_box(true,2,"Convoluted_2",true);
 
 }
+void LSbox::destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan, fftw_complex *fftTemp){
+	  fftw_destroy_plan(fwdPlan);
+	  fftw_destroy_plan(bwdPlan);
+	  fftw_free (fftTemp);
+	  }
+	  
+void LSbox::destroyFFTWs(fftwf_plan fwdPlan, fftwf_plan bwdPlan, fftwf_complex *fftTemp){
+	  fftwf_destroy_plan(fwdPlan);
+	  fftwf_destroy_plan(bwdPlan);
+	  fftwf_free (fftTemp);
+	  }
 
 double LSbox::getGBEnergyTimesGBMobility(int i,int j){
 	LSbox* neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0];
@@ -571,7 +579,15 @@ void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_pla
 	*fftplan2 = fftw_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
 }
 
-void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
+void LSbox::makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2)
+{ /* creates plans for FFT and IFFT */
+	int n = outputDistance->getMaxX() - outputDistance->getMinX();
+	  *fftplan1 = fftwf_plan_dft_r2c_2d(n,n,in,fftTemp,FFTW_ESTIMATE);
+	  *fftplan2 = fftwf_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
+
+}
+
+void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2)
 {
 	/* Function returns in u the updated value of u as described below..
 	u -> (G_{dt})*u
@@ -590,7 +606,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	double k = 2.0 * PI / n;
 	double G;
 	double coski;
-	fftw_execute(fftplan1);
+	executeFFTW(fftplan1);
 	for(int i=0;i<n2;i++) {
 		coski=cos(k*i);
 		for(int j=0;j<n;j++){
@@ -604,8 +620,19 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
 		}
 	}
-	fftw_execute(fftplan2);
+	executeFFTW(fftplan2);
 }
+
+void LSbox::executeFFTW(fftw_plan fftplan)
+{
+  fftw_execute(fftplan);
+}
+
+void LSbox::executeFFTW(fftwf_plan fftplan)
+{
+  fftwf_execute(fftplan);
+}
+
 
 /**************************************/
 /**************************************/
@@ -673,7 +700,7 @@ void LSbox::determineIDs(){
 /**************************************/
 
 void LSbox::switchInNOut(){
-	DimensionalBuffer<double>* temp;
+	DimensionalBuffer<varprecision>* temp;
 	temp = inputDistance;
 	inputDistance = outputDistance;
 	outputDistance = temp;
@@ -726,7 +753,7 @@ void LSbox::comparison(){
 	if(get_status() != true ) return;
 	int m = handler->get_ngridpoints();
 	int grid_blowup = handler->get_grid_blowup();
-	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
+	DimensionalBuffer<varprecision> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
 										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
 
 	distance_2neighbor.clearValues(-1.0);

@@ -9,6 +9,22 @@
 
 #define IMAGEOUT true
 
+// switch if double or single precision!
+#define PRECISION single//double 
+#define varprecision double
+#define fftwp_complex fftw_complex
+#define fftwp_plan fftw_plan
+
+#if PRECISION == single
+  #undef varprecision
+  #define varprecision float
+  #undef  fftwp_complex
+  #define fftwp_complex fftwf_complex
+  #undef  fftwp_plan 
+  #define fftwp_plan fftwf_plan
+  
+ #endif
+
 
 #pragma once
 #include <map>
