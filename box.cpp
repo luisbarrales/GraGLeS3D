@@ -395,7 +395,6 @@ void LSbox::convolution(){
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int dt 	= handler->get_dt();
 
-	
 	fftw_complex *fftTemp;
 	fftw_plan fwdPlan, bwdPlan;
 	
@@ -450,16 +449,15 @@ void LSbox::convolution(){
 						{
 							dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
 							weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
-		// 					cout << weight << endl;
-	// 						weight *=getGBMobility(i,j);
+
 							gamma = getGBEnergyTimesGBMobility(i,j);
-	// 						cout << "gamma "<< gamma << endl;
-							weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
-	// 						if(weight < 0){
-	// 							cout << weight << "    "<< weight1<< "    "<< gamma << "    "<< -handler->delta <<endl;
-	// 							char buf;
-	// 							cin >> buf;
-	// 						}
+							if( dist2OrderNeigh > -handler->delta) {
+								weight = -(dist2OrderNeigh/ handler->delta * (gamma - weight) )+ weight;
+								weight = weight *Settings::TriplePointDrag;
+							}
+							else weight = gamma;
+
+
 							// the weight is a function of the distance to the 2 order neighbor
 							outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 						}
@@ -479,6 +477,7 @@ void LSbox::convolution(){
 						if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
 						else if (IDs.size()==3){
 							weight =0;
+							IDsActive.clear();
 							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
 							weight += local_weights->isTriplePoint(IDsActive);
 							IDsActive.clear();
@@ -490,9 +489,14 @@ void LSbox::convolution(){
 							weight /= 3;
 						}	
 						else weight = handler-> hagb;
-	// 					
-						gamma = getGBEnergyTimesGBMobility(i,j);
-						weight = -(dist2OrderNeigh/ double(handler->delta) * (gamma - weight) )+ weight;
+
+//						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
+//						gamma = getGBEnergyTimesGBMobility(i,j);
+//						if( dist2OrderNeigh > -handler->delta) {
+//							weight = -(dist2OrderNeigh/ handler->delta * (gamma - weight) )+ weight;
+////							weight = weight *Settings::TriplePointDrag;
+//						}
+//						else weight = gamma;
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
 					}
 //				}

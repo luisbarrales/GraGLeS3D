@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 50 </NumberOfParticles> 
-   <NumberOfPointsPerGrain> 30 </NumberOfPointsPerGrain>
+   <NumberOfParticles> 500 </NumberOfParticles> 
+   <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 25 </AnalysysTimestep>
-   <NumberOfTimesteps> 30 </NumberOfTimesteps>
+   <NumberOfTimesteps> 500 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
@@ -13,5 +13,5 @@
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 0 </ExecuteInParallel>
+   <ExecuteInParallel> 1 </ExecuteInParallel>
 </Parameters>

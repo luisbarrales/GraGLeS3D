@@ -1,7 +1,6 @@
 #include "weightmap.h"
 #include "Settings.h"
 
-class Settings;
 
 Weightmap::mapkey::mapkey(vector<LSbox*> IDs) :
 	first(NULL),
@@ -41,21 +40,23 @@ Weightmap::~Weightmap()
 
 double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 {
-	Weightmap::mapkey key_tuple(IDs);
-	double weight;
-	std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
+	if(IDs.size()==2){
+		Weightmap::mapkey key_tuple(IDs);
+		double weight;
+		std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
 
-	if (it == m_Weights.end())	//If value is not present, calculate and store it.
-	{
-		weight = computeWeights(key_tuple, me, ST);
-		m_Weights[key_tuple] = weight;
+		if (it == m_Weights.end())	//If value is not present, calculate and store it.
+		{
+			weight = computeWeights(key_tuple, me, ST);
+			m_Weights[key_tuple] = weight;
+		}
+		else						//If present just fetch.
+		{
+			weight = (*it).second;
+		}
+		return weight;
 	}
-	else						//If present just fetch.
-	{
-		weight = (*it).second;
-	}
-	weight *= Settings::TriplePointDrag;
-	return weight;
+	else return m_pHandler->hagb;
 }
 
 double Weightmap::isTriplePoint(vector<LSbox*> IDs){
@@ -77,20 +78,31 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	double theta_ref = 15.0 * PI /180;
 	double theta_mis;
 
-	theta_mis = me->mis_ori(rep.first);
-	if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-	else gamma[0] = gamma_hagb;
+
+	if(Settings::MicrostructureGenMode == 2){
+		gamma[0] = ST[(me->get_id() - 1)
+					+ (m_pHandler->get_ngrains() * (rep.first->get_id() - 1))];
+		gamma[1] = ST[(rep.first->get_id() - 1)
+			+ (m_pHandler->get_ngrains() * (rep.second->get_id() - 1))];
+		gamma[2] = ST[(me->get_id() - 1)
+			+ (m_pHandler->get_ngrains() * (rep.second->get_id() - 1))];
+	}
+
+	if(Settings::MicrostructureGenMode == 1 || Settings::MicrostructureGenMode == 3){
+		theta_mis = me->mis_ori(rep.first);
+		if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+		else gamma[0] = gamma_hagb;
 
 
-	theta_mis = rep.first->mis_ori(rep.second);
-	if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-	else gamma[1] = gamma_hagb;
+		theta_mis = rep.first->mis_ori(rep.second);
+		if (theta_mis <= theta_ref) gamma[1] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+		else gamma[1] = gamma_hagb;
 
 
-	theta_mis = me->mis_ori(rep.second);
-	if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
-	else gamma[2] = gamma_hagb;
-
+		theta_mis = me->mis_ori(rep.second);
+		if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
+		else gamma[2] = gamma_hagb;
+	}
 	sigma = gamma[0] - gamma[1] + gamma[2];
 	
 	if(sigma < 0.0) {
