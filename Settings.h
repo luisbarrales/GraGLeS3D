@@ -25,6 +25,7 @@ class Settings
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;
 	static std::string ReadFromFilename;
 	static double HAGB;
+	static double TriplePointDrag;
 	static bool UseMobilityFactor;
 	static bool IsIsotropicNetwork;
 	static bool UseTexture;

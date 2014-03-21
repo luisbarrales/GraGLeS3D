@@ -61,8 +61,8 @@ void parallelHandler::run_sim()
 			if(grains[i]==NULL)
 				continue;
 			grains[i]->redist_box();
-#pragma omp atomic
-			currentNrGrains++;
+			#pragma omp atomic
+				currentNrGrains++;
 		}
 }
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {

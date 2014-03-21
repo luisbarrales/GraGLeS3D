@@ -927,7 +927,6 @@ void LSbox::add_n2o_2(){
 /**************************************/
 
 void LSbox::find_contour() {
-// 	if(id == 7) plot_box(true,2, "grain10", true);
 	if(get_status() == false ) {
 	  handler->removeGrain(id);
 	  delete this;
@@ -935,9 +934,7 @@ void LSbox::find_contour() {
 	}
 	exist = false;
 	
-	// save old boundaries -> function will compute updates
-
-    contourGrain.clear();
+	contourGrain.clear();
 
     MarchingSquaresAlgorithm marcher(*inputDistance);
     exist = marcher.generateContour(contourGrain);
@@ -979,8 +976,6 @@ void LSbox::find_contour() {
 	if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		computeVolumeAndEnergy();
 		volume = abs(volume);
-// 		cerr<< "Volume of " << id << "= " << volume << endl;
-// 		cerr<< "Surface Energy of " << id << "= " << abs(energy)<< endl << endl;
 	}
 	else updateFirstOrderNeigbors();
 	
@@ -993,8 +988,6 @@ void LSbox::find_contour() {
 		plot_box_contour(handler->loop, true);
 		exist =false;
 	}
-// 	if(id == 7) plot_box(true,2, "grain10", true);
-	
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	
@@ -1010,54 +1003,47 @@ void LSbox::updateFirstOrderNeigbors(){
 	double theta_ref = 15.0 * PI / 180.0;
 	double gamma_hagb = handler->hagb;
 	int i;
-// 	if (contourGrain.size() < 15) {
-// 	  
-// // 	}
-// 	else{
-	  for(i=0; i<contourGrain.size() - 1; i++){		
-		  double px =contourGrain[i].x;
-		  double py =contourGrain[i].y;
-		  int pxGrid = int(px);
-		  int pyGrid = int(py);
-		  if(inputDistance->getValueAt(pyGrid,pxGrid) > 0) {
-				pxGrid = int(px+1);
+	for(i=0; i<contourGrain.size() - 1; i++){
+	  double px =contourGrain[i].x;
+	  double py =contourGrain[i].y;
+	  int pxGrid = int(px);
+	  int pyGrid = int(py);
+	  if(inputDistance->getValueAt(pyGrid,pxGrid) > 0) {
+			pxGrid = int(px+1);
+			if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
+				pyGrid = int(py +1);
 				if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
-					pyGrid = int(py +1);
-					if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
-						pxGrid = int(px);
-					}
+					pxGrid = int(px);
 				}
 			}
-		  
-		  for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-			  if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
-				  break;
-		  }
-		  if (it == grainCharacteristics.end()){
-			  double energyLocal;
-			  if(Settings::IsIsotropicNetwork){
-				  energy = 1.0;
-			  }		
-			  else{
-				  thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
-				  if (thetaMis <= theta_ref)
-					  energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
-				  else
-					  energyLocal = gamma_hagb;
-			  }
-			  if(Settings::UseMobilityFactor && (!Settings::IsIsotropicNetwork)) mu = GBmobilityModel(thetaMis);
-			  else mu = 1;
-			  grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
-			  it = grainCharacteristics.end();
-			  it--;
-		  }	
-		  line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
-		  //save length in GrainCharaczeristics
-		  it->length += (line_length*h);
-	  }
-// 	}
-	
+		}
 
+	  for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
+		  if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
+			  break;
+	  }
+	  if (it == grainCharacteristics.end()){
+		  double energyLocal;
+		  if(Settings::IsIsotropicNetwork){
+			  energy = 1.0;
+		  }
+		  else{
+			  thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
+			  if (thetaMis <= theta_ref)
+				  energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
+			  else
+				  energyLocal = gamma_hagb;
+		  }
+		  if(Settings::UseMobilityFactor && (!Settings::IsIsotropicNetwork)) mu = GBmobilityModel(thetaMis);
+		  else mu = 1;
+		  grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
+		  it = grainCharacteristics.end();
+		  it--;
+	  }
+	  line_length = sqrt(((contourGrain[i].x-contourGrain[i+1].x)*(contourGrain[i].x-contourGrain[i+1].x)) + ((contourGrain[i].y-contourGrain[i+1].y)*(contourGrain[i].y-contourGrain[i+1].y)));
+	  //save length in GrainCharaczeristics
+	  it->length += (line_length*h);
+	}
 }
 
 void LSbox::computeVolumeAndEnergy()

@@ -18,6 +18,7 @@ unsigned long Settings::DomainBorderSize = 0;
 E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VALUE;
 string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
+double Settings::TriplePointDrag=0.0;
 bool Settings::UseMobilityFactor = false;
 bool Settings::IsIsotropicNetwork = false;
 bool Settings::UseTexture = false;
@@ -93,6 +94,10 @@ void Settings::initializeParameters(string filename)
 	if( 0 != rootNode->first_node("HAGB") )
 	{
 		HAGB = std::stod(rootNode->first_node("HAGB")->value());
+	}
+	if( 0 != rootNode->first_node("TriplePointDrag") )
+	{
+		TriplePointDrag = std::stod(rootNode->first_node("TriplePointDrag")->value());
 	}
 	if( 0 != rootNode->first_node("UseMobilityFactor") )
 	{

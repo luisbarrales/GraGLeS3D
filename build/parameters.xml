@@ -9,6 +9,7 @@
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
    <ReadFromFilename>MicrostructureAtTime_975_GRAINS_2354.txt</ReadFromFilename>
    <HAGB> 0.6 </HAGB>
+   <TriplePointDrag> 0.5 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
