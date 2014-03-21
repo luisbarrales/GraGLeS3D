@@ -13,5 +13,5 @@
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 1 </ExecuteInParallel>
+   <ExecuteInParallel> 0 </ExecuteInParallel>
 </Parameters>

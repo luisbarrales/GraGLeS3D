@@ -41,7 +41,6 @@ Weightmap::~Weightmap()
 
 double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 {
-
 	Weightmap::mapkey key_tuple(IDs);
 	double weight;
 	std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
@@ -55,8 +54,8 @@ double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 	{
 		weight = (*it).second;
 	}
-
-	return weight* Settings::TriplePointDrag;
+	weight *= Settings::TriplePointDrag;
+	return weight;
 }
 
 double Weightmap::isTriplePoint(vector<LSbox*> IDs){
@@ -72,7 +71,6 @@ double Weightmap::isTriplePoint(vector<LSbox*> IDs){
 
 double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 {
-	
 	double sigma;
 	double gamma[3];
 	double gamma_hagb = m_pHandler->hagb;//0.6;
