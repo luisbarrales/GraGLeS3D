@@ -30,6 +30,7 @@ void grainhdl::setSimulationParameter(){
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
 	tubeRadius = sqrt(2)*1.5*h + 0.001;
 	grid_blowup = Settings::DomainBorderSize;
+	BoundaryGrainTube=grid_blowup;
 	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 
@@ -430,6 +431,9 @@ void grainhdl::createParamsForSim(const char* param_filename, const char* vertex
 	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename));
 	ofstream output;
 	output.open(param_filename);
+	output<<doc_tree;
+	output.close();
+
 }
  
 void grainhdl::save_sim(){

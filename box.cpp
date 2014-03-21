@@ -445,7 +445,7 @@ void LSbox::convolution(){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
 //				if (val <= handler->tubeRadius) {
-					if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() >= 2){
+					if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 2){
 						if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
 						{
 							dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
@@ -985,7 +985,7 @@ void LSbox::find_contour() {
 	else updateFirstOrderNeigbors();
 	
 	
-	if(grainCharacteristics.size() <2) {
+	if(grainCharacteristics.size() <2 && contourGrain.size() >3) {
 		cout << endl << "Timestep: " <<handler->loop << endl;
 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
 		plot_box(true, 2, "error_grain", true);

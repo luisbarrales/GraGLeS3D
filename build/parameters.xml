@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 5000 </NumberOfParticles> 
+   <NumberOfParticles> 50 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 30 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 25 </AnalysysTimestep>
-   <NumberOfTimesteps> 3000 </NumberOfTimesteps>
+   <NumberOfTimesteps> 30 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
-   <ReadFromFilename>MicrostructureAtTime_0_GRAINS_50.txt</ReadFromFilename>
+   <ReadFromFilename>MicrostructureAtTime_975_GRAINS_2354.txt</ReadFromFilename>
    <HAGB> 0.6 </HAGB>
    <UseMobilityFactor> 0 </UseMobilityFactor>
-   <IsIsotropicNetwork> 1 </IsIsotropicNetwork>
+   <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
 </Parameters>
