@@ -2,7 +2,8 @@
 #define BOX_H
 
 #include "ggLS.h"
-
+#include "dimensionalBufferIDLocal.h"
+#include "dimensionalBufferReal.h"
 // #include "contour.h"
 using namespace std;
 
@@ -10,8 +11,7 @@ class LSbox;
 class grainhdl;
 class Weightmap;
 
-template<class T>
-class DimensionalBuffer;
+
 
 class MarchingSquaresAlgorithm;
 
@@ -51,7 +51,7 @@ class LSbox {
 	int xmaxId ,xminId , ymaxId, yminId; 
 	
 	bool exist;
-	vector<vector<LSbox*>> IDLocal;
+	DimensionalBufferIDLocal IDLocal;
 	Weightmap* local_weights;
 
 	int nvertices;
@@ -61,8 +61,8 @@ class LSbox {
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
 	
-	DimensionalBuffer<double>* inputDistance;
-	DimensionalBuffer<double>* outputDistance;
+	DimensionalBufferReal* inputDistance;
+	DimensionalBufferReal* outputDistance;
 
 public:
 	friend class grainhdl;
@@ -82,7 +82,7 @@ public:
 	void resizeToSquareIn();
     void resizeToSquareOut();
     void determineIDs();
-    void comparison();
+    void comparison(ExpandingVector<char>& mem_pool);
 	double getDistance(int i, int j);
     void set_comparison();
     void add_n2o();
@@ -95,7 +95,7 @@ public:
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
       
-	void convolution();
+	void convolution(ExpandingVector<char>& mem_pool);
 	void get_new_IDLocalSize();
 
 	void plot_box_contour(int timestep = -1, bool plot_energy=false, ofstream* dest_file = NULL);
@@ -115,7 +115,6 @@ public:
 	bool isNeighbour(LSbox* candidate);
 	bool BoundaryIntersection();
 
-		
 	inline bool get_status(){ return exist;}
 	inline int get_id() 	{ return id; }
 	inline double get_vol() {return volume ;}

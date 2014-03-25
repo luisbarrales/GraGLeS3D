@@ -6,16 +6,15 @@
 
 using namespace rapidxml;
 
-grainhdl::grainhdl(){}
+grainhdl::grainhdl() :
+		m_ThreadPoolCount(0)
+{}
 grainhdl::~grainhdl(){
 	delete mymath;
 }
 
-
-
 void grainhdl::setSimulationParameter(){
-
-
+	initEnvironment();
 	mymath = new mathMethods();
 	// 	readInit();
 	Mode = (int)Settings::MicrostructureGenMode;
@@ -293,7 +292,7 @@ void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
 	for (it = ++grains.begin(); it !=grains.end(); it++){	
 		if(*it==NULL) continue;
-		(*it)->convolution();
+		(*it)->convolution(m_ThreadMemPool[0]);
 	}
 }
  
@@ -303,7 +302,7 @@ void grainhdl::comparison_box(){
 	for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)
 			continue;
-		grains[i]->comparison();
+		grains[i]->comparison(m_ThreadMemPool[0]);
 	}
 }
 
@@ -402,7 +401,7 @@ void grainhdl::run_sim(){
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			//saveMicrostructure();
 		}
 		
 	}
@@ -517,6 +516,29 @@ void grainhdl::switchDistancebuffer(){
 void grainhdl::clear_mem() {
 	if (ST!=NULL) {delete  [] ST; }
 }
+void grainhdl::initEnvironment()
+{
+	//Set up correct Maximum Number of threads
+	if(Settings::ExecuteInParallel)
+	{
+		if (Settings::MaximumNumberOfThreads == 0)
+		{
+			Settings::MaximumNumberOfThreads = omp_get_max_threads();
+		}
+		omp_set_num_threads(Settings::MaximumNumberOfThreads);
+	}
+	else
+	{
+		Settings::MaximumNumberOfThreads = 1;
+	}
+	m_ThreadPoolCount = Settings::MaximumNumberOfThreads;
+	m_ThreadMemPool.resize(m_ThreadPoolCount);
+	for(int i=0; i < m_ThreadMemPool.size(); i++)
+	{
+		double max_size = Settings::NumberOfPointsPerGrain * Settings::NumberOfPointsPerGrain * 50;
+		int power_of_two = 1 << (int)(ceil(log2(max_size))+0.5);
+		m_ThreadMemPool[i].resize(power_of_two);
+	}
 
-
+}
 

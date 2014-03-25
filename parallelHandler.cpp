@@ -3,23 +3,27 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
-	initParallelEnvironment();
-
 	find_neighbors();
 
 	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
 		//Switch Distance Buffers
+#pragma omp parallel
+{
+#pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
 			grains[i]->switchInNOut();
 		}
-		convolution();
+#pragma omp for
+		for (int i = 1; i < grains.size(); i++){
+			if(grains[i]==NULL)
+				continue;
+			grains[i]->convolution(m_ThreadMemPool[omp_get_thread_num()]);
+		}
 
-#pragma omp parallel
-{
 		//Switch Distance Buffers
-#pragma omp for schedule(dynamic)
+#pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
@@ -37,7 +41,7 @@ void parallelHandler::run_sim()
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
-			grains[i]->comparison();
+			grains[i]->comparison(m_ThreadMemPool[omp_get_thread_num()]);
 		}
 		//Switch Distance Buffers
 #pragma omp for
@@ -61,27 +65,17 @@ void parallelHandler::run_sim()
 			if(grains[i]==NULL)
 				continue;
 			grains[i]->redist_box();
-			#pragma omp atomic
-				currentNrGrains++;
+#pragma omp atomic
+			currentNrGrains++;
 		}
 }
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			//saveMicrostructure();
 		}
 
 	}
 	cout << "Simulation complete." << endl;
 }
 
-void parallelHandler::initParallelEnvironment()
-{
-	if (Settings::MaximumNumberOfThreads == 0)
-	{
-		Settings::MaximumNumberOfThreads = omp_get_max_threads();
-	}
-	omp_set_num_threads(Settings::MaximumNumberOfThreads);
-
-
-}

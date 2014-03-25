@@ -22,7 +22,7 @@ class Weightmap{
 			LSbox* first; 	/*!< First or the "smallest address" of an LSBox.*/
 			LSbox* second; 	/*!< Second or the "second smallest address" of an LSBox.*/
 			
-			mapkey(vector<LSbox*> IDs);
+			mapkey(LSbox** IDs);
 
 			bool operator<(const mapkey & other) const; /*!< Overloaded operator that compares
 														 *ordered 3 tuples required for the map
@@ -66,6 +66,14 @@ public:
 	 * \param ST Surface Tension Array.
 	 */
 	double loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST);
+	/*!
+	 * \brief Method to return weights.
+	 * \param IDs IDs of the neighboring cells.
+	 * \param length length of the IDs array
+	 * \param me Unknown usage.
+	 * \param ST Surface Tension Array.
+	 */
+	double loadWeights(LSbox** IDs, int length, LSbox* me, double* ST);
 	/*!
 	 * \brief Debug method to plot the weightmap.
 	 * \param length Unknown usage.

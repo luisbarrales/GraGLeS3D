@@ -2,7 +2,9 @@
 #define		__DIMENSIONAL_BUFFER__
 
 #include <vector>
-#include "FFTWVector.h"
+#include <iostream>
+#include <cmath>
+#include "ExpandingVector.h"
 
 /*!
  * \class DimensionalBuffer
@@ -33,7 +35,7 @@ public:
 		m_xMin(upperLeftX), m_yMin(upperLeftY), m_xMax(lowerRightX),
 		m_yMax(lowerRightY)
 	{
-		m_values.resize((m_xMax - m_xMin + 1) * (m_yMax - m_yMin + 1));
+		resize(m_xMin, m_yMin, m_xMax, m_yMax);
 	}
 	/*!
 	* \brief Default destructor.
@@ -48,7 +50,7 @@ public:
 	* \param row the y coordinate of the element.
 	* \param column the x coordinate of the element.
 	*/
-	T getValueAt(unsigned int row, unsigned int column) const
+	T& getValueAt(unsigned int row, unsigned int column)
 	{
 		//Will throw exception if accessed out of bound.
 		//TODO: Analyze performance and replace with [] if needed.
@@ -150,7 +152,7 @@ public:
 			m_yMin += delta;
 		}
 
-		m_values.resize((m_xMax-m_xMin) * (m_yMax-m_yMin));
+		resize(m_xMin, m_yMin, m_xMax, m_yMax);
 	}
 	/*!
 	* \brief This method fills the area with the provided values.
@@ -159,25 +161,7 @@ public:
 	{
 		std::fill(m_values.begin(), m_values.end(), value);
 	}
-	/*!
-	* \brief This method restricts all values to the range of [minimumValue ; maximumValue]
-	* \param minimumValue The minimum value.
-	* \param maximumValue The maximum value.
-	*/
-	void clampValues(T minimumValue, T maximumValue)
-	{
-		for(int i=0; i<m_values.size(); i++)
-		{
-			if ( m_values[i] < minimumValue )
-			{
-				m_values[i] = minimumValue; continue;
-			}
-			if (m_values[i] > maximumValue )
-			{
-				m_values[i] = maximumValue; continue;
-			}
-		}
-	}
+
 	inline int getMinX() const
 	{return m_xMin;}
 	inline int getMaxX() const
@@ -190,11 +174,11 @@ public:
 	{return &m_values[0];}
 
 private:
-
 	int 	m_xMin;
 	int 	m_xMax;
 	int 	m_yMin;
 	int 	m_yMax;
-	std::vector<T >	m_values;
+protected:
+	ExpandingVector<T>	m_values;
 };
 #endif		//__DISTANCE_BUFFER__
