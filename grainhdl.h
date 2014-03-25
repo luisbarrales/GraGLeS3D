@@ -2,6 +2,7 @@
 #define GRAINHDL_h
 
 #include "ggLS.h"
+#include "ExpandingVector.h"
 #include <omp.h>
 
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
@@ -85,9 +86,6 @@ class grainhdl{
 	
 	void saveSpecialContourEnergies(int id);
 	void removeGrain(int id);
-	
-
-	
 // 	wrapper functions:
 	
 	inline long get_ngrains(){ return ngrains; }
@@ -99,5 +97,10 @@ class grainhdl{
 	inline double get_dt() { return dt; }
 	inline double getBoundaryGrainTube() { return BoundaryGrainTube ;}
 	
+	private:
+	void initEnvironment();
+	protected:
+	int	m_ThreadPoolCount;
+	vector<ExpandingVector<char> >	m_ThreadMemPool;
 };
 #endif

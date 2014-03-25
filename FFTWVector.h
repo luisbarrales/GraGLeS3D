@@ -77,19 +77,5 @@ public:
 		return *this;
 	}
 };
-/*!
- * \endcond
- */
-
-/*!
- * \class FFTW_Utils
- * \brief Structure that stores utility objects for working with FFTW.
- *	\n Example usage is <b>FFTW_Utils</b>< <em>Desired Type</em> ><b>::FFTW_Vector</b> <em>Desired Name</em>
- */
-template<class T>
-struct FFTW_Utils
-{
-	typedef std::vector<T, FFTW_allocator<T> > FFTW_Vector; /*!< Class for FFTW memory aligned vector. */
-};
 
 #endif	//__FFTW_VECTOR__
