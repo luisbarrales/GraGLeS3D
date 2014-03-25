@@ -15,24 +15,21 @@ PATTERN=./Network_Timestep_
 TIMESTEP=0
 while true; do
 	CURRENT_FILENAME=$PATTERN`printf "%06d" $TIMESTEP`.png
-	
+	echo -e -n "Processing timestemp $TIMESTEP\r"
 	CURRENT_PATTERN=$PATTERN$TIMESTEP
 	CURRENT_PATTERN=$CURRENT_PATTERN".gnu"
 	FIRST=""
-	echo $CURRENT_FILENAME
-	echo $CURRENT_PATTERN
 	if [ -f  $CURRENT_PATTERN ]; then			
 		GNUPLOT_STRING="gnuplot -e \"set term png giant size 1024,768; set output '$CURRENT_FILENAME'; plot"
 		GNUPLOT_STRING="$GNUPLOT_STRING '$CURRENT_PATTERN' w l palette title 'Timestep $TIMESTEP' \""
 		FIRST="done"
-	echo $GNUPLOT_STRING
 	eval $GNUPLOT_STRING
 	else
 		break;
 	fi
 	TIMESTEP=`expr $TIMESTEP + $1`
 done
-
+echo ""
 echo "Done creating intermidiate files."
 echo "Creating gif with resolution 1024 , 768"
 convert -delay 40 -loop 0 Network_Timestep_*.png NetworkEvolution.gif
