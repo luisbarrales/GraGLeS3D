@@ -20,7 +20,7 @@ while true; do
 	CURRENT_PATTERN=$CURRENT_PATTERN".gnu"
 	FIRST=""
 	if [ -f  $CURRENT_PATTERN ]; then			
-		GNUPLOT_STRING="gnuplot -e \"set term png giant size 1024,768; set output '$CURRENT_FILENAME'; plot"
+		GNUPLOT_STRING="gnuplot -e \"set palette rgbformulae 33,13,10; set cbrange[0:0.6]; set cbtics 0.1; set term png giant size 1024,768; set output '$CURRENT_FILENAME'; plot"
 		GNUPLOT_STRING="$GNUPLOT_STRING '$CURRENT_PATTERN' w l palette title 'Timestep $TIMESTEP' \""
 		FIRST="done"
 	eval $GNUPLOT_STRING
