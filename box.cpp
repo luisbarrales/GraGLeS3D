@@ -453,16 +453,13 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-//				if (val <= handler->tubeRadius) {
-					//EDITTED if( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 2){
-					if(IDLocal.getValueAt(i,j).total_chunks == 2){
-						//EDITTED if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->get_status() == true && IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->isPointInside(i,j) )
+
+					if(IDLocal.getValueAt(i,j).total_chunks >= 2){
+
 						if(IDLocal.getValueAt(i,j).getElementAt(1)->get_status() == true &&
 						   IDLocal.getValueAt(i,j).getElementAt(1)->inputDistance->isPointInside(i,j))
 						{
-							//EDITTED dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
 							dist2OrderNeigh = IDLocal.getValueAt(i,j).getElementAt(1)->inputDistance->getValueAt(i,j);
-							//EDITTED weight = local_weights->loadWeights(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)], this, handler->ST);
 							weight = local_weights->loadWeights(IDLocal.getValueAt(i,j).local_chunks, IDLocal.getValueAt(i,j).total_chunks, this, handler->ST);
 							gamma = getGBEnergyTimesGBMobility(i,j);
 							if( dist2OrderNeigh > -handler->delta) {
@@ -476,20 +473,17 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 							outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 						}
 					}
-					//EDITTED else if(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() == 1){
 					else if(IDLocal.getValueAt(i,j).total_chunks == 1){
+
 						gamma = getGBEnergyTimesGBMobility(i,j);
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
 					}
-					//EDITTED else if (IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size() > 2){
+
 					else if (IDLocal.getValueAt(i,j).total_chunks > 2){
-						//EDITTED nActiveGrains = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].size();
 						nActiveGrains = IDLocal.getValueAt(i,j).total_chunks;
 						IDs.clear();
 						for (int ii = 0;ii < nActiveGrains; ii++){
-							//EDITTED if(isNeighbour(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii])) {
 							if(isNeighbour(IDLocal.getValueAt(i,j).getElementAt(ii))) {
-								//EDITTED IDs.push_back(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][ii]);
 								IDs.push_back(IDLocal.getValueAt(i,j).getElementAt(ii));
 							}
 						}
@@ -507,15 +501,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 							weight += local_weights->isTriplePoint(IDsActive);						
 							weight /= 3;
 						}	
-						else weight = handler-> hagb;
+						else weight = 0.5*handler-> hagb;
 
-//						dist2OrderNeigh = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1]->inputDistance->getValueAt(i,j);
-//						gamma = getGBEnergyTimesGBMobility(i,j);
-//						if( dist2OrderNeigh > -handler->delta) {
-//							weight = -(dist2OrderNeigh/ handler->delta * (gamma - weight) )+ weight;
-////							weight = weight *Settings::TriplePointDrag;
-//						}
-//						else weight = gamma;
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
 					}
 //				}
@@ -535,20 +522,16 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 }
 
 double LSbox::getGBEnergyTimesGBMobility(int i,int j){
-	//EDITTED LSbox* neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][0];
 	LSbox* neighbour = IDLocal.getValueAt(i,j).getElementAt(0);
 	vector<characteristics>::iterator it;	
 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 		if (neighbour == (*it).directNeighbour){
-// 			cout << (*it).mobility << endl;
 			return (*it).energyDensity*(*it).mobility ;
 		}
 	}
-	//EDITTED neighbour = IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)][1];
 	neighbour = IDLocal.getValueAt(i,j).getElementAt(1);
 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 		if (neighbour == (*it).directNeighbour){
-// 			cout << (*it).mobility << endl;			
 			return (*it).energyDensity*(*it).mobility ;
 		}
 	}
@@ -628,67 +611,6 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	fftw_execute(fftplan2);
 }
 
-/**************************************/
-/**************************************/
-
-/*
-void LSbox::determineIDs(){
-	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
-										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
-	distance_2neighbor.clearValues(-1.0);
-	inputDistance->clearValues(-1.0);
-	int loop = 0;
-	std::vector<LSbox*>::iterator it_nn;
-
-	for(it_nn = neighbors.begin(); it_nn != neighbors.end(); it_nn++){		
-
-			if (checkIntersect(*it_nn)){
-				int x_min_new, x_max_new, y_min_new, y_max_new;
-				
-				if(outputDistance->getMinX() < (**it_nn).outputDistance->getMinX()) 
-					  x_min_new = (**it_nn).outputDistance->getMinX();
-				else x_min_new = outputDistance->getMinX();
-				
-				if(outputDistance->getMaxX() > (**it_nn).outputDistance->getMaxX()) 
-					 x_max_new = (**it_nn).outputDistance->getMaxX();
-				else x_max_new = outputDistance->getMaxX();
-								
-				if(outputDistance->getMinY() < (**it_nn).outputDistance->getMinY()) 
-					y_min_new = (**it_nn).outputDistance->getMinY();
-				else y_min_new = outputDistance->getMinY();
-					
-				if(outputDistance->getMaxY() > (**it_nn).outputDistance->getMaxY()) 
-					 y_max_new = (**it_nn).outputDistance->getMaxY();
-				else y_max_new = outputDistance->getMaxY();
-					
-// 				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
-	
-				for (int i = y_min_new; i < y_max_new; i++){
-					for (int j = x_min_new; j < x_max_new; j++){					
-						double dist = (**it_nn).outputDistance->getValueAt(i,j);
-						if( dist > inputDistance->getValueAt(i,j) ){
-							    if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
-								      distance_2neighbor.setValueAt(i,j,inputDistance->getValueAt(i,j));
-							    }
-							    inputDistance->setValueAt(i, j, dist);
-							    IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
-						}
-						else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
-						    distance_2neighbor.setValueAt(i,j, dist);	
-						    IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
-						}
-						else { 
-							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
-						}
-					}
-				}
-			}
-			
-	}		
-
-  
-}*/
-
 
 /**************************************/
 /**************************************/
@@ -714,23 +636,13 @@ void LSbox::set_comparison(){
 
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-//			outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			if(inputDistance->getValueAt(i,j) > -0.5*handler->delta ) {
 				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			}
 			else outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j));
-//			else {
-//				if( abs(inputDistance->getValueAt(i,j)) < handler->tubeRadius /*( 0.7 * handler->delta)*/){
-//					outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
-//				}
-//				else if(inputDistance->getValueAt(i,j) > 0)
-//					outputDistance->setValueAt(i,j, handler->delta);
-//				else if(inputDistance->getValueAt(i,j) < 0)
-//					outputDistance->setValueAt(i,j, -handler->delta);
-//			}
 		}
 	}
-// 	neighbors_old = neighbors;
+
 }
 
 bool LSbox::checkIntersect(LSbox* box2) {    
@@ -755,13 +667,11 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 
 	distance_2neighbor.clearValues(-1.0);
 	outputDistance->clearValues(-1.0);
-	//std::fill((*comparisonDistance).begin(),(*comparisonDistance).end(), -1.0);
 	
 	int loop = handler->loop;
 	std::vector<LSbox*>::iterator it_nn;
 
 	for(it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++){	
-// 		if((*it_nn)->get_status()==false) continue;
 		int x_min_new, x_max_new, y_min_new, y_max_new;
 		
 		if(inputDistance->getMinX() < (**it_nn).inputDistance->getMinX()) x_min_new = (**it_nn).inputDistance->getMinX();
@@ -776,32 +686,26 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 		if(inputDistance->getMaxY() > (**it_nn).inputDistance->getMaxY()) y_max_new = (**it_nn).inputDistance->getMaxY();
 			else y_max_new = inputDistance->getMaxY();
 			
-// 		cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
 
 		for (int i = y_min_new; i < y_max_new; i++){
 			for (int j = x_min_new; j < x_max_new; j++){					
 //				if(inputDistance->getValueAt(i,j) > -0.75*handler->delta ) {
 					double dist = (**it_nn).getDistance(i,j);
 						if( dist > outputDistance->getValueAt(i,j) ){
-							//EDITTED if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){
 							if( IDLocal.getValueAt(i,j).total_chunks == 0 ){
 								distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
 							}
 							outputDistance->setValueAt(i, j, dist);
-							//EDITTED IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);
 							IDLocal.getValueAt(i,j).insertAtPosition(E_FIRST_POSITION, *it_nn);
 						}					
 						else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
 							distance_2neighbor.setValueAt(i,j, dist);
-							//EDITTED IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);
 							IDLocal.getValueAt(i,j).insertAtPosition(E_SECOND_POSITION, *it_nn);
 						}
 						else { 
-							//EDITTED IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);
 							IDLocal.getValueAt(i,j).insertAtPosition(E_LAST_POSITION, *it_nn);
 						}
-//			}
-//				else outputDistance->setValueAt(i,j,inputDistance->getValueAt(i,j));
+//				}
 			}
 		}
 	}
@@ -872,14 +776,11 @@ void LSbox::boundaryCondition(){
 				else if(distX > 0) dist =distX;
 			}
 
-//			if (dist >= -handler->getBoundaryGrainTube()*h){
 			  if( dist*h > outputDistance->getValueAt(i,j) ){
 				  outputDistance->setValueAt(i, j, dist*h);
-				  //EDITTED IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), boundary);
 				  IDLocal.getValueAt(i,j).insertAtPosition(E_FIRST_POSITION, boundary);
 			  }
 			  else { 
-				  //EDITTED IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++(IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin()), boundary);
 				  IDLocal.getValueAt(i,j).insertAtPosition(E_SECOND_POSITION, boundary);
 			  }
 //			}
@@ -912,7 +813,6 @@ void LSbox::add_n2o_2(){
 	vector<characteristics> ::iterator it, it_ngC;
 	vector<LSbox*> ::iterator it_com, it_nC;
 	bool just_in;
-// 	neighbors.clear();
 	neighbors_2order.clear();
 	for(it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 		if((*it).directNeighbour->get_status()==true) 
@@ -937,7 +837,6 @@ void LSbox::add_n2o_2(){
 		if((!just_in)) neighbors_2order.push_back((*it_nC));
 	}
 	neighbourCandidates.clear();
-// 	plot_box(false,1,"no");
 }
 
 
@@ -1043,8 +942,7 @@ void LSbox::updateFirstOrderNeigbors(){
 		}
 
 	  for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-		  //EDITTED if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
-		  if (IDLocal.getValueAt(py,px).getElementAt(0) == (*it).directNeighbour)
+		 if (IDLocal.getValueAt(py,px).getElementAt(0) == (*it).directNeighbour)
 			  break;
 	  }
 	  if (it == grainCharacteristics.end()){
@@ -1053,7 +951,6 @@ void LSbox::updateFirstOrderNeigbors(){
 			  energy = 1.0;
 		  }
 		  else{
-			  //EDITTED thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
 			  thetaMis = mis_ori( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0));
 			  if (thetaMis <= theta_ref)
 				  energyLocal = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
@@ -1062,7 +959,6 @@ void LSbox::updateFirstOrderNeigbors(){
 		  }
 		  if(Settings::UseMobilityFactor && (!Settings::IsIsotropicNetwork)) mu = GBmobilityModel(thetaMis);
 		  else mu = 1;
-		  //EDITTED grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, energyLocal,thetaMis, mu));
 		  grainCharacteristics.push_back(characteristics( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0), 0, energyLocal,thetaMis, mu));
 		  it = grainCharacteristics.end();
 		  it--;
@@ -1110,7 +1006,6 @@ void LSbox::computeVolumeAndEnergy()
 		  contourGrain[i].energy = 1.0;
 		}		
 		else{
-		  //EDITTED thetaMis = mis_ori( IDLocal[((pyGrid-yminId) * (xmaxId - xminId)) + (pxGrid - xminId)][0]);
 			thetaMis = mis_ori( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0));
 		  if (thetaMis <= theta_ref)
 		    contourGrain[i].energy = gamma_hagb * ( thetaMis / theta_ref) * (1.0 - log( thetaMis / theta_ref));
@@ -1120,14 +1015,12 @@ void LSbox::computeVolumeAndEnergy()
 		
 		// 	Check if the direct neigbourGrain is already in the vector 
 		for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
-		    //EDITTED if (IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0] == (*it).directNeighbour)
 			if (IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0) == (*it).directNeighbour)
 				break;
 		}		
 		if (it == grainCharacteristics.end()){
 			if(Settings::UseMobilityFactor && (!Settings::IsIsotropicNetwork)) mu = GBmobilityModel(thetaMis);
 			else mu = 1;
-			//EDITTED grainCharacteristics.push_back(characteristics( IDLocal[(pyGrid-yminId) * (xmaxId - xminId) + (pxGrid - xminId)][0], 0, contourGrain[i].energy,thetaMis, mu));
 			grainCharacteristics.push_back(characteristics(IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0), 0, contourGrain[i].energy,thetaMis, mu));
 			it = grainCharacteristics.end();
 			it--;
@@ -1184,8 +1077,6 @@ void LSbox::redist_box() {
 		intersec_ymax= inputDistance->getMaxY();
 	else  intersec_ymax = outputDistance->getMaxY();
 	
-// 	cout << "box: intersec_xmin="<<intersec_xmin<< " intersec_xmax="<<intersec_xmax <<" intersec_ymin="<<intersec_ymin << " intersec_ymax="<<intersec_ymax<<endl;
-
 	for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 	  for (int j = intersec_xmin; j < outputDistance->getMaxX()-1; j++) {
 			// x-direction forward
@@ -1445,15 +1336,7 @@ double LSbox::GBmobilityModel(double thetaMis){
 	return mu;
 }
 
-void LSbox::inversDistance(){	
-	//TODO: WORK ON THIS
-	int m = outputDistance->getMaxX()-outputDistance->getMinX();
-	for (int i = 0; i < outputDistance->getMaxY()-outputDistance->getMinY(); i++) {
-		for (int j = 0; j < m; j++) {
-			outputDistance->getRawData()[i*m +j] *= -1.0;
-		}
-	}
-}
+
 
 bool LSbox::isNeighbour(LSbox* candidate){
 	vector<characteristics>::iterator it;	

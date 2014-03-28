@@ -104,7 +104,6 @@ public:
 	void plot_box(bool distanceplot, int select, string simstep, bool local);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();
-	void inversDistance();
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
