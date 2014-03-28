@@ -28,5 +28,4 @@ int main(int argc,char *argv[]) {
 	
 	delete my_sim;
 
-	return 0;
 }

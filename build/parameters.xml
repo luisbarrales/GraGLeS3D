@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 50 </NumberOfParticles> 
+	 <StartTime> 0 >/StartTime>
+   <NumberOfParticles> 50000 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 25 </AnalysysTimestep>
-   <NumberOfTimesteps> 500 </NumberOfTimesteps>
+   <NumberOfTimesteps> 50 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>

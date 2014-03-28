@@ -9,6 +9,7 @@ using namespace std;
 using namespace rapidxml;
 
 //Initializing the static setting variables
+unsigned long Settings::StartTime=0;
 unsigned long Settings::NumberOfParticles = 0;
 unsigned long Settings::NumberOfPointsPerGrain = 0;
 unsigned long Settings::NumberOfTimesteps = 0;
@@ -57,6 +58,10 @@ void Settings::initializeParameters(string filename)
 	}
 
 	//Now read all parameters if present
+	if( 0 != rootNode->first_node("StartTime") )
+	{
+		StartTime = std::stoul(rootNode->first_node("StartTime")->value());
+	}
 	if( 0 != rootNode->first_node("NumberOfParticles") )
 	{
 		NumberOfParticles = std::stoul(rootNode->first_node("NumberOfParticles")->value());
@@ -130,11 +135,12 @@ void Settings::initializeParameters(string filename)
 				root->allocate_string(#param_name),	\
 				root->allocate_string(temp_string.str().c_str()) ));
 
-xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char* filename)
+xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char* filename, int loop)
 {
 	xml_node<>* params = root->allocate_node(node_element, "Parameters", "");
 	stringstream temp_string;
 
+	PUSH_PARAM(loop);
 	PUSH_PARAM(NumberOfParticles);
 	PUSH_PARAM(NumberOfPointsPerGrain);
 	PUSH_PARAM(AnalysysTimestep);

@@ -19,7 +19,6 @@ void grainhdl::setSimulationParameter(){
 	// 	readInit();
 	Mode = (int)Settings::MicrostructureGenMode;
 	ngrains = Settings::NumberOfParticles;
-	
 	hagb = Settings::HAGB;
 	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
 	if(Mode==2) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
@@ -366,7 +365,7 @@ void grainhdl::save_texture(){
 void grainhdl::run_sim(){
 	find_neighbors();
 // 	determineIDs();
-	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
+	for(loop=Settings::StartTime; loop <= Settings::StartTime+Settings::NumberOfTimesteps; loop++){
 		switchDistancebuffer();
 		convolution();
 		switchDistancebuffer();
@@ -413,7 +412,7 @@ void grainhdl::createParamsForSim(const char* param_filename, const char* vertex
 	declaration->append_attribute(doc_tree.allocate_attribute("encoding", "utf-8"));
 	doc_tree.append_node(declaration);
 
-	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename));
+	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename,loop));
 	ofstream output;
 	output.open(param_filename);
 	output<<doc_tree;
