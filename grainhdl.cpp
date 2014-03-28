@@ -168,10 +168,6 @@ void grainhdl::readMicrostructure(){
 	double q1, q2, q3, q4, xr, yr, xl, yl;
 	double* vertices;
 
-	fscanf(levelset, "%d\n", &ngrains);
-	cout << "ngrains : " << ngrains << endl;;
-	grains.resize(ngrains+1);
-
 	int i=0;
 	for(int nn=0; nn< ngrains; nn++){
 		fscanf(levelset, "%d\t %d\t %lf\t %lf\t%lf\t%lf\n", &id, &nvertex, &q1, &q2, &q3, &q4);
@@ -268,25 +264,6 @@ void grainhdl::readMicrostructureFromVertex(){
 
 }
  
-
- 
-// void grainhdl::generateRandomEnergy(){	
-// 	const double MIN = 0.6;
-// 	const double MAX = 1.5;
-// 	for(int i=0; i < ngrains; i++){
-// 		for(int j=0; j <=i; j++){			
-// 			double zahl=(double)(rand() / (((double)RAND_MAX+1)/ (double)(MAX-MIN)))+MIN;
-// // 			if (i==6 && j ==5) { 
-// // 				ST[i+(PARTICLES*j)] = 0.1;
-// // 				ST[j+(PARTICLES*i)] = 0.1;
-// // 			}
-// 			ST[i+(ngrains*j)] = zahl;
-// 			ST[j+(ngrains*i)] = zahl;
-// 			if(i==j) ST[j+(ngrains*i)] = 1.0;
-// 		}
-// 	} 
-// }
-//  
  
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
@@ -401,7 +378,7 @@ void grainhdl::run_sim(){
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			//saveMicrostructure();
+			saveMicrostructure();
 		}
 		
 	}
@@ -413,10 +390,19 @@ void grainhdl::saveMicrostructure(){
 	stringstream param_xml_name;
 	param_xml_name<< "PARAMETERS_SIM_NONAME_TIMESTEP_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".xml";
 	stringstream vertex_dump_name;
-	vertex_dump_name<< "NETWORK_NONAME_TIMESTEP_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".xml";
+	vertex_dump_name<< "NETWORK_NONAME_TIMESTEP_"<< loop <<"_GRAINS_"<<currentNrGrains<< ".dat";
 
 	createParamsForSim(param_xml_name.str().c_str(), vertex_dump_name.str().c_str());
 
+	ofstream output;
+	output.open(vertex_dump_name.str());
+	std::vector<LSbox*>::iterator it;
+		for (it = ++grains.begin(); it !=grains.end(); it++){
+			if(*it== NULL) continue;
+			output << (*it)->id << "\t" << (*it)->contourGrain.size()<< "\t" << (*it)->quaternion[0] << "\t" << (*it)->quaternion[1] << "\t" << (*it)->quaternion[2] << "\t" << (*it)->quaternion[3] << endl;
+			(*it)->plot_box_contour(loop, false, &output);
+		}
+	output.close();
 }
 void grainhdl::createParamsForSim(const char* param_filename, const char* vertex_dump_filename)
 {

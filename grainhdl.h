@@ -55,7 +55,6 @@ class grainhdl{
 	~grainhdl();
 		
 	void setSimulationParameter(); 
-	void generateRandomEnergy();
 	
 	void VOROMicrostructure();
 	void readMicrostructureFromVertex();

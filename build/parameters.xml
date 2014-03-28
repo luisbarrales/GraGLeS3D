@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 500 </NumberOfParticles> 
+   <NumberOfParticles> 50 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 25 </AnalysysTimestep>
    <NumberOfTimesteps> 500 </NumberOfTimesteps>
@@ -14,4 +14,5 @@
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
+   <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
 </Parameters>

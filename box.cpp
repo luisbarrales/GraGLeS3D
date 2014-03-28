@@ -689,8 +689,9 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 
 		for (int i = y_min_new; i < y_max_new; i++){
 			for (int j = x_min_new; j < x_max_new; j++){					
-//				if(inputDistance->getValueAt(i,j) > -0.75*handler->delta ) {
+				if(abs(inputDistance->getValueAt(i,j)) < handler->delta ) {
 					double dist = (**it_nn).getDistance(i,j);
+					if(abs(dist) < handler->delta ) {
 						if( dist > outputDistance->getValueAt(i,j) ){
 							if( IDLocal.getValueAt(i,j).total_chunks == 0 ){
 								distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
@@ -705,7 +706,8 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 						else { 
 							IDLocal.getValueAt(i,j).insertAtPosition(E_LAST_POSITION, *it_nn);
 						}
-//				}
+					}
+				}
 			}
 		}
 	}
@@ -906,9 +908,9 @@ void LSbox::find_contour() {
 	if(grainCharacteristics.size() <2 && contourGrain.size() >3) {
 		cout << endl << "Timestep: " <<handler->loop << endl;
 		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
-		plot_box(true, 2, "error_grain", true);
-		plot_box(true, 1, "error_grain", true);
-		plot_box_contour(handler->loop, true);
+//		plot_box(true, 2, "error_grain", true);
+//		plot_box(true, 1, "error_grain", true);
+//		plot_box_contour(handler->loop, true);
 		exist =false;
 	}
 	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
@@ -990,10 +992,10 @@ void LSbox::computeVolumeAndEnergy()
 	  
 		double px =contourGrain[i].x;
 		double py =contourGrain[i].y;
-		int pxGrid = int(px+0.5);
-		int pyGrid = int(py+0.5);
+		int pxGrid = int(px);
+		int pyGrid = int(py);
 		// evaluate the ID at a outer point -> there must be one, we are at the boundray
-		if(inputDistance->getValueAt(pyGrid,pxGrid) > 0) {
+		if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
 			pxGrid = int(px+1);
 			if(inputDistance->getValueAt(pyGrid,pxGrid) > 0){
 				pyGrid = int(py +1);

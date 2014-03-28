@@ -3,9 +3,9 @@
 #include "parallelHandler.h"
 using namespace voro;
 
-int main() {
+int main(int argc,char *argv[]) {
 	
-	Settings::initializeParameters();
+	Settings::initializeParameters(argv[1]);
 
 	grainhdl* my_sim = NULL;
 
@@ -27,4 +27,6 @@ int main() {
 	my_sim->clear_mem();
 	
 	delete my_sim;
+
+	return 0;
 }

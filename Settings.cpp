@@ -150,7 +150,9 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char
 					root->allocate_string(temp_string.str().c_str()) ));
 	//
 	PUSH_PARAM(HAGB);
+	PUSH_PARAM(TriplePointDrag);
 	PUSH_PARAM(UseMobilityFactor);
+	PUSH_PARAM(IsIsotropicNetwork);
 	PUSH_PARAM(UseTexture);
 	PUSH_PARAM(ExecuteInParallel);
 	PUSH_PARAM(MaximumNumberOfThreads);

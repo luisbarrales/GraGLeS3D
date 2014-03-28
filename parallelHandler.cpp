@@ -69,11 +69,14 @@ void parallelHandler::run_sim()
 			currentNrGrains++;
 		}
 }
+#pragma omp single
+{
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			//saveMicrostructure();
+			saveMicrostructure();
 		}
+}
 
 	}
 	cout << "Simulation complete." << endl;
