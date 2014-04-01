@@ -122,7 +122,7 @@ void Settings::initializeParameters(string filename)
 	}
 	if( 0 != rootNode->first_node("MaximumNumberOfThreads") )
 	{
-		MaximumNumberOfThreads = (bool)std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
+		MaximumNumberOfThreads = (int)std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
 	}
 
 	file.close();
@@ -135,26 +135,28 @@ void Settings::initializeParameters(string filename)
 				root->allocate_string(#param_name),	\
 				root->allocate_string(temp_string.str().c_str()) ));
 
-xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char* filename, int loop)
+#define PUSH_VALUE(param_name, value) 	\
+		temp_string.str("");	\
+		temp_string << value ;	\
+		params->append_node(root->allocate_node(node_element,	\
+				root->allocate_string(#param_name),	\
+				root->allocate_string(temp_string.str().c_str()) ));
+
+
+xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char* filename, int loop, int grains)
 {
 	xml_node<>* params = root->allocate_node(node_element, "Parameters", "");
 	stringstream temp_string;
 
-	PUSH_PARAM(loop);
-	PUSH_PARAM(NumberOfParticles);
+	PUSH_VALUE(StartTime, loop);
+	PUSH_VALUE(NumberOfParticles, grains);
 	PUSH_PARAM(NumberOfPointsPerGrain);
 	PUSH_PARAM(AnalysysTimestep);
 	PUSH_PARAM(NumberOfTimesteps);
 	PUSH_PARAM(DiscreteSamplingRate);
 	PUSH_PARAM(DomainBorderSize);
-	PUSH_PARAM(MicrostructureGenMode);
-	//We got a special thing here
-	temp_string.str("");
-	temp_string << filename ;
-	params->append_node(root->allocate_node(node_element,
-					root->allocate_string("ReadFromFilename"),
-					root->allocate_string(temp_string.str().c_str()) ));
-	//
+	PUSH_VALUE(MicrostructureGenMode, 3);
+	PUSH_VALUE(ReadFromFilename, filename);
 	PUSH_PARAM(HAGB);
 	PUSH_PARAM(TriplePointDrag);
 	PUSH_PARAM(UseMobilityFactor);
@@ -165,3 +167,4 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char
 	return params;
 }
 #undef PUSH_PARAM
+#undef PUSH_VALUE

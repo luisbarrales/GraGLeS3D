@@ -21,7 +21,7 @@ void grainhdl::setSimulationParameter(){
 	ngrains = Settings::NumberOfParticles;
 	hagb = Settings::HAGB;
 	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
-	if(Mode==2) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
+	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
@@ -29,9 +29,7 @@ void grainhdl::setSimulationParameter(){
 	tubeRadius = sqrt(2)*1.5*h + 0.001;
 	grid_blowup = Settings::DomainBorderSize;
 	BoundaryGrainTube=grid_blowup;
-	
 	ngridpoints = realDomainSize + (2*grid_blowup); 
-
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
 	
@@ -163,34 +161,29 @@ void grainhdl::readMicrostructure(){
 		exit(2);
 	}
 	int id;
-	int nvertex;
+	int nvertices;
 	double q1, q2, q3, q4, xr, yr, xl, yl;
 	double* vertices;
-
+	grains.resize(ngrains+1);
 	int i=0;
+	vertices = new double [1000];
 	for(int nn=0; nn< ngrains; nn++){
-		fscanf(levelset, "%d\t %d\t %lf\t %lf\t%lf\t%lf\n", &id, &nvertex, &q1, &q2, &q3, &q4);
-		vertices = new double [nvertex * 4];
-		cout << id << " || " << nvertex << " || " << q1 << " || " << q2 << " || " << q3<< " || " << q4 << endl;
-
-		for(unsigned int j=0; j<nvertex; j++){
-			fscanf(levelset, "%lf\t %lf\t %lf\t%lf\n", &xl, &yl, &xr, &yr);
-			cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
-			int k = 4*j;
-			vertices[k]   = xl;
-			vertices[k+1] = yl;
-			vertices[k+2] = xr;
-			vertices[k+3] = yr;
+		fscanf(levelset, "%d\t %d\t %lf\t %lf\t%lf\t%lf\n", &id, &nvertices, &q1, &q2, &q3, &q4);
+		for(unsigned int j=0; j<nvertices; j++){
+			fscanf(levelset, "%lf\t %lf\n", &xl, &yl);
+			vertices[2*j]   = xl;
+			vertices[(2*j)+1] = yl;
 		}
-
-		LSbox* newBox = new LSbox(id, nvertex, vertices, q1, q2, q3, q4, this);
+		fscanf(levelset, "\n");
+		LSbox* newBox = new LSbox(id, nvertices, vertices, q1, q2, q3, q4, this);
 		grains[id]= newBox;
 
 		// calculate distances
-		newBox->distancefunction(nvertex, vertices);
+		newBox->distancefunction(nvertices, vertices);
 
-		delete [] vertices;
 	}
+	delete [] vertices;
+	fclose(levelset);
 }
 
 void grainhdl::readMicrostructureFromVertex(){
@@ -199,9 +192,9 @@ void grainhdl::readMicrostructureFromVertex(){
 // 	levelset = fopen( "lsInput_quadrat.dat", "r" );
 
 	long id;
-	int nvertex;
+	int nedges;
 	double phi1, PHI, phi2, xr, yr, xl, yl;
-	double* vertices;
+	double* edges;
 	
 	fscanf(levelset, "%d\n", &ngrains);
 	cout << "ngrains : " << ngrains << endl;;
@@ -210,27 +203,27 @@ void grainhdl::readMicrostructureFromVertex(){
 	int i=0;
 	for(int nn=0; nn< ngrains; nn++){
 		
-		fscanf(levelset, "%ld\t %d\t %lf\t %lf\t%lf\n", &id, &nvertex, &phi1, &PHI, &phi2);
-		vertices = new double [nvertex * 4];
-		cout << id << " || " << nvertex << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
+		fscanf(levelset, "%ld\t %d\t %lf\t %lf\t%lf\n", &id, &nedges, &phi1, &PHI, &phi2);
+		edges = new double [nedges * 4];
+		cout << id << " || " << nedges << " || " << phi1 << " || " << PHI << " || " << phi2<< endl;
 		
-		for(unsigned int j=0; j<nvertex; j++){
+		for(unsigned int j=0; j<nedges; j++){
 			fscanf(levelset, "%lf\t %lf\t %lf\t%lf\n", &xl, &yl, &xr, &yr);	
 			cout << xl << " ||\t "<< yl << " ||\t "<< xr << " ||\t "<< yr<< " ||\t " << endl;
 			int k = 4*j;
-			vertices[k]   = xl;
-			vertices[k+1] = yl;
-			vertices[k+2] = xr;
-			vertices[k+3] = yr;
+			edges[k]   = xl;
+			edges[k+1] = yl;
+			edges[k+2] = xr;
+			edges[k+3] = yr;
 		}
 		
-		LSbox* newBox = new LSbox(id, nvertex, vertices, phi1, PHI, phi2, this);
+		LSbox* newBox = new LSbox(id, nedges, edges, phi1, PHI, phi2, this);
 		grains[id]= newBox;
 				
 	    // calculate distances	    
-	    newBox->distancefunction(nvertex, vertices); 
+	    newBox->distancefunctionToEdges(nedges, edges);
 		
-		delete [] vertices;
+		delete [] edges;
 	}
 	
 	ST = new double [ngrains*ngrains];			//Create ST array and fill with zeros
@@ -412,7 +405,7 @@ void grainhdl::createParamsForSim(const char* param_filename, const char* vertex
 	declaration->append_attribute(doc_tree.allocate_attribute("encoding", "utf-8"));
 	doc_tree.append_node(declaration);
 
-	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename,loop));
+	doc_tree.append_node(Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename,loop, currentNrGrains));
 	ofstream output;
 	output.open(param_filename);
 	output<<doc_tree;
@@ -501,6 +494,7 @@ void grainhdl::switchDistancebuffer(){
 void grainhdl::clear_mem() {
 	if (ST!=NULL) {delete  [] ST; }
 }
+
 void grainhdl::initEnvironment()
 {
 	//Set up correct Maximum Number of threads

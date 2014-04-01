@@ -76,6 +76,7 @@ public:
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
 	void distancefunction(int nvertex, double* vertices);
     void distancefunction(voro::voronoicell_neighbor& c, double *part_pos);
+    void distancefunctionToEdges(int nedges, double* edges);
     void redist_box();
 	void find_contour();
 	int  getID();

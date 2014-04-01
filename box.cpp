@@ -90,9 +90,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 }
 
 
-LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner) : id(id), nvertices(nvertex), handler(owner){
+LSbox::LSbox(int id, int nvertices, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner) : id(id), nvertices(nvertices), handler(owner){
 	exist = true;
-
 	quaternion = new double[4];
 	quaternion[0]=q1 ;
 	quaternion[1]=q2 ;
@@ -110,10 +109,9 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double
 	vektor x1(2), x2(2);
 	exist = true;
 
-	for (unsigned int k=0; k < nvertex; k++){
-	  x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-	  x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
-
+	for (unsigned int k=0; k < nvertices; k++){
+		x1[0]=vertices[(2*k)+1];
+		x1[1]=vertices[2*k];
 		//	for convention:
 		//	x[i][j]:
 		//	i = Zeilenindex(y-direction)
@@ -121,21 +119,18 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double
 
 		// check for "Zeilen" Minima/Maxima
 		if (x1[0]/h < ymin) ymin = x1[0]/h;
-		if (x2[0]/h < ymin) ymin = x2[0]/h;
-
 		if (x1[0]/h > ymax) ymax = (x1[0]/h);
-		if (x2[0]/h > ymax) ymax = (x2[0]/h);
 
 		// check for "Spalten" Minima/Maxima
 		if (x1[1]/h < xmin) xmin = x1[1]/h;
-		if (x2[1]/h < xmin) xmin = x2[1]/h;
-
 		if (x1[1]/h > xmax) xmax = (x1[1]/h);
-		if (x2[1]/h > xmax) xmax = (x2[1]/h);
+
     }
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
 
+	if(ymax > handler->get_ngridpoints()) ymax = handler->get_ngridpoints();
+	if(xmax > handler->get_ngridpoints()) xmax = handler->get_ngridpoints();
 
 	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
@@ -153,7 +148,7 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double
 
 
 
-LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), nvertices(nvertex), handler(owner){
+LSbox::LSbox(int id, int nedges, double* edges, double phi1, double PHI, double phi2, grainhdl* owner) : id(id), nvertices(nedges), handler(owner){
 	exist = true;
 
 	quaternion = new double[4];
@@ -171,9 +166,9 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	vektor x1(2), x2(2);
 	exist = true;
 
-	for (unsigned int k=0; k < nvertex; k++){       
-	  x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-	  x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];
+	for (unsigned int k=0; k < nedges; k++){
+	  x1[0]=edges[(4*k)+1]; x1[1]=edges[4*k];
+	  x2[0]=edges[(4*k)+3]; x2[1]=edges[(4*k)+2];
 		
 		//	for convention: 
 		//	x[i][j]:
@@ -223,7 +218,7 @@ int LSbox::getID() {
     return id;
 }
 
-void LSbox::distancefunction(int nvertex, double* vertices){
+void LSbox::distancefunctionToEdges(int nedges, double* edges){
 // 	plot_box(false);
 	int grid_blowup = handler->get_grid_blowup(); 
 	double h = handler->get_h();
@@ -236,9 +231,9 @@ void LSbox::distancefunction(int nvertex, double* vertices){
             dmin = 1000.;
             p[0] = (i-grid_blowup)*h; p[1] = (j-grid_blowup)*h;            
             
-            for(int k=0; k < nvertices; k++) {                
-				x1[0]=vertices[(4*k)+1]; x1[1]=vertices[4*k];
-				x2[0]=vertices[(4*k)+3]; x2[1]=vertices[(4*k)+2];				
+            for(int k=0; k < nedges; k++) {
+				x1[0]=edges[(4*k)+1]; x1[1]=edges[4*k];
+				x2[0]=edges[(4*k)+3]; x2[1]=edges[(4*k)+2];
 				if (x1 != x2){
 					a = x1;
 					u = x2-x1;
@@ -299,6 +294,86 @@ void LSbox::distancefunction(int nvertex, double* vertices){
 	    } 
     }
 }
+
+
+void LSbox::distancefunction(int nvertices, double* vertices){
+// 	plot_box(false);
+	int grid_blowup = handler->get_grid_blowup();
+	double h = handler->get_h();
+	int i,j,k;
+	double d, dmin,lambda;
+	vektor u(2), a(2), p(2), x1(2), x2(2);
+
+	for (i=outputDistance->getMinY();i<outputDistance->getMaxY();i++){ // ¸ber gitter iterieren
+	  for (j=outputDistance->getMinX();j<outputDistance->getMaxX();j++){
+            dmin = 1000.;
+            p[0] = (i)*h; p[1] = (j)*h;
+
+            for(int k=0; k < nvertices-1; k++) {
+				x1[0]=vertices[2*k+1]; x1[1]=vertices[2*k];
+				x2[0]=vertices[(2*k)+3]; x2[1]=vertices[(2*k)+2];
+				if (x1 != x2){
+					a = x1;
+					u = x2-x1;
+					lambda=((p-a)*u)/(u*u);
+
+					if(lambda <= 0.) 				d = (p-x1).laenge();
+					if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
+					if(lambda >= 1.) 				d = (p-x2).laenge();
+					d= abs(d);
+					if(abs(d)< abs(dmin)) dmin=d;
+				}
+            }
+			if (abs(dmin) < handler->delta){
+				outputDistance->setValueAt(i, j, dmin);
+			}
+			else{
+				outputDistance->setValueAt(i, j, handler->delta * utils::sgn(dmin));
+			}
+        }
+	}
+
+	int count = 0;
+    for (j=outputDistance->getMinX();j<outputDistance->getMaxX();j++){ // ¸ber gitter iterieren
+	    i=outputDistance->getMinY();
+	    count = 0;
+	    while( i<outputDistance->getMaxY() && count < 1) {
+	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
+		    if ( -outputDistance->getValueAt(i,j) <=  h )
+		    	count++;
+		    i++;
+	    }
+	    i=outputDistance->getMaxY()-1;
+	    count =0;
+	    while( i>=outputDistance->getMinY() && count < 1) {
+	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
+		    if ( -outputDistance->getValueAt(i,j) <= h )
+		    	count++;
+		    i--;
+	    }
+    }
+
+    for (i=outputDistance->getMinY();i<outputDistance->getMaxY();i++){
+	    j=outputDistance->getMinX();
+	    count = 0;
+	    while( j<outputDistance->getMaxX() && count < 1 ) {
+	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
+		    if ( -outputDistance->getValueAt(i,j) <=  h )
+		    	count++;
+		    j++;
+	    }
+	    j=outputDistance->getMaxX()-1;
+	    count =0;
+	    while( j>=outputDistance->getMinX() && count < 1  ) {
+	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
+		    if ( -outputDistance->getValueAt(i,j)<=  h )
+		    	count++;
+		    j--;
+	    }
+    }
+//    plot_box(true,2,"Dist",true);
+}
+
 
 void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
     int grid_blowup = handler->get_grid_blowup(); 
@@ -453,7 +528,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-
+				if(val > - handler->delta){
 					if(IDLocal.getValueAt(i,j).total_chunks >= 2){
 
 						if(IDLocal.getValueAt(i,j).getElementAt(1)->get_status() == true &&
@@ -505,7 +580,9 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
 					}
-//				}
+				}
+				// this should avoid spikes, depending on thrird order neighbour interaction, occuring by periodicity of the the convoluted function
+				else outputDistance->setValueAt(i,j, - handler->delta);
 			}
 		}	   
 	}
@@ -1201,7 +1278,7 @@ void LSbox::plot_box_contour(int timestep, bool plot_energy, ofstream* dest_file
     else {
 		for(const auto& iterator : contourGrain)
 		{
-			file << iterator.x << "\t" << iterator.y << endl;
+			file << iterator.x *handler->get_h()  << "\t" << iterator.y *handler->get_h()  << endl;
 		}
     }
     file<<endl;
