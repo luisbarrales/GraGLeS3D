@@ -1,6 +1,6 @@
 #include "marchingSquares.h"
 
-MarchingSquaresAlgorithm::MarchingSquaresAlgorithm(DimensionalBuffer<double>& distance_buffer) : 
+MarchingSquaresAlgorithm::MarchingSquaresAlgorithm(DimensionalBufferVar& distance_buffer) : 
 	m_DistanceBuffer(distance_buffer),
 	m_top(-1), m_bottom(-1), m_left(-1), m_right(-1)
 {}

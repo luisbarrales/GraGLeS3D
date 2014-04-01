@@ -52,7 +52,7 @@ ADD_DEFINITIONS("-std=c++0x")
 
 add_executable(LevelSet_IMM ${MY_SOURCES})
 
-target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} ${Boost_LIBRARIES} -lfftw3 -lm)
+target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} ${Boost_LIBRARIES} -lfftw3 -lfftw3f -lm)
 
 
 ADD_CUSTOM_TARGET (clearAll

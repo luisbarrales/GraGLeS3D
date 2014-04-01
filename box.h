@@ -4,6 +4,7 @@
 #include "ggLS.h"
 #include "dimensionalBufferIDLocal.h"
 #include "dimensionalBufferReal.h"
+#include "dimensionalBuffer.h"
 // #include "contour.h"
 using namespace std;
 
@@ -61,8 +62,10 @@ class LSbox {
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
 	
-	DimensionalBufferReal* inputDistance;
-	DimensionalBufferReal* outputDistance;
+
+	DimensionalBufferVar* inputDistance;
+	DimensionalBufferVar* outputDistance;
+
 
 public:
 	friend class grainhdl;
@@ -106,7 +109,13 @@ public:
 	void checkIntersect_zero_grain();
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
-	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
+	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
+	void executeFFTW(fftw_plan fftplan);
+	void executeFFTW(fftwf_plan fftplan);
+	void destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan);
+	void destroyFFTWs(fftwf_plan fwdPlan, fftwf_plan bwdPlan);
+
+	void conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void switchInNOut();
 	void boundaryCondition();
 	void updateFirstOrderNeigbors();

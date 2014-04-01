@@ -9,6 +9,28 @@
 
 #define IMAGEOUT true
 
+// switch if double or single precision!
+#define PRECISION single//double 
+#define DimensionalBufferVar DimensionalBuffer<double>
+#define dataprecision double
+#define fftwp_complex fftw_complex
+#define fftwp_plan fftw_plan
+#define PooledDimensionalBuffer PooledDimensionalBufferDouble
+
+#if PRECISION == single
+  #undef dataprecision
+  #undef DimensionalBufferVar
+  #undef PooledDimensionalBuffer
+  #undef  fftwp_complex
+  #undef  fftwp_plan 
+  
+  #define dataprecision float
+  #define DimensionalBufferVar DimensionalBufferReal
+  #define PooledDimensionalBuffer PooledDimensionalBufferReal
+  #define fftwp_complex fftwf_complex
+  #define fftwp_plan fftwf_plan
+#endif
+
 
 #pragma once
 #include <map>
