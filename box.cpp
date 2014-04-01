@@ -693,7 +693,7 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 					double dist = (**it_nn).getDistance(i,j);
 					if(abs(dist) < handler->delta ) {
 						if( dist > outputDistance->getValueAt(i,j) ){
-							if( IDLocal.getValueAt(i,j).total_elemnts == 0 ){
+							if( IDLocal.getValueAt(i,j).total_elements == 0 ){
 								distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
 							}
 							outputDistance->setValueAt(i, j, dist);
