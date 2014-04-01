@@ -24,14 +24,14 @@ enum E_POSITIONS
 struct IDChunk
 {
 	LSbox* local_chunks[ID_MAX_CHUNK_COUNT];
-	unsigned int total_chunks;
-	IDChunk() : total_chunks(0)
+	unsigned int total_elments;
+	IDChunk() : total_elments(0)
 	{}
 	IDChunk& operator=(const IDChunk& other)
 	{
 	    if (this != &other)
 	    {
-	    	total_chunks = other.total_chunks;
+	    	total_elments = other.total_elments;
 	    }
 	    return *this;
 	}
@@ -39,14 +39,14 @@ struct IDChunk
 	{
 		if(position == E_LAST_POSITION)
 		{
-			if(total_chunks >= ID_MAX_CHUNK_COUNT)
+			if(total_elments >= ID_MAX_CHUNK_COUNT)
 			{
 				return false;
 			}
 			else
 			{
-				local_chunks[total_chunks] = element;
-				total_chunks++;
+				local_chunks[total_elments] = element;
+				total_elments++;
 			}
 		}
 		else
@@ -59,25 +59,29 @@ struct IDChunk
 			else
 			{
 				LSbox* element_to_write = element;
-				for(int i=actual_position; i<total_chunks+1 && i < ID_MAX_CHUNK_COUNT; i++)
+				for(int i=actual_position; i<total_elments+1 && i < ID_MAX_CHUNK_COUNT; i++)
 				{
 					LSbox* swap = local_chunks[i];
 					local_chunks[i] = element_to_write;
 					element_to_write = swap;
 				}
 			}
-			total_chunks++;
-			if(total_chunks > ID_MAX_CHUNK_COUNT)
-				total_chunks = ID_MAX_CHUNK_COUNT;
+			total_elments++;
+			if(total_elments > ID_MAX_CHUNK_COUNT)
+				total_elments = ID_MAX_CHUNK_COUNT;
 		}
 		return true;
 	}
 	LSbox* getElementAt(int pos)
 	{
-		if(pos < total_chunks)
+		if(pos < total_elments)
 			return local_chunks[pos];
 		else
 			return NULL;
+	}
+	inline void clear()
+	{
+		total_elments = 0;
 	}
 };
 
@@ -86,7 +90,8 @@ class DimensionalBufferIDLocal	: public DimensionalBuffer<IDChunk>
 public:
 	void clear()
 	{
-		this->clearValues(IDChunk());
+		for(auto& iterator : this->m_values)
+			iterator.clear();
 	}
 };
 

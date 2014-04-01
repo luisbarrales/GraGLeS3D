@@ -1,10 +1,12 @@
 #include "marchingSquares.h"
 
-MarchingSquaresAlgorithm::MarchingSquaresAlgorithm(DimensionalBuffer<double>& distance_buffer) : 
+MarchingSquaresAlgorithm::MarchingSquaresAlgorithm(DimensionalBufferReal& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain) :
 	m_DistanceBuffer(distance_buffer),
+	m_IDLocal(id_local),
+	m_CurrentGrain(current_grain),
 	m_top(-1), m_bottom(-1), m_left(-1), m_right(-1)
 {}
-bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
+bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& contour_output, std::vector<GrainJunction>& junction_output)
 {
 	int startX = -1, startY = -1;
 	//Find starting point on contour
@@ -50,31 +52,31 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
 				next_step = UP;
 				//generate point on m_top side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case TOP_RIGHT:
 				next_step = RIGHT;
 				//generate point on m_right side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case TOP_LEFT | TOP_RIGHT:
 				next_step = RIGHT;
 				//generate point on m_right side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_LEFT:
 				next_step = LEFT;
 				//generate point on the m_left side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_LEFT | TOP_LEFT:
 				next_step = UP;
 				//generate point on m_top side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_LEFT | TOP_RIGHT:
 				if(previous_step == UP)
@@ -86,13 +88,13 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
 				next_step = RIGHT;
 				//generate point on m_right side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_RIGHT:
 				next_step = DOWN;
 				//generate point on m_bottom side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_RIGHT | TOP_LEFT:
 				if(previous_step == RIGHT)
@@ -104,33 +106,35 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
 				next_step = DOWN;
 				//generate point on m_bottom side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_RIGHT | TOP_RIGHT | TOP_LEFT:
 				next_step = DOWN;
 				//generate point on m_bottom side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_RIGHT | BOTTOM_LEFT:
 				next_step = LEFT;
 				//generate point on the m_left side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_RIGHT | BOTTOM_LEFT | TOP_LEFT:
 				next_step = UP;
 				//generate point on m_top side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 			case BOTTOM_RIGHT | BOTTOM_LEFT | TOP_RIGHT:
 				next_step = LEFT;
 				//generate point on the m_left side of square
 				next = generatePoint(next_step);
-				insertPoint(output, next);
+				insertPoint(contour_output, next);
 				break;
 		}
+		//Generate junctions if existing
+		generateJunction(junction_output, stateMask);
 		switch(next_step)
 		{
 			case UP:
@@ -154,11 +158,11 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& output)
 	}
 	while(m_left != startX || m_bottom != startY);
 
-	if(!output.empty())
+	if(!contour_output.empty())
 	{
-		if(output[0].x != output[output.size()-1].x || output[0].y != output[output.size()-1].y)
+		if(contour_output[0].x != contour_output[contour_output.size()-1].x || contour_output[0].y != contour_output[contour_output.size()-1].y)
 		{
-			output.push_back(output[0]);
+			contour_output.push_back(contour_output[0]);
 		}
 	}
 	return true;
@@ -239,4 +243,50 @@ SPoint MarchingSquaresAlgorithm::generatePoint(E_MOVEMENT_DIRECTIONS dir)
 			break;
 	}
 	return result;
+}
+void	MarchingSquaresAlgorithm::generateJunction(std::vector<GrainJunction>& junctions, int state_mask) const
+{
+	LSbox* boxes[4] = {NULL, NULL, NULL, NULL};
+	int junction_order = 0;
+	if(state_mask & BOTTOM_LEFT)
+		insertDistinctPointer(m_CurrentGrain, boxes, junction_order);
+	else
+		insertDistinctPointer(m_IDLocal.getValueAt(m_bottom, m_left).getElementAt(0),
+						  boxes, junction_order);
+	if(state_mask & TOP_LEFT)
+		insertDistinctPointer(m_CurrentGrain, boxes, junction_order);
+	else
+		insertDistinctPointer(m_IDLocal.getValueAt(m_top, m_left).getElementAt(0),
+						  boxes, junction_order);
+	if(state_mask & BOTTOM_RIGHT)
+		insertDistinctPointer(m_CurrentGrain, boxes, junction_order);
+	else
+		insertDistinctPointer(m_IDLocal.getValueAt(m_bottom, m_right).getElementAt(0),
+						  boxes, junction_order);
+	if(state_mask & TOP_RIGHT)
+		insertDistinctPointer(m_CurrentGrain, boxes, junction_order);
+	else
+		insertDistinctPointer(m_IDLocal.getValueAt(m_top, m_right).getElementAt(0),
+						  boxes, junction_order);
+	if(junction_order > 2)
+	{
+		junctions.push_back(GrainJunction(boxes, junction_order, SPoint(m_left+0.5, m_top+0.5, 0.0)));
+	}
+}
+
+void	MarchingSquaresAlgorithm::insertDistinctPointer(LSbox* pointer, LSbox** array, int& elem_count) const
+{
+	bool found = false;
+	for(int i=0; i<elem_count; i++){
+		if(array[i] == pointer)
+		{
+			found = true;
+			break;
+		}
+	}
+	if(false == found)
+	{
+		array[elem_count] = pointer;
+		elem_count++;
+	}
 }

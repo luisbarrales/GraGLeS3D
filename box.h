@@ -4,14 +4,13 @@
 #include "ggLS.h"
 #include "dimensionalBufferIDLocal.h"
 #include "dimensionalBufferReal.h"
+#include "junction.h"
 // #include "contour.h"
 using namespace std;
 
 class LSbox;
 class grainhdl;
 class Weightmap;
-
-
 
 class MarchingSquaresAlgorithm;
 
@@ -31,7 +30,6 @@ struct characteristics{
 		directNeighbour(other.directNeighbour), length(other.length), energyDensity(other.energyDensity), mis_ori(other.mis_ori), mobility(other.mobility)
 	{}
 };
-
 /*!
  * \class LSBox
  * \brief Class encapsulating a Level Set Box.

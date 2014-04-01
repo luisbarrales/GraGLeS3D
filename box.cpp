@@ -454,13 +454,13 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
 
-					if(IDLocal.getValueAt(i,j).total_chunks >= 2){
+					if(IDLocal.getValueAt(i,j).total_elements >= 2){
 
 						if(IDLocal.getValueAt(i,j).getElementAt(1)->get_status() == true &&
 						   IDLocal.getValueAt(i,j).getElementAt(1)->inputDistance->isPointInside(i,j))
 						{
 							dist2OrderNeigh = IDLocal.getValueAt(i,j).getElementAt(1)->inputDistance->getValueAt(i,j);
-							weight = local_weights->loadWeights(IDLocal.getValueAt(i,j).local_chunks, IDLocal.getValueAt(i,j).total_chunks, this, handler->ST);
+							weight = local_weights->loadWeights(IDLocal.getValueAt(i,j).local_chunks, IDLocal.getValueAt(i,j).total_elements, this, handler->ST);
 							gamma = getGBEnergyTimesGBMobility(i,j);
 							if( dist2OrderNeigh > -handler->delta) {
 								weight = -(dist2OrderNeigh/ handler->delta * (gamma - weight) )+ weight;
@@ -473,14 +473,14 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 							outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight );
 						}
 					}
-					else if(IDLocal.getValueAt(i,j).total_chunks == 1){
+					else if(IDLocal.getValueAt(i,j).total_elements == 1){
 
 						gamma = getGBEnergyTimesGBMobility(i,j);
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
 					}
 
-					else if (IDLocal.getValueAt(i,j).total_chunks > 2){
-						nActiveGrains = IDLocal.getValueAt(i,j).total_chunks;
+					else if (IDLocal.getValueAt(i,j).total_elements > 2){
+						nActiveGrains = IDLocal.getValueAt(i,j).total_elements;
 						IDs.clear();
 						for (int ii = 0;ii < nActiveGrains; ii++){
 							if(isNeighbour(IDLocal.getValueAt(i,j).getElementAt(ii))) {
@@ -693,7 +693,7 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 					double dist = (**it_nn).getDistance(i,j);
 					if(abs(dist) < handler->delta ) {
 						if( dist > outputDistance->getValueAt(i,j) ){
-							if( IDLocal.getValueAt(i,j).total_chunks == 0 ){
+							if( IDLocal.getValueAt(i,j).total_elemnts == 0 ){
 								distance_2neighbor.setValueAt(i,j,outputDistance->getValueAt(i,j));
 							}
 							outputDistance->setValueAt(i, j, dist);
@@ -861,9 +861,9 @@ void LSbox::find_contour() {
 	exist = false;
 	
 	contourGrain.clear();
-
-    MarchingSquaresAlgorithm marcher(*inputDistance);
-    exist = marcher.generateContour(contourGrain);
+	vector<GrainJunction> Junctions;
+    MarchingSquaresAlgorithm marcher(*inputDistance, IDLocal, this);
+    exist = marcher.generateContour(contourGrain, Junctions);
 
 	if(!exist) return;
     int grid_blowup = handler->get_grid_blowup();

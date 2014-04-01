@@ -1,27 +1,11 @@
 #ifndef		__MARCHING_SQUARES_ALGORITHM__
 #define		__MARCHING_SQUARES_ALGORITHM__
 
-#include "dimensionalBuffer.h"
-
-/*!
- * \struct SPoint
- * \brief Structure used to represent a two dimensional point
- *
- * The point represented by this structure has coordinates of type double. No operators
- * are overloaded for this structure.
- */
-struct SPoint
-{
-	SPoint() : x(-1), y(-1),energy(0)
-	{}
-	SPoint(double _x, double _y, double _energy) : x(_x), y(_y), energy(_energy)
-	{}
-	SPoint(const SPoint& other) : x(other.x), y(other.y), energy(other.energy) 
-	{}
-	double x;
-	double y;
-	double energy;
-};
+#include "dimensionalBufferReal.h"
+#include "dimensionalBufferIDLocal.h"
+#include "spoint.h"
+#include "junction.h"
+class LSbox;
 
 /*!
  * \enum E_CORNER_VALUES
@@ -62,35 +46,48 @@ public:
 	/*!
 		 * \brief Basic constructor. Requires a dimensional that defines the shape of the object.
 	*/
-	MarchingSquaresAlgorithm(DimensionalBuffer<double>& distance_buffer);
+	MarchingSquaresAlgorithm(DimensionalBufferReal& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain);
 	/*!
 		 * \brief Basic destructor. Virtual so that the class can be easily inherited.
 	*/
-	virtual ~MarchingSquaresAlgorithm(){}
+	~MarchingSquaresAlgorithm(){}
 	/*!
 		 * \brief This method generates the contour as a vector of SPoint objects. In this vector
 		 * the first and the last point will be the same. Although this method can be overridden
 		 * The core of the algorithm resides here.
 	*/
-	virtual bool	generateContour(std::vector<SPoint>& output);
+	bool	generateContour(std::vector<SPoint>& contour_output, std::vector<GrainJunction>& junction_output);
 	/*!
 		 * \brief This method is used to determine whether a point at the specified row and column
-		 * is actually inside the object. Can be overridden to customize the contour generation process.
+		 * is actually inside the object.
 	*/
-	virtual bool	isInside(int row, int column);
+	bool	isInside(int row, int column);
 	/*!
 		 * \brief This method generates a point by the current movement direction.
-		 * Can be overridden to customize how points on the contour are actually generated.
 	*/
-	virtual SPoint	generatePoint(E_MOVEMENT_DIRECTIONS dir);
+	SPoint	generatePoint(E_MOVEMENT_DIRECTIONS dir);
+	/*!
+		 * \brief This method generates a junction from the current square being inspected.
+		 * Junctions always contain all grains including the current grain whose contour is
+		 * being constructed.
+	*/
+	void	generateJunction(std::vector<GrainJunction>& junctions, int state_mask) const;
+private:
+
 	/*!
 		 * \brief This method inserts a point in the output by first checking if the point
 		 * is not already there. Prevents point duplication.
 	*/
-			void	insertPoint(std::vector<SPoint>& output, SPoint p);
-private:
+	void	insertPoint(std::vector<SPoint>& output, SPoint p);
+	/*!
+		 * \brief This method inserts an LSbox pointer in the specified array, by maintaining only distinct
+		 * pointers. This is used to detect the order of the junction.
+	*/
+	inline void	insertDistinctPointer(LSbox* pointer, LSbox** array, int& elem_count) const;
 
-	DimensionalBuffer<double>& m_DistanceBuffer;
+	DimensionalBufferReal& 		m_DistanceBuffer;
+	DimensionalBufferIDLocal&	m_IDLocal;
+	LSbox*	m_CurrentGrain;
 	int m_top;
 	int m_bottom;
 	int m_left;
