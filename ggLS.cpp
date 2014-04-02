@@ -5,7 +5,10 @@ using namespace voro;
 
 int main(int argc,char *argv[]) {
 	
-	Settings::initializeParameters(argv[1]);
+	if(argc > 1)
+		Settings::initializeParameters(argv[1]);
+	else
+		Settings::initializeParameters();
 
 	grainhdl* my_sim = NULL;
 
