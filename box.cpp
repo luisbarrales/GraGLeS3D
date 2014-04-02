@@ -406,7 +406,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 
 
 	//fftw_complex *fftTemp;
-	int desired_size = n*(floor(n/2)+1)*sizeof(fftw_complex);
+	int desired_size = n*(floor(n/2)+1)*sizeof(fftwp_complex);
 	mem_pool.expand(desired_size);
 
 	fftwp_plan fwdPlan, bwdPlan;

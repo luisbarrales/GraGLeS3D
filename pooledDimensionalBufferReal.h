@@ -10,22 +10,22 @@ public:
 				m_pool(pool), m_poolSize(size)
 	{
 	}
-	double getValueAt(unsigned int row, unsigned int column)
+	float getValueAt(unsigned int row, unsigned int column)
 	{
-		double* pointer = (double*) m_pool;
+		float* pointer = (float*) m_pool;
 		return pointer[(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
 	}
 
-	void setValueAt(unsigned int row, unsigned int column, double value)
+	void setValueAt(unsigned int row, unsigned int column, float value)
 	{
-		double* pointer = (double*) m_pool;
+		float* pointer = (float*) m_pool;
 		pointer[(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
 	}
-	void clearValues(double value)
+	void clearValues(float value)
 	{
-		for(int i = 0; i < m_poolSize / sizeof(double); i++)
+		for(int i = 0; i < m_poolSize / sizeof(float); i++)
 		{
-			double* pointer = (double*)m_pool;
+			float* pointer = (float*)m_pool;
 			m_pool[i] = value;
 		}
 	}
