@@ -10,24 +10,8 @@
 #define IMAGEOUT true
 
 // // switch between double or single precision!
-#define PRECISION 0//0= double 1=single
+#define PRECISION 0	//  0 = double 1 = single
 
-#if PRECISION >0
-  #define fftwp_malloc fftwf_malloc
-  #define dataprecision float
-  #define DimensionalBufferVar DimensionalBufferReals
-  #define PooledDimensionalBuffer PooledDimensionalBufferReal
-  #define fftwp_complex fftwf_complex
-  #define fftwp_plan fftwf_plan
-  #define fftwp_free fftwf_free
-#elif PRECISION <1
-  #define DimensionalBufferVar DimensionalBufferDouble
-  #define fftwp_complex fftw_complex
-  #define fftwp_plan fftw_plan
-  #define fftwp_free fftw_free
-  #define fftwp_malloc fftw_malloc
-  #define PooledDimensionalBuffer PooledDimensionalBufferDouble
-#endif
 
 
 #pragma once
@@ -61,6 +45,24 @@
 #include "io.h"
 #include "dimensionalBuffer.h"
 #include "marchingSquares.h"
+
+#if PRECISION >0
+  #define fftwp_malloc fftwf_malloc
+  #define dataprecision float
+  #define DimensionalBufferVar DimensionalBufferReals
+  #define PooledDimensionalBuffer PooledDimensionalBufferReal
+  #define fftwp_complex fftwf_complex
+  #define fftwp_plan fftwf_plan
+  #define fftwp_free fftwf_free
+#elif PRECISION <1
+  #define DimensionalBufferVar DimensionalBufferDouble
+  #define fftwp_complex fftw_complex
+  #define fftwp_plan fftw_plan
+  #define fftwp_free fftw_free
+  #define fftwp_malloc fftw_malloc
+  #define PooledDimensionalBuffer PooledDimensionalBufferDouble
+#endif
+
 
 #endif
 
