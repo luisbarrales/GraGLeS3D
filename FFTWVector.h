@@ -22,7 +22,7 @@ public:
 
 	pointer allocate(size_type n, const void * = 0)
 	{
-		pointer t = (pointer) fftwf_malloc(n * sizeof(T));
+		pointer t = (pointer) fftw_malloc(n * sizeof(T));
 		return t;
 	}
 
@@ -30,7 +30,7 @@ public:
 	{
 		if (p)
 		{
-			fftwf_free(p);
+			fftw_free(p);
 		}
 	}
 

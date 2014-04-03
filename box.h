@@ -4,8 +4,9 @@
 #include "ggLS.h"
 #include "dimensionalBufferIDLocal.h"
 #include "dimensionalBufferReal.h"
+#include "dimensionalBufferDouble.h"
 #include "dimensionalBuffer.h"
-// #include "contour.h"
+#include "pooledDimensionalBufferDouble.h"
 using namespace std;
 
 class LSbox;

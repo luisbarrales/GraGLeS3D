@@ -4,6 +4,7 @@
 #include "dimensionalBuffer.h"
 #include "ggLS.h"
 #include "dimensionalBufferReal.h"
+#include "dimensionalBufferDouble.h"
 /*!
  * \struct SPoint
  * \brief Structure used to represent a two dimensional point

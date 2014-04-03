@@ -2,7 +2,7 @@
 <Parameters>
    <NumberOfParticles> 500 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysysTimestep> 25 </AnalysysTimestep>
+   <AnalysysTimestep> 500 </AnalysysTimestep>
    <NumberOfTimesteps> 500 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
@@ -11,7 +11,7 @@
    <HAGB> 0.6 </HAGB>
    <TriplePointDrag> 0.5 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
-   <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
+   <IsIsotropicNetwork> 1 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>

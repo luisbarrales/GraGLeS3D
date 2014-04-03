@@ -9,35 +9,24 @@
 
 #define IMAGEOUT true
 
-// switch if double or single precision!
-#define PRECISION single//double or single
+// // switch between double or single precision!
+#define PRECISION 0//0= double 1=single
 
-
-#define DimensionalBufferVar DimensionalBuffer<double>
-#define dataprecision double
-#define fftwp_complex fftw_complex
-#define fftwp_plan fftw_plan
-#define fftwp_free fftw_free
-#define fftwp_malloc fftw_malloc
-#define PooledDimensionalBuffer PooledDimensionalBufferDouble
-
-#if PRECISION == single
-  #undef dataprecision
-  #undef DimensionalBufferVar
-  #undef PooledDimensionalBuffer
-  #undef  fftwp_complex
-  #undef  fftwp_plan 
-  #undef fftwp_free 
-  #undef fftwp_malloc
-  
+#if PRECISION >0
   #define fftwp_malloc fftwf_malloc
   #define dataprecision float
-  #define DimensionalBufferVar DimensionalBufferReal
+  #define DimensionalBufferVar DimensionalBufferReals
   #define PooledDimensionalBuffer PooledDimensionalBufferReal
   #define fftwp_complex fftwf_complex
   #define fftwp_plan fftwf_plan
   #define fftwp_free fftwf_free
-
+#elif PRECISION <1
+  #define DimensionalBufferVar DimensionalBufferDouble
+  #define fftwp_complex fftw_complex
+  #define fftwp_plan fftw_plan
+  #define fftwp_free fftw_free
+  #define fftwp_malloc fftw_malloc
+  #define PooledDimensionalBuffer PooledDimensionalBufferDouble
 #endif
 
 
