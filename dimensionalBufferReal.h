@@ -3,11 +3,12 @@
 
 #include "dimensionalBuffer.h"
 
-class DimensionalBufferReal : public DimensionalBuffer<double>
+class DimensionalBufferReal : public DimensionalBuffer<float>
 {
 public:
 
-	DimensionalBufferReal() : DimensionalBuffer<double>()
+	DimensionalBufferReal() : DimensionalBuffer<float>()
+
 		{}
 	DimensionalBufferReal(unsigned int upperLeftX, unsigned int upperLeftY,
 					  unsigned int lowerRightX, unsigned int lowerRightY) :

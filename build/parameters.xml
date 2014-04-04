@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 50 </NumberOfParticles> 
+   <NumberOfParticles> 500 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysysTimestep> 25 </AnalysysTimestep>
+   <AnalysysTimestep> 500 </AnalysysTimestep>
    <NumberOfTimesteps> 500 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>

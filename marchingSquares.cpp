@@ -1,6 +1,8 @@
 #include "marchingSquares.h"
 
-MarchingSquaresAlgorithm::MarchingSquaresAlgorithm(DimensionalBufferReal& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain) :
+
+MarchingSquaresAlgorithm::MarchingSquaresAlgorithm(DimensionalBufferVar& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain) :
+
 	m_DistanceBuffer(distance_buffer),
 	m_IDLocal(id_local),
 	m_CurrentGrain(current_grain),
