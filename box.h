@@ -8,6 +8,7 @@
 #include "dimensionalBufferDouble.h"
 #include "dimensionalBuffer.h"
 #include "pooledDimensionalBufferDouble.h"
+#include "spoint.h"
 
 using namespace std;
 

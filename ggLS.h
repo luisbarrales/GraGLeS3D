@@ -9,6 +9,7 @@
 
 #define IMAGEOUT true
 
+
 // // switch between double or single precision!
 #define PRECISION 0	//  0 = double 1 = single
 #if PRECISION >0

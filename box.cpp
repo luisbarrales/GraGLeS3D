@@ -1280,7 +1280,41 @@ void LSbox::redist_box() {
 /**************************************/
 // plot the box and all its properties
 /**************************************/
+void LSbox::resizeGrid(double shrinkFactor){
+  int ngridpoints = handler->get_ngridpoints();
+  int ngridPointsNew = ngridpoints*(1-shrinkFactor);
+  
+  int minXnew = inputDistance->getMinX/ngridpoints * ngridPointsNew; 
+  int maxXnew = inputDistance->getMaxX/ngridpoints * ngridPointsNew;
+  int minYnew = inputDistance->getMinY/ngridpoints * ngridPointsNew; 
+  int maxYnew = inputDistance->getMaxY/ngridpoints * ngridPointsNew;
+  
+  SPoint lo,ro,lu,ru;
+  double pointx, pointy;
+  double interpolated;
+  outputDistance.resize(minXnew,minYnew, maxXnew, maxYnew); 
+  for (int i = minXnew; i < maxXnew; i++)
+    for (int j = minYnew; j < maxYnew; j++){
+      // bilinear interpolation in x- direction#
+	pointx = i*ngridPoints/ngridPointsNew; 
+	pointy = j*ngridPoints/ngridPointsNew; 
+	lo.x= (int)pointx; lo.y= (int)pointy+1;
+	lu.x = (int)pointx; lu.y=(int)pointy;
+	ro.x = (int)pointx+1; ro.y=(int)pointy+1;
+	ru.x = (int)pointx+1; ru.y=(int)pointy;
+	interpolated = 
+	outputdistance->setValueAt(i,j,
+      
+    }
+  
+  
+}
 
+
+void LSbox::interpolation(){
+    
+  
+}
 void LSbox::plot_box_contour(int timestep, bool plot_energy, ofstream* dest_file)
 {
 	if(exist == false)
