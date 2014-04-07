@@ -264,7 +264,7 @@ void grainhdl::convolution(){
 	int i=0;
 	for (it = ++grains.begin(); it !=grains.end(); it++,++i){
 		if(*it==NULL) continue;
-		cout << i << "  "<< (*it)->id << "  "<< (*it)->get_status() << endl;
+
 
 		if((*it)->id==0) (*it)->plot_box(true,2, "error", true);
 		(*it)->convolution(m_ThreadMemPool[0]);
