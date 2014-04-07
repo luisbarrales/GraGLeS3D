@@ -532,7 +532,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
-				if(val <= -handler->delta){
+				if(val > -handler->delta){
 					if(IDLocal.getValueAt(i,j).total_elements >= 2){
 
 						if(IDLocal.getValueAt(i,j).getElementAt(1)->get_status() == true &&
@@ -934,11 +934,6 @@ void LSbox::add_n2o_2(){
 /**************************************/
 
 void LSbox::find_contour() {
-	if(get_status() == false ) {
-	  handler->removeGrain(id);
-	  delete this;
-	  return;
-	}
 	exist = false;
 	
 	contourGrain.clear();

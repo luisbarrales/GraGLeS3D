@@ -286,7 +286,11 @@ void grainhdl::level_set(){
 	for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)
 			continue;
-		grains[i]->find_contour();
+		if(grains[i]->get_status() == false ) {
+			  delete grains[i];
+			  removeGrain(i);
+		}
+		else grains[i]->find_contour();
 	}
 }
 
