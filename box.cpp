@@ -532,6 +532,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	    for (int i = intersec_ymin; i < intersec_ymax; i++){
 			for (int j = intersec_xmin; j < intersec_xmax; j++) {
 				val = inputDistance->getValueAt(i,j);
+				if(val <= -handler->delta){
 					if(IDLocal.getValueAt(i,j).total_elements >= 2){
 
 						if(IDLocal.getValueAt(i,j).getElementAt(1)->get_status() == true &&
@@ -585,8 +586,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 					}
 				}
 				// this should avoid spikes, depending on thrird order neighbour interaction, occuring by periodicity of the the convoluted function
-				else outputDistance->setValueAt(i,j, - handler->delta);
-//			}
+				else  outputDistance->setValueAt(i,j, - handler->delta);
+			}
 		}	   
 	}
 

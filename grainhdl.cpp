@@ -262,9 +262,9 @@ void grainhdl::readMicrostructureFromVertex(){
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
 	int i=0;
-	for (it = ++grains.begin(); it !=grains.end(); it++){	
+	for (it = ++grains.begin(); it !=grains.end(); it++,++i){
 		if(*it==NULL) continue;
-		cout << ++i << "  "<< (*it)->id << endl;
+		cout << i << "  "<< (*it)->id << "  "<< (*it)->get_status() << endl;
 
 		if((*it)->id==0) (*it)->plot_box(true,2, "error", true);
 		(*it)->convolution(m_ThreadMemPool[0]);

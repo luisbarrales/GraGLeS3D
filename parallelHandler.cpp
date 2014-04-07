@@ -5,7 +5,7 @@ void parallelHandler::run_sim()
 {
 	find_neighbors();
 
-	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
+	for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
 		//Switch Distance Buffers
 #pragma omp parallel
 {
