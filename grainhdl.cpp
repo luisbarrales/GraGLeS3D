@@ -21,10 +21,12 @@ void grainhdl::setSimulationParameter(){
 	ngrains = Settings::NumberOfParticles;
 	hagb = Settings::HAGB;
 	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
-	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
+	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
+	
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
+
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
 	tubeRadius = sqrt(2)*1.5*h + 0.001;
 	grid_blowup = Settings::DomainBorderSize;
@@ -166,8 +168,8 @@ void grainhdl::readMicrostructure(){
 	double* vertices;
 	grains.resize(ngrains+1);
 	int i=0;
-	vertices = new double [1000];
-	for(int nn=0; nn< ngrains; nn++){
+	vertices = new double [10000];
+	for(int nn=1; nn<= ngrains; nn++){
 		fscanf(levelset, "%d\t %d\t %lf\t %lf\t%lf\t%lf\n", &id, &nvertices, &q1, &q2, &q3, &q4);
 		for(unsigned int j=0; j<nvertices; j++){
 			fscanf(levelset, "%lf\t %lf\n", &xl, &yl);
@@ -176,7 +178,7 @@ void grainhdl::readMicrostructure(){
 		}
 		fscanf(levelset, "\n");
 		LSbox* newBox = new LSbox(id, nvertices, vertices, q1, q2, q3, q4, this);
-		grains[id]= newBox;
+		grains[nn]= newBox;
 
 		// calculate distances
 		newBox->distancefunction(nvertices, vertices);
@@ -259,8 +261,12 @@ void grainhdl::readMicrostructureFromVertex(){
  
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
+	int i=0;
 	for (it = ++grains.begin(); it !=grains.end(); it++){	
 		if(*it==NULL) continue;
+		cout << ++i << "  "<< (*it)->id << endl;
+
+		if((*it)->id==0) (*it)->plot_box(true,2, "error", true);
 		(*it)->convolution(m_ThreadMemPool[0]);
 	}
 }
@@ -360,19 +366,19 @@ void grainhdl::run_sim(){
 // 	determineIDs();
 	for(loop=Settings::StartTime; loop <= Settings::StartTime+Settings::NumberOfTimesteps; loop++){
 		switchDistancebuffer();
+		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+			if (loop == 0) level_set(); 						//essential for saveMicrostructure
+			saveAllContourEnergies();
+			save_texture();
+			saveMicrostructure();
+		}
 		convolution();
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
 		comparison_box();
 		switchDistancebuffer();
 		level_set();
-		redistancing();
-		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-			saveAllContourEnergies();
-			save_texture();
-			saveMicrostructure();
-		}
-		
+		redistancing();		
 	}
 // 	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
@@ -393,6 +399,7 @@ void grainhdl::saveMicrostructure(){
 			if(*it== NULL) continue;
 			output << (*it)->id << "\t" << (*it)->contourGrain.size()<< "\t" << (*it)->quaternion[0] << "\t" << (*it)->quaternion[1] << "\t" << (*it)->quaternion[2] << "\t" << (*it)->quaternion[3] << endl;
 			(*it)->plot_box_contour(loop, false, &output);
+//			if((*it)->get_id()==320)(*it)->plot_box_contour(loop, false);
 		}
 	output.close();
 }

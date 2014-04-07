@@ -108,7 +108,7 @@ public:
 	*/
 	void resizeToSquare(unsigned int maximumLength)
 	{
-		int grid_size = maximumLength;
+		int grid_size = maximumLength-1;
 		unsigned int height = m_yMax - m_yMin;
 		unsigned int width  = m_xMax - m_xMin;
 		//First resize the rectangle to a square
