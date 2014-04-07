@@ -7,7 +7,7 @@ class DimensionalBufferReal : public DimensionalBuffer<double>
 {
 public:
 
-	DimensionalBufferReal() : DimensionalBuffer()
+	DimensionalBufferReal() : DimensionalBuffer<double>()
 		{}
 	DimensionalBufferReal(unsigned int upperLeftX, unsigned int upperLeftY,
 					  unsigned int lowerRightX, unsigned int lowerRightY) :

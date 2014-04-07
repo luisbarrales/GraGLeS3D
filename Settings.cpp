@@ -45,7 +45,7 @@ void Settings::initializeParameters(string filename)
 	{
 		tree.parse<0>(&xmlDocument[0]);
 	}
-	catch (parse_error Error)
+	catch (parse_error& Error)
 	{
 		cout << filename.c_str() << "is not a valid XML!" << endl;
 		cout << "Exception is " << Error.what() << endl;
@@ -122,9 +122,9 @@ void Settings::initializeParameters(string filename)
 	}
 	if( 0 != rootNode->first_node("MaximumNumberOfThreads") )
 	{
-		MaximumNumberOfThreads = (int)std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
-	}
+	MaximumNumberOfThreads = std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
 
+	}
 	file.close();
 }
 
