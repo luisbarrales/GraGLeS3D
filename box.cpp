@@ -718,7 +718,7 @@ void LSbox::set_comparison(){
 	double h = handler->get_h();
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
-			if(abs(inputDistance->getValueAt(i,j)) < 0.9*handler->delta ) {
+			if(abs(inputDistance->getValueAt(i,j)) < 0.7*handler->delta ) {
 				outputDistance->setValueAt(i, j, 0.5 * (inputDistance->getValueAt(i,j) - outputDistance->getValueAt(i,j)));
 			}
 			else outputDistance->setValueAt(i, j, inputDistance->getValueAt(i,j));
