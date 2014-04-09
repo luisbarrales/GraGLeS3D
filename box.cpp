@@ -97,6 +97,7 @@ LSbox::LSbox(int id, int nvertices, double* vertices, double q1, double q2, doub
 	quaternion[1]=q2 ;
 	quaternion[2]=q3 ;
 	quaternion[3]=q4 ;
+	contourGrain.resize(nvertices);
 
 	int grid_blowup = owner->get_grid_blowup();
 	double h = owner->get_h();
@@ -112,6 +113,8 @@ LSbox::LSbox(int id, int nvertices, double* vertices, double q1, double q2, doub
 	for (unsigned int k=0; k < nvertices; k++){
 		y=vertices[(2*k)+1];
 		x=vertices[2*k];
+		contourGrain[k].x =vertices[2*k];
+		contourGrain[k].y =vertices[2*k +1];
 		//	for convention:
 		//	x[i][j]:
 		//	i = Zeilenindex(y-direction)
@@ -296,7 +299,7 @@ void LSbox::distancefunctionToEdges(int nedges, double* edges){
 }
 
 
-void LSbox::distancefunction(int nvertices, double* vertices){
+void LSbox::distancefunction(/*int nvertices, double* vertices*/){
 // 	plot_box(false);
 	int grid_blowup = handler->get_grid_blowup();
 	double h = handler->get_h();
@@ -309,12 +312,12 @@ void LSbox::distancefunction(int nvertices, double* vertices){
             dmin = 1000.;
             p[0] = (i-grid_blowup)*h; 
 			p[1] = (j-grid_blowup)*h;
-            x2[0]=vertices[1]; 
-			x2[1]=vertices[0];
-            for(int k=1; k <= nvertices-1; k++) {
+            x2[0]=contourGrain[0].y;
+			x2[1]=contourGrain[0].x;
+            for(int k=1; k <= contourGrain.size()-1; k++) {
             	x1=x2;
-            	x2[0]=vertices[2*k+1]; 
-				x2[1]=vertices[2*k];
+            	x2[0]=contourGrain[k].y;
+				x2[1]=contourGrain[k].x;
 				if (x1 != x2){
 					a = x1;
 					u = x2-x1;
@@ -974,11 +977,13 @@ void LSbox::find_contour() {
 	}
     
     // compute Volume and Energy
-	if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-		computeVolumeAndEnergy();
-		volume = abs(volume);
-	}
+	if (loop ==Settings::StartTime) return;
+	else if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+			computeVolumeAndEnergy();
+			volume = abs(volume);
+		}
 	else updateFirstOrderNeigbors();
+
 	
 	
 	if(grainCharacteristics.size() <2 && contourGrain.size() >3) {

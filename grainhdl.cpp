@@ -136,6 +136,7 @@ void grainhdl::VOROMicrostructure(){
 
 	int i=0;
 	// iteration over all cells in the container con:
+
 	if(vl.start()) 
 	do {
 	  // compute the current cell, taken out of the container
@@ -163,28 +164,43 @@ void grainhdl::readMicrostructure(){
 		exit(2);
 	}
 	int id;
-	int nvertices;
+	cout << ngrains <<endl;
+
 	double q1, q2, q3, q4, xr, yr, xl, yl;
-	double* vertices;
+
 	grains.resize(ngrains+1);
 	int i=0;
-	vertices = new double [10000];
+	int nvertices;
+	double* vertices = new double [1000];
+
 	for(int nn=1; nn<= ngrains; nn++){
+
 		fscanf(levelset, "%d\t %d\t %lf\t %lf\t%lf\t%lf\n", &id, &nvertices, &q1, &q2, &q3, &q4);
+
 		for(unsigned int j=0; j<nvertices; j++){
 			fscanf(levelset, "%lf\t %lf\n", &xl, &yl);
 			vertices[2*j]   = xl;
 			vertices[(2*j)+1] = yl;
 		}
 		fscanf(levelset, "\n");
+
 		LSbox* newBox = new LSbox(id, nvertices, vertices, q1, q2, q3, q4, this);
 		grains[nn]= newBox;
 
+
 		// calculate distances
-		newBox->distancefunction(nvertices, vertices);
+//		newBox->distancefunction(nvertices, vertices);
 
 	}
+	fclose(levelset);
 	delete [] vertices;
+
+	#pragma omp parallel for
+		for (int i = 1; i < grains.size(); i++){
+			grains[i]->distancefunction();
+	}
+
+
 	fclose(levelset);
 }
 
@@ -370,8 +386,8 @@ void grainhdl::run_sim(){
 // 	determineIDs();
 	for(loop=Settings::StartTime; loop <= Settings::StartTime+Settings::NumberOfTimesteps; loop++){
 		switchDistancebuffer();
-		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-			if (loop == 0) level_set(); 						//essential for saveMicrostructure
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+			if (loop == Settings::StartTime) level_set(); 						//essential for saveMicrostructure
 			saveAllContourEnergies();
 			save_texture();
 			saveMicrostructure();
