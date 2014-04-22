@@ -16,6 +16,7 @@ enum E_MICROSTRUCTURE_GEN_MODE
 class Settings
 {
 	public:
+	static unsigned long StartTime;
 	static unsigned long NumberOfParticles;
 	static unsigned long NumberOfPointsPerGrain;
 	static unsigned long NumberOfTimesteps;
@@ -34,7 +35,7 @@ class Settings
 	static unsigned long  MaximumNumberOfThreads;
 
 	static void initializeParameters(std::string filename = "");
-	static rapidxml::xml_node<>* generateXMLParametersNode(rapidxml::xml_document<>* root, const char* filename);
+	static rapidxml::xml_node<>* generateXMLParametersNode(rapidxml::xml_document<>* root, const char* filename, int loop, int grains);
 };
 
 #endif	//__SETTINGS_H__

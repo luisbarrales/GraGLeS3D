@@ -9,8 +9,10 @@
 #include "dimensionalBuffer.h"
 #include "ggLS.h"
 
-class LSbox;
 
+
+class LSbox;
+struct GrainJunction;
 
 /*!
  * \enum E_CORNER_VALUES

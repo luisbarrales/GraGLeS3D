@@ -9,6 +9,7 @@ using namespace std;
 using namespace rapidxml;
 
 //Initializing the static setting variables
+unsigned long Settings::StartTime=0;
 unsigned long Settings::NumberOfParticles = 0;
 unsigned long Settings::NumberOfPointsPerGrain = 0;
 unsigned long Settings::NumberOfTimesteps = 0;
@@ -58,6 +59,10 @@ void Settings::initializeParameters(string filename)
 	}
 
 	//Now read all parameters if present
+	if( 0 != rootNode->first_node("StartTime") )
+	{
+		StartTime = std::stoul(rootNode->first_node("StartTime")->value());
+	}
 	if( 0 != rootNode->first_node("NumberOfParticles") )
 	{
 		NumberOfParticles = std::stoul(rootNode->first_node("NumberOfParticles")->value());
@@ -118,7 +123,8 @@ void Settings::initializeParameters(string filename)
 	}
 	if( 0 != rootNode->first_node("MaximumNumberOfThreads") )
 	{
-		MaximumNumberOfThreads = std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
+	MaximumNumberOfThreads = std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
+
 	}
 	if( 0 != rootNode->first_node("GridCorasment") )
 	{
@@ -134,25 +140,28 @@ void Settings::initializeParameters(string filename)
 				root->allocate_string(#param_name),	\
 				root->allocate_string(temp_string.str().c_str()) ));
 
-xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char* filename)
+#define PUSH_VALUE(param_name, value) 	\
+		temp_string.str("");	\
+		temp_string << value ;	\
+		params->append_node(root->allocate_node(node_element,	\
+				root->allocate_string(#param_name),	\
+				root->allocate_string(temp_string.str().c_str()) ));
+
+
+xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char* filename, int loop, int grains)
 {
 	xml_node<>* params = root->allocate_node(node_element, "Parameters", "");
 	stringstream temp_string;
 
-	PUSH_PARAM(NumberOfParticles);
+	PUSH_VALUE(StartTime, loop);
+	PUSH_VALUE(NumberOfParticles, grains);
 	PUSH_PARAM(NumberOfPointsPerGrain);
 	PUSH_PARAM(AnalysysTimestep);
 	PUSH_PARAM(NumberOfTimesteps);
 	PUSH_PARAM(DiscreteSamplingRate);
 	PUSH_PARAM(DomainBorderSize);
-	PUSH_PARAM(MicrostructureGenMode);
-	//We got a special thing here
-	temp_string.str("");
-	temp_string << filename ;
-	params->append_node(root->allocate_node(node_element,
-					root->allocate_string("ReadFromFilename"),
-					root->allocate_string(temp_string.str().c_str()) ));
-	//
+	PUSH_VALUE(MicrostructureGenMode, 3);
+	PUSH_VALUE(ReadFromFilename, filename);
 	PUSH_PARAM(HAGB);
 	PUSH_PARAM(TriplePointDrag);
 	PUSH_PARAM(UseMobilityFactor);
@@ -164,3 +173,4 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char
 	return params;
 }
 #undef PUSH_PARAM
+#undef PUSH_VALUE

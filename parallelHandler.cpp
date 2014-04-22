@@ -6,7 +6,7 @@ void parallelHandler::run_sim()
 	simulationTime =0;
 	find_neighbors();
 
-	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
+	for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
 		//Switch Distance Buffers
 	
 #pragma omp parallel
@@ -38,6 +38,25 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 			  grains[i]->switchInNOut();  
 		  }
     }
+
+//Level Set
+if(loop == Settings::StartTime){
+#pragma omp for
+		for (int i = 1; i < grains.size(); i++){
+			if(grains[i]==NULL)
+				continue;
+			grains[i]->find_contour();
+		}
+}
+
+#pragma omp single
+{
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
+			saveAllContourEnergies();
+			save_texture();
+			saveMicrostructure();
+		}
+}
 
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
@@ -79,7 +98,11 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
-			grains[i]->find_contour();
+			if(grains[i]->get_status() == false ) {
+				delete grains[i];
+				removeGrain(i);
+			}
+			else grains[i]->find_contour();
 		}
 		//redistancing
 #pragma omp single
@@ -93,6 +116,7 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 			currentNrGrains++;
 		}
 }
+
 #pragma omp single
 {
 		if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
@@ -102,6 +126,7 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 		}
 		simulationTime += dt;
 }
+
 
 
 	}

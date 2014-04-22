@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-   <NumberOfParticles> 100 </NumberOfParticles> 
+
+	 <StartTime> 0 </StartTime>
+   <NumberOfParticles> 500 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysysTimestep> 100 </AnalysysTimestep>
-   <NumberOfTimesteps> 9520 </NumberOfTimesteps>
+   <AnalysysTimestep> 1 </AnalysysTimestep>
+   <NumberOfTimesteps> 50 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
@@ -16,4 +18,5 @@
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
    <GridCorasment>0</GridCorasment>
+
 </Parameters>
