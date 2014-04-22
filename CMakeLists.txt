@@ -9,7 +9,7 @@ set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grain
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
-set(CMAKE_CXX_FLAGS " -fopenmp -O3")
+set(CMAKE_CXX_FLAGS " -fopenmp -g")
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 

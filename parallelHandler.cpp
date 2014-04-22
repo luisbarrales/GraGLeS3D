@@ -3,18 +3,52 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
+	simulationTime =0;
 	find_neighbors();
 
 	for(loop=0; loop <= Settings::NumberOfTimesteps; loop++){
 		//Switch Distance Buffers
+	
 #pragma omp parallel
 {
-#pragma omp for
-		for (int i = 1; i < grains.size(); i++){
-			if(grains[i]==NULL)
-				continue;
-			grains[i]->switchInNOut();
-		}
+  
+
+if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0){
+	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
+	  #pragma omp for  
+	    for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		  grains[i]->resizeGrid(shrink);
+	    }	
+	 #pragma omp barrier
+	 #pragma omp single
+	  {
+	    cout << "RESIZED IN TIMESTEP: " << loop << "   with: " <<  sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize<< endl;
+	    cout << "OLD : " << ngridpoints << " new: " <<int(ngridpoints*(1-shrink)+1)<< endl;  
+	    cout << "old dt " << dt << endl;
+	    cout << "Number of remaining grains: " << currentNrGrains;
+	    cout << "shrink " << shrink<< endl;		
+	    realDomainSize = realDomainSize * (1-shrink)+1; 
+	    ngridpoints = realDomainSize+2*grid_blowup; 
+	    h = 1.0/realDomainSize;
+	    dt = 1.0/double(realDomainSize*realDomainSize);
+// 	    cout << "new dt " << dt << endl;
+// 	    char bufferwait;
+// 	    cin >> bufferwait;
+	    
+	  }
+    }
+
+    else {
+    #pragma omp for
+		  for (int i = 1; i < grains.size(); i++){
+			  if(grains[i]==NULL)
+				  continue;
+			  grains[i]->switchInNOut();  
+		  }
+    }
+
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
@@ -76,9 +110,13 @@ void parallelHandler::run_sim()
 			save_texture();
 			saveMicrostructure();
 		}
+		simulationTime += dt;
 }
 
+
 	}
+
 	cout << "Simulation complete." << endl;
+	cout << "Simulation Time: " << simulationTime<< endl;
 }
 

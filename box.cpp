@@ -732,11 +732,6 @@ void LSbox::switchInNOut(){
 
 void LSbox::set_comparison(){
 
-	int grid_blowup = (*handler).get_grid_blowup();
-	int m = (*handler).get_ngridpoints();
-	double h = handler->get_h();
-
-
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 			if(inputDistance->getValueAt(i,j) > -0.5*handler->delta ) {
@@ -1281,40 +1276,74 @@ void LSbox::redist_box() {
 // plot the box and all its properties
 /**************************************/
 void LSbox::resizeGrid(double shrinkFactor){
-  int ngridpoints = handler->get_ngridpoints();
-  int ngridPointsNew = ngridpoints*(1-shrinkFactor);
+ 
+  int realDomainSizen = handler->get_realDomainSize()*(1-shrinkFactor)+1;
+//   int ngridpointsn = realDomainSizen+2*handler->get_grid_blowup();
+  double h = handler->get_h();
+  double hn = 1.0/(realDomainSizen);
+
+
   
-  int minXnew = inputDistance->getMinX/ngridpoints * ngridPointsNew; 
-  int maxXnew = inputDistance->getMaxX/ngridpoints * ngridPointsNew;
-  int minYnew = inputDistance->getMinY/ngridpoints * ngridPointsNew; 
-  int maxYnew = inputDistance->getMaxY/ngridpoints * ngridPointsNew;
-  
-  SPoint lo,ro,lu,ru;
+  int minXnew = outputDistance->getMinX()*(h/hn); 
+  int maxXnew = outputDistance->getMaxX()*(h/hn)+1;
+  int minYnew = outputDistance->getMinY()*(h/hn); 
+  int maxYnew = outputDistance->getMaxY()*(h/hn)+1;
+  double xl,xr,yo,yu;
+
   double pointx, pointy;
-  double interpolated;
-  outputDistance.resize(minXnew,minYnew, maxXnew, maxYnew); 
-  for (int i = minXnew; i < maxXnew; i++)
-    for (int j = minYnew; j < maxYnew; j++){
-      // bilinear interpolation in x- direction#
-	pointx = i*ngridPoints/ngridPointsNew; 
-	pointy = j*ngridPoints/ngridPointsNew; 
-	lo.x= (int)pointx; lo.y= (int)pointy+1;
-	lu.x = (int)pointx; lu.y=(int)pointy;
-	ro.x = (int)pointx+1; ro.y=(int)pointy+1;
-	ru.x = (int)pointx+1; ru.y=(int)pointy;
-	interpolated = 
-	outputdistance->setValueAt(i,j,
+
+
+// resize to complete superposition
+      if ( minXnew * hn > outputDistance->getMinX()*h) 
+	minXnew--;
+      if ( minYnew * hn > outputDistance->getMinY()*h) 
+	minYnew--;
+      if ( maxXnew * hn < outputDistance->getMaxX()*h) 
+	maxXnew++;
+      if ( maxYnew * hn < outputDistance->getMaxY()*h) 
+	maxYnew++;
       
+//   plot_box(true, 2, "before_resize", true);
+  
+  inputDistance->resize(minXnew, minYnew, maxXnew, maxYnew); 
+  for (int i = minYnew; i < maxYnew; i++){
+    for (int j = minXnew; j < maxXnew; j++){
+	pointx = j*(hn/h); 
+	pointy = i*(hn/h); 
+	
+	xl= int(pointx); 
+	xr= int(pointx+1);
+	yo= int(pointy+1); 
+	yu= int(pointy);
+
+	
+	if (xr > outputDistance->getMaxX()-2||yo > outputDistance->getMaxY()-2||yu < outputDistance->getMinY()||xl < outputDistance->getMinX()){	
+	  inputDistance->setValueAt(i,j, -handler->delta);
+	  continue;
+	}
+	double ro,ru,newDistVal;
+	ro = 1/(xr-xl)*((xr-pointx)*outputDistance->getValueAt(yo, xl)+(pointx-xl)*outputDistance->getValueAt(yo, xr));
+	ru = 1/(xr-xl)*((xr-pointx)*outputDistance->getValueAt(yu, xl)+(pointx-xl)*outputDistance->getValueAt(yu, xr));
+	newDistVal = 1/(yo-yu)*((yo-pointy)*ru+(pointy-yu)*ro);
+	if (newDistVal != newDistVal) {
+	  char waitbuffer;
+	  cerr << " nan " << endl;
+	  cin >> waitbuffer;
+	}
+	inputDistance->setValueAt(i,j, newDistVal); 
+	
     }
-  
-  
-}
-
-
-void LSbox::interpolation(){
+  }
+  outputDistance->resize(minXnew, minYnew, maxXnew, maxYnew); 
     
+
+//   plot_box(true, 1, "after_resize", true);  
+    //plot_box for all boxes and compare with prior !
+  
   
 }
+
+
 void LSbox::plot_box_contour(int timestep, bool plot_energy, ofstream* dest_file)
 {
 	if(exist == false)
@@ -1398,6 +1427,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
 			datei << endl;
 			}	
 		}		
+		
 		if(select == 2 && local) {
 		filename<< "BoxDistance_"<< simstep << "out_T" << loop << "_" << id << ".gnu";
 		datei.open(filename.str());
