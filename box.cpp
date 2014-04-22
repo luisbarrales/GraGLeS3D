@@ -14,8 +14,8 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	double euler[3] = {phi1,PHI,phi2};
 	(*(handler->mymath)).euler2quaternion( euler, quaternion );
 
-	inputDistance = new DimensionalBufferVar(0, 0, 0, 0);
-	outputDistance = new DimensionalBufferVar(0, 0, 0, 0);	
+	inputDistance = new DimensionalBufferReal(0, 0, 0, 0);
+	outputDistance = new DimensionalBufferReal(0, 0, 0, 0);	
 
 // 	IDLocal.resize((xmax - xmin) * (ymax - ymin));
 	local_weights = new Weightmap(owner);
@@ -78,8 +78,8 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	ymax += 2*grid_blowup;
 	
 
-	inputDistance = new DimensionalBufferVar(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBufferVar(xmin, ymin, xmax, ymax);	
+	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);	
 	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -141,8 +141,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double q1, double q2, double
 	ymax += 2*grid_blowup;
 
 
-	inputDistance = new DimensionalBufferVar(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBufferVar(xmin, ymin, xmax, ymax);
+	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
 	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -203,8 +203,8 @@ LSbox::LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, dou
 	ymax += 2*grid_blowup;
 
 
-	inputDistance = new DimensionalBufferVar(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBufferVar(xmin, ymin, xmax, ymax);
+	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
 	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -718,7 +718,7 @@ void LSbox::determineIDs(){
 void LSbox::switchInNOut(){
 
 
-	DimensionalBufferVar* temp;
+	DimensionalBufferReal* temp;
 
 	temp = inputDistance;
 	inputDistance = outputDistance;

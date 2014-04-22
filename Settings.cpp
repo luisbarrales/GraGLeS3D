@@ -23,6 +23,7 @@ bool Settings::UseMobilityFactor = false;
 bool Settings::IsIsotropicNetwork = false;
 bool Settings::UseTexture = false;
 bool Settings::ExecuteInParallel = false;
+bool Settings::GridCorasment = false;
 unsigned long Settings::MaximumNumberOfThreads = 0;
 
 void Settings::initializeParameters(string filename)
@@ -119,6 +120,10 @@ void Settings::initializeParameters(string filename)
 	{
 		MaximumNumberOfThreads = std::stoul(rootNode->first_node("MaximumNumberOfThreads")->value());
 	}
+	if( 0 != rootNode->first_node("GridCorasment") )
+	{
+		GridCorasment = std::stoul(rootNode->first_node("GridCorasment")->value());
+	}
 	file.close();
 }
 
@@ -155,6 +160,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char
 	PUSH_PARAM(UseTexture);
 	PUSH_PARAM(ExecuteInParallel);
 	PUSH_PARAM(MaximumNumberOfThreads);
+	PUSH_PARAM(GridCorasment);
 	return params;
 }
 #undef PUSH_PARAM

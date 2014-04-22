@@ -2,12 +2,13 @@
 #define		__DIMENSIONAL_BUFFER_REAL__
 
 #include "dimensionalBuffer.h"
+#include "ggLS.h"
 
-class DimensionalBufferReal : public DimensionalBuffer<float>
+class DimensionalBufferReal : public DimensionalBuffer<dataprecision>
 {
 public:
 
-	DimensionalBufferReal() : DimensionalBuffer<float>()
+	DimensionalBufferReal() : DimensionalBuffer<dataprecision>()
 
 		{}
 	DimensionalBufferReal(unsigned int upperLeftX, unsigned int upperLeftY,

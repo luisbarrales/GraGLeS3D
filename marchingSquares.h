@@ -6,7 +6,6 @@
 #include "dimensionalBufferIDLocal.h"
 #include "spoint.h"
 #include "junction.h"
-#include "dimensionalBufferDouble.h"
 #include "dimensionalBuffer.h"
 #include "ggLS.h"
 
@@ -53,7 +52,7 @@ public:
 		 * \brief Basic constructor. Requires a dimensional that defines the shape of the object.
 	*/
 
-	MarchingSquaresAlgorithm(DimensionalBufferVar& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain);
+	MarchingSquaresAlgorithm(DimensionalBufferReal& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain);
 
 	/*!
 		 * \brief Basic destructor. Virtual so that the class can be easily inherited.
@@ -93,7 +92,7 @@ private:
 	*/
 	inline void	insertDistinctPointer(LSbox* pointer, LSbox** array, int& elem_count) const;
 
-	DimensionalBufferVar& 		m_DistanceBuffer;
+	DimensionalBufferReal& 		m_DistanceBuffer;
 	DimensionalBufferIDLocal&	m_IDLocal;
 	LSbox*	m_CurrentGrain;
 

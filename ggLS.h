@@ -11,16 +11,16 @@
 
 
 // // switch between double or single precision!
-#define PRECISION 0	//  0 = double 1 = single
+#define PRECISION 1	//  0 = double 1 = single
 #if PRECISION >0
+  #define dataprecision float
   #define fftwp_malloc fftwf_malloc
-  #define DimensionalBufferVar DimensionalBufferReal
   #define PooledDimensionalBuffer PooledDimensionalBufferReal
   #define fftwp_complex fftwf_complex
   #define fftwp_plan fftwf_plan
   #define fftwp_free fftwf_free
 #elif PRECISION <1
-  #define DimensionalBufferVar DimensionalBufferDouble
+  #define dataprecision double
   #define fftwp_complex fftw_complex
   #define fftwp_plan fftw_plan
   #define fftwp_free fftw_free
