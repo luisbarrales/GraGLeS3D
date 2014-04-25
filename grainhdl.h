@@ -79,6 +79,7 @@ class grainhdl{
 	void clear_mem(); 
 	void save_texture();
 	void plot_contour();
+	void gridCoarsement();
 
 	void saveAllContourLines();
 	void saveAllContourEnergies();

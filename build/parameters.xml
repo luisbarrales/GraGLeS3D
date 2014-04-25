@@ -13,10 +13,10 @@
    <HAGB> 0.6 </HAGB>
    <TriplePointDrag> 0.5 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
-   <IsIsotropicNetwork> 1 </IsIsotropicNetwork>
+   <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCorasment>1</GridCorasment>
+   <GridCorasment>0</GridCorasment>
 
 </Parameters>

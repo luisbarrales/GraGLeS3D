@@ -385,13 +385,14 @@ void grainhdl::run_sim(){
 	find_neighbors();
 // 	determineIDs();
 	for(loop=Settings::StartTime; loop <= Settings::StartTime+Settings::NumberOfTimesteps; loop++){
-		switchDistancebuffer();
+		gridCoarsement();
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			if (loop == Settings::StartTime) level_set(); 						//essential for saveMicrostructure
 			saveAllContourEnergies();
 			save_texture();
 			saveMicrostructure();
 		}
+		
 		convolution();
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
@@ -516,6 +517,24 @@ void grainhdl::switchDistancebuffer(){
 			continue;
 		grains[i]->switchInNOut();
 	}
+}
+
+void grainhdl::gridCoarsement(){
+  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCorasment){
+	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
+	  for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		  grains[i]->resizeGrid(shrink);
+	    }	
+	    realDomainSize = realDomainSize * (1-shrink)+1; 
+	    ngridpoints = realDomainSize+2*grid_blowup; 
+	    h = 1.0/realDomainSize;
+	    dt = 1.0/double(realDomainSize*realDomainSize);  
+    }
+    else {
+      switchDistancebuffer();
+    }
 }
  
 void grainhdl::clear_mem() {
