@@ -339,7 +339,7 @@ void LSbox::distancefunction(/*int nvertices, double* vertices*/){
 	}
 
 	int count = 0;
-    for (j=outputDistance->getMinX();j<outputDistance->getMaxX();j++){ // ¸ber gitter iterieren
+    for (j=outputDistance->getMinX();j<outputDistance->getMaxX();j++){
 	    i=outputDistance->getMinY();
 	    count = 0;
 	    while( i<outputDistance->getMaxY() && count < 1) {
@@ -402,6 +402,7 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 					k=c.ed[ii][jj];                    
 					x1[0] = vv[3*ii]; x1[1] = vv[3*ii+1];
 					x2[0] = vv[3*k];  x2[1] = vv[3*k+1];			
+//					contourGrain.push_back(Spoint(x1[0], x1[0] ,0))
 					if (x1 != x2){
 						a = x1;
 						u = x2-x1;
@@ -655,8 +656,17 @@ void LSbox::get_new_IDLocalSize(){
 void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2)
 { /* creates plans for FFT and IFFT */
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
+	int m = outputDistance->getMaxY() - outputDistance->getMinY();
 	*fftplan1 = fftw_plan_dft_r2c_2d(n,n,in,fftTemp,FFTW_ESTIMATE);
 	*fftplan2 = fftw_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
+	/*
+	The flags argument is usually either FFTW_MEASURE or FFTW_ESTIMATE. FFTW_MEASURE
+	instructs FFTW to run and measure the execution time of several FFTs in order to find the
+	best way to compute the transform of size n. This process takes some time (usually a few
+	seconds), depending on your machine and on the size of the transform. FFTW_ESTIMATE,
+	on the contrary, does not run any computation and just builds a reasonable plan that is
+	probably sub-optimal. In short, if your program performs many transforms of the same size
+	and initialization time is not important, use FFTW_MEASURE; otherwise use the estimate. */
 }
 
 void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
@@ -684,9 +694,9 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 		for(int j=0;j<n;j++){
 			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
-			G = 1.0/(1.0+(dt*G)) / (n*n);
+			G = 1.0/ (1.0+(dt*G)) / (n*n);
 			//        USE this line for Richardson-type extrapolation
-			//       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
+//			       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			/* normalize G by n*n to pre-normalize convolution results */
 			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
 			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;

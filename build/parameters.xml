@@ -3,7 +3,7 @@
 	 <StartTime> 0 </StartTime>
    <NumberOfParticles> 500 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysysTimestep> 1 </AnalysysTimestep>
+   <AnalysysTimestep> 25 </AnalysysTimestep>
    <NumberOfTimesteps> 50 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>

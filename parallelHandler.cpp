@@ -29,8 +29,10 @@ if(loop == Settings::StartTime){
 #pragma omp single
 {
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
-			saveAllContourEnergies();
-			save_texture();
+			if(loop!=Settings::StartTime){
+				saveAllContourEnergies();
+				save_texture();
+			}
 			saveMicrostructure();
 		}
 }

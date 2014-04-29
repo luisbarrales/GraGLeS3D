@@ -200,8 +200,6 @@ void grainhdl::readMicrostructure(){
 			grains[i]->distancefunction();
 	}
 
-
-	fclose(levelset);
 }
 
 void grainhdl::readMicrostructureFromVertex(){
@@ -388,8 +386,10 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			if (loop == Settings::StartTime) level_set(); 						//essential for saveMicrostructure
-			saveAllContourEnergies();
-			save_texture();
+			else {
+				saveAllContourEnergies();
+				save_texture();
+			}
 			saveMicrostructure();
 		}
 		convolution();
