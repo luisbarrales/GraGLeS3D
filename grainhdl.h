@@ -19,7 +19,7 @@ class LSbox;
 class mathMethods;
 
 class grainhdl{
-
+  protected:
 	int ngrains;
 	double dt;
 	double h;
@@ -47,6 +47,7 @@ class grainhdl{
 	double deviation;
 	double hagb;
 	double BoundaryGrainTube;
+	double simulationTime;
 	
 	vector<LSbox*> grains;	
 	LSbox* boundary;
@@ -78,6 +79,7 @@ class grainhdl{
 	void clear_mem(); 
 	void save_texture();
 	void plot_contour();
+	void gridCoarsement();
 
 	void saveAllContourLines();
 	void saveAllContourEnergies();
@@ -86,6 +88,10 @@ class grainhdl{
 	void saveSpecialContourEnergies(int id);
 	void removeGrain(int id);
 // 	wrapper functions:
+	
+	void set_h(double hn);
+	void set_realDomainSize(int realDomainSizen);
+
 	
 	inline long get_ngrains(){ return ngrains; }
 	inline int get_realDomainSize() { return realDomainSize; }

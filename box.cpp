@@ -13,8 +13,10 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	quaternion = new double[4];
 	double euler[3] = {phi1,PHI,phi2};
 	(*(handler->mymath)).euler2quaternion( euler, quaternion );
+
 	inputDistance = new DimensionalBufferReal(0, 0, 0, 0);
-	outputDistance = new DimensionalBufferReal(0, 0, 0, 0);
+	outputDistance = new DimensionalBufferReal(0, 0, 0, 0);	
+
 // 	IDLocal.resize((xmax - xmin) * (ymax - ymin));
 	local_weights = new Weightmap(owner);
 
@@ -75,8 +77,10 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
 	
+
 	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
-	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);	
+	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
@@ -137,6 +141,7 @@ LSbox::LSbox(int id, int nvertices, double* vertices, double q1, double q2, doub
 
 	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
@@ -198,6 +203,7 @@ LSbox::LSbox(int id, int nedges, double* edges, double phi1, double PHI, double 
 
 	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
  	outputDistance->resizeToSquare(handler->get_ngridpoints());
 	inputDistance->clearValues(0.0);
@@ -376,7 +382,7 @@ void LSbox::distancefunction(/*int nvertices, double* vertices*/){
 		    j--;
 	    }
     }
-//    plot_box(true,2,"Dist",true);
+    plot_box(true,2,"Dist",true);
 //  if(id == 201)  plot_box(true,2,"Dist",true);
 }
 
@@ -433,7 +439,8 @@ void LSbox::distancefunction(voro::voronoicell_neighbor& c, double *part_pos){
 		    if ( -outputDistance->getValueAt(i,j) <=  h )
 		    	count++;
 		    i++;
-	    } 		
+	    }
+
 	    i=outputDistance->getMaxY()-1;
 	    count =0;
 	    while( i>=outputDistance->getMinY() && count < 1) {
@@ -481,24 +488,25 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	int n = outputDistance->getMaxX()-outputDistance->getMinX();
 	int dt 	= handler->get_dt();
 
-	
+
 	//fftw_complex *fftTemp;
-	int desired_size = n*(floor(n/2)+1)*sizeof(fftw_complex);
+	int desired_size = n*(floor(n/2)+1)*sizeof(fftwp_complex);
 	mem_pool.expand(desired_size);
 
-	fftw_plan fwdPlan, bwdPlan;
+	fftwp_plan fwdPlan, bwdPlan;
 	
-	fftw_complex *fftTemp = (fftw_complex*) &mem_pool[0];
+	fftwp_complex *fftTemp = (fftwp_complex*) &mem_pool[0];
+
 		
 #pragma omp critical
 {
 	makeFFTPlans(inputDistance->getRawData(),outputDistance->getRawData(), fftTemp, &fwdPlan, &bwdPlan);
 }
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
+
 #pragma omp critical
 {
-	fftw_destroy_plan(fwdPlan);
-	fftw_destroy_plan(bwdPlan);
+	destroyFFTWs(fwdPlan, bwdPlan);
 }
 	/*********************************************************************************/
 	// Velocity Corrector Step: 
@@ -510,7 +518,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
 		double weight, gamma;
-	    double val;
+		double val;
 		double dist2OrderNeigh;
 		int nActiveGrains;
 		vector<LSbox*> IDs;
@@ -605,6 +613,17 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 //	plot_box(true,2,"Convoluted_2",true);
 
 }
+void LSbox::destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan){
+	  fftw_destroy_plan(fwdPlan);
+	  fftw_destroy_plan(bwdPlan);
+
+	  }
+	  
+void LSbox::destroyFFTWs(fftwf_plan fwdPlan, fftwf_plan bwdPlan){
+	  fftwf_destroy_plan(fwdPlan);
+	  fftwf_destroy_plan(bwdPlan);
+
+	  }
 
 double LSbox::getGBEnergyTimesGBMobility(int i,int j){
 	LSbox* neighbour = IDLocal.getValueAt(i,j).getElementAt(0);
@@ -669,7 +688,15 @@ void LSbox::makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_pla
 	and initialization time is not important, use FFTW_MEASURE; otherwise use the estimate. */
 }
 
-void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2)
+void LSbox::makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2)
+{ /* creates plans for FFT and IFFT */
+	int n = outputDistance->getMaxX() - outputDistance->getMinX();
+	  *fftplan1 = fftwf_plan_dft_r2c_2d(n,n,in,fftTemp,FFTW_ESTIMATE);
+	  *fftplan2 = fftwf_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
+
+}
+
+void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2)
 {
 	/* Function returns in u the updated value of u as described below..
 	u -> (G_{dt})*u
@@ -688,7 +715,7 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 	double k = 2.0 * PI / n;
 	double G;
 	double coski;
-	fftw_execute(fftplan1);
+	executeFFTW(fftplan1);
 	for(int i=0;i<n2;i++) {
 		coski=cos(k*i);
 		for(int j=0;j<n;j++){
@@ -702,15 +729,92 @@ void LSbox::conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan 
 			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
 		}
 	}
-	fftw_execute(fftplan2);
+	executeFFTW(fftplan2);
+}
+
+
+void LSbox::executeFFTW(fftw_plan fftplan)
+{
+  fftw_execute(fftplan);
+}
+
+void LSbox::executeFFTW(fftwf_plan fftplan)
+{
+  fftwf_execute(fftplan);
 }
 
 
 /**************************************/
 /**************************************/
 
+/*
+void LSbox::determineIDs(){
+	DimensionalBuffer<double> distance_2neighbor(outputDistance->getMinX(), outputDistance->getMinY(),
+										 	 	 outputDistance->getMaxX(), outputDistance->getMaxY());
+	distance_2neighbor.clearValues(-1.0);
+	inputDistance->clearValues(-1.0);
+	int loop = 0;
+	std::vector<LSbox*>::iterator it_nn;
+
+	for(it_nn = neighbors.begin(); it_nn != neighbors.end(); it_nn++){		
+
+			if (checkIntersect(*it_nn)){
+				int x_min_new, x_max_new, y_min_new, y_max_new;
+				
+				if(outputDistance->getMinX() < (**it_nn).outputDistance->getMinX()) 
+					  x_min_new = (**it_nn).outputDistance->getMinX();
+				else x_min_new = outputDistance->getMinX();
+				
+				if(outputDistance->getMaxX() > (**it_nn).outputDistance->getMaxX()) 
+					 x_max_new = (**it_nn).outputDistance->getMaxX();
+				else x_max_new = outputDistance->getMaxX();
+								
+				if(outputDistance->getMinY() < (**it_nn).outputDistance->getMinY()) 
+					y_min_new = (**it_nn).outputDistance->getMinY();
+				else y_min_new = outputDistance->getMinY();
+					
+				if(outputDistance->getMaxY() > (**it_nn).outputDistance->getMaxY()) 
+					 y_max_new = (**it_nn).outputDistance->getMaxY();
+				else y_max_new = outputDistance->getMaxY();
+					
+// 				cout << "box: intersec_xmin="<<x_min_new<< " intersec_xmax="<<x_max_new <<" intersec_ymin="<<y_min_new << " intersec_ymax="<<y_max_new<<endl;
+	
+				for (int i = y_min_new; i < y_max_new; i++){
+					for (int j = x_min_new; j < x_max_new; j++){					
+						double dist = (**it_nn).outputDistance->getValueAt(i,j);
+						if( dist > inputDistance->getValueAt(i,j) ){
+							    if( !IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].empty() ){ 
+								      distance_2neighbor.setValueAt(i,j,inputDistance->getValueAt(i,j));
+							    }
+							    inputDistance->setValueAt(i, j, dist);
+							    IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin(), *it_nn);	
+						}
+						else if(  dist > distance_2neighbor.getValueAt(i, j) ){ //candidate of neighbor is closer than 2nd neighbor
+						    distance_2neighbor.setValueAt(i,j, dist);	
+						    IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].insert( ++IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].begin() , *it_nn);							  
+						}
+						else { 
+							IDLocal[(i-yminId)*(xmaxId-xminId)+(j-xminId)].push_back(*it_nn);						  
+						}
+					}
+				}
+			}
+			
+	}		
+
+  
+}*/
+
+// >>>>>>> review_single
+
+/**************************************/
+/**************************************/
+
 void LSbox::switchInNOut(){
+
+
 	DimensionalBufferReal* temp;
+
 	temp = inputDistance;
 	inputDistance = outputDistance;
 	outputDistance = temp;
@@ -723,9 +827,6 @@ void LSbox::switchInNOut(){
 
 void LSbox::set_comparison(){
 
-	int grid_blowup = (*handler).get_grid_blowup();
-	int m = (*handler).get_ngridpoints();
-	double h = handler->get_h();
 	for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++){
 		for (int j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++){
 			if(abs(inputDistance->getValueAt(i,j)) < 0.7*handler->delta ) {
@@ -751,11 +852,13 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 	if(get_status() != true ) return;
 	int m = handler->get_ngridpoints();
 	int grid_blowup = handler->get_grid_blowup();
+
 	mem_pool.expand( (outputDistance->getMaxX() - outputDistance->getMinX()) *
 					 (outputDistance->getMaxY() - outputDistance->getMinY()) * sizeof(double) );
-	PooledDimensionalBufferReal distance_2neighbor(&mem_pool[0], mem_pool.size(),
+	PooledDimensionalBuffer distance_2neighbor(&mem_pool[0], mem_pool.size(),
 			outputDistance->getMinX(), outputDistance->getMinY(),
 			outputDistance->getMaxX(), outputDistance->getMaxY());
+
 
 	distance_2neighbor.clearValues(-1.0);
 	outputDistance->clearValues(-1.0);
@@ -987,11 +1090,10 @@ void LSbox::find_contour() {
 	}
     
     // compute Volume and Energy
-	if (loop ==Settings::StartTime) return;
-	else if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-			computeVolumeAndEnergy();
-			volume = abs(volume);
-		}
+	if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+		computeVolumeAndEnergy();
+		volume = abs(volume);
+	}
 	else updateFirstOrderNeigbors();
 
 	
@@ -1266,6 +1368,74 @@ void LSbox::redist_box() {
 /**************************************/
 // plot the box and all its properties
 /**************************************/
+void LSbox::resizeGrid(double shrinkFactor){
+ 
+  int realDomainSizen = handler->get_realDomainSize()*(1-shrinkFactor)+1;
+//   int ngridpointsn = realDomainSizen+2*handler->get_grid_blowup();
+  double h = handler->get_h();
+  double hn = 1.0/(realDomainSizen);
+
+
+  
+  int minXnew = outputDistance->getMinX()*(h/hn); 
+  int maxXnew = outputDistance->getMaxX()*(h/hn)+1;
+  int minYnew = outputDistance->getMinY()*(h/hn); 
+  int maxYnew = outputDistance->getMaxY()*(h/hn)+1;
+  double xl,xr,yo,yu;
+
+  double pointx, pointy;
+
+
+// resize to complete superposition
+      if ( minXnew * hn > outputDistance->getMinX()*h) 
+	minXnew--;
+      if ( minYnew * hn > outputDistance->getMinY()*h) 
+	minYnew--;
+      if ( maxXnew * hn < outputDistance->getMaxX()*h) 
+	maxXnew++;
+      if ( maxYnew * hn < outputDistance->getMaxY()*h) 
+	maxYnew++;
+      
+//   plot_box(true, 2, "before_resize", true);
+  
+  inputDistance->resize(minXnew, minYnew, maxXnew, maxYnew); 
+  for (int i = minYnew; i < maxYnew; i++){
+    for (int j = minXnew; j < maxXnew; j++){
+	pointx = j*(hn/h); 
+	pointy = i*(hn/h); 
+	
+	xl= int(pointx); 
+	xr= int(pointx+1);
+	yo= int(pointy+1); 
+	yu= int(pointy);
+
+	
+	if (xr > outputDistance->getMaxX()-2||yo > outputDistance->getMaxY()-2||yu < outputDistance->getMinY()||xl < outputDistance->getMinX()){	
+	  inputDistance->setValueAt(i,j, -handler->delta);
+	  continue;
+	}
+	double ro,ru,newDistVal;
+	ro = 1/(xr-xl)*((xr-pointx)*outputDistance->getValueAt(yo, xl)+(pointx-xl)*outputDistance->getValueAt(yo, xr));
+	ru = 1/(xr-xl)*((xr-pointx)*outputDistance->getValueAt(yu, xl)+(pointx-xl)*outputDistance->getValueAt(yu, xr));
+	newDistVal = 1/(yo-yu)*((yo-pointy)*ru+(pointy-yu)*ro);
+	if (newDistVal != newDistVal) {
+	  char waitbuffer;
+	  cerr << " nan " << endl;
+	  cin >> waitbuffer;
+	}
+	inputDistance->setValueAt(i,j, newDistVal); 
+	
+    }
+  }
+  outputDistance->resize(minXnew, minYnew, maxXnew, maxYnew); 
+    
+
+//   plot_box(true, 1, "after_resize", true);  
+    //plot_box for all boxes and compare with prior !
+  
+  
+}
+
 
 void LSbox::plot_box_contour(int timestep, bool plot_energy, ofstream* dest_file)
 {
@@ -1351,6 +1521,7 @@ void LSbox::plot_box(bool distanceplot, int select, string simstep, bool local){
 			datei << endl;
 			}	
 		}		
+		
 		if(select == 2 && local) {
 		filename<< "BoxDistance_"<< simstep << "out_T" << loop << "_" << id << ".gnu";
 		datei.open(filename.str());

@@ -5,11 +5,11 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp domainCl.cpp utilities.cpp weightmap.cpp marchingSquares.cpp Settings.cpp parallelHandler.cpp)
+set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp domainCl.cpp utilities.cpp weightmap.cpp marchingSquares.cpp Settings.cpp parallelHandler.cpp contourSector.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
-set(CMAKE_CXX_FLAGS "-g -fopenmp -O0")
+set(CMAKE_CXX_FLAGS " -fopenmp -g")
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
@@ -52,7 +52,7 @@ ADD_DEFINITIONS("-std=c++0x")
 
 add_executable(LevelSet_IMM ${MY_SOURCES})
 
-target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} ${Boost_LIBRARIES} -lfftw3 -lm)
+target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} ${Boost_LIBRARIES} -lfftw3 -lfftw3f -lm)
 
 
 ADD_CUSTOM_TARGET (clearAll

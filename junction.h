@@ -2,6 +2,8 @@
 #define		__GRAIN_JUNCTION__
 
 #include "spoint.h"
+#include "box.h"
+
 /*!
  * \enum E_JUNCTION_TYPE
  * \brief Enumeration that is used to identify the type of junction described by the

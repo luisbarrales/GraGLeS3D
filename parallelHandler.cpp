@@ -3,39 +3,43 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
+	simulationTime =0;
 	find_neighbors();
 
 	for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
 		//Switch Distance Buffers
+	
 #pragma omp parallel
 {
+  
 
-#pragma omp for
-		for (int i = 1; i < grains.size(); i++){
-			if(grains[i]==NULL)
-				continue;
-			grains[i]->switchInNOut();
-		}
-//Level Set
-if(loop == Settings::StartTime){
-#pragma omp for
-		for (int i = 1; i < grains.size(); i++){
-			if(grains[i]==NULL)
-				continue;
-			grains[i]->find_contour();
-		}
-}
+if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
+	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
+	  #pragma omp for  
+	    for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		  grains[i]->resizeGrid(shrink);
+	    }	
+	 #pragma omp single
+	  {
+	    realDomainSize = realDomainSize * (1-shrink)+1; 
+	    ngridpoints = realDomainSize+2*grid_blowup; 
+	    h = 1.0/realDomainSize;
+	    dt = 1.0/double(realDomainSize*realDomainSize);
+	  }
+    }
 
-#pragma omp single
-{
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
-			if(loop!=Settings::StartTime){
-				saveAllContourEnergies();
-				save_texture();
-			}
-			saveMicrostructure();
-		}
-}
+    else {
+    #pragma omp for
+		  for (int i = 1; i < grains.size(); i++){
+			  if(grains[i]==NULL)
+				  continue;
+			  grains[i]->switchInNOut();  
+		  }
+    }
+
+
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
@@ -95,8 +99,21 @@ if(loop == Settings::StartTime){
 		}
 }
 
+#pragma omp single
+{
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
+			saveAllContourEnergies();
+			save_texture();
+			saveMicrostructure();
+		}
+		simulationTime += dt;
+}
+
+
 
 	}
+
 	cout << "Simulation complete." << endl;
+	cout << "Simulation Time: " << simulationTime<< endl;
 }
 

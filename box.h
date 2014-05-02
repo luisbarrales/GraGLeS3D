@@ -5,13 +5,16 @@
 #include "dimensionalBufferIDLocal.h"
 #include "dimensionalBufferReal.h"
 #include "junction.h"
-// #include "contour.h"
+#include "dimensionalBuffer.h"
+#include "pooledDimensionalBufferDouble.h"
+#include "spoint.h"
+
 using namespace std;
 
 class LSbox;
 class grainhdl;
 class Weightmap;
-
+class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
 
 struct SPoint;
@@ -59,8 +62,10 @@ class LSbox {
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
 	
+
 	DimensionalBufferReal* inputDistance;
 	DimensionalBufferReal* outputDistance;
+
 
 public:
 	friend class grainhdl;
@@ -103,9 +108,16 @@ public:
 	void plot_box(bool distanceplot, int select, string simstep, bool local);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();
+	void resizeGrid(double shrinkFactor); 
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
-	void conv_generator(fftw_complex *fftTemp, fftw_plan fftplan1, fftw_plan fftplan2);
+	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
+	void executeFFTW(fftw_plan fftplan);
+	void executeFFTW(fftwf_plan fftplan);
+	void destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan);
+	void destroyFFTWs(fftwf_plan fwdPlan, fftwf_plan bwdPlan);
+
+	void conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void switchInNOut();
 	void boundaryCondition();
 	void updateFirstOrderNeigbors();

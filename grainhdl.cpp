@@ -19,10 +19,12 @@ void grainhdl::setSimulationParameter(){
 	// 	readInit();
 	Mode = (int)Settings::MicrostructureGenMode;
 	ngrains = Settings::NumberOfParticles;
+	currentNrGrains = ngrains;
 	hagb = Settings::HAGB;
 	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
 	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
+	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
 	dt = 1.0/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
@@ -322,9 +324,10 @@ void grainhdl::save_texture(){
 	FILE* myfile;
 	FILE* enLenDis;
 	stringstream filename;
-	double total_energy= 0.0;
+
 	int numberGrains=0;
 	double totalLength=0;
+	double total_energy= 0.0;
 	
 	filename << "Texture" << "_"<< loop << ".ori";	
 	myfile = fopen(filename.str().c_str(), "w");
@@ -342,12 +345,13 @@ void grainhdl::save_texture(){
 	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0.0);
 	
 	for(it = ++grains.begin(); it != grains.end(); it++){
-// 		if(*it == NULL){ ??? better / faster
-		if(*it!=NULL&&(*it)->get_status()){
+		if(*it!=NULL && (*it)->get_status()==true){
+			numberGrains++;
+			total_energy += (*it)->energy;
+
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
 			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);			
-			total_energy += (*it)->energy;
-			numberGrains+=1;
+
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
 				if(!Settings::IsIsotropicNetwork){
 				//take into account that every line is twice in the model
@@ -358,17 +362,19 @@ void grainhdl::save_texture(){
 			
 		}
 	}
+	double sum=0;
 	if(!Settings::IsIsotropicNetwork){
 		for (int i=0; i < Settings::DiscreteSamplingRate; i++){
 				fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
 				printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
+				sum+=(float)discreteEnergyDistribution[i] * (float)(dh*(i+1));
 			}
 	}
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
-	cout << "Number of grains remaining in the Network :" << nr_grains.back()<< endl;
-	cout << "Amount of free Energy in the Network :" << totalenergy.back()<< endl;
+	cout << "Number of grains remaining in the Network :" << numberGrains<< endl;
+	cout << "Amount of free Energy in the Network :" << 0.5*total_energy<< "   "<< sum <<endl;
 	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
 	fclose(enLenDis);
@@ -378,18 +384,11 @@ void grainhdl::save_texture(){
  
  
 void grainhdl::run_sim(){
+	simulationTime =0;
 	find_neighbors();
 // 	determineIDs();
 	for(loop=Settings::StartTime; loop <= Settings::StartTime+Settings::NumberOfTimesteps; loop++){
-		switchDistancebuffer();
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-			if (loop == Settings::StartTime) level_set(); 						//essential for saveMicrostructure
-			else {
-				saveAllContourEnergies();
-				save_texture();
-			}
-			saveMicrostructure();
-		}
+		gridCoarsement();
 		convolution();
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
@@ -397,9 +396,16 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();		
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+			saveAllContourEnergies();
+			save_texture();
+			saveMicrostructure();
+		}
+		simulationTime += dt;
 	}
 // 	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
+	cout << "Simulation Time: " << simulationTime<< endl;
 }  
 
 void grainhdl::saveMicrostructure(){
@@ -442,7 +448,7 @@ void grainhdl::save_sim(){
 // 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);		
 	ofstream myfile;
 	myfile.open ("NrGrains&EnergyStatistics.txt");
-	for(int i=1; i< nr_grains.size(); i++){
+	for(int i=0; i< nr_grains.size(); i++){
 		myfile << nr_grains[i] << "\t";
 		myfile << totalenergy[i] << endl;
 	}
@@ -515,6 +521,24 @@ void grainhdl::switchDistancebuffer(){
 		grains[i]->switchInNOut();
 	}
 }
+
+void grainhdl::gridCoarsement(){
+  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
+	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
+	  for (int i = 1; i < grains.size(); i++){
+		if(grains[i]==NULL)
+			continue;
+		  grains[i]->resizeGrid(shrink);
+	    }	
+	    realDomainSize = realDomainSize * (1-shrink)+1; 
+	    ngridpoints = realDomainSize+2*grid_blowup; 
+	    h = 1.0/realDomainSize;
+	    dt = 1.0/double(realDomainSize*realDomainSize);  
+    }
+    else {
+      switchDistancebuffer();
+    }
+}
  
 void grainhdl::clear_mem() {
 	if (ST!=NULL) {delete  [] ST; }
@@ -545,4 +569,13 @@ void grainhdl::initEnvironment()
 	}
 
 }
+
+void grainhdl::set_h(double hn){
+      h =hn;
+}
+void grainhdl::set_realDomainSize(int realDomainSizen){
+     realDomainSize= realDomainSizen;
+     ngridpoints = realDomainSize+2*grid_blowup;
+}
+
 

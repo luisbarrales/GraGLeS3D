@@ -1,11 +1,18 @@
 #ifndef		__MARCHING_SQUARES_ALGORITHM__
 #define		__MARCHING_SQUARES_ALGORITHM__
 
+ 
 #include "dimensionalBufferReal.h"
 #include "dimensionalBufferIDLocal.h"
 #include "spoint.h"
 #include "junction.h"
+#include "dimensionalBuffer.h"
+#include "ggLS.h"
+
+
+
 class LSbox;
+struct GrainJunction;
 
 /*!
  * \enum E_CORNER_VALUES
@@ -46,7 +53,9 @@ public:
 	/*!
 		 * \brief Basic constructor. Requires a dimensional that defines the shape of the object.
 	*/
+
 	MarchingSquaresAlgorithm(DimensionalBufferReal& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain);
+
 	/*!
 		 * \brief Basic destructor. Virtual so that the class can be easily inherited.
 	*/
@@ -88,6 +97,7 @@ private:
 	DimensionalBufferReal& 		m_DistanceBuffer;
 	DimensionalBufferIDLocal&	m_IDLocal;
 	LSbox*	m_CurrentGrain;
+
 	int m_top;
 	int m_bottom;
 	int m_left;
