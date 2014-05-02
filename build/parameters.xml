@@ -4,7 +4,7 @@
 	 <StartTime> 0 </StartTime>
    <NumberOfParticles> 500 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysysTimestep> 50 </AnalysysTimestep>
+   <AnalysysTimestep> 5 </AnalysysTimestep>
    <NumberOfTimesteps> 50 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
@@ -17,6 +17,6 @@
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 0 </GridCoarsement>
+   <GridCoarsement> 1 </GridCoarsement>
 
 </Parameters>

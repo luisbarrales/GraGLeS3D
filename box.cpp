@@ -710,7 +710,7 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
 	double dt = handler->get_dt();
 	int n2 = floor(n/2) + 1;
-	int nn = (*handler).get_ngridpoints();
+	int nn = (*handler).get_realDomainSize();
 	double nsq =  nn*nn; 
 	double k = 2.0 * PI / n;
 	double G;
