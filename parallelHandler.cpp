@@ -101,7 +101,7 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 
 #pragma omp single
 {
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
 			saveAllContourEnergies();
 			save_texture();
 			saveMicrostructure();

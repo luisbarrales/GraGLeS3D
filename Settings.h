@@ -20,7 +20,7 @@ class Settings
 	static unsigned long NumberOfParticles;
 	static unsigned long NumberOfPointsPerGrain;
 	static unsigned long NumberOfTimesteps;
-	static unsigned long AnalysysTimestep;
+	static unsigned long AnalysisTimestep;
 	static unsigned long DiscreteSamplingRate;
 	static unsigned long DomainBorderSize;
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;

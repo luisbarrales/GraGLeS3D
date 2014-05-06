@@ -96,7 +96,7 @@ namespace utils {
 	makeGif.open("makeGif.gnu");
 	makeGif << "set term gif animate delay 40 enhanced;"<<endl;
 	makeGif << "set output \""<< outputFile << "\"; " << endl;
-	for ( int i =0; i<= Settings::NumberOfParticles; i+= Settings::AnalysysTimestep){
+	for ( int i =0; i<= Settings::NumberOfParticles; i+= Settings::AnalysisTimestep){
 	    plotFile.str("");
 	    plotFile<< "EnergyDistribution_T" << i << ".gnu";
 	      // TODO Check if file exists? 

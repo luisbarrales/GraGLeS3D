@@ -1090,7 +1090,7 @@ void LSbox::find_contour() {
 	}
     
     // compute Volume and Energy
-	if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		computeVolumeAndEnergy();
 		volume = abs(volume);
 	}
