@@ -398,7 +398,7 @@ void grainhdl::run_sim(){
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			if(loop != Settings::StartTime) saveMicrostructure();
 		}
 		simulationTime += dt;
 	}
