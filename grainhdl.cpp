@@ -26,7 +26,7 @@ void grainhdl::setSimulationParameter(){
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
-	dt = 1.0/double(realDomainSize*realDomainSize);
+	dt = 0.4/double(realDomainSize*realDomainSize /4);
 	h = 1.0/double(realDomainSize);
 
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
@@ -206,8 +206,7 @@ void grainhdl::readMicrostructure(){
 
 void grainhdl::readMicrostructureFromVertex(){
 	FILE * levelset;
- 	levelset = fopen( "lsInput_DRAG.dat", "r" );
-// 	levelset = fopen( "lsInput_quadrat.dat", "r" );
+ 	levelset = fopen( Settings::ReadFromFilename.c_str(), "r" );
 
 	long id;
 	int nedges;

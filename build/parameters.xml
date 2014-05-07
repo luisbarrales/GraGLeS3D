@@ -2,7 +2,7 @@
 <Parameters>
 
 	 <StartTime> 0 </StartTime>
-   <NumberOfParticles> 500 </NumberOfParticles> 
+   <NumberOfParticles> 50 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 5 </AnalysysTimestep>
    <NumberOfTimesteps> 50 </NumberOfTimesteps>
@@ -15,8 +15,8 @@
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 1 </ExecuteInParallel>
+   <ExecuteInParallel> 0 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 1 </GridCoarsement>
+   <GridCoarsement> 0 </GridCoarsement>
 
 </Parameters>

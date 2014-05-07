@@ -609,8 +609,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	get_new_IDLocalSize();
 	IDLocal.resize(xminId, yminId, xmaxId, ymaxId);
 // 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
-// 	plot_box(true,1,"Convoluted_1");
-//	plot_box(true,2,"Convoluted_2",true);
+ 	plot_box(true,1,"Convoluted_",true);
+	plot_box(true,2,"Convoluted_",true);
 
 }
 void LSbox::destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan){
@@ -715,15 +715,24 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 	double k = 2.0 * PI / n;
 	double G;
 	double coski;
+	int j2;
+	int i2;
 	executeFFTW(fftplan1);
 	for(int i=0;i<n2;i++) {
 		coski=cos(k*i);
+		i2 = mymin(i,n-i);
 		for(int j=0;j<n;j++){
-			// 	  G= exp((-2.0 * dt) * nsq * (2.0-cos(k*i)-cos(k*j)));			
+			j2 = mymin(j,n-j);
+//			G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / nsq;
+
+//			G= exp((-2.0 * dt) * nsq* (2.0-cos(k*i)-cos(k*j)));
+
+//			G=1/sqrt(4*PI*dt)* exp(-sqrt(coski + cos(k*j))/4/dt);
+
 			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
 			G = 1.0/ (1.0+(dt*G)) / (n*n);
 			//        USE this line for Richardson-type extrapolation
-//			       G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
+//			G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
 			/* normalize G by n*n to pre-normalize convolution results */
 			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
 			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
