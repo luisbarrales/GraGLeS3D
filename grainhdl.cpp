@@ -26,7 +26,7 @@ void grainhdl::setSimulationParameter(){
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
-	dt = 1.0/double(realDomainSize*realDomainSize);
+	dt = 0.4/double(realDomainSize*realDomainSize /4);
 	h = 1.0/double(realDomainSize);
 
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
@@ -150,7 +150,7 @@ void grainhdl::VOROMicrostructure(){
 		LSbox* newBox = new LSbox(box_id, c, part_pos,this);
 		
 		grains[box_id]= newBox;
-		newBox->distancefunction(c, part_pos);        
+		newBox->distancefunction();
 
 	} while(vl.inc());
 
@@ -202,12 +202,13 @@ void grainhdl::readMicrostructure(){
 			grains[i]->distancefunction();
 	}
 
+
+	fclose(levelset);
 }
 
 void grainhdl::readMicrostructureFromVertex(){
 	FILE * levelset;
- 	levelset = fopen( "lsInput_DRAG.dat", "r" );
-// 	levelset = fopen( "lsInput_quadrat.dat", "r" );
+ 	levelset = fopen( Settings::ReadFromFilename.c_str(), "r" );
 
 	long id;
 	int nedges;
@@ -399,7 +400,7 @@ void grainhdl::run_sim(){
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			if(loop != Settings::StartTime) saveMicrostructure();
 		}
 		simulationTime += dt;
 	}

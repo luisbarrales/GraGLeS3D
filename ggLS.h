@@ -8,7 +8,7 @@
 #define INTERIMVAL -sqrt(1. / PARTICLES)
 
 #define IMAGEOUT true
-
+#define mymin(x,y) ( (x)>(y) ? (y) : (x) )
 
 // // switch between double or single precision!
 #define PRECISION 1	//  0 = double 1 = single

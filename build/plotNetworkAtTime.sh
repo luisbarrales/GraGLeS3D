@@ -5,6 +5,6 @@ if [ $# -lt 1 ]; then
 	exit 2
 fi
 
-COMMAND="gnuplot -persist -e \" plot './Network_Timestep_$1.gnu' w l palette title 'Timestep $1'\""
+COMMAND="gnuplot -persist -e \"set palette rgbformulae 33,13,10; set cbrange[0:0.6]; set cbtics 0.1; plot './Network_Timestep_$1.gnu' w l palette title 'Timestep $1'\""
 echo $COMMAND
 eval $COMMAND
