@@ -13,7 +13,7 @@ void parallelHandler::run_sim()
 {
   
 
-if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCorasment){
+if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
 	  #pragma omp for  
 	    for (int i = 1; i < grains.size(); i++){
@@ -39,24 +39,6 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 		  }
     }
 
-//Level Set
-if(loop == Settings::StartTime){
-#pragma omp for
-		for (int i = 1; i < grains.size(); i++){
-			if(grains[i]==NULL)
-				continue;
-			grains[i]->find_contour();
-		}
-}
-
-#pragma omp single
-{
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
-			saveAllContourEnergies();
-			save_texture();
-			saveMicrostructure();
-		}
-}
 
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
@@ -119,6 +101,11 @@ if(loop == Settings::StartTime){
 
 #pragma omp single
 {
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
+			saveAllContourEnergies();
+			save_texture();
+			saveMicrostructure();
+		}
 		simulationTime += dt;
 }
 

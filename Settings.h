@@ -31,7 +31,7 @@ class Settings
 	static bool IsIsotropicNetwork;
 	static bool UseTexture;
 	static bool ExecuteInParallel;
-	static bool GridCorasment;
+	static bool GridCoarsement;
 	static unsigned long  MaximumNumberOfThreads;
 
 	static void initializeParameters(std::string filename = "");

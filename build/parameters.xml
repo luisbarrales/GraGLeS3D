@@ -17,6 +17,6 @@
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCorasment>0</GridCorasment>
+   <GridCoarsement> 1 </GridCoarsement>
 
 </Parameters>
