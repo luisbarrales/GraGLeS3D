@@ -3,15 +3,21 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
-	simulationTime =0;
-	find_neighbors();
-
-	for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
-		//Switch Distance Buffers
-	
 #pragma omp parallel
 {
-  
+
+#pragma omp for
+		for (int i = 1; i < grains.size(); i++){
+			grains[i]->distancefunction();
+		}
+
+#pragma omp single
+{
+	simulationTime =0;
+	find_neighbors();
+}
+
+for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){		//Switch Distance Buffers
 
 if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;

@@ -609,7 +609,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	get_new_IDLocalSize();
 	IDLocal.resize(xminId, yminId, xmaxId, ymaxId);
 // 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
- 	plot_box(true,1,"Convoluted_",true);
+// 	plot_box(true,1,"Convoluted_",true);
 	plot_box(true,2,"Convoluted_",true);
 
 }

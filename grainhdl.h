@@ -65,7 +65,8 @@ class grainhdl{
 	void createParamsForSim(const char* param_filename, const char* vertex_dum_filename = NULL);
 
 	void find_neighbors();
-	 
+
+	void distanceInitialisation();
 	void convolution();
 	void save_conv_step();
 	void comparison_box();

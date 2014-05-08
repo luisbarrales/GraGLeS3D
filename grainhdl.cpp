@@ -188,20 +188,9 @@ void grainhdl::readMicrostructure(){
 
 		LSbox* newBox = new LSbox(id, nvertices, vertices, q1, q2, q3, q4, this);
 		grains[nn]= newBox;
-
-
-		// calculate distances
-//		newBox->distancefunction(nvertices, vertices);
-
 	}
 	fclose(levelset);
 	delete [] vertices;
-
-	#pragma omp parallel for
-		for (int i = 1; i < grains.size(); i++){
-			grains[i]->distancefunction();
-	}
-
 }
 
 void grainhdl::readMicrostructureFromVertex(){
@@ -272,7 +261,13 @@ void grainhdl::readMicrostructureFromVertex(){
 	}
 
 }
- 
+
+
+void grainhdl::distanceInitialisation(){
+	for (int i = 1; i < grains.size(); i++){
+		grains[i]->distancefunction();
+	}
+}
  
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
@@ -357,8 +352,7 @@ void grainhdl::save_texture(){
 				discreteEnergyDistribution[(int)(((*it2).energyDensity)/dh -0.5) ] += 0.5 * (*it2).length;
 				}
 				totalLength += 0.5 * (*it2).length;
-			}	
-			
+			}
 		}
 	}
 	double sum=0;
@@ -383,6 +377,7 @@ void grainhdl::save_texture(){
  
  
 void grainhdl::run_sim(){
+	distanceInitialisation();
 	simulationTime =0;
 	find_neighbors();
 // 	determineIDs();
@@ -398,7 +393,7 @@ void grainhdl::run_sim(){
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			if(loop != Settings::StartTime) saveMicrostructure();
+			if(loop != Settings::StartTime || loop == Settings::NumberOfTimesteps) saveMicrostructure();
 		}
 		simulationTime += dt;
 	}
