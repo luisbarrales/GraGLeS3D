@@ -3,22 +3,23 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
-#pragma omp parallel
-{
 
-#pragma omp for
+
+#pragma omp parallel for
 		for (int i = 1; i < grains.size(); i++){
 			grains[i]->distancefunction();
 		}
 
-#pragma omp single
+
+simulationTime =0;
+find_neighbors();
+
+
+for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
+	//Switch Distance Buffers
+
+#pragma omp parallel
 {
-	simulationTime =0;
-	find_neighbors();
-}
-
-for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){		//Switch Distance Buffers
-
 if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
 	  #pragma omp for  
@@ -95,6 +96,7 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 		//redistancing
 #pragma omp single
 		currentNrGrains=0;
+
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
@@ -103,21 +105,20 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 #pragma omp atomic
 			currentNrGrains++;
 		}
-}
+
 
 #pragma omp single
 {
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
 		}
 		simulationTime += dt;
 }
 
-
-
-	}
+}
+}
 
 	cout << "Simulation complete." << endl;
 	cout << "Simulation Time: " << simulationTime<< endl;

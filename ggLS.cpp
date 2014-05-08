@@ -23,6 +23,8 @@ int main(int argc,char *argv[]) {
 	
 	my_sim->setSimulationParameter();
 	
+	my_sim->saveMicrostructure();
+
 	my_sim->run_sim();
 	
 	my_sim->save_sim();
