@@ -2,7 +2,7 @@
 #include "Settings.h"
 #include "dimensionalBufferReal.h"
 #include "pooledDimensionalBufferReal.h"
-
+#include "grahamScan.h"
 
 LSbox::LSbox() :exist(false), quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){  }
 
@@ -73,12 +73,14 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
             if (x2[1]/h > xmax) xmax = x2[1]/h;           
         }
     }
-    
-	xmax += 2*grid_blowup;
+    xmax += 2*grid_blowup;
 	ymax += 2*grid_blowup;
 	
 
-	inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
+    GrahamScan scanner(c, id, part_pos);
+    scanner.generateCovnexHull(contourGrain);
+
+    inputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);
 	outputDistance = new DimensionalBufferReal(xmin, ymin, xmax, ymax);	
 	
  	inputDistance->resizeToSquare(handler->get_ngridpoints());
@@ -309,81 +311,81 @@ void LSbox::distancefunction(/*int nvertices, double* vertices*/){
 // 	plot_box(false);
 	int grid_blowup = handler->get_grid_blowup();
 	double h = handler->get_h();
-	int i,j,k;
-	double d, dmin,lambda;
-	vektor u(2), a(2), p(2), x1(2), x2(2);
+	int i=0,j=0,k=0;
+	//vektor u(2), a(2), p(2), x1(2), x2(2);
+	SPoint to_test;
+	int contour_size = contourGrain.size();
+    double* constant = new double[contour_size];
+    double* multiple = new double[contour_size];
 
-	for (i=outputDistance->getMinY();i<outputDistance->getMaxY();i++){
-	  for (j=outputDistance->getMinX();j<outputDistance->getMaxX();j++){
-            dmin = 1000.;
-            p[0] = (i-grid_blowup)*h; 
-			p[1] = (j-grid_blowup)*h;
-            x2[0]=contourGrain[0].y;
-			x2[1]=contourGrain[0].x;
-            for(int k=1; k <= contourGrain.size()-1; k++) {
-            	x1=x2;
-            	x2[0]=contourGrain[k].y;
-				x2[1]=contourGrain[k].x;
-				if (x1 != x2){
-					a = x1;
-					u = x2-x1;
-					lambda=((p-a)*u)/(u*u);
-					if(lambda <= 0.) 			d = (p-x1).laenge();
-					if((0. < lambda) && (lambda < 1.)) 		d = (p-(a+(u*lambda))).laenge();
-					if(lambda >= 1.) 				d = (p-x2).laenge();
-					d= abs(d);
-					if(abs(d)< abs(dmin)) dmin=d;
-				}
-            }
-			if (abs(dmin) < handler->delta){
-				outputDistance->setValueAt(i, j, dmin);
-			}
-			else{
-				outputDistance->setValueAt(i, j, handler->delta * utils::sgn(dmin));
-			}
-        }
+    for (int i = 1; i < contour_size; i++)
+	{
+		if (contourGrain[i].x == contourGrain[i].y)
+		{
+			constant[i] = contourGrain[i].x;
+			multiple[i] = 0;
+		}
+		else
+		{
+			constant[i] = contourGrain[i].x
+					- (contourGrain[i].y * contourGrain[j].x) / (contourGrain[j].y - contourGrain[i].y)
+					+ (contourGrain[i].y * contourGrain[i].x) / (contourGrain[j].y - contourGrain[i].y);
+			multiple[i] = (contourGrain[j].x - contourGrain[i].x) / (contourGrain[j].y - contourGrain[i].y);
+		}
+		j = i;
 	}
 
-	int count = 0;
-    for (j=outputDistance->getMinX();j<outputDistance->getMaxX();j++){
-	    i=outputDistance->getMinY();
-	    count = 0;
-	    while( i<outputDistance->getMaxY() && count < 1) {
-	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
-		    if ( -outputDistance->getValueAt(i,j) <=  h )
-		    	count++;
-		    i++;
-	    }
-	    i=outputDistance->getMaxY()-1;
-	    count =0;
-	    while( i>=outputDistance->getMinY() && count < 1) {
-	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
-		    if ( -outputDistance->getValueAt(i,j) <= h )
-		    	count++;
-		    i--;
-	    }
-    }
+	for (i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++)
+	{
+		for (j = outputDistance->getMinX(); j < outputDistance->getMaxX(); j++)
+		{
+			to_test.x = (j - grid_blowup) * h;
+			to_test.y = (i - grid_blowup) * h;
 
-    for (i=outputDistance->getMinY();i<outputDistance->getMaxY();i++){
-	    j=outputDistance->getMinX();
-	    count = 0;
-	    while( j<outputDistance->getMaxX() && count < 1 ) {
-	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
-		    if ( -outputDistance->getValueAt(i,j) <=  h )
-		    	count++;
-		    j++;
-	    }
-	    j=outputDistance->getMaxX()-1;
-	    count =0;
-	    while( j>=outputDistance->getMinX() && count < 1  ) {
-	    	outputDistance->setValueAt(i, j, -abs(outputDistance->getValueAt(i,j)));
-		    if ( -outputDistance->getValueAt(i,j)<=  h )
-		    	count++;
-		    j--;
-	    }
-    }
-    plot_box(true,2,"Dist",true);
-//  if(id == 201)  plot_box(true,2,"Dist",true);
+			bool isInside = false;
+
+			for (int k = 1, l =0; k < contour_size; k++)
+			{
+				if ((contourGrain[k].y < to_test.y && contourGrain[l].y > to_test.y) ||
+					(contourGrain[l].y < to_test.y && contourGrain[k].y > to_test.y))
+				{
+					bool new_val = (to_test.y * multiple[k] + constant[k] < to_test.x);
+					isInside = (isInside != new_val);
+				}
+				l = k;
+			}
+
+			double minDist = 1000000.0;
+			for(int k=1, l=0; k<contour_size; k++)
+			{
+				SPoint	u = contourGrain[k]-contourGrain[l];
+				double lambda = (to_test - contourGrain[l]).dot(u);
+				lambda /= u.dot(u);
+
+				double dist;
+				if(lambda < 0)
+				{
+					dist = (to_test - contourGrain[l]).len();
+				}
+				else if (lambda > 1)
+				{
+					dist = (contourGrain[k] - to_test).len();
+				}
+				else
+				{
+					dist = (to_test - (contourGrain[l] + u*lambda) ).len();
+				}
+				minDist = min(minDist,dist);
+				l = k;
+			}
+			if(minDist > handler->delta)
+				minDist = handler->delta;
+			outputDistance->setValueAt(i,j, isInside ? minDist : -minDist);
+		}
+	}
+
+	delete [] constant;
+	delete [] multiple;
 }
 
 
@@ -609,8 +611,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	get_new_IDLocalSize();
 	IDLocal.resize(xminId, yminId, xmaxId, ymaxId);
 // 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
- 	plot_box(true,1,"Convoluted_",true);
-	plot_box(true,2,"Convoluted_",true);
+// 	plot_box(true,1,"Convoluted_",true);
+//	plot_box(true,2,"Convoluted_",true);
 
 }
 void LSbox::destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan){

@@ -150,7 +150,7 @@ void grainhdl::VOROMicrostructure(){
 		LSbox* newBox = new LSbox(box_id, c, part_pos,this);
 		
 		grains[box_id]= newBox;
-		newBox->distancefunction(c, part_pos);        
+		newBox->distancefunction();
 
 	} while(vl.inc());
 
@@ -202,6 +202,8 @@ void grainhdl::readMicrostructure(){
 			grains[i]->distancefunction();
 	}
 
+
+	fclose(levelset);
 }
 
 void grainhdl::readMicrostructureFromVertex(){
