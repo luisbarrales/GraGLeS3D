@@ -15,7 +15,7 @@
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 0 </ExecuteInParallel>
+   <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
    <GridCoarsement> 0 </GridCoarsement>
 
