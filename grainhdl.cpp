@@ -355,7 +355,7 @@ void grainhdl::save_texture(){
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
-	cout << "Number of grains remaining in the Network :" << numberGrains<< endl;
+	cout << "Number of grains remaining in the Network:" << numberGrains<< endl;
 	cout << "Amount of free Energy in the Network :" << 0.5*total_energy<< "   "<< sum <<endl;
 	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
