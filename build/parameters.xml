@@ -5,7 +5,7 @@
    <NumberOfParticles> 50 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
    <AnalysysTimestep> 5 </AnalysysTimestep>
-   <NumberOfTimesteps> 50 </NumberOfTimesteps>
+   <NumberOfTimesteps> 200 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
@@ -18,5 +18,6 @@
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
    <GridCoarsement> 0 </GridCoarsement>
-
+   <ConvolutionMode> 1 </ConvolutionMode>
+   
 </Parameters>

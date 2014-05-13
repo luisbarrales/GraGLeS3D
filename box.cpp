@@ -605,28 +605,53 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 	double coski;
 	int j2;
 	int i2;
+
 	executeFFTW(fftplan1);
-	for(int i=0;i<n2;i++) {
-		coski=cos(k*i);
-		i2 = mymin(i,n-i);
-		for(int j=0;j<n;j++){
-			j2 = mymin(j,n-j);
-//			G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / nsq;
+	//	Forward DFT
 
-//			G= exp((-2.0 * dt) * nsq* (2.0-cos(k*i)-cos(k*j)));
-
-//			G=1/sqrt(4*PI*dt)* exp(-sqrt(coski + cos(k*j))/4/dt);
-
-			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
-			G = 1.0/ (1.0+(dt*G)) / (n*n);
-			//        USE this line for Richardson-type extrapolation
-//			G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
-			/* normalize G by n*n to pre-normalize convolution results */
-			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
-			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+	switch (Settings::ConvolutionMode){
+		case 0 : {
+			for(int i=0;i<n2;i++) {
+				coski=cos(k*i);
+				for(int j=0;j<n;j++){
+					G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+					G = 1.0/ (1.0+(dt*G)) / (n*n);
+					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+				}
+			}
+			break;
+		}
+		case 1 : {
+//			Ritchardson Extrapolation
+			for(int i=0;i<n2;i++) {
+				coski=cos(k*i);
+				for(int j=0;j<n;j++){
+					G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+					G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
+					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+				}
+			}
+			break;
+		}
+		case 2 : {
+//			Convolution with Normaldistribution
+			for(int i=0;i<n2;i++) {
+				i2 = mymin(i,n-i);
+				for(int j=0;j<n;j++){
+					j2 = mymin(j,n-j);
+					G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / (n*n);
+					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+				}
+			}
+			break;
 		}
 	}
+
 	executeFFTW(fftplan2);
+	//	Inverse DFT
 }
 
 
