@@ -1254,7 +1254,7 @@ void LSbox::redist_box() {
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
-	plot_box(true,2,"Redist",true);
+	// plot_box(true,2,"Redist",true);
 }
 
 /**************************************/

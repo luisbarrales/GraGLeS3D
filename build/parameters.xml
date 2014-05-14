@@ -2,11 +2,11 @@
 <Parameters>
 
 	 <StartTime> 0 </StartTime>
-   <NumberOfParticles> 50 </NumberOfParticles> 
+   <NumberOfParticles> 200 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysysTimestep> 1 </AnalysysTimestep>
-   <NumberOfTimesteps> 100 </NumberOfTimesteps>
-   <DiscreteSamplingRate> 20 </DiscreteSamplingRate>
+   <AnalysysTimestep> 10 </AnalysysTimestep>
+   <NumberOfTimesteps> 2000 </NumberOfTimesteps>
+   <DiscreteSamplingRate> 1 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
    <ReadFromFilename></ReadFromFilename>

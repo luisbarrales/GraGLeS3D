@@ -26,7 +26,7 @@ void grainhdl::setSimulationParameter(){
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
-	dt = 0.4/double(realDomainSize*realDomainSize /4);
+	dt = 1/double(realDomainSize*realDomainSize);
 	h = 1.0/double(realDomainSize);
 
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
@@ -355,7 +355,7 @@ void grainhdl::save_texture(){
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
 	cout << "Timestep " << loop << " complete:" << endl;
-	cout << "Number of grains remaining in the Network:" << numberGrains<< endl;
+	cout << "Number of grains remaining in the Network :" << numberGrains<< endl;
 	cout << "Amount of free Energy in the Network :" << 0.5*total_energy<< "   "<< sum <<endl;
 	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
