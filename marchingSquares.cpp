@@ -158,7 +158,7 @@ bool MarchingSquaresAlgorithm::generateContour(std::vector<SPoint>& contour_outp
 		}
 		previous_step = next_step;
 	}
-	while(m_left != startX || m_bottom != startY);
+	while(m_left != startX -1 || m_bottom != startY);
 
 	if(!contour_output.empty())
 	{

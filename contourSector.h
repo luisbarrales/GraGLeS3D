@@ -4,7 +4,6 @@
 #include <vector>
 enum E_CONTOUR_TYPE
 {
-	E_CONSTANT_LINE_SECTOR,
 	E_INTERPOLATION_SECTOR,
 	E_CONSTANT_JUNCTION_SECTOR,
 	E_INVALID_TYPE_SECTOR
@@ -12,13 +11,18 @@ enum E_CONTOUR_TYPE
 class ContourSector
 {
 public:
-	ContourSector();
+	ContourSector(GrainJunction* initialJunction);
 	bool 		isPointInside(int i, int j);
 	double		getWeigth(int i, int j);
-private:
-	E_CONTOUR_TYPE			m_sectorType;
-	int 					m_leftContourPointID;
-	int 					m_rightContourPointID;
+	bool		mergeWith(GrainJunction* junction);
+	bool		isPointWithinSectoinRadiuses(const SPoint& point) const;
+	void 		setLeftContourPoint(int ID);
+	void 		setRightContourPoint(int ID);
+	static		double		INNER_CIRCLE_RADIUS;
+public:
+	E_CONTOUR_TYPE				m_sectorType;
+	int 						m_leftContourPointID;
+	int 						m_rightContourPointID;
 	std::vector<GrainJunction*>	m_junctions;
 };
 

@@ -26,7 +26,24 @@ void grainhdl::setSimulationParameter(){
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
+<<<<<<< HEAD
 	dt = 1/double(realDomainSize*realDomainSize);
+=======
+	switch (Settings::ConvolutionMode) {
+		case 0 : {
+			dt = 1/double(realDomainSize*realDomainSize);
+			break;
+		}
+		case 1 : {
+			dt = 1/double(realDomainSize*realDomainSize);
+			break;
+		}
+		case 2: {
+			dt = 0.4/double(realDomainSize*realDomainSize/2);
+			break;
+		}
+	}
+>>>>>>> 70e9dece7e0ef7ad75431634ae6551d155837d9e
 	h = 1.0/double(realDomainSize);
 
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);

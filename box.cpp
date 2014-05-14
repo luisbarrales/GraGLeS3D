@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "dimensionalBufferReal.h"
 #include "pooledDimensionalBufferReal.h"
+#include "contourSector.h"
 #include "grahamScan.h"
 
 LSbox::LSbox() :exist(false), quaternion(NULL), inputDistance(NULL), outputDistance(NULL), local_weights(NULL){  }
@@ -287,6 +288,7 @@ void LSbox::distancefunction(){
     double* constant = new double[contour_size];
     double* multiple = new double[contour_size];
 
+    //Precalculate values to speed up the PIP iterations
     for (int i = 1; i < contour_size; i++)
 	{
 		if (contourGrain[i].x == contourGrain[i].y)
@@ -319,7 +321,7 @@ void LSbox::distancefunction(){
 					(contourGrain[l].y < to_test.y && contourGrain[k].y > to_test.y))
 				{
 					bool new_val = (to_test.y * multiple[k] + constant[k] < to_test.x);
-					isInside = (isInside != new_val);
+					isInside = (isInside != new_val);	//isInside = isInside XOR new_val
 				}
 				l = k;
 			}
@@ -399,7 +401,10 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	/*********************************************************************************/
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
-	
+//TEST CODE 
+	if(handler->loop > 0)
+		constructBoundarySectors(handler->loop % Settings::AnalysysTimestep == 0);
+//TEST CODE
 	if(!Settings::IsIsotropicNetwork && handler->loop!=0){
 	    vector<LSbox*>::iterator it;
 	    int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax;
@@ -605,28 +610,53 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 	double coski;
 	int j2;
 	int i2;
+
 	executeFFTW(fftplan1);
-	for(int i=0;i<n2;i++) {
-		coski=cos(k*i);
-		i2 = mymin(i,n-i);
-		for(int j=0;j<n;j++){
-			j2 = mymin(j,n-j);
-//			G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / nsq;
+	//	Forward DFT
 
-//			G= exp((-2.0 * dt) * nsq* (2.0-cos(k*i)-cos(k*j)));
-
-//			G=1/sqrt(4*PI*dt)* exp(-sqrt(coski + cos(k*j))/4/dt);
-
-			G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
-			G = 1.0/ (1.0+(dt*G)) / (n*n);
-			//        USE this line for Richardson-type extrapolation
-//			G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
-			/* normalize G by n*n to pre-normalize convolution results */
-			fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
-			fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+	switch (Settings::ConvolutionMode){
+		case 0 : {
+			for(int i=0;i<n2;i++) {
+				coski=cos(k*i);
+				for(int j=0;j<n;j++){
+					G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+					G = 1.0/ (1.0+(dt*G)) / (n*n);
+					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+				}
+			}
+			break;
+		}
+		case 1 : {
+//			Ritchardson Extrapolation
+			for(int i=0;i<n2;i++) {
+				coski=cos(k*i);
+				for(int j=0;j<n;j++){
+					G = 2.0*(2.0 - coski - cos(k*j)) * nsq;
+					G = (4.0/pow(1+1.5*(dt)/40*G,40) - 1.0 / pow(1+3.0*(dt)/40*G,40)) / 3.0 / (double)(n*n);
+					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+				}
+			}
+			break;
+		}
+		case 2 : {
+//			Convolution with Normaldistribution
+			for(int i=0;i<n2;i++) {
+				i2 = mymin(i,n-i);
+				for(int j=0;j<n;j++){
+					j2 = mymin(j,n-j);
+					G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / (n*n);
+					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
+					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
+				}
+			}
+			break;
 		}
 	}
+
 	executeFFTW(fftplan2);
+	//	Inverse DFT
 }
 
 
@@ -952,7 +982,8 @@ void LSbox::find_contour() {
 	contourGrain.clear();
 	vector<GrainJunction> Junctions;
     MarchingSquaresAlgorithm marcher(*inputDistance, IDLocal, this);
-    exist = marcher.generateContour(contourGrain, Junctions);
+    junctions.clear();
+    exist = marcher.generateContour(contourGrain, junctions);
 
 	if(!exist) return;
     int grid_blowup = handler->get_grid_blowup();
@@ -992,8 +1023,6 @@ void LSbox::find_contour() {
 		volume = abs(volume);
 	}
 	else updateFirstOrderNeigbors();
-
-	
 	
 	if(grainCharacteristics.size() <2 && contourGrain.size() >3) {
 		cout << endl << "Timestep: " <<handler->loop << endl;
@@ -1516,4 +1545,90 @@ void LSbox::saveGrain(ofstream* destfile ){
 	 for(const auto& iterator : contourGrain){
 		file << iterator.x << "\t" << iterator.y<<  endl;
 	 }
+}
+int getIdxSector(vector<ContourSector>& secotrs, SPoint& point)
+{
+	for(int i=0; i<secotrs.size(); i++)
+		if(secotrs[i].isPointWithinSectoinRadiuses(point))
+			return i;
+	return -1;
+}
+void LSbox::constructBoundarySectors(bool test_plot)
+{
+	vector<ContourSector> sectors;
+	//Step 1 = merged circles...
+	ContourSector::INNER_CIRCLE_RADIUS = 3;
+	for(int i=0; i<junctions.size(); i++)
+	{
+		bool merged = false;
+		for(int j=0; j<sectors.size() && merged == false; j++)
+		{
+			if(sectors[j].mergeWith(&junctions[i]))
+				merged = true;
+		}
+		if(merged == false)
+			sectors.push_back(ContourSector(&junctions[i]));
+	}
+	//Step 2 - identify points on the contourline
+	int realContourSize = contourGrain.size() - 1;
+	int currentSector = getIdxSector(sectors, contourGrain[0]);
+	for(int i=0; i<realContourSize; i++)
+	{
+		int P = getIdxSector(sectors, contourGrain[i]);
+		if(P == -1)
+		{
+			if(currentSector == -1)
+				continue;
+			else	//currentSector != -1
+			{
+				sectors[currentSector].setLeftContourPoint((i-1+realContourSize)%realContourSize);
+				currentSector = -1;
+				continue;
+			}
+		}
+		else	//P!=-1
+		{
+			if(currentSector == -1)
+			{
+				sectors[P].setRightContourPoint((i+realContourSize)%realContourSize);
+				currentSector = P;
+				continue;
+			}
+			else if (currentSector == P)
+			{
+				continue;
+			}
+			else	//currentSector != -1 && currentSector != P
+			{
+				sectors[currentSector].setLeftContourPoint((i-1+realContourSize)%realContourSize);
+				sectors[P].setRightContourPoint((i+realContourSize)%realContourSize);
+				currentSector = P;
+				continue;
+			}
+		}
+	}
+
+	if(test_plot)
+	{
+		plot_box_contour(handler->loop, true);
+    	ofstream output_file;
+        stringstream filename;
+        filename<<"Sectors_"<< id;
+        filename<<"_Timestep_"<<handler->loop;
+        filename<<".gnu";
+        output_file.open(filename.str());
+        for(int i=0; i<junctions.size(); i++)
+        {
+        	output_file <<junctions[i].coordinates.x <<" "
+        	        	<<junctions[i].coordinates.y <<endl;
+        }
+        for(int i=0; i<sectors.size(); i++)
+        {
+        	output_file <<contourGrain[sectors[i].m_leftContourPointID].x <<" "
+        				<<contourGrain[sectors[i].m_leftContourPointID].y <<endl;
+        	output_file <<contourGrain[sectors[i].m_rightContourPointID].x <<" "
+        	        	<<contourGrain[sectors[i].m_rightContourPointID].y <<endl;
+        }
+
+	}
 }

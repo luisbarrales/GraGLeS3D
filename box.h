@@ -61,6 +61,7 @@ class LSbox {
 	grainhdl* handler;
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
+	vector<GrainJunction> junctions;
 	
 
 	DimensionalBufferReal* inputDistance;
@@ -95,6 +96,8 @@ public:
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);
 	double getGBEnergy(LSbox* neighbour);
 	
+	void constructBoundarySectors(bool test_plot);
+
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
       
