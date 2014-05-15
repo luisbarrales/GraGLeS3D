@@ -21,14 +21,16 @@ void grainhdl::setSimulationParameter(){
 	ngrains = Settings::NumberOfParticles;
 	currentNrGrains = ngrains;
 	hagb = Settings::HAGB;
-	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
+	//!
+	//! Test mode 4 need to be considered
+	//!
+	if(Mode==1 || Mode ==4) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
 	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
-<<<<<<< HEAD
-	dt = 1/double(realDomainSize*realDomainSize);
-=======
+
+
 	switch (Settings::ConvolutionMode) {
 		case 0 : {
 			dt = 1/double(realDomainSize*realDomainSize);
@@ -43,7 +45,6 @@ void grainhdl::setSimulationParameter(){
 			break;
 		}
 	}
->>>>>>> 70e9dece7e0ef7ad75431634ae6551d155837d9e
 	h = 1.0/double(realDomainSize);
 
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
@@ -53,7 +54,7 @@ void grainhdl::setSimulationParameter(){
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
-	
+
 	switch (Mode) {
 		case 1: {
 			if(Settings::UseTexture){
@@ -64,7 +65,7 @@ void grainhdl::setSimulationParameter(){
 				bunge = NULL; 
 				deviation = 0;
 			}
-			ST = NULL;			
+			ST = NULL;
 			VOROMicrostructure();
 // 			generateRandomEnergy();
 			break;
@@ -89,6 +90,25 @@ void grainhdl::setSimulationParameter(){
 			readMicrostructure();
 			break;
 		}
+		//!
+		//! This test case handles the processing of
+		//! grain construction by means of a file input
+		//! with 2D point information
+		//!
+		case 4: {
+			if(Settings::UseTexture){
+				bunge = new double[3]{PI/2, PI/2, PI/2};
+				deviation = 15*PI/180;
+			}
+			else {
+				bunge = NULL;
+				deviation = 0;
+			}
+			ST = NULL;
+			VOROMicrostructure();
+// 			generateRandomEnergy();
+			break;
+		}
 	}		
 // 	construct_boundary();
 	//program options:
@@ -105,7 +125,7 @@ void grainhdl::setSimulationParameter(){
 
 
 void grainhdl::VOROMicrostructure(){	
-	
+
 	stringstream filename, plotfiles;
 	int current_cell, cell_id;
 	double x,y,z,rx,ry,rz;
@@ -127,37 +147,53 @@ void grainhdl::VOROMicrostructure(){
 	container con(0,1,0,1,0,1,5,5,5,randbedingung,randbedingung,randbedingung,2);
     c_loop_all vl(con);
 	
+    //!
+    //! To be filled
+    //!
+
+    if(Mode == 4) {
+    	FILE* pointSketch;
+    	pointSketch = fopen(Settings::ReadFromFilename.c_str(), "r");
+    	if (pointSketch== nullptr) {
+
+    		cout << "There does not exist a file";
+    		exit(1);
+    	}
+
+    	int amountPoints = 0;
+    	double pointX, pointY;
+
+    	//while(1==fscanf(pointSketch, "%lf\t%lf\n", &pointX, &pointY)) {
+    	for(int k = 0; k < 3; k++) {
+
+    		amountPoints++;
+    		fscanf(pointSketch, "%lf\t%lf\n", &pointX, &pointY);
+    		con.put(amountPoints,pointX,pointY,0);
+    	}
+
+    	fclose(pointSketch);
+    }
+
 	/**********************************************************/
 	// Randomly add particles into the container
-	
+    if(Mode != 4) {
 		for(int i=0;i<ngrains;i++) {
 			x=utils::rnd();
 			y=utils::rnd();
 			z=0;
 			con.put(i,x,y,z);
 		}
-		
+    }
 	/**********************************************************/
-		
-    for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
-	x=double(i*h); 
-	y=double(j*h); // only point within the domain
-    if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-	  cell_id= cell_id++;
-	  part_pos[3*(cell_id-1)]=rx;
-	  part_pos[3*(cell_id-1)+1]=ry;
-	  part_pos[3*(cell_id-1)+2]=rz;
 
-	}
-    else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
-    }  
-// 	con.draw_cells_gnuplot("particles.gnu");
+
+
+ 	con.draw_cells_gnuplot("particles.gnu");
 	int i=0;
 
 	if(vl.start()) 
 	do {
 		con.compute_cell(c,vl);
-		cell_order[ngrains-1-i]=(vl.pid()+1);
 		int box_id = vl.pid()+1;
 		LSbox* newBox = new LSbox(box_id, c, part_pos,this);
 		grains[box_id]= newBox;
