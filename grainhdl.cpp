@@ -444,7 +444,7 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();		
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
 			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
@@ -570,7 +570,7 @@ void grainhdl::switchDistancebuffer(){
 }
 
 void grainhdl::gridCoarsement(){
-  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
+  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
 	  for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)

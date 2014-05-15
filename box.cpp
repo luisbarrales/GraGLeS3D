@@ -403,7 +403,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 //TEST CODE 
 	if(handler->loop > 0)
-		constructBoundarySectors(handler->loop % Settings::AnalysysTimestep == 0);
+		constructBoundarySectors(handler->loop % Settings::AnalysisTimestep == 0);
 //TEST CODE
 	if(!Settings::IsIsotropicNetwork && handler->loop!=0){
 	    vector<LSbox*>::iterator it;
@@ -1018,7 +1018,7 @@ void LSbox::find_contour() {
 	}
     
     // compute Volume and Energy
-	if ( (loop % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		computeVolumeAndEnergy();
 		volume = abs(volume);
 	}
