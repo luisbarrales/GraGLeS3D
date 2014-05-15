@@ -26,7 +26,20 @@ void grainhdl::setSimulationParameter(){
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
-	dt = 1.0/double(realDomainSize*realDomainSize);
+	switch (Settings::ConvolutionMode) {
+		case 0 : {
+			dt = 1/double(realDomainSize*realDomainSize);
+			break;
+		}
+		case 1 : {
+			dt = 1/double(realDomainSize*realDomainSize);
+			break;
+		}
+		case 2: {
+			dt = 0.4/double(realDomainSize*realDomainSize/2);
+			break;
+		}
+	}
 	h = 1.0/double(realDomainSize);
 
 	delta = Settings::DomainBorderSize * 1/double(realDomainSize);
@@ -135,22 +148,15 @@ void grainhdl::VOROMicrostructure(){
     else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
     }  
 // 	con.draw_cells_gnuplot("particles.gnu");
-
 	int i=0;
-	// iteration over all cells in the container con:
 
 	if(vl.start()) 
 	do {
-	  // compute the current cell, taken out of the container
 		con.compute_cell(c,vl);
 		cell_order[ngrains-1-i]=(vl.pid()+1);
-		
-		// create a new Box for the current cell
 		int box_id = vl.pid()+1;
 		LSbox* newBox = new LSbox(box_id, c, part_pos,this);
-		
 		grains[box_id]= newBox;
-		newBox->distancefunction(c, part_pos);        
 
 	} while(vl.inc());
 
@@ -185,29 +191,16 @@ void grainhdl::readMicrostructure(){
 			vertices[(2*j)+1] = yl;
 		}
 		fscanf(levelset, "\n");
-
 		LSbox* newBox = new LSbox(id, nvertices, vertices, q1, q2, q3, q4, this);
 		grains[nn]= newBox;
-
-
-		// calculate distances
-//		newBox->distancefunction(nvertices, vertices);
-
 	}
 	fclose(levelset);
 	delete [] vertices;
-
-	#pragma omp parallel for
-		for (int i = 1; i < grains.size(); i++){
-			grains[i]->distancefunction();
-	}
-
 }
 
 void grainhdl::readMicrostructureFromVertex(){
 	FILE * levelset;
- 	levelset = fopen( "lsInput_DRAG.dat", "r" );
-// 	levelset = fopen( "lsInput_quadrat.dat", "r" );
+ 	levelset = fopen( Settings::ReadFromFilename.c_str(), "r" );
 
 	long id;
 	int nedges;
@@ -258,8 +251,6 @@ void grainhdl::readMicrostructureFromVertex(){
 			fscanf(levelset, "%lf\t", &buffer);
 			ST[j+(ngrains*i)]= (double) buffer;
 			ST[i+(ngrains*j)] = ST[j+(ngrains*i)];
-// 			cout << "buffer " << buffer <<endl ;
-// 			fwrite(/*levelset*/, "test");
 		}
 		fscanf(levelset, "\n");
 	} 
@@ -271,9 +262,14 @@ void grainhdl::readMicrostructureFromVertex(){
 		}
 		cout << endl;
 	}
-
 }
- 
+
+
+void grainhdl::distanceInitialisation(){
+	for (int i = 1; i < grains.size(); i++){
+		grains[i]->distancefunction();
+	}
+}
  
 void grainhdl::convolution(){
 	std::vector<LSbox*>::iterator it;
@@ -358,8 +354,7 @@ void grainhdl::save_texture(){
 				discreteEnergyDistribution[(int)(((*it2).energyDensity)/dh -0.5) ] += 0.5 * (*it2).length;
 				}
 				totalLength += 0.5 * (*it2).length;
-			}	
-			
+			}
 		}
 	}
 	double sum=0;
@@ -384,6 +379,7 @@ void grainhdl::save_texture(){
  
  
 void grainhdl::run_sim(){
+	distanceInitialisation();
 	simulationTime =0;
 	find_neighbors();
 // 	determineIDs();
@@ -399,7 +395,7 @@ void grainhdl::run_sim(){
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
 		}
 		simulationTime += dt;
 	}
@@ -423,7 +419,6 @@ void grainhdl::saveMicrostructure(){
 			if(*it== NULL) continue;
 			output << (*it)->id << "\t" << (*it)->contourGrain.size()<< "\t" << (*it)->quaternion[0] << "\t" << (*it)->quaternion[1] << "\t" << (*it)->quaternion[2] << "\t" << (*it)->quaternion[3] << endl;
 			(*it)->plot_box_contour(loop, false, &output);
-//			if((*it)->get_id()==320)(*it)->plot_box_contour(loop, false);
 		}
 	output.close();
 }
@@ -523,7 +518,7 @@ void grainhdl::switchDistancebuffer(){
 }
 
 void grainhdl::gridCoarsement(){
-  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
+  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
 	  for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)

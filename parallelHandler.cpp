@@ -3,17 +3,24 @@
 #include "omp.h"
 void parallelHandler::run_sim()
 {
-	simulationTime =0;
-	find_neighbors();
 
-	for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
-		//Switch Distance Buffers
-	
+
+#pragma omp parallel for
+		for (int i = 1; i < grains.size(); i++){
+			grains[i]->distancefunction();
+		}
+
+
+simulationTime =0;
+find_neighbors();
+
+
+for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
+	//Switch Distance Buffers
+
 #pragma omp parallel
 {
-  
-
-if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
+if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
 	  #pragma omp for  
 	    for (int i = 1; i < grains.size(); i++){
@@ -89,6 +96,7 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 		//redistancing
 #pragma omp single
 		currentNrGrains=0;
+
 #pragma omp for
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
@@ -97,21 +105,20 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95
 #pragma omp atomic
 			currentNrGrains++;
 		}
-}
+
 
 #pragma omp single
 {
 		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps  ) {
 			saveAllContourEnergies();
 			save_texture();
-			saveMicrostructure();
+			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
 		}
 		simulationTime += dt;
 }
 
-
-
-	}
+}
+}
 
 	cout << "Simulation complete." << endl;
 	cout << "Simulation Time: " << simulationTime<< endl;

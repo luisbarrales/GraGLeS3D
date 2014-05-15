@@ -16,6 +16,9 @@ unsigned long Settings::NumberOfTimesteps = 0;
 unsigned long Settings::AnalysisTimestep = 0;
 unsigned long Settings::DiscreteSamplingRate = 0;
 unsigned long Settings::DomainBorderSize = 0;
+unsigned long Settings::ConvolutionMode=0;
+unsigned long Settings::MaximumNumberOfThreads = 0;
+double Settings::GridCoarsementGradient = 0.95 ;
 E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VALUE;
 string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
@@ -25,7 +28,8 @@ bool Settings::IsIsotropicNetwork = false;
 bool Settings::UseTexture = false;
 bool Settings::ExecuteInParallel = false;
 bool Settings::GridCoarsement = false;
-unsigned long Settings::MaximumNumberOfThreads = 0;
+
+
 
 void Settings::initializeParameters(string filename)
 {
@@ -130,7 +134,15 @@ void Settings::initializeParameters(string filename)
 	{
 		GridCoarsement = std::stoul(rootNode->first_node("GridCoarsement")->value());
 	}
-	file.close();
+	if( 0 != rootNode->first_node("GridCoarsementGradient") )
+	{
+		GridCoarsementGradient = std::stod(rootNode->first_node("GridCoarsementGradient")->value());
+	}
+	if( 0 != rootNode->first_node("ConvolutionMode") )
+		{
+		ConvolutionMode = std::stoul(rootNode->first_node("ConvolutionMode")->value());
+		}
+    file.close();
 }
 
 #define PUSH_PARAM(param_name) 	\
@@ -170,6 +182,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char
 	PUSH_PARAM(ExecuteInParallel);
 	PUSH_PARAM(MaximumNumberOfThreads);
 	PUSH_PARAM(GridCoarsement);
+	PUSH_PARAM(ConvolutionMode);
 	return params;
 }
 #undef PUSH_PARAM

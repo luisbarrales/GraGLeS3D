@@ -2,7 +2,8 @@
 #define		__GRAIN_JUNCTION__
 
 #include "spoint.h"
-#include "box.h"
+
+class LSbox;
 
 /*!
  * \enum E_JUNCTION_TYPE

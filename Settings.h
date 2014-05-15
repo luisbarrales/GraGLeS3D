@@ -32,7 +32,9 @@ class Settings
 	static bool UseTexture;
 	static bool ExecuteInParallel;
 	static bool GridCoarsement;
-	static unsigned long  MaximumNumberOfThreads;
+	static double GridCoarsementGradient;
+	static unsigned long MaximumNumberOfThreads;
+	static unsigned long ConvolutionMode;
 
 	static void initializeParameters(std::string filename = "");
 	static rapidxml::xml_node<>* generateXMLParametersNode(rapidxml::xml_document<>* root, const char* filename, int loop, int grains);

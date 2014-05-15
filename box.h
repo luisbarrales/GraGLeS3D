@@ -61,6 +61,7 @@ class LSbox {
 	grainhdl* handler;
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
+	vector<GrainJunction> junctions;
 	
 
 	DimensionalBufferReal* inputDistance;
@@ -77,8 +78,7 @@ public:
 	LSbox(int id, int nvertex, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner);
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
-	void distancefunction(/*int nvertex, double* vertices*/);
-    void distancefunction(voro::voronoicell_neighbor& c, double *part_pos);
+	void distancefunction();
     void distancefunctionToEdges(int nedges, double* edges);
     void redist_box();
 	void find_contour();
@@ -96,6 +96,8 @@ public:
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);
 	double getGBEnergy(LSbox* neighbour);
 	
+	void constructBoundarySectors(bool test_plot);
+
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
       
