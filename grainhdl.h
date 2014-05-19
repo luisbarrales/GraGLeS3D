@@ -32,6 +32,7 @@ class grainhdl{
 		
 	
 	public:
+	double KernelNormalizationFactor;
 	int currentNrGrains;
 	mathMethods* mymath;
 	int loop;

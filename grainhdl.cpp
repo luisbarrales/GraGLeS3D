@@ -26,6 +26,8 @@ void grainhdl::setSimulationParameter(){
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
+
+
 	switch (Settings::ConvolutionMode) {
 		case 0 : {
 			dt = 1/double(realDomainSize*realDomainSize);
@@ -49,6 +51,7 @@ void grainhdl::setSimulationParameter(){
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
+	KernelNormalizationFactor = 2*(Settings::NumberOfPointsPerGrain+(2*grid_blowup)) * (Settings::NumberOfPointsPerGrain+(2*grid_blowup));
 	
 	switch (Mode) {
 		case 1: {
@@ -335,7 +338,6 @@ void grainhdl::save_texture(){
 	double buffer = 0.24;
 	double euler[3];
 	vector<characteristics> :: iterator it2;
-// 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
 	
 	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0.0);

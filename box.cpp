@@ -485,9 +485,13 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 				}
 				// this should avoid spikes, depending on thrird order neighbour interaction, occuring by periodicity of the the convoluted function
 				else  outputDistance->setValueAt(i,j, - handler->delta);
+
+				double bulkenergy = 50;
+				outputDistance->setValueAt(i,j,outputDistance->getValueAt(i,j)-(dt/2*bulkenergy));
 			}
 		}	   
 	}
+
 
 	IDLocal.clear();
 		
@@ -636,12 +640,15 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 			break;
 		}
 		case 2 : {
+			double nsq = handler->KernelNormalizationFactor;
+			cout << n*n << "   " << nsq << endl;
+			nsq=n*n;
 //			Convolution with Normaldistribution
 			for(int i=0;i<n2;i++) {
 				i2 = mymin(i,n-i);
 				for(int j=0;j<n;j++){
 					j2 = mymin(j,n-j);
-					G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / (n*n);
+					G = exp(-(static_cast<double>(i2*i2+j2*j2))*4.0*dt*PI*PI) / nsq;
 					fftTemp[i+n2*j][0] = fftTemp[i+n2*j][0]*G;
 					fftTemp[i+n2*j][1] = fftTemp[i+n2*j][1]*G;
 				}
