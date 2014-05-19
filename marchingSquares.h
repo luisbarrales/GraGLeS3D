@@ -12,7 +12,6 @@
 
 
 class LSbox;
-struct GrainJunction;
 
 /*!
  * \enum E_CORNER_VALUES
@@ -43,7 +42,7 @@ enum E_MOVEMENT_DIRECTIONS
  * \brief Class that implements the marching squares algorithm.
  *
  * This class handles 2 dimensional patterns. It uses the standard marching squares algorithm in
- * clock-wise direction. Currently it needs to be improved for ambiguity points. The class has
+ * counter-clock-wise direction. Currently it needs to be improved for ambiguity points. The class has
  * virtual methods that can be overridden to customize the way the algorithm works. The basic
  * implementation is suited to the Levelset project.
  */
@@ -53,9 +52,7 @@ public:
 	/*!
 		 * \brief Basic constructor. Requires a dimensional that defines the shape of the object.
 	*/
-
 	MarchingSquaresAlgorithm(DimensionalBufferReal& distance_buffer, DimensionalBufferIDLocal& id_local, LSbox* current_grain);
-
 	/*!
 		 * \brief Basic destructor. Virtual so that the class can be easily inherited.
 	*/

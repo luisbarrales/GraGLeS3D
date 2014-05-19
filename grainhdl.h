@@ -93,8 +93,9 @@ class grainhdl{
 	
 	void set_h(double hn);
 	void set_realDomainSize(int realDomainSizen);
+	//! Used if points are set manually
+	int read_ScenarioPoints();
 
-	
 	inline long get_ngrains(){ return ngrains; }
 	inline int get_realDomainSize() { return realDomainSize; }
 	inline int get_ngridpoints() { return ngridpoints; }

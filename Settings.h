@@ -10,6 +10,7 @@ enum E_MICROSTRUCTURE_GEN_MODE
 	E_READ_FROM_FILE,
 	E_GENERATE_WITH_VORONOY,
 	E_READ_MICROSTRUCTURE,
+	E_FOR_FOURTH_MODE,
 	E_INVALID_VALUE
 };
 
@@ -20,7 +21,7 @@ class Settings
 	static unsigned long NumberOfParticles;
 	static unsigned long NumberOfPointsPerGrain;
 	static unsigned long NumberOfTimesteps;
-	static unsigned long AnalysysTimestep;
+	static unsigned long AnalysisTimestep;
 	static unsigned long DiscreteSamplingRate;
 	static unsigned long DomainBorderSize;
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;
@@ -32,6 +33,7 @@ class Settings
 	static bool UseTexture;
 	static bool ExecuteInParallel;
 	static bool GridCoarsement;
+	static double GridCoarsementGradient;
 	static unsigned long MaximumNumberOfThreads;
 	static unsigned long ConvolutionMode;
 

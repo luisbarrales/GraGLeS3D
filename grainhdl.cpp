@@ -19,9 +19,15 @@ void grainhdl::setSimulationParameter(){
 	// 	readInit();
 	Mode = (int)Settings::MicrostructureGenMode;
 	ngrains = Settings::NumberOfParticles;
+	//! The NumberOfParticles passed via parameters.xml is altered
+	//! for MicrostructureGenMode 4
+	if(Mode == 4) {
+		ngrains = read_ScenarioPoints();
+		cout << ngrains << endl;
+	}
 	currentNrGrains = ngrains;
 	hagb = Settings::HAGB;
-	if(Mode==1) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
+	if(Mode==1 || Mode ==4) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
 	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
@@ -51,8 +57,9 @@ void grainhdl::setSimulationParameter(){
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
+
 	KernelNormalizationFactor = 2*(Settings::NumberOfPointsPerGrain+(2*grid_blowup)) * (Settings::NumberOfPointsPerGrain+(2*grid_blowup));
-	
+
 	switch (Mode) {
 		case 1: {
 			if(Settings::UseTexture){
@@ -63,7 +70,7 @@ void grainhdl::setSimulationParameter(){
 				bunge = NULL; 
 				deviation = 0;
 			}
-			ST = NULL;			
+			ST = NULL;
 			VOROMicrostructure();
 // 			generateRandomEnergy();
 			break;
@@ -88,6 +95,25 @@ void grainhdl::setSimulationParameter(){
 			readMicrostructure();
 			break;
 		}
+		//!
+		//! This case handles the processing of
+		//! grain construction by means of a file input
+		//! with 2D point information
+		//!
+		case 4: {
+			if(Settings::UseTexture){
+				bunge = new double[3]{PI/2, PI/2, PI/2};
+				deviation = 15*PI/180;
+			}
+			else {
+				bunge = NULL;
+				deviation = 0;
+			}
+			ST = NULL;
+			VOROMicrostructure();
+// 			generateRandomEnergy();
+			break;
+		}
 	}		
 // 	construct_boundary();
 	//program options:
@@ -104,7 +130,7 @@ void grainhdl::setSimulationParameter(){
 
 
 void grainhdl::VOROMicrostructure(){	
-	
+
 	stringstream filename, plotfiles;
 	int current_cell, cell_id;
 	double x,y,z,rx,ry,rz;
@@ -126,31 +152,57 @@ void grainhdl::VOROMicrostructure(){
 	container con(0,1,0,1,0,1,5,5,5,randbedingung,randbedingung,randbedingung,2);
     c_loop_all vl(con);
 	
+
+    //!
+    //! Particles are added deliberately in the container according to the input file data.
+    //!
+    if(Mode == 4) {
+    	FILE* pointSketch;
+    	pointSketch = fopen(Settings::ReadFromFilename.c_str(), "r");
+    	if (pointSketch== nullptr) {
+
+    		cout << "There does not exist a file";
+    		exit(1);
+    	}
+
+    	double pointX, pointY;
+
+    	for(int k = 0; k < ngrains; k++) {
+
+    		fscanf(pointSketch, "%lf\t%lf\n", &pointX, &pointY);
+    		con.put(k,pointX,pointY,0);
+    	}
+
+    	fclose(pointSketch);
+    }
+
 	/**********************************************************/
 	// Randomly add particles into the container
-	
+    if(Mode != 4) {
 		for(int i=0;i<ngrains;i++) {
 			x=utils::rnd();
 			y=utils::rnd();
 			z=0;
 			con.put(i,x,y,z);
 		}
-		
+    }
 	/**********************************************************/
-		
-    for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
-	x=double(i*h); 
-	y=double(j*h); // only point within the domain
-    if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-	  cell_id= cell_id++;
-	  part_pos[3*(cell_id-1)]=rx;
-	  part_pos[3*(cell_id-1)+1]=ry;
-	  part_pos[3*(cell_id-1)+2]=rz;
 
-	}
-    else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
-    }  
-// 	con.draw_cells_gnuplot("particles.gnu");
+    for(int i=0; i < realDomainSize; i++) for(int j= 0; j < realDomainSize; j++){
+    	x=double(i*h);
+    	y=double(j*h); // only point within the domain
+    	if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
+    		cell_id= cell_id++;
+    		part_pos[3*(cell_id-1)]=rx;
+    		part_pos[3*(cell_id-1)+1]=ry;
+			part_pos[3*(cell_id-1)+2]=rz;
+    	}
+
+		else fprintf(stderr,"# find_voronoi_cell error for %g %g 0\n",x,y);
+
+    }
+
+ 	con.draw_cells_gnuplot("particles.gnu");
 	int i=0;
 
 	if(vl.start()) 
@@ -394,7 +446,7 @@ void grainhdl::run_sim(){
 		switchDistancebuffer();
 		level_set();
 		redistancing();		
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysysTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 			saveAllContourEnergies();
 			save_texture();
 			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
@@ -520,7 +572,7 @@ void grainhdl::switchDistancebuffer(){
 }
 
 void grainhdl::gridCoarsement(){
-  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < 0.95 && loop!=0&& Settings::GridCoarsement){
+  if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0&& Settings::GridCoarsement){
 	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
 	  for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)
@@ -570,9 +622,27 @@ void grainhdl::initEnvironment()
 void grainhdl::set_h(double hn){
       h =hn;
 }
-void grainhdl::set_realDomainSize(int realDomainSizen){
+void grainhdl::set_realDomainSize(int realDomainSize){
      realDomainSize= realDomainSizen;
      ngridpoints = realDomainSize+2*grid_blowup;
 }
+/**
+ * This function analyzes the input file for MicrostructureGenMode 4.
+ * The amount of lines of the input file is determined. This number
+ * indicates the number of points specified in the file, i.e the number of
+ * grains. This means one pair of x-y-coordinates each in every line. A
+ * tabulator is used as the separator.
+ *
+ * @return the amount of points in the input file
+ */
+int grainhdl::read_ScenarioPoints() {
 
+	int counter = 0;
+	string line;
+	ifstream reader(Settings::ReadFromFilename.c_str());
+	    while(std::getline(reader, line)){
+	        counter++;
+	    }
+	return counter;
+}
 
