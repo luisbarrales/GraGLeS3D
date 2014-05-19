@@ -1,7 +1,9 @@
 #ifndef		__CONTOUR_SECTOR__
 #define		__CONTOUR_SECTOR__
 #include "junction.h"
+#include <fstream>
 #include <vector>
+using namespace std;
 enum E_CONTOUR_TYPE
 {
 	E_INTERPOLATION_SECTOR,
@@ -18,8 +20,10 @@ public:
 	bool		isPointWithinSectoinRadiuses(const SPoint& point) const;
 	void 		setLeftContourPoint(int ID);
 	void 		setRightContourPoint(int ID);
+	void		debugPrintSector(vector<SPoint>& contour_grain, ofstream& ofs);
 	static		double		INNER_CIRCLE_RADIUS;
-public:
+
+private:
 	E_CONTOUR_TYPE				m_sectorType;
 	int 						m_leftContourPointID;
 	int 						m_rightContourPointID;

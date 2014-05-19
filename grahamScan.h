@@ -8,13 +8,11 @@ class GrahamScan
 {
 public:
 	GrahamScan(voro::voronoicell_neighbor& voro_cell, unsigned int cellID, double* partPos);
+	GrahamScan(vector<SPoint>& point_cloud);
 	void generateCovnexHull(vector<SPoint>& output_hull);
 private:
-	voro::voronoicell_neighbor& m_cellSampler;
-	unsigned int				m_cellID;
-	double*						m_partPos;
+	vector<SPoint>				m_sortedPoints;
 	static const SPoint* 		m_compareReference;
-
 
 	static bool compareByOri(const SPoint& lhs, const SPoint& rhs);
 };

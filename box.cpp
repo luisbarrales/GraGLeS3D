@@ -1553,10 +1553,10 @@ void LSbox::saveGrain(ofstream* destfile ){
 		file << iterator.x << "\t" << iterator.y<<  endl;
 	 }
 }
-int getIdxSector(vector<ContourSector>& secotrs, SPoint& point)
+int getIdxSector(vector<ContourSector>& sectors, SPoint& point)
 {
-	for(int i=0; i<secotrs.size(); i++)
-		if(secotrs[i].isPointWithinSectoinRadiuses(point))
+	for(int i=0; i<sectors.size(); i++)
+		if(sectors[i].isPointWithinSectoinRadiuses(point))
 			return i;
 	return -1;
 }
@@ -1627,14 +1627,12 @@ void LSbox::constructBoundarySectors(bool test_plot)
         for(int i=0; i<junctions.size(); i++)
         {
         	output_file <<junctions[i].coordinates.x <<" "
-        	        	<<junctions[i].coordinates.y <<endl;
+        	        	<<junctions[i].coordinates.y <<endl<<endl;
         }
+        output_file<<endl;
         for(int i=0; i<sectors.size(); i++)
         {
-        	output_file <<contourGrain[sectors[i].m_leftContourPointID].x <<" "
-        				<<contourGrain[sectors[i].m_leftContourPointID].y <<endl;
-        	output_file <<contourGrain[sectors[i].m_rightContourPointID].x <<" "
-        	        	<<contourGrain[sectors[i].m_rightContourPointID].y <<endl;
+        	sectors[i].debugPrintSector(contourGrain, output_file);
         }
 
 	}
