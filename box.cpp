@@ -20,7 +20,7 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 
 // 	IDLocal.resize((xmax - xmin) * (ymax - ymin));
 	local_weights = new Weightmap(owner);
-
+	boundaryGrain = false;
 }
 
 LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner) : id(aID), nvertices(0), handler(owner) {
@@ -75,6 +75,7 @@ LSbox::LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl*
 	IDLocal.resize(xminId, yminId, xmaxId, ymaxId);
 	
 	local_weights=new Weightmap(owner);
+	boundaryGrain = false;
 // 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 }
 
@@ -125,6 +126,7 @@ LSbox::LSbox(int id, int nvertices, double* vertices, double q1, double q2, doub
 
 // 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new Weightmap(owner);
+	boundaryGrain = false;
 }
 
 
@@ -187,6 +189,7 @@ LSbox::LSbox(int id, int nedges, double* edges, double phi1, double PHI, double 
 	
 // 	cout << "made a new box: xmin="<<xmin<< " xmax="<<xmax <<" ymin="<<ymin << " ymax="<<ymax<<endl;
 	local_weights=new Weightmap(owner);
+	boundaryGrain = false;
 }
 
 LSbox::~LSbox() {
@@ -833,10 +836,11 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 			}
 		}
 	}
-	if (BoundaryIntersection()){		
+	if (BoundaryIntersection()){
+		boundaryGrain = true;
 		boundaryCondition();
 	}
-
+	boundaryGrain = false;
 	set_comparison();
 //	if(id==201) plot_box(true,2,"Com",true);
 //	if(id==201) plot_box(true,2,"Combig",false);
@@ -1020,7 +1024,7 @@ void LSbox::find_contour() {
     // compute Volume and Energy
 	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		computeVolumeAndEnergy();
-		volume = abs(volume);
+
 	}
 	else updateFirstOrderNeigbors();
 	
@@ -1092,6 +1096,7 @@ void LSbox::updateFirstOrderNeigbors(){
 
 void LSbox::computeVolumeAndEnergy()
 {
+	double dA = volume;
 	volume = 0;
 	perimeter = 0;
 	energy = 0;
@@ -1108,7 +1113,6 @@ void LSbox::computeVolumeAndEnergy()
 		
 		// Gaussian Trapez Formula:
 		volume += (contourGrain[i].y+contourGrain[i+1].y)*(contourGrain[i].x-contourGrain[i+1].x);
-	  
 		double px =contourGrain[i].x;
 		double py =contourGrain[i].y;
 		int pxGrid = int(px);
@@ -1156,9 +1160,23 @@ void LSbox::computeVolumeAndEnergy()
 		// save Grain properties:
 		perimeter += line_length;
 		energy += (contourGrain[i].energy * line_length);
+
 	}
+
+	volume = abs(volume);
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
-	
+
+	//!
+	//! Evaluating the area variation in the current time step and
+	//! saving this variation together with the current number
+	//! of neighbours in a vector for further analyses.
+	//!
+
+	dA = volume - dA;
+//	dA /= handler->get_dt();
+	cout << "The area variation rate :" << dA<< "  " << grainCharacteristics.size() << endl;
+	VolEvo.push_back(VolEvolution(dA,grainCharacteristics.size()));
+
 // 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 // 		 printf("%d\t %lf\t %lf\t%lf\n", (*it).directNeighbour->get_id(),(*it).length,(*it).energyDensity,(*it).mis_ori);
 // 	}

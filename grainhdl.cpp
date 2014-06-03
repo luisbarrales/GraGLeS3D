@@ -348,7 +348,9 @@ void grainhdl::level_set(){
 	for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)
 			continue;
-		if(grains[i]->get_status() == false ) {
+		//! Deletes the data structure of a grain if it has been removed;
+		//! except for ResearchMode is activated.
+		if(grains[i]->get_status() == false && !Settings::ResearchMode) {
 			  delete grains[i];
 			  removeGrain(i);
 		}
@@ -383,6 +385,7 @@ void grainhdl::save_texture(){
 	filename.str("");
 	filename << "EnergyLengthDistribution_" << loop<< ".txt";
 	enLenDis = fopen(filename.str().c_str(), "w");
+
 	double dh= hagb / (double)Settings::DiscreteSamplingRate;
 	double buffer = 0.24;
 	double euler[3];
@@ -407,6 +410,7 @@ void grainhdl::save_texture(){
 				}
 				totalLength += 0.5 * (*it2).length;
 			}
+
 		}
 	}
 	double sum=0;
@@ -503,6 +507,43 @@ void grainhdl::save_sim(){
 
 // 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
+
+	/**
+	 * The following code block generates several
+	 * file outputs. These files store data concerning
+	 * area variation rates for single grains as well as
+	 * averaged values.
+	 *
+	 */
+
+	bool SingleGrains = true;
+
+	if(Settings::ResearchMode && SingleGrains){
+		//! file for area variation
+		ofstream filestream;
+
+		stringstream filename;
+
+		//! Generate area variation file
+		for(int j = 1; j < grains.size(); j++){
+
+			filename.str("");
+			filename << "AreaVariationForGrain" << "_"<< j << ".txt";
+			filestream.open(filename.str().c_str());
+
+			int k =0;
+			for(int i=0; i < grains[j]->VolEvo.size(); i++){
+				//filestream << grains[j]->id << "\t";
+				filestream << k++ << "\t";
+				filestream << grains[j]->VolEvo[i].dA << "\t";
+				filestream << grains[j]->VolEvo[i].nVertex << "\n";
+			}
+
+			filestream.close();
+			filename.clear();
+		}
+
+	}
 }
 
 void grainhdl::updateSecondOrderNeighbors(){

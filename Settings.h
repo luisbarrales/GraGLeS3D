@@ -33,6 +33,7 @@ class Settings
 	static bool UseTexture;
 	static bool ExecuteInParallel;
 	static bool GridCoarsement;
+	static bool ResearchMode;
 	static double GridCoarsementGradient;
 	static unsigned long MaximumNumberOfThreads;
 	static unsigned long ConvolutionMode;

@@ -28,6 +28,8 @@ bool Settings::IsIsotropicNetwork = false;
 bool Settings::UseTexture = false;
 bool Settings::ExecuteInParallel = false;
 bool Settings::GridCoarsement = false;
+//! Enables the generation and capture of a wider spectrum of analysing data
+bool Settings::ResearchMode = false;
 
 
 
@@ -142,6 +144,11 @@ void Settings::initializeParameters(string filename)
 		{
 		ConvolutionMode = std::stoul(rootNode->first_node("ConvolutionMode")->value());
 		}
+	//!
+	if( 0 != rootNode->first_node("ResearchMode") )
+	{
+		ResearchMode = std::stoul(rootNode->first_node("ResearchMode")->value());
+	}
     file.close();
 }
 
@@ -183,6 +190,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root, const char
 	PUSH_PARAM(MaximumNumberOfThreads);
 	PUSH_PARAM(GridCoarsement);
 	PUSH_PARAM(ConvolutionMode);
+	PUSH_PARAM(ResearchMode);
 	return params;
 }
 #undef PUSH_PARAM

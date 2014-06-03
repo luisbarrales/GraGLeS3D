@@ -19,6 +19,21 @@ class MarchingSquaresAlgorithm;
 
 struct SPoint;
 
+//!
+//! This struct stores the evolution of
+//! area and the corresponding number
+//! of vertices.
+//!
+
+struct VolEvolution{
+
+	double dA;
+	int nVertex;
+
+	VolEvolution(double da, int nr) : dA(da), nVertex(nr)
+	{}
+};
+
 struct characteristics{
     LSbox* directNeighbour;
     double length;
@@ -50,7 +65,7 @@ struct characteristics{
 class LSbox {
 	unsigned int id;
 	int xmaxId ,xminId , ymaxId, yminId; 
-	
+	bool boundaryGrain;
 	bool exist;
 	DimensionalBufferIDLocal IDLocal;
 	Weightmap* local_weights;
@@ -62,6 +77,8 @@ class LSbox {
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
 	vector<GrainJunction> junctions;
+	//! Declaration of a vector for VolEvolution struct
+	vector<VolEvolution> VolEvo;
 	
 
 	DimensionalBufferReal* inputDistance;
