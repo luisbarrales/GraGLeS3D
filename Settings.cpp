@@ -139,9 +139,9 @@ void Settings::initializeParameters(string filename)
 		GridCoarsementGradient = std::stod(rootNode->first_node("GridCoarsementGradient")->value());
 	}
 	if( 0 != rootNode->first_node("ConvolutionMode") )
-		{
-		ConvolutionMode = std::stoul(rootNode->first_node("ConvolutionMode")->value());
-		}
+	{
+	ConvolutionMode = std::stoul(rootNode->first_node("ConvolutionMode")->value());
+	}
     file.close();
 }
 

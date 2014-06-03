@@ -1027,7 +1027,6 @@ void LSbox::find_contour() {
     // compute Volume and Energy
 	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		computeVolumeAndEnergy();
-		volume = abs(volume);
 	}
 	else updateFirstOrderNeigbors();
 	
@@ -1099,6 +1098,7 @@ void LSbox::updateFirstOrderNeigbors(){
 
 void LSbox::computeVolumeAndEnergy()
 {
+	double dA = volume;
 	volume = 0;
 	perimeter = 0;
 	energy = 0;
@@ -1107,6 +1107,7 @@ void LSbox::computeVolumeAndEnergy()
 	double thetaMis=0;	
 	double theta_ref = 15.0 * PI / 180.0;
 	double gamma_hagb = handler->hagb;
+	double dt = handler->get_dt();
 	int i;
 	grainCharacteristics.clear();
 	vector<characteristics>::iterator it;	
@@ -1164,8 +1165,11 @@ void LSbox::computeVolumeAndEnergy()
 		perimeter += line_length;
 		energy += (contourGrain[i].energy * line_length);
 	}
+	volume = abs(volume);
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
-	
+	dA -=volume;
+	dA/=dt;
+	VolEvo.push_back(VolEvolution(dA,grainCharacteristics.size()));
 // 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
 // 		 printf("%d\t %lf\t %lf\t%lf\n", (*it).directNeighbour->get_id(),(*it).length,(*it).energyDensity,(*it).mis_ori);
 // 	}

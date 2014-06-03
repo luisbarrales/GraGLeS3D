@@ -18,7 +18,12 @@ class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
 
 struct SPoint;
-
+struct VolEvolution{
+	double dA;
+	int Nvertex;
+	VolEvolution(double dA, int nr) : dA(dA), Nvertex(nr)
+		{}
+};
 struct characteristics{
     LSbox* directNeighbour;
     double length;
@@ -58,6 +63,7 @@ class LSbox {
 	int nvertices;
 	double* quaternion;
 	double energy, volume, perimeter;
+	vector<VolEvolution> VolEvo;
 	grainhdl* handler;
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;

@@ -622,7 +622,7 @@ void grainhdl::initEnvironment()
 void grainhdl::set_h(double hn){
       h =hn;
 }
-void grainhdl::set_realDomainSize(int realDomainSize){
+void grainhdl::set_realDomainSize(int realDomainSizen){
      realDomainSize= realDomainSizen;
      ngridpoints = realDomainSize+2*grid_blowup;
 }
