@@ -9,7 +9,7 @@
    <DiscreteSamplingRate> 50 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
-   <ReadFromFilename>points2D.txt</ReadFromFilename>
+   <ReadFromFilename> points2D.txt </ReadFromFilename>
    <HAGB> 0.6 </HAGB>
    <TriplePointDrag> 0.5 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>

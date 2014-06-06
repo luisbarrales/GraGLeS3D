@@ -23,7 +23,7 @@ class grainhdl{
 	int ngrains;
 	double dt;
 	double h;
-	
+
 	int realDomainSize;
 	int ngridpoints;
 	int grid_blowup;
@@ -35,10 +35,11 @@ class grainhdl{
 	int currentNrGrains;
 	mathMethods* mymath;
 	int loop;
+	vector<double> time;
 	vector<double> totalenergy;
 	vector<int> nr_grains;
 	vector<double> discreteEnergyDistribution;
-	
+
 	double tubeRadius;
 	double *ST;
 	double *part_pos;	
