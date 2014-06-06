@@ -36,11 +36,11 @@ void grainhdl::setSimulationParameter(){
 
 	switch (Settings::ConvolutionMode) {
 		case 0 : {
-			dt = 1/double(realDomainSize*realDomainSize);
+			dt = 0.8/double(realDomainSize*realDomainSize);
 			break;
 		}
 		case 1 : {
-			dt = 1/double(realDomainSize*realDomainSize);
+			dt = 0.8/double(realDomainSize*realDomainSize);
 			break;
 		}
 		case 2: {
@@ -477,6 +477,7 @@ void grainhdl::saveMicrostructure(){
 			(*it)->plot_box_contour(loop, false, &output);
 		}
 	output.close();
+
 }
 void grainhdl::createParamsForSim(const char* param_filename, const char* vertex_dump_filename)
 {
@@ -526,17 +527,20 @@ void grainhdl::save_sim(){
 
 		//! Generate area variation file
 		for(int j = 1; j < grains.size(); j++){
-
+			if(grains[j]==NULL)
+				continue;
 			filename.str("");
 			filename << "AreaVariationForGrain" << "_"<< j << ".txt";
 			filestream.open(filename.str().c_str());
 
-			int k =0;
-			for(int i=0; i < grains[j]->VolEvo.size(); i++){
+			int k =1;
+			//! i=1 is set, because there aren't any acceptable values in the first loop.
+			for(int i=1; i < grains[j]->VolEvo.size(); i++){
 				//filestream << grains[j]->id << "\t";
 				filestream << k++ << "\t";
 				filestream << grains[j]->VolEvo[i].dA << "\t";
-				filestream << grains[j]->VolEvo[i].nVertex << "\n";
+				filestream << grains[j]->VolEvo[i].nVertex << "\t";
+				filestream << grains[j]->boundaryGrain << "\n";
 			}
 
 			filestream.close();

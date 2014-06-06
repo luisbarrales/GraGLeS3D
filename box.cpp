@@ -840,7 +840,7 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 		boundaryGrain = true;
 		boundaryCondition();
 	}
-	boundaryGrain = false;
+	else boundaryGrain = false;
 	set_comparison();
 //	if(id==201) plot_box(true,2,"Com",true);
 //	if(id==201) plot_box(true,2,"Combig",false);
@@ -1170,11 +1170,14 @@ void LSbox::computeVolumeAndEnergy()
 	//! Evaluating the area variation in the current time step and
 	//! saving this variation together with the current number
 	//! of neighbours in a vector for further analyses.
+	//! The area variation is normalized by a factor coming from the
+	//! Neumann-Mullins equation.
 	//!
 
 	dA = volume - dA;
-//	dA /= handler->get_dt();
-	cout << "The area variation rate :" << dA<< "  " << grainCharacteristics.size() << endl;
+	dA *= h*h;
+	dA /= Settings::AnalysisTimestep*handler->get_dt();
+	dA *= (3/PI);
 	VolEvo.push_back(VolEvolution(dA,grainCharacteristics.size()));
 
 // 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
@@ -1626,6 +1629,8 @@ void LSbox::constructBoundarySectors(bool test_plot)
 		}
 	}
 
+	//! test_plot = false
+	test_plot = false;
 	if(test_plot)
 	{
 		plot_box_contour(handler->loop, true);

@@ -87,7 +87,9 @@ if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Sett
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
-			if(grains[i]->get_status() == false ) {
+			//! Deletes the data structure of a grain if it has been removed;
+			//! except for ResearchMode is activated.
+			if(grains[i]->get_status() == false && !Settings::ResearchMode) {
 				delete grains[i];
 				removeGrain(i);
 			}
