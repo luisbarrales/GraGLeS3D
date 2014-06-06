@@ -61,7 +61,7 @@ void grainhdl::setSimulationParameter(){
 		case 1: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
-				deviation = 15*PI/180;
+				deviation = 10*PI/180;
 			}
 			else { 
 				bunge = NULL; 
@@ -328,7 +328,7 @@ void grainhdl::convolution(){
 	int i=0;
 	for (it = ++grains.begin(); it !=grains.end(); it++,++i){
 		if(*it==NULL) continue;
-		if((*it)->id==0) (*it)->plot_box(true,2, "error", true);
+//		if((*it)->id==0) (*it)->plot_box(true,2, "error", true);
 		(*it)->convolution(m_ThreadMemPool[0]);
 	}
 }
@@ -401,8 +401,9 @@ void grainhdl::save_texture(){
 			total_energy += (*it)->energy;
 
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
-			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);			
+			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);
 
+			//	compute the SEDF table
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
 				if(!Settings::IsIsotropicNetwork){
 				//take into account that every line is twice in the model
@@ -410,9 +411,9 @@ void grainhdl::save_texture(){
 				}
 				totalLength += 0.5 * (*it2).length;
 			}
-
 		}
 	}
+
 	double sum=0;
 	if(!Settings::IsIsotropicNetwork){
 		for (int i=0; i < Settings::DiscreteSamplingRate; i++){
@@ -423,12 +424,14 @@ void grainhdl::save_texture(){
 	}
 	totalenergy.push_back(0.5*total_energy);
 	nr_grains.push_back(numberGrains);
+	time.push_back(simulationTime);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << numberGrains<< endl;
 	cout << "Amount of free Energy in the Network :" << 0.5*total_energy<< "   "<< sum <<endl;
 	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
 	fclose(enLenDis);
+
 }
  
   
@@ -474,7 +477,7 @@ void grainhdl::saveMicrostructure(){
 		for (it = ++grains.begin(); it !=grains.end(); it++){
 			if(*it== NULL) continue;
 			output << (*it)->id << "\t" << (*it)->contourGrain.size()<< "\t" << (*it)->quaternion[0] << "\t" << (*it)->quaternion[1] << "\t" << (*it)->quaternion[2] << "\t" << (*it)->quaternion[3] << endl;
-			(*it)->plot_box_contour(loop, false, &output);
+//			(*it)->plot_box_contour(loop, false, &output);
 		}
 	output.close();
 }
@@ -500,6 +503,7 @@ void grainhdl::save_sim(){
 	ofstream myfile;
 	myfile.open ("NrGrains&EnergyStatistics.txt");
 	for(int i=0; i< nr_grains.size(); i++){
+		myfile << time[i] << "\t";
 		myfile << nr_grains[i] << "\t";
 		myfile << totalenergy[i] << endl;
 	}

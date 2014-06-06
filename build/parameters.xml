@@ -2,24 +2,24 @@
 <Parameters>
 
 	 <StartTime> 0 </StartTime>
-   <NumberOfParticles> 50</NumberOfParticles> 
+   <NumberOfParticles> 10000</NumberOfParticles> 
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
-   <AnalysisTimestep> 5 </AnalysisTimestep>
-   <NumberOfTimesteps> 100 </NumberOfTimesteps>
+   <AnalysisTimestep> 25 </AnalysisTimestep>
+   <NumberOfTimesteps> 500 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
-   <ReadFromFilename>points2D.txt</ReadFromFilename>
+   <ReadFromFilename> points2D.txt </ReadFromFilename>
    <HAGB> 0.6 </HAGB>
    <TriplePointDrag> 0.5 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 1 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 0 </ExecuteInParallel>
+   <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
    <GridCoarsement> 0 </GridCoarsement>
-   <GridCoarsementGradient>0.95 </GridCoarsementGradient> 
-   <ConvolutionMode> 1 </ConvolutionMode>
-   <ResearchMode> 1 </ResearchMode>
+   <GridCoarsementGradient> 0.99 </GridCoarsementGradient> 
+   <ConvolutionMode> 0 </ConvolutionMode>
+   <ResearchMode> 0 </ResearchMode>
    
 </Parameters>

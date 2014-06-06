@@ -4,7 +4,7 @@
 void parallelHandler::run_sim()
 {
 
-
+double shrink;
 #pragma omp parallel for
 		for (int i = 1; i < grains.size(); i++){
 			grains[i]->distancefunction();
@@ -20,31 +20,36 @@ for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTi
 
 #pragma omp parallel
 {
-if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0&& Settings::GridCoarsement){
-	  double shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
-	  #pragma omp for  
-	    for (int i = 1; i < grains.size(); i++){
-		if(grains[i]==NULL)
+
+if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0 && Settings::GridCoarsement){
+#pragma omp single
+	{
+		cout << "Grain Coarsement in Time Step  " << loop << endl;
+		shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
+	}
+#pragma omp for
+    for (int i = 1; i < grains.size(); i++){
+    	if(grains[i]==NULL)
 			continue;
 		  grains[i]->resizeGrid(shrink);
-	    }	
-	 #pragma omp single
-	  {
-	    realDomainSize = realDomainSize * (1-shrink)+1; 
-	    ngridpoints = realDomainSize+2*grid_blowup; 
-	    h = 1.0/realDomainSize;
-	    dt = 1.0/double(realDomainSize*realDomainSize);
-	  }
-    }
+	}
+#pragma omp single
+{
+    realDomainSize = realDomainSize * (1-shrink)+1;
+    ngridpoints = realDomainSize+2*grid_blowup;
+    h = 1.0/realDomainSize;
+    dt = 0.8/double(realDomainSize*realDomainSize);
+}
+}
 
-    else {
-    #pragma omp for
-		  for (int i = 1; i < grains.size(); i++){
-			  if(grains[i]==NULL)
-				  continue;
-			  grains[i]->switchInNOut();  
-		  }
-    }
+else {
+#pragma omp for
+	  for (int i = 1; i < grains.size(); i++){
+		  if(grains[i]==NULL)
+			  continue;
+		  grains[i]->switchInNOut();
+	  }
+}
 
 
 #pragma omp for

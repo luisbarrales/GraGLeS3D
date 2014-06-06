@@ -406,7 +406,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 //TEST CODE 
 	if(handler->loop > 0)
-		constructBoundarySectors(handler->loop % Settings::AnalysisTimestep == 0);
+		constructBoundarySectors(/*handler->loop % Settings::AnalysisTimestep == 0*/ false);
 //TEST CODE
 	if(!Settings::IsIsotropicNetwork && handler->loop!=0){
 	    vector<LSbox*>::iterator it;
@@ -984,7 +984,7 @@ void LSbox::find_contour() {
 	exist = false;
 	
 	contourGrain.clear();
-	vector<GrainJunction> Junctions;
+//	vector<GrainJunction> Junctions;
     MarchingSquaresAlgorithm marcher(*inputDistance, IDLocal, this);
     junctions.clear();
     exist = marcher.generateContour(contourGrain, junctions);
@@ -1163,7 +1163,7 @@ void LSbox::computeVolumeAndEnergy()
 
 	}
 
-	volume = abs(volume);
+	volume = abs(volume) *h*h;
 	contourGrain[contourGrain.size()-1].energy = contourGrain[0].energy;
 
 	//!
@@ -1173,8 +1173,9 @@ void LSbox::computeVolumeAndEnergy()
 	//!
 
 	dA = volume - dA;
-//	dA /= handler->get_dt();
-	cout << "The area variation rate :" << dA<< "  " << grainCharacteristics.size() << endl;
+	dA /= handler->get_dt();
+	dA *=3*PI;
+//	cout << "The area variation rate :" << dA<< "  " << grainCharacteristics.size() << endl;
 	VolEvo.push_back(VolEvolution(dA,grainCharacteristics.size()));
 
 // 	for (it = grainCharacteristics.begin(); it != grainCharacteristics.end(); it++){
