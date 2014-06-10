@@ -394,7 +394,7 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	makeFFTPlans(inputDistance->getRawData(),outputDistance->getRawData(), fftTemp, &fwdPlan, &bwdPlan);
 }
 	conv_generator(fftTemp,fwdPlan,bwdPlan);
-
+//	plot_box(true,2,"Convoluted_ISO_",true);
 #pragma omp critical
 {
 	destroyFFTWs(fwdPlan, bwdPlan);
@@ -503,9 +503,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	get_new_IDLocalSize();
 	IDLocal.resize(xminId, yminId, xmaxId, ymaxId);
 // 	if(id == 15 && handler->loop >90)plot_box(true,2,"Convoluted_2_");
- 	plot_box(true,1,"Convoluted_",true);
-
-	plot_box(true,2,"Convoluted_",true);
+// 	plot_box(true,1,"Convoluted_",true);
+//	plot_box(true,2,"Convoluted_",true);
 
 
 }
@@ -842,7 +841,7 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 	}
 	else boundaryGrain = false;
 	set_comparison();
-	plot_box(true,2,"Com",true);
+//	plot_box(true,2,"Com",true);
 //	if(id==201) plot_box(true,2,"Combig",false);
 
 }
@@ -1304,7 +1303,7 @@ void LSbox::redist_box() {
 	
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(), outputDistance->getMaxX(), outputDistance->getMaxY());	
 	// 	 set the references for the convolution step
-	 plot_box(true,2,"Redist",true);
+//	 plot_box(true,2,"Redist",true);
 }
 
 /**************************************/
