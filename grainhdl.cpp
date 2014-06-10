@@ -61,7 +61,7 @@ void grainhdl::setSimulationParameter(){
 		case 1: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
-				deviation = 10*PI/180;
+				deviation = 15*PI/180;
 			}
 			else { 
 				bunge = NULL; 
