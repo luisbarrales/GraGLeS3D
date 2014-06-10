@@ -192,7 +192,7 @@ void grainhdl::VOROMicrostructure(){
     	x=double(i*h);
     	y=double(j*h); // only point within the domain
     	if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-    		cell_id= cell_id++;
+    		cell_id++;
     		part_pos[3*(cell_id-1)]=rx;
     		part_pos[3*(cell_id-1)+1]=ry;
 			part_pos[3*(cell_id-1)+2]=rz;
