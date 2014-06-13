@@ -92,9 +92,8 @@ else {
 		for (int i = 1; i < grains.size(); i++){
 			if(grains[i]==NULL)
 				continue;
-			//! Deletes the data structure of a grain if it has been removed;
-			//! except for ResearchMode is activated.
-			if(grains[i]->get_status() == false && !Settings::ResearchMode) {
+
+			if(grains[i]->get_status() == false) {
 				delete grains[i];
 				removeGrain(i);
 			}
