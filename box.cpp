@@ -1127,7 +1127,13 @@ void LSbox::computeVolumeAndEnergy()
 		}
 		if(Settings::IsIsotropicNetwork){
 		  contourGrain[i].energy = 1.0;
-		}		
+		}
+		else if(Settings::ResearchMode ==1){
+			theta_ref = 42 * PI /180;
+			thetaMis = mis_ori( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0));
+			if (thetaMis <= theta_ref)	contourGrain[i].energy = 0.3;
+			else contourGrain[i].energy = gamma_hagb;
+		}
 		else{
 			thetaMis = mis_ori( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0));
 		  if (thetaMis <= theta_ref)

@@ -61,7 +61,7 @@ void grainhdl::setSimulationParameter(){
 		case 1: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
-				deviation = 8*PI/180;
+				deviation = 20*PI/180;
 			}
 			else { 
 				bunge = NULL; 
@@ -402,13 +402,14 @@ void grainhdl::save_texture(){
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
 
 			//! If ResearchMode is activated additional data (e.g. area variation) is stored in the Texture files
-			if(Settings::ResearchMode) {
+//			if(Settings::ResearchMode) {
 				fprintf(myfile, "%u\t%u\t%u\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->id, (*it)->grainCharacteristics.size(), (*it)->boundaryGrain, (*it)->volume, (*it)->VolEvo[(*it)->VolEvo.size()-1].dA, (*it)->perimeter, (*it)->energy, euler[0], euler[1], euler[2]);
-			} else {
-				fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);
-			}
+//			} else {
+//				fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->id,  (float) (*it)->grainCharacteristics.size(), (*it)->volume, (float) (*it)->perimeter, (float) (*it)->energy), euler[0], euler[1], euler[2];
+//			}
 
 			//	compute the SEDF table
+
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
 				if(!Settings::IsIsotropicNetwork){
 				//take into account that every line is twice in the model
@@ -416,6 +417,14 @@ void grainhdl::save_texture(){
 				}
 				totalLength += 0.5 * (*it2).length;
 			}
+			double sum = 0;
+			for(int i= 0; i < Settings::DiscreteSamplingRate; i++){
+				sum+= discreteEnergyDistribution[i];
+			}
+			for(int i= 0; i < Settings::DiscreteSamplingRate; i++){
+				if (discreteEnergyDistribution[i] > 0)  discreteEnergyDistribution[i] = discreteEnergyDistribution[i]/ sum;
+			}
+
 		}
 	}
 
