@@ -1174,7 +1174,6 @@ void LSbox::computeVolumeAndEnergy()
 
 	dA = volume - dA;
 
-	dA *= h*h;
 	dA /= Settings::AnalysisTimestep*handler->get_dt();
 	dA *= (3/PI);
 	VolEvo.push_back(VolEvolution(dA,grainCharacteristics.size()));

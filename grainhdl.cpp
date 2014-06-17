@@ -61,7 +61,7 @@ void grainhdl::setSimulationParameter(){
 		case 1: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
-				deviation = 10*PI/180;
+				deviation = 8*PI/180;
 			}
 			else { 
 				bunge = NULL; 
@@ -348,9 +348,8 @@ void grainhdl::level_set(){
 	for (int i = 1; i < grains.size(); i++){
 		if(grains[i]==NULL)
 			continue;
-		//! Deletes the data structure of a grain if it has been removed;
-		//! except for ResearchMode is activated.
-		if(grains[i]->get_status() == false && !Settings::ResearchMode) {
+
+		if(grains[i]->get_status() == false) {
 			  delete grains[i];
 			  removeGrain(i);
 		}
@@ -401,7 +400,13 @@ void grainhdl::save_texture(){
 			total_energy += (*it)->energy;
 
 			(*mymath).quaternion2Euler( (*it)->quaternion, euler );
-			fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);
+
+			//! If ResearchMode is activated additional data (e.g. area variation) is stored in the Texture files
+			if(Settings::ResearchMode) {
+				fprintf(myfile, "%u\t%u\t%u\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", (*it)->id, (*it)->grainCharacteristics.size(), (*it)->boundaryGrain, (*it)->volume, (*it)->VolEvo[(*it)->VolEvo.size()-1].dA, (*it)->perimeter, (*it)->energy, euler[0], euler[1], euler[2]);
+			} else {
+				fprintf(myfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", euler[0], euler[1], euler[2], (*it)->volume, (float) (*it)->grainCharacteristics.size(), (float) (*it)->perimeter, (float) (*it)->energy);
+			}
 
 			//	compute the SEDF table
 			for(it2=(*it)->grainCharacteristics.begin(); it2!=(*it)->grainCharacteristics.end(); it2++){
@@ -513,45 +518,6 @@ void grainhdl::save_sim(){
 // 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
 	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 
-	/**
-	 * The following code block generates several
-	 * file outputs. These files store data concerning
-	 * area variation rates for single grains as well as
-	 * averaged values.
-	 *
-	 */
-
-	bool SingleGrains = true;
-
-	if(Settings::ResearchMode && SingleGrains){
-		//! file for area variation
-		ofstream filestream;
-
-		stringstream filename;
-
-		//! Generate area variation file
-		for(int j = 1; j < grains.size(); j++){
-			if(grains[j]==NULL)
-				continue;
-			filename.str("");
-			filename << "AreaVariationForGrain" << "_"<< j << ".txt";
-			filestream.open(filename.str().c_str());
-
-			int k =1;
-			//! i=1 is set, because there aren't any acceptable values in the first loop.
-			for(int i=1; i < grains[j]->VolEvo.size(); i++){
-				//filestream << grains[j]->id << "\t";
-				filestream << k++ << "\t";
-				filestream << grains[j]->VolEvo[i].dA << "\t";
-				filestream << grains[j]->VolEvo[i].nVertex << "\t";
-				filestream << grains[j]->boundaryGrain << "\n";
-			}
-
-			filestream.close();
-			filename.clear();
-		}
-
-	}
 }
 
 void grainhdl::updateSecondOrderNeighbors(){
