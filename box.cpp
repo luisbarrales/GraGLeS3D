@@ -588,7 +588,6 @@ void LSbox::makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_pla
 	int n = outputDistance->getMaxX() - outputDistance->getMinX();
 	  *fftplan1 = fftwf_plan_dft_r2c_2d(n,n,in,fftTemp,FFTW_ESTIMATE);
 	  *fftplan2 = fftwf_plan_dft_c2r_2d(n,n,fftTemp,out,FFTW_ESTIMATE);
-
 }
 
 void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2)
