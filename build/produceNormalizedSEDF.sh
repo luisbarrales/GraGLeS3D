@@ -23,7 +23,7 @@ normalizeLength(){
 	#Generate heights of the rectangle as normalized relative frequency divided by step size , i.d. width of bin.
 	#This ensues that the cumulative area of all rectangles equals 1.
 	awk -v nL_area="$nL_area" 'BEGIN {width = 0.012}
-	{$2=($2/(nL_area))/0.012 ; print $1,$2 }' $nL_fileName >> tempEnergyFile${nL_timestep}.txt 
+	{$2=($2/(nL_area))/0.024 ; print $1,$2 }' $nL_fileName >> tempEnergyFile${nL_timestep}.txt 
 	return 0
 
 }
