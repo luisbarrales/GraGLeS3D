@@ -9,8 +9,16 @@ enum E_MICROSTRUCTURE_GEN_MODE
 {
 	E_READ_FROM_FILE,
 	E_GENERATE_WITH_VORONOY,
-	E_READ_MICROSTRUCTURE,
-	E_FOR_FOURTH_MODE,
+	E_READ_VERTEX,
+	E_GENERATE_TESTCASE,
+	E_INVALID_VAL
+};
+
+enum E_CONVOLUTION_MODE
+{
+	E_LAPLACE,
+	E_LAPLACE_RITCHARDSON,
+	E_GAUSSIAN,
 	E_INVALID_VALUE
 };
 
@@ -35,7 +43,7 @@ class Settings
 	static bool GridCoarsement;
 	static double GridCoarsementGradient;
 	static unsigned long MaximumNumberOfThreads;
-	static unsigned long ConvolutionMode;
+	static E_CONVOLUTION_MODE ConvolutionMode;
 
 	static void initializeParameters(std::string filename = "");
 	static rapidxml::xml_node<>* generateXMLParametersNode(rapidxml::xml_document<>* root, const char* filename, int loop, int grains);

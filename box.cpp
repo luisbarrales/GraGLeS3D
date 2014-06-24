@@ -619,7 +619,7 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 	//	Forward DFT
 
 	switch (Settings::ConvolutionMode){
-		case 0 : {
+		case E_LAPLACE : {
 			for(int i=0;i<n2;i++) {
 				coski=cos(k*i);
 				for(int j=0;j<n;j++){
@@ -631,7 +631,7 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 			}
 			break;
 		}
-		case 1 : {
+		case E_LAPLACE_RITCHARDSON : {
 //			Ritchardson Extrapolation
 			for(int i=0;i<n2;i++) {
 				coski=cos(k*i);
@@ -644,7 +644,7 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_pl
 			}
 			break;
 		}
-		case 2 : {
+		case E_GAUSSIAN : {
 			double nsq = handler->KernelNormalizationFactor;
 			cout << n*n << "   " << nsq << endl;
 			nsq=n*n;
