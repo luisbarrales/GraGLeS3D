@@ -24,9 +24,6 @@ struct VolEvolution{
 //! area and the corresponding number
 //! of vertices.
 //!
-
-struct VolEvolution{
-
 	double dA;
 	int nVertex;
 

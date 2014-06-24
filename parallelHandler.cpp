@@ -17,14 +17,14 @@ find_neighbors();
 for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
 		//Switch Distance Buffers
 
-	#pragma omp parallel
-	{
-        
-        if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0 && Settings::GridCoarsement){
-        #pragma omp single{
-                cout << "Grain Coarsement in Time Step  " << loop << endl;
-		shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
-	}
+#pragma omp parallel
+{
+    if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0 && Settings::GridCoarsement){
+        #pragma omp single
+    	{
+    		cout << "Grain Coarsement in Time Step  " << loop << endl;
+    		shrink = 1-sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize;
+    	}
 	#pragma omp for  
 	for (int i = 1; i < grains.size(); i++){
 	    if(grains[i]==NULL)
@@ -36,10 +36,9 @@ for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTi
 	    realDomainSize = realDomainSize * (1-shrink)+1; 
 	    ngridpoints = realDomainSize+2*grid_blowup; 
 	    h = 1.0/realDomainSize;
-            dt = 0.8/double(realDomainSize*realDomainSize);
-         }
+        dt = 0.8/double(realDomainSize*realDomainSize);
+     }
 	}
-
 	else {
 		#pragma omp for
 			  for (int i = 1; i < grains.size(); i++){
