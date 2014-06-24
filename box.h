@@ -18,7 +18,7 @@ class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
 
 struct SPoint;
-
+struct VolEvolution{
 //!
 //! This struct stores the evolution of
 //! area and the corresponding number

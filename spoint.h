@@ -26,7 +26,7 @@ struct SPoint
 	}
 	bool operator<(const SPoint& other) const
 	{
-		return y<other.y || (!(other.y<y) && x<other.x);
+		return y>other.y || (!(other.y>y) && x<other.x);
 	}
 	SPoint operator+(const SPoint& other)
 	{
@@ -52,6 +52,10 @@ struct SPoint
 	double dot(const SPoint& other) const
 	{
 		return x*other.x + y*other.y;
+	}
+	double cross(const SPoint& other) const
+	{
+		return x*other.y - y*other.x;
 	}
 	double len() const
 	{

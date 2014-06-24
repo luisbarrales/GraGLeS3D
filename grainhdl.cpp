@@ -35,15 +35,15 @@ void grainhdl::setSimulationParameter(){
 
 
 	switch (Settings::ConvolutionMode) {
-		case 0 : {
+		case E_LAPLACE : {
 			dt = 0.8/double(realDomainSize*realDomainSize);
 			break;
 		}
-		case 1 : {
+		case E_LAPLACE_RITCHARDSON : {
 			dt = 0.8/double(realDomainSize*realDomainSize);
 			break;
 		}
-		case 2: {
+		case E_GAUSSIAN: {
 			dt = 0.4/double(realDomainSize*realDomainSize/2);
 			break;
 		}
@@ -57,8 +57,11 @@ void grainhdl::setSimulationParameter(){
 	ngridpoints = realDomainSize + (2*grid_blowup); 
 	boundary = new LSbox(0, 0, 0, 0, this);
 // 	(*boundary).plot_box(false,2,"no.gnu");
-	switch (Mode) {
-		case 1: {
+
+	KernelNormalizationFactor = 2*(Settings::NumberOfPointsPerGrain+(2*grid_blowup)) * (Settings::NumberOfPointsPerGrain+(2*grid_blowup));
+
+	switch (Settings::MicrostructureGenMode) {
+		case E_GENERATE_WITH_VORONOY: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
 				deviation = 20*PI/180;
@@ -72,14 +75,14 @@ void grainhdl::setSimulationParameter(){
 // 			generateRandomEnergy();
 			break;
 		}
-		case 2: {
+		case E_READ_VERTEX :{
 			bunge = NULL; deviation = 0;
 			ST=new double [ngrains*ngrains];
 			std::fill_n(ST,ngrains*ngrains,0);
 			readMicrostructureFromVertex();
 			break;
 		}
-		case 3:{
+		case E_READ_FROM_FILE:{
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
 				deviation = 15*PI/180;
@@ -97,7 +100,7 @@ void grainhdl::setSimulationParameter(){
 		//! grain construction by means of a file input
 		//! with 2D point information
 		//!
-		case 4: {
+		case E_GENERATE_TESTCASE: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
 				deviation = 15*PI/180;
@@ -153,7 +156,7 @@ void grainhdl::VOROMicrostructure(){
     //!
     //! Particles are added deliberately in the container according to the input file data.
     //!
-    if(Mode == 4) {
+    if(Settings::MicrostructureGenMode == E_GENERATE_TESTCASE) {
     	FILE* pointSketch;
     	pointSketch = fopen(Settings::ReadFromFilename.c_str(), "r");
     	if (pointSketch== nullptr) {
@@ -189,7 +192,7 @@ void grainhdl::VOROMicrostructure(){
     	x=double(i*h);
     	y=double(j*h); // only point within the domain
     	if(con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id)){
-    		cell_id= cell_id++;
+    		cell_id++;
     		part_pos[3*(cell_id-1)]=rx;
     		part_pos[3*(cell_id-1)+1]=ry;
 			part_pos[3*(cell_id-1)+2]=rz;
@@ -389,7 +392,6 @@ void grainhdl::save_texture(){
 	double buffer = 0.24;
 	double euler[3];
 	vector<characteristics> :: iterator it2;
-// 	fprintf(myfile, "%d\n", );
 	vector<LSbox*> :: iterator it;
 	
 	std::fill (discreteEnergyDistribution.begin(),discreteEnergyDistribution.end() , 0.0);

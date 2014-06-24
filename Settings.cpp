@@ -16,10 +16,10 @@ unsigned long Settings::NumberOfTimesteps = 0;
 unsigned long Settings::AnalysisTimestep = 0;
 unsigned long Settings::DiscreteSamplingRate = 0;
 unsigned long Settings::DomainBorderSize = 0;
-unsigned long Settings::ConvolutionMode=0;
 unsigned long Settings::MaximumNumberOfThreads = 0;
 double Settings::GridCoarsementGradient = 0.95 ;
-E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VALUE;
+E_CONVOLUTION_MODE Settings::ConvolutionMode= E_INVALID_VALUE;
+E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VAL;
 string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
 double Settings::TriplePointDrag=0.0;
@@ -96,8 +96,8 @@ void Settings::initializeParameters(string filename)
 	if( 0 != rootNode->first_node("MicrostructureGenMode") )
 	{
 		MicrostructureGenMode = (E_MICROSTRUCTURE_GEN_MODE)std::stoi(rootNode->first_node("MicrostructureGenMode")->value());
-		if(MicrostructureGenMode >= E_INVALID_VALUE)
-			MicrostructureGenMode = E_INVALID_VALUE;
+		if(MicrostructureGenMode >= E_INVALID_VAL)
+			MicrostructureGenMode = E_INVALID_VAL;
 	}
 	if( 0 != rootNode->first_node("ReadFromFilename") )
 	{
@@ -141,9 +141,11 @@ void Settings::initializeParameters(string filename)
 		GridCoarsementGradient = std::stod(rootNode->first_node("GridCoarsementGradient")->value());
 	}
 	if( 0 != rootNode->first_node("ConvolutionMode") )
-		{
-		ConvolutionMode = std::stoul(rootNode->first_node("ConvolutionMode")->value());
-		}
+	{
+		ConvolutionMode = (E_CONVOLUTION_MODE)std::stoi(rootNode->first_node("ConvolutionMode")->value());
+		if(ConvolutionMode >= E_INVALID_VALUE)
+			ConvolutionMode = E_INVALID_VALUE;
+	}
 	//!
 	if( 0 != rootNode->first_node("ResearchMode") )
 	{
