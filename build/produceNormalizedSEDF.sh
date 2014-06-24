@@ -5,25 +5,26 @@
 
 #The original energy files are altered in the second column. The absolute
 #length is substituted by the corresponding bin height. For each file 
-# a temporary file with the conversions is returned.
+# a temporary file with the conversions is returned. Requires two arguments:
+# filename and discreteSamplingRate.
 normalizeLength(){
 	if [ $# -eq 0 ] ; then
-		echo "Pass a filename as a parameter to this function."
+		echo "Pass a filename and a sampling rate as parameters to this function."
 		exit 1
 	fi
 
 	nL_fileName=$1
+	nL_samplingRate=$2
 	nL_timestep=`echo ${nL_fileName//[A-Z,a-z,.,_,\/]}`
 	
-	#Calculate sum for normalizing to relative frequencies
-	nL_area=`awk 'BEGIN {var = 0 ; sum = 0}
-	{sum = sum + $2 ; var = $1}
+	#Calculate the sum for normalizing to relative frequencies
+	nL_area=`awk 'BEGIN {sum = 0}
+	{sum = sum + $2}
 	END {print sum}' $nL_fileName`
 	
-	#Generate heights of the rectangle as normalized relative frequency divided by step size , i.d. width of bin.
+	#Generate height of the rectangle as normalized relative frequency divided by step size , i.d. width of bin.
 	#This ensues that the cumulative area of all rectangles equals 1.
-	awk -v nL_area="$nL_area" 'BEGIN {width = 0.012}
-	{$2=($2/(nL_area))/0.024 ; print $1,$2 }' $nL_fileName >> tempEnergyFile${nL_timestep}.txt 
+	awk -v nL_area="$nL_area" -v nL_samplingRate="$nL_samplingRate" '{$2=($2/(nL_area))/nL_samplingRate ; print $1,$2 }' $nL_fileName >> tempEnergyFile${nL_timestep}.txt 
 	return 0
 
 }
@@ -153,20 +154,17 @@ generateGnuplotFile(){
 
 #fi
 
-# Normalize the energy values
-
-# Determine the discrete sampling rate
-
-#existEnergyLength=`find ./ -type f -name "EnergyLengthDistribution_*"`
-#existEnergyLengthTruncated=${existEnergyLength% *}
-#existEnergyLengthTruncated2=${existEnergyLengthTruncated% *}
-#echo $existEnergyLengthTruncated2
-
 sortedEnergyFiles=`find ./ -type f -name "EnergyLengthDistribution_*" | sort -k2 -t_ -n`
 
 for energyFile in $sortedEnergyFiles
 do
-	normalizeLength $energyFile
+	
+	firstLine=`head -1 $energyFile`
+	firstLineT=${firstLine%	*}
+	secondLine=`tail +2 $energyFile | head -1`
+	secondLineT=${secondLine%	*}	
+	difference=$(echo "$secondLineT -  $firstLineT" | bc)
+	normalizeLength $energyFile $difference
 done
 
 # Determine maximal y-value of all timesteps
