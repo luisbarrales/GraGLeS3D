@@ -405,8 +405,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 	// hier soll energycorrection gerechnet werden.
 	// in der domainCl steht die urspr�nglich distanzfunktion, in dem arry die gefaltete
 //TEST CODE 
-	if(handler->loop > 0)
-		constructBoundarySectors(/*handler->loop % Settings::AnalysisTimestep == 0*/ false);
+//	if(handler->loop > 0)
+//		constructBoundarySectors(/*handler->loop % Settings::AnalysisTimestep == 0*/ false);
 //TEST CODE
 	if(!Settings::IsIsotropicNetwork && handler->loop!=0){
 	    vector<LSbox*>::iterator it;
