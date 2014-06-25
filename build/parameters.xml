@@ -5,7 +5,7 @@
    <NumberOfPointsPerGrain> 10 </NumberOfPointsPerGrain>
    <AnalysisTimestep> 25 </AnalysisTimestep>
    <NumberOfTimesteps> 1000 </NumberOfTimesteps>
-   <DiscreteSamplingRate> 50 </DiscreteSamplingRate>
+   <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
    <!-- USAGE:
@@ -20,9 +20,9 @@
    <UseMobilityFactor> 0 </UseMobilityFactor>
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 0 </ExecuteInParallel>
+   <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 0 </GridCoarsement>
+   <GridCoarsement> 1 </GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
    <ConvolutionMode> 0 </ConvolutionMode>   
    <!-- USAGE:
@@ -30,6 +30,9 @@
 			1		E_LAPLACE_RITCHARDSON,
 			2		E_GAUSSIAN,
    -->
-   <ResearchMode> 1 </ResearchMode>
-
+   <ResearchMode> 0 </ResearchMode>
+		<!-- USAGE:
+   		0 	Energies defined by misorientation
+			1	  Energies clambed to 0.3 or 0.6  -- use Texture == false			
+   -->
 </Parameters>

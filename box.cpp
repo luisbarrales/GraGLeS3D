@@ -1033,9 +1033,9 @@ void LSbox::find_contour() {
 	}
 	else updateFirstOrderNeigbors();
 	
-	if(grainCharacteristics.size() <2 && contourGrain.size() >3) {
-		cout << endl << "Timestep: " <<handler->loop << endl;
-		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
+	if(grainCharacteristics.size() < 2 ) {
+//		cout << endl << "Timestep: " <<handler->loop << endl;
+//		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
 //		plot_box(true, 2, "error_grain", true);
 //		plot_box(true, 1, "error_grain", true);
 //		plot_box_contour(handler->loop, true);

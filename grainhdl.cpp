@@ -419,7 +419,7 @@ void grainhdl::save_texture(){
 				}
 				totalLength += 0.5 * (*it2).length;
 			}
-			double sum = 0;
+			double sum = 0.0;
 			for(int i= 0; i < Settings::DiscreteSamplingRate; i++){
 				sum+= discreteEnergyDistribution[i];
 			}
@@ -430,12 +430,10 @@ void grainhdl::save_texture(){
 		}
 	}
 
-	double sum=0;
 	if(!Settings::IsIsotropicNetwork){
 		for (int i=0; i < Settings::DiscreteSamplingRate; i++){
 				fprintf(enLenDis, "%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
 				printf("%lf\t%lf\n",(float)(dh*(i+1)),(float)discreteEnergyDistribution[i]);
-				sum+=(float)discreteEnergyDistribution[i] * (float)(dh*(i+1));
 			}
 	}
 	totalenergy.push_back(0.5*total_energy);
@@ -443,7 +441,7 @@ void grainhdl::save_texture(){
 	time.push_back(simulationTime);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << numberGrains<< endl;
-	cout << "Amount of free Energy in the Network :" << 0.5*total_energy<< "   "<< sum <<endl;
+	cout << "Amount of free Energy in the Network :" << 0.5*total_energy <<endl;
 	cout << "Total GB Length in Network :" << totalLength<< endl << endl << endl;
 	fclose(myfile);
 	fclose(enLenDis);
@@ -473,6 +471,10 @@ void grainhdl::run_sim(){
 			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
 		}
 		simulationTime += dt;
+		if(currentNrGrains < 0.03*ngrains) {
+			cout << "Network has coarsed to less than 3% of the population. Break and save."<< endl;
+			break;
+		}
 	}
 // 	utils::CreateMakeGif();
 	cout << "Simulation complete." << endl;
