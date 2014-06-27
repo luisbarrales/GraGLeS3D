@@ -76,7 +76,7 @@ class LSbox {
 	vector<GrainJunction> junctions;
 	//! Declaration of a vector for VolEvolution struct
 	vector<VolEvolution> VolEvo;
-	
+
 
 	DimensionalBufferReal* inputDistance;
 	DimensionalBufferReal* outputDistance;

@@ -1136,11 +1136,40 @@ void LSbox::computeVolumeAndEnergy()
 		if(Settings::IsIsotropicNetwork){
 		  contourGrain[i].energy = 1.0;
 		}
-		else if(Settings::ResearchMode ==1){
+		else if(Settings::ResearchMode ==1 && Settings::MicrostructureGenMode != E_GENERATE_TESTCASE){
 			theta_ref = 42 * PI /180;
 			thetaMis = mis_ori( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0));
 			if (thetaMis <= theta_ref)	contourGrain[i].energy = 0.3;
 			else contourGrain[i].energy = gamma_hagb;
+		}
+		//! Handles the colouring for the E_GENERATE_TESTCASE
+		else if(Settings::ResearchMode == 1 && Settings::MicrostructureGenMode == E_GENERATE_TESTCASE){
+
+
+
+			contourGrain[i].energy = handler->weightsMatrix[get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id()];
+
+			//!double g0  = handler->weightsMatrix[get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id()];
+			//!double g1 = handler->weightsMatrix[IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(1)->get_id()];
+			//!double g2 = handler->weightsMatrix[get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(1)->get_id()];
+
+			//!contourGrain[i].energy = g0 - g1 + g2;
+
+			//!gamma[1] = m_pHandler->weightsMatrix[rep.first->get_id()][rep.second->get_id()];
+			//!gamma[2] = m_pHandler->weightsMatrix[me->get_id()][rep.second->get_id()];
+
+			//!cout << "x-point-Grid: " << pxGrid << endl;
+			//!cout << "y-point-Grid: " << pyGrid << endl;
+			//!
+			//!if((pxGrid == 32 && pyGrid >= 43 && pyGrid <= 57) || (pxGrid == 33 && pyGrid >= 43 && pyGrid <= 57)) {
+			//!
+			//!	contourGrain[i].energy = 0;
+			//!}
+			//!else {
+			//!
+			//!	contourGrain[i].energy = gamma_hagb;
+			//!}
+
 		}
 		else{
 			thetaMis = mis_ori( IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0));
