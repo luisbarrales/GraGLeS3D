@@ -12,9 +12,9 @@ for (int i = 1; i < grains.size(); i++){
 
 simulationTime =0;
 find_neighbors();
+bool  populationControle=true;
 
-
-for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++){
+for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps, populationControle!=false; loop++){
 		//Switch Distance Buffers
 
 #pragma omp parallel
@@ -118,6 +118,10 @@ for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTi
 				if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
 			}
 			simulationTime += dt;
+			if(currentNrGrains < 0.03*ngrains) {
+				cout << "Network has coarsed to less than 3% of the population. Break and save."<< endl;
+				populationControle=false;
+			}
 	}
 
 	}

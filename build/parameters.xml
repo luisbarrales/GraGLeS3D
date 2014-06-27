@@ -5,14 +5,14 @@
    <NumberOfPointsPerGrain> 20 </NumberOfPointsPerGrain>
    <AnalysisTimestep> 20 </AnalysisTimestep>
    <NumberOfTimesteps> 1000 </NumberOfTimesteps>
-   <DiscreteSamplingRate> 50 </DiscreteSamplingRate>
+   <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 3 </MicrostructureGenMode>
    <!-- USAGE:
-   	O		E_READ_FROM_FILE,
-	1		E_GENERATE_WITH_VORONOY,
-	2		E_READ_VERTEX,
-	3		E_GENERATE_TESTCASE,
+   		O		E_READ_FROM_FILE,
+			1		E_GENERATE_WITH_VORONOY,
+			2		E_READ_VERTEX,
+			3		E_GENERATE_TESTCASE,
    -->
    <ReadFromFilename>points2D.txt</ReadFromFilename>
    <HAGB> 0.6 </HAGB>
@@ -22,14 +22,17 @@
    <UseTexture> 0 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 0 </GridCoarsement>
+   <GridCoarsement> 1 </GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
    <ConvolutionMode> 0 </ConvolutionMode>   
    <!-- USAGE:
-   	O		E_LAPLACE,
-	1		E_LAPLACE_RITCHARDSON,
-	2		E_GAUSSIAN,
+   		O		E_LAPLACE,
+			1		E_LAPLACE_RITCHARDSON,
+			2		E_GAUSSIAN,
    -->
-   <ResearchMode> 1 </ResearchMode>
-
+   <ResearchMode> 0 </ResearchMode>
+		<!-- USAGE:
+   		0 	Energies defined by misorientation
+			1	  Energies clambed to 0.3 or 0.6  -- use Texture == false			
+   -->
 </Parameters>

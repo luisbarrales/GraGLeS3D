@@ -124,7 +124,6 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 			theta_mis = me->mis_ori(rep.second);
 			if (theta_mis <= theta_ref) gamma[2] = 0.3;
 			else gamma[2] = gamma_hagb;
-
  		}
 			
 	}
