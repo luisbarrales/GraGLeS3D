@@ -35,8 +35,8 @@
 #BSUB -a openmp
 
 ### Change to the work directory
-mkdir mySim 
-cd mySim%J
+mkdir mySim_$J 
+cd mySim_$J
 cp ../LevelSet_IMM ./
 cp ../parameters.xml ./
 
