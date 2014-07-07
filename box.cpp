@@ -440,7 +440,8 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 				val = inputDistance->getValueAt(i,j);
 				if(val > -handler->delta){
 					if(IDLocal.getValueAt(i,j).total_elements >= 2){
-
+						if( i==32 && j==32)
+							double c=0;
 						if(IDLocal.getValueAt(i,j).getElementAt(1)->get_status() == true &&
 						   IDLocal.getValueAt(i,j).getElementAt(1)->inputDistance->isPointInside(i,j))
 						{
@@ -464,32 +465,32 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool)
 						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * gamma );
 					}
 
-					else if (IDLocal.getValueAt(i,j).total_elements > 2){
-						nActiveGrains = IDLocal.getValueAt(i,j).total_elements;
-						IDs.clear();
-						for (int ii = 0;ii < nActiveGrains; ii++){
-							if(isNeighbour(IDLocal.getValueAt(i,j).getElementAt(ii))) {
-								IDs.push_back(IDLocal.getValueAt(i,j).getElementAt(ii));
-							}
-						}
-						if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
-						else if (IDs.size()==3){
-							weight =0;
-							IDsActive.clear();
-							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
-							weight += local_weights->isTriplePoint(IDsActive);
-							IDsActive.clear();
-							IDsActive.push_back(IDs[1]);IDsActive.push_back(IDs[2]);
-							weight += local_weights->isTriplePoint(IDsActive);
-							IDsActive.clear();
-							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[2]);
-							weight += local_weights->isTriplePoint(IDsActive);						
-							weight /= 3;
-						}	
-						else weight = 0.5*handler-> hagb;
-
-						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
-					}
+//					else if (IDLocal.getValueAt(i,j).total_elements > 2){
+//						nActiveGrains = IDLocal.getValueAt(i,j).total_elements;
+//						IDs.clear();
+//						for (int ii = 0;ii < nActiveGrains; ii++){
+//							if(isNeighbour(IDLocal.getValueAt(i,j).getElementAt(ii))) {
+//								IDs.push_back(IDLocal.getValueAt(i,j).getElementAt(ii));
+//							}
+//						}
+//						if (IDs.size()==2) weight=local_weights->loadWeights(IDs, this,handler->ST);
+//						else if (IDs.size()==3){
+//							weight =0;
+//							IDsActive.clear();
+//							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[1]);
+//							weight += local_weights->isTriplePoint(IDsActive);
+//							IDsActive.clear();
+//							IDsActive.push_back(IDs[1]);IDsActive.push_back(IDs[2]);
+//							weight += local_weights->isTriplePoint(IDsActive);
+//							IDsActive.clear();
+//							IDsActive.push_back(IDs[0]);IDsActive.push_back(IDs[2]);
+//							weight += local_weights->isTriplePoint(IDsActive);
+//							weight /= 3;
+//						}
+//						else weight = 0.5*handler-> hagb;
+//
+//						outputDistance->setValueAt(i,j, val + (outputDistance->getValueAt(i,j) - val) * weight);
+//					}
 				}
 				// this should avoid spikes, depending on thrird order neighbour interaction, occuring by periodicity of the the convoluted function
 				else  outputDistance->setValueAt(i,j, - handler->delta);
@@ -916,7 +917,7 @@ void LSbox::boundaryCondition(){
 				  IDLocal.getValueAt(i,j).insertAtPosition(E_FIRST_POSITION, boundary);
 			  }
 			  else { 
-				  IDLocal.getValueAt(i,j).insertAtPosition(E_SECOND_POSITION, boundary);
+				  IDLocal.getValueAt(i,j).insertAtPosition(E_LAST_POSITION, boundary);
 			  }
 //			}
 		}
@@ -1145,30 +1146,8 @@ void LSbox::computeVolumeAndEnergy()
 		//! Handles the colouring for the E_GENERATE_TESTCASE
 		else if(Settings::ResearchMode == 1 && Settings::MicrostructureGenMode == E_GENERATE_TESTCASE){
 
-
-
+			//!cout << "the current grain: " << get_id() << " the grain in vicinity: " << IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id() << endl;
 			contourGrain[i].energy = handler->weightsMatrix[get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id()];
-
-			//!double g0  = handler->weightsMatrix[get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id()];
-			//!double g1 = handler->weightsMatrix[IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(0)->get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(1)->get_id()];
-			//!double g2 = handler->weightsMatrix[get_id()][IDLocal.getValueAt(pyGrid, pxGrid).getElementAt(1)->get_id()];
-
-			//!contourGrain[i].energy = g0 - g1 + g2;
-
-			//!gamma[1] = m_pHandler->weightsMatrix[rep.first->get_id()][rep.second->get_id()];
-			//!gamma[2] = m_pHandler->weightsMatrix[me->get_id()][rep.second->get_id()];
-
-			//!cout << "x-point-Grid: " << pxGrid << endl;
-			//!cout << "y-point-Grid: " << pyGrid << endl;
-			//!
-			//!if((pxGrid == 32 && pyGrid >= 43 && pyGrid <= 57) || (pxGrid == 33 && pyGrid >= 43 && pyGrid <= 57)) {
-			//!
-			//!	contourGrain[i].energy = 0;
-			//!}
-			//!else {
-			//!
-			//!	contourGrain[i].energy = gamma_hagb;
-			//!}
 
 		}
 		else{

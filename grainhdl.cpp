@@ -27,8 +27,8 @@ void grainhdl::setSimulationParameter(){
 	}
 	currentNrGrains = ngrains;
 	hagb = Settings::HAGB;
-	if(Mode==1 || Mode ==4) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
-	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;
+	if(Mode==1 || Mode ==4) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;	// half open container of VORO++
+	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
@@ -64,7 +64,7 @@ void grainhdl::setSimulationParameter(){
 		case E_GENERATE_WITH_VORONOY: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
-				deviation = 20*PI/180;
+				deviation = 15*PI/180;
 			}
 			else { 
 				bunge = NULL; 
