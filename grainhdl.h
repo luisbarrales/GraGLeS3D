@@ -41,6 +41,9 @@ class grainhdl{
 	vector<int> nr_grains;
 	vector<double> discreteEnergyDistribution;
 
+	//! A 2D vector which stores weights.
+	vector<vector<double> > weightsMatrix;
+
 	double tubeRadius;
 	double *ST;
 	double *part_pos;	

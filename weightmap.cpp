@@ -43,8 +43,6 @@ double Weightmap::loadWeights(vector<LSbox*> IDs, LSbox* me, double* ST)
 
 double Weightmap::loadWeights(LSbox** IDs, int length, LSbox* me, double* ST)
 {
-	if(length == 2)
-	{
 		Weightmap::mapkey key_tuple(IDs);
 		double weight;
 		std::map<mapkey, double>::iterator it = m_Weights.find(key_tuple);
@@ -59,8 +57,6 @@ double Weightmap::loadWeights(LSbox** IDs, int length, LSbox* me, double* ST)
 			weight = (*it).second;
 		}
 		return weight;
-	}
-	else return m_pHandler->hagb;
 }
 
 double Weightmap::isTriplePoint(vector<LSbox*> IDs){
@@ -83,7 +79,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 	double theta_mis;
 
 
-	if(Settings::MicrostructureGenMode == 2){
+	if(Settings::MicrostructureGenMode == E_READ_VERTEX){
 		gamma[0] = ST[(me->get_id() - 1)
 				+ (m_pHandler->get_ngrains() * (rep.first->get_id() - 1))];
 		gamma[1] = ST[(rep.first->get_id() - 1)
@@ -92,7 +88,7 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 				+ (m_pHandler->get_ngrains() * (rep.second->get_id() - 1))];
 	}	
 	
-	if(Settings::MicrostructureGenMode == 1){
+	if(Settings::MicrostructureGenMode == E_GENERATE_WITH_VORONOY){
  		if(Settings::ResearchMode == 0){
 			theta_mis = me->mis_ori(rep.first);		
 			if (theta_mis <= theta_ref)	gamma[0] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
@@ -107,8 +103,13 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 			theta_mis = me->mis_ori(rep.second);
 			if (theta_mis <= theta_ref) gamma[2] = gamma_hagb * ( theta_mis / theta_ref) * (1.0 - log( theta_mis / theta_ref));
 			else gamma[2] = gamma_hagb;
+
+//			cout << me->get_id() << " || " << rep.first->get_id() << " || " << rep.second->get_id() << endl;
+//			cout << gamma[0] << " ++ " << gamma[1] << " ++ " << gamma[2] << endl;
  		}
  		else {
+ 			//! Generates for one half of the GBs a high angle
+ 			//! and for the other half a low angle GB energy
  			theta_ref = 42 * PI /180;
  			theta_mis = me->mis_ori(rep.first);
 			if (theta_mis <= theta_ref)	gamma[0] = 0.3;
@@ -123,12 +124,23 @@ double Weightmap::computeWeights(Weightmap::mapkey rep, LSbox* me, double* ST)
 			if (theta_mis <= theta_ref) gamma[2] = 0.3;
 			else gamma[2] = gamma_hagb;
  		}
-
-
 			
 	}
+
+	//! Distributes weights on edges for E_GENERATE_TESTCASE
+	if(Settings::MicrostructureGenMode == E_GENERATE_TESTCASE){
+
+//		cout << me->get_id() << " || " << rep.first->get_id() << " || " << rep.second->get_id() << endl;
+
+		gamma[0] = m_pHandler->weightsMatrix[me->get_id()][rep.first->get_id()];
+		gamma[1] = m_pHandler->weightsMatrix[rep.first->get_id()][rep.second->get_id()];
+		gamma[2] = m_pHandler->weightsMatrix[me->get_id()][rep.second->get_id()];
+
+//		cout << gamma[0] << " ++ " << gamma[1] << " ++ " << gamma[2] << endl;
+ 	}
+
 	sigma = gamma[0] - gamma[1] + gamma[2];
-	
+//	cout << sigma  << endl;
 	if(sigma < 0.0) {
 		cout << sigma << endl;
 		cout <<"gamma in weighmap :  ";

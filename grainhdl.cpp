@@ -21,14 +21,14 @@ void grainhdl::setSimulationParameter(){
 	ngrains = Settings::NumberOfParticles;
 	//! The NumberOfParticles passed via parameters.xml is altered
 	//! for MicrostructureGenMode 4
-	if(Mode == 4) {
+	if(Settings::MicrostructureGenMode == E_GENERATE_TESTCASE) {
 		ngrains = read_ScenarioPoints();
 		cout << ngrains << endl;
 	}
 	currentNrGrains = ngrains;
 	hagb = Settings::HAGB;
-	if(Mode==1 || Mode ==4) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;	// half open container of VORO++
-	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain-1;
+	if(Mode==1 || Mode ==4) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;	// half open container of VORO++
+	if(Mode==2 || Mode ==3 ) realDomainSize= sqrt(ngrains)*Settings::NumberOfPointsPerGrain;
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(),discreteEnergyDistribution.end(),0 );
 	
@@ -64,7 +64,7 @@ void grainhdl::setSimulationParameter(){
 		case E_GENERATE_WITH_VORONOY: {
 			if(Settings::UseTexture){
 				bunge = new double[3]{PI/2, PI/2, PI/2};
-				deviation = 20*PI/180;
+				deviation = 15*PI/180;
 			}
 			else { 
 				bunge = NULL; 
@@ -112,6 +112,34 @@ void grainhdl::setSimulationParameter(){
 			ST = NULL;
 			VOROMicrostructure();
 // 			generateRandomEnergy();
+
+			//! Read weights from a file
+			if(Settings::MicrostructureGenMode == E_GENERATE_TESTCASE){
+
+				//! Read from file in vector
+
+				ifstream mapStream("surfaceTension.dat");
+
+				if(!mapStream) {
+					cerr << "File can't be opened." << endl;
+				    exit(-1);
+				}
+
+				while (mapStream) {
+					string line;
+				    getline(mapStream, line);
+				    istringstream iss(line);
+				    vector<double> values;
+				    copy(istream_iterator<double>(iss),
+				         istream_iterator<double>(),
+				         back_insert_iterator<vector<double> >(values));
+				    if (values.size() > 0) weightsMatrix.push_back(values);
+				}
+
+				cout << "Line: " << weightsMatrix.size() << endl;
+				cout << "Column (in the first line): " << weightsMatrix[0].size() << endl;
+			}
+
 			break;
 		}
 	}		
@@ -178,7 +206,7 @@ void grainhdl::VOROMicrostructure(){
 
 	/**********************************************************/
 	// Randomly add particles into the container
-    if(Mode != 4) {
+    if(Mode != E_GENERATE_TESTCASE) {
 		for(int i=0;i<ngrains;i++) {
 			x=utils::rnd();
 			y=utils::rnd();
