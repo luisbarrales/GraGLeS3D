@@ -3,8 +3,8 @@
 	 <StartTime> 0 </StartTime>
    <NumberOfParticles> 10000 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
-   <AnalysisTimestep> 50 </AnalysisTimestep>
-   <NumberOfTimesteps> 1000 </NumberOfTimesteps>
+   <AnalysisTimestep> 5 </AnalysisTimestep>
+   <NumberOfTimesteps> 10 </NumberOfTimesteps>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
    <MicrostructureGenMode> 1 </MicrostructureGenMode>
