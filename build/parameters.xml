@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
 	 <StartTime> 0 </StartTime>
-   <NumberOfParticles> 50000 </NumberOfParticles> 
+   <NumberOfParticles> 10000 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
    <AnalysisTimestep> 50 </AnalysisTimestep>
    <NumberOfTimesteps> 1000 </NumberOfTimesteps>
@@ -21,8 +21,8 @@
    <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
-   <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 1 </GridCoarsement>
+   <MaximumNumberOfThreads> 256 </MaximumNumberOfThreads>
+   <GridCoarsement> 0 </GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
    <ConvolutionMode> 0 </ConvolutionMode>   
    <!-- USAGE:

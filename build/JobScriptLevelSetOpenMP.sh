@@ -18,7 +18,7 @@
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [ hour :] minute ,
 ### that means for 80 minutes you could also use this : 1:20
-#BSUB -W 0:15
+#BSUB -W 4:15
 
 ### Specify your mail address
 #BSUB -u miessen@imm.rwth-aachen.de
@@ -27,15 +27,13 @@
 #BSUB -N
 
 #### compute nodes
-#BSUB -n 128
-
-
+#BSUB -n 8
 ### for shared memory jobs (OpenMP)
 #BSUB -a "bcs openmp"
 
 ### Change to the work directory
-mkdir mySim1 
-cd mySim1
+mkdir mySim8_0 
+cd mySim8_0
 cp ../LevelSet_IMM ./
 cp ../parameters.xml ./
 
