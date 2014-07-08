@@ -12,8 +12,8 @@
 
 
 ###  Request vitual memory  you  need  for your job  in  MB / 50000 = 9GB
-
-#BSUB -M  512
+### Memory limit for ALL nodes
+#BSUB -M  12000
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [ hour :] minute ,
@@ -34,8 +34,8 @@
 #BSUB -a "bcs openmp"
 
 ### Change to the work directory
-mkdir mySim 
-cd mySim
+mkdir mySim1 
+cd mySim1
 cp ../LevelSet_IMM ./
 cp ../parameters.xml ./
 
