@@ -14,7 +14,7 @@ simulationTime =0;
 find_neighbors();
 bool  populationControle=true;
 
-for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps, populationControle!=false; loop++){
+for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps && populationControle!=false; loop++){
 		//Switch Distance Buffers
 
 #pragma omp parallel
