@@ -13,12 +13,12 @@
 
 ###  Request vitual memory  you  need  for your job  in  MB / 50000 = 9GB
 ### Memory limit for ALL nodes
-#BSUB -M  12000
+#BSUB -M  42000
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [ hour :] minute ,
 ### that means for 80 minutes you could also use this : 1:20
-#BSUB -W 0:15
+#BSUB -W 4:15
 
 ### Specify your mail address
 #BSUB -u miessen@imm.rwth-aachen.de
@@ -27,17 +27,23 @@
 #BSUB -N
 
 #### compute nodes
+<<<<<<< HEAD
 #BSUB -n 8
 
 
+=======
+#BSUB -n 64
+>>>>>>> master
 ### for shared memory jobs (OpenMP)
 #BSUB -a "bcs openmp"
 
 ### Change to the work directory
-mkdir mySim1 
-cd mySim1
+mkdir mySim64_test_50000 
+cd mySim642_test_50000
+
+
 cp ../LevelSet_IMM ./
 cp ../parameters.xml ./
 
 ### Execute your application
-LevelSet_IMM parameters.xml
+time LevelSet_IMM parameters.xml
