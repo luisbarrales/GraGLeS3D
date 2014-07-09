@@ -27,7 +27,7 @@
 #BSUB -N
 
 #### compute nodes
-#BSUB -n 128
+#BSUB -n 8
 
 
 ### for shared memory jobs (OpenMP)
