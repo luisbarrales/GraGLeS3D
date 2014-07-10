@@ -491,13 +491,13 @@ void grainhdl::run_sim(){
 		updateSecondOrderNeighbors();
 		comparison_box();
 		switchDistancebuffer();
-		level_set();
+//		level_set();
 		redistancing();		
-		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-			saveAllContourEnergies();
-			save_texture();
-			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
-		}
+//		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+//			saveAllContourEnergies();
+//			save_texture();
+//			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
+//		}
 		simulationTime += dt;
 		if(currentNrGrains < 0.03*ngrains) {
 			cout << "Network has coarsed to less than 3% of the population. Break and save."<< endl;

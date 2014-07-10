@@ -61,7 +61,7 @@ struct characteristics{
  */
 class LSbox {
 	unsigned int id;
-	int xmaxId ,xminId , ymaxId, yminId; 
+	int xmaxId ,xminId , ymaxId, yminId, zminId, zmaxId;
 	bool boundaryGrain;
 	bool exist;
 	DimensionalBufferIDLocal IDLocal;
@@ -73,9 +73,9 @@ class LSbox {
 	grainhdl* handler;
 	vector<SPoint> contourGrain;
 	vector<characteristics> grainCharacteristics;
-	vector<GrainJunction> junctions;
+//	vector<GrainJunction> junctions;
 	//! Declaration of a vector for VolEvolution struct
-	vector<VolEvolution> VolEvo;
+//	vector<VolEvolution> VolEvo;
 
 
 	DimensionalBufferReal* inputDistance;
@@ -93,24 +93,23 @@ public:
     LSbox(int aID, voro::voronoicell_neighbor& c, double *part_pos, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
 	void distancefunction();
-    void distancefunctionToEdges(int nedges, double* edges);
+//    void distancefunctionToEdges(int nedges, double* edges);
     void redist_box();
-	void find_contour();
+//	void find_contour();
 	int  getID();
-	void resizeToSquareIn();
-    void resizeToSquareOut();
-    void determineIDs();
+
+//    void determineIDs();
     void comparison(ExpandingVector<char>& mem_pool);
 	double getDistance(int i, int j);
     void set_comparison();
-    void add_n2o();
+//    void add_n2o();
 	void add_n2o_2();
-    void computeVolumeAndEnergy();
+//    void computeVolumeAndEnergy();
 	double getGBEnergyTimesGBMobility(int i,int j);
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);
 	double getGBEnergy(LSbox* neighbour);
 	
-	void constructBoundarySectors(bool test_plot);
+//	void constructBoundarySectors(bool test_plot);
 
     bool checkIntersect(LSbox* box2);   	
 	void free_memory_distance();
@@ -119,12 +118,12 @@ public:
 	void get_new_IDLocalSize();
 
 	void plot_box_contour(int timestep = -1, bool plot_energy=false, ofstream* dest_file = NULL);
-	void saveGrain(ofstream* dest_file);
+//	void saveGrain(ofstream* dest_file);
 
 	void plot_box(bool distanceplot, int select, string simstep, bool local);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();
-	void resizeGrid(double shrinkFactor); 
+//	void resizeGrid(double shrinkFactor);
 	
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);

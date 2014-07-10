@@ -12,8 +12,9 @@ public:
 
 		{}
 	DimensionalBufferReal(unsigned int upperLeftX, unsigned int upperLeftY,
-					  unsigned int lowerRightX, unsigned int lowerRightY) :
-						  DimensionalBuffer(upperLeftX, upperLeftY, lowerRightX, lowerRightY)
+					  unsigned int lowerRightX, unsigned int lowerRightY,
+					  unsigned int frontEnd, unsigned int backEnd) :
+						  DimensionalBuffer(upperLeftX, upperLeftY, lowerRightX, lowerRightY, frontEnd, backEnd)
 	{}
 
 	void clampValues(double minimumValue, double maximumValue)

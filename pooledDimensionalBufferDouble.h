@@ -5,21 +5,22 @@ class PooledDimensionalBufferDouble
 public:
 	PooledDimensionalBufferDouble(char* pool, unsigned int size,
 			unsigned int upperLeftX, unsigned int upperLeftY,
-			unsigned int lowerRightX, unsigned int lowerRightY) :
-				m_xMin(upperLeftX), m_xMax(lowerRightX), m_yMin(upperLeftY), m_yMax(lowerRightY),
+			unsigned int lowerRightX, unsigned int lowerRightY,
+			unsigned int frontEnd, unsigned int backEnd):
+				m_xMin(upperLeftX), m_xMax(lowerRightX), m_yMin(upperLeftY), m_yMax(lowerRightY), m_zMin(frontEnd), m_zMax(backEnd),
 				m_pool(pool), m_poolSize(size)
 	{
 	}
-	double getValueAt(unsigned int row, unsigned int column)
+	double getValueAt(unsigned int row, unsigned int column, unsigned int layer)
 	{
 		double* pointer = (double*) m_pool;
-		return pointer[(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
+		return pointer[layer *(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
 	}
 
-	void setValueAt(unsigned int row, unsigned int column, double value)
+	void setValueAt(unsigned int row, unsigned int column, unsigned int layer, double value)
 	{
 		double* pointer = (double*) m_pool;
-		pointer[(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
+		pointer[layer * (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
 	}
 	void clearValues(double value)
 	{
@@ -37,5 +38,7 @@ private:
 	int 	m_xMax;
 	int 	m_yMin;
 	int 	m_yMax;
+	int 	m_zMin;
+	int 	m_zMax;
 };
 #endif 	//__POOLED_DIMENSIONAL_BUFFER_DOUBLE__
