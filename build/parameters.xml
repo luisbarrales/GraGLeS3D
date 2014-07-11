@@ -24,11 +24,11 @@
    <MaximumNumberOfThreads> 64 </MaximumNumberOfThreads>
    <GridCoarsement> 0 </GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
-   <ConvolutionMode> 0 </ConvolutionMode>   
+   <ConvolutionMode> 2 </ConvolutionMode>   
    <!-- USAGE:
    		O		E_LAPLACE,
 			1		E_LAPLACE_RITCHARDSON,
-			2		E_GAUSSIAN,
+			2		E_GAUSSIAN, only one available for 3D
    -->
    <ResearchMode> 0 </ResearchMode>
 		<!-- USAGE:

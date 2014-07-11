@@ -14,11 +14,12 @@ simulationTime =0;
 find_neighbors();
 bool  populationControle=true;
 
+#pragma omp parallel
+{
 for(loop=Settings::StartTime; loop <= Settings::StartTime + Settings::NumberOfTimesteps && populationControle!=false; loop++){
 		//Switch Distance Buffers
 
-#pragma omp parallel
-{
+
     if (sqrt(currentNrGrains)*Settings::NumberOfPointsPerGrain/realDomainSize < Settings::GridCoarsementGradient && loop!=0 && Settings::GridCoarsement){
         #pragma omp single
     	{
