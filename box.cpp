@@ -674,20 +674,20 @@ void LSbox::redist_box() {
 	else  intersec_zmax = outputDistance->getMaxZ();
 
 
-
-	for (int k = intersec_zmin; k < outputDistance->getMaxZ()-1; k++) {
+ // first to updates layer by layer to take advantage of the order of point in memory - there are aligned layer by layer.
+	for (int k = intersec_zmin; k < outputDistance->getMaxZ(); k++) {
 		for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 		  for (int j = intersec_xmin; j < outputDistance->getMaxX()-1; j++) {
 				// x-direction forward
 				if(j < intersec_xmax-1 && i < intersec_ymax ){
 					if (inputDistance->getValueAt(i,j,k) * inputDistance->getValueAt(i,j+1,k) <= 0.0) {
 						// interpolate
-						i_slope  = ( inputDistance->getValueAt(i,j+1) - inputDistance->getValueAt(i,j,k) ) / h;
+						i_slope  = ( inputDistance->getValueAt(i,j+1,k) - inputDistance->getValueAt(i,j,k) ) / h;
 						distToZero = - inputDistance->getValueAt(i,j,k) / i_slope;
 						if ( abs(outputDistance->getValueAt(i,j,k) ) > abs(distToZero))
 							outputDistance->setValueAt(i,j,k,-distToZero * utils::sgn(i_slope));
 					}
-					candidate = outputDistance->getValueAt(i,j,k) + (utils::sgn(inputDistance->getValueAt(i,j+1),k) * h);
+					candidate = outputDistance->getValueAt(i,j,k) + (utils::sgn(inputDistance->getValueAt(i,j+1,k)) * h);
 					if (abs(candidate) < abs(outputDistance->getValueAt(i,j+1,k)))
 						outputDistance->setValueAt(i,j+1,k, candidate);
 				}
@@ -758,7 +758,62 @@ void LSbox::redist_box() {
 			}
 		}
 	}
+	// update the point into the third dimensio. the strategy has to change to avoid unneccesary cache loads
+	// the idea is to compare all points in one layer first to the next and go on:
 	//TODO redist into the third direction
+	// z forward:
+	for (int k = intersec_zmin; k < outputDistance->getMaxZ()-1; k++) {
+		for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
+		  for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
+				// x-direction forward
+				if(j < intersec_xmax-1 && i < intersec_ymax ){
+					if (inputDistance->getValueAt(i,j,k) * inputDistance->getValueAt(i,j,k+1) <= 0.0) {
+						// interpolate
+						i_slope  = ( inputDistance->getValueAt(i,j,k+1) - inputDistance->getValueAt(i,j,k) ) / h;
+						distToZero = - inputDistance->getValueAt(i,j,k) / i_slope;
+						if ( abs(outputDistance->getValueAt(i,j,k) ) > abs(distToZero))
+							outputDistance->setValueAt(i,j,k,-distToZero * utils::sgn(i_slope));
+					}
+					candidate = outputDistance->getValueAt(i,j,k) + (utils::sgn(inputDistance->getValueAt(i,j,k+1)) * h);
+					if (abs(candidate) < abs(outputDistance->getValueAt(i,j,k+1)))
+						outputDistance->setValueAt(i,j,k+1, candidate);
+				}
+				else {
+					candidate = outputDistance->getValueAt(i,j,k)  + (utils::sgn( outputDistance->getValueAt(i,j,k+1) ) * h);
+					if (abs(candidate) < abs(outputDistance->getValueAt(i, j,k+1)))
+						outputDistance->setValueAt(i,j,k+1, candidate);
+				}
+			}
+		}
+	}
+	// z backward:
+	for (int k = outputDistance->getMaxZ()-1; k > 0 ; k--) {
+			for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
+			  for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
+					// x-direction forward
+					if(j < intersec_xmax-1 && i < intersec_ymax ){
+						if (inputDistance->getValueAt(i,j,k) * inputDistance->getValueAt(i,j,k-1) <= 0.0) {
+							// interpolate
+							i_slope  = ( inputDistance->getValueAt(i,j,k-1) - inputDistance->getValueAt(i,j,k) ) / h;
+							distToZero = - inputDistance->getValueAt(i,j,k) / i_slope;
+							if ( abs(outputDistance->getValueAt(i,j,k) ) > abs(distToZero))
+								outputDistance->setValueAt(i,j,k,-distToZero * utils::sgn(i_slope));
+						}
+						candidate = outputDistance->getValueAt(i,j,k) + (utils::sgn(inputDistance->getValueAt(i,j,k-1)) * h);
+						if (abs(candidate) < abs(outputDistance->getValueAt(i,j,k-1)))
+							outputDistance->setValueAt(i,j,k-1, candidate);
+					}
+					else {
+						candidate = outputDistance->getValueAt(i,j,k)  + (utils::sgn( outputDistance->getValueAt(i,j,k-1) ) * h);
+						if (abs(candidate) < abs(outputDistance->getValueAt(i, j,k-1)))
+							outputDistance->setValueAt(i,j,k-1, candidate);
+					}
+				}
+			}
+		}
+
+
+
 	// for all layers the redist is done - compare into the depth to do
 	outputDistance->clampValues(-handler->delta, handler->delta);
 
