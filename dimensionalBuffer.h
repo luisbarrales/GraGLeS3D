@@ -55,7 +55,7 @@ public:
 		//Will throw exception if accessed out of bound.
 		//TODO: Analyze performance and replace with [] if needed.
 		//TODO the idea is to build a cubic matric layer by layer -- correct???
-		return m_values.at(layer *(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin));
+		return m_values.at((layer-m_zMin)*(m_xMax-m_xMin)*(m_yMax-m_yMin) + (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin));
 	}
 	/*!
 	* \brief Method that sets the value at the given coordinates.
@@ -70,7 +70,7 @@ public:
 	{
 		//Will throw exception if accessed out of bound.
 		//TODO: Analyze performance and replace with [] if needed.
-		m_values.at(layer * (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)) = value;
+		m_values.at((layer-m_zMin)*(m_xMax-m_xMin)*(m_yMax-m_yMin) + (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)) = value;
 	}
 	/*\brief Method that checks whether a point lies within the dimensional buffer.
 	 *
@@ -147,7 +147,7 @@ public:
 		}
 
 
-		//Now move the square in the bounds if it has left them
+		//Now move the cube in the bounds if it has left them
 		if( m_xMin < 0 )
 		{
 			int delta = -(int)m_xMin;
@@ -218,7 +218,7 @@ private:
 	int 	m_xMax;
 	int 	m_yMin;
 	int 	m_yMax;
-	int 	m_zMIn;
+	int 	m_zMin;
 	int 	m_zMax;
 protected:
 	ExpandingVector<T>	m_values;

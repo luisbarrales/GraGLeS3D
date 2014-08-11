@@ -14,13 +14,13 @@ public:
 	double getValueAt(unsigned int row, unsigned int column, unsigned int layer)
 	{
 		double* pointer = (double*) m_pool;
-		return pointer[layer *(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
+		return pointer[(layer-m_zMin)*(m_xMax-m_xMin)*(m_yMax-m_yMin) + (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
 	}
 
 	void setValueAt(unsigned int row, unsigned int column, unsigned int layer, double value)
 	{
 		double* pointer = (double*) m_pool;
-		pointer[layer * (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
+		pointer[(layer-m_zMin)*(m_xMax-m_xMin)*(m_yMax-m_yMin) + (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
 	}
 	void clearValues(double value)
 	{

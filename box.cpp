@@ -518,7 +518,7 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool){
 			else y_max_new = inputDistance->getMaxY();
 
 		if(inputDistance->getMinZ() < (**it_nn).inputDistance->getMinZ()) z_min_new = (**it_nn).inputDistance->getMinZ();
-					else y_min_new = inputDistance->getMinY();
+			else z_min_new = inputDistance->getMinZ();
 
 		if(inputDistance->getMaxZ() > (**it_nn).inputDistance->getMaxZ()) z_max_new = (**it_nn).inputDistance->getMaxZ();
 			else z_max_new = inputDistance->getMaxZ();
@@ -675,7 +675,7 @@ void LSbox::redist_box() {
 
 
  // first to updates layer by layer to take advantage of the order of point in memory - there are aligned layer by layer.
-	for (int k = intersec_zmin; k < outputDistance->getMaxZ(); k++) {
+	for (int k = intersec_zmin; k < intersec_zmax-1; k++) {
 		for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 		  for (int j = intersec_xmin; j < outputDistance->getMaxX()-1; j++) {
 				// x-direction forward
@@ -766,7 +766,7 @@ void LSbox::redist_box() {
 		for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 		  for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 				// x-direction forward
-				if(j < intersec_xmax-1 && i < intersec_ymax ){
+				if(k < intersec_zmax-1){
 					if (inputDistance->getValueAt(i,j,k) * inputDistance->getValueAt(i,j,k+1) <= 0.0) {
 						// interpolate
 						i_slope  = ( inputDistance->getValueAt(i,j,k+1) - inputDistance->getValueAt(i,j,k) ) / h;
@@ -787,11 +787,11 @@ void LSbox::redist_box() {
 		}
 	}
 	// z backward:
-	for (int k = outputDistance->getMaxZ()-1; k > 0 ; k--) {
+	for (int k = intersec_zmax-1; k > outputDistance->getMinZ()  ; k--) {
 			for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++){
 			  for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 					// x-direction forward
-					if(j < intersec_xmax-1 && i < intersec_ymax ){
+					if(k > intersec_zmin){
 						if (inputDistance->getValueAt(i,j,k) * inputDistance->getValueAt(i,j,k-1) <= 0.0) {
 							// interpolate
 							i_slope  = ( inputDistance->getValueAt(i,j,k-1) - inputDistance->getValueAt(i,j,k) ) / h;
