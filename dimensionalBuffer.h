@@ -33,7 +33,7 @@ public:
 	DimensionalBuffer(unsigned int upperLeftX, unsigned int upperLeftY,
 					  unsigned int lowerRightX, unsigned int lowerRightY, unsigned int frontEnd, unsigned int backEnd) :
 		m_xMin(upperLeftX), m_yMin(upperLeftY), m_xMax(lowerRightX),
-		m_yMax(lowerRightY), m_zMin(frondEnd), m_zMax(backEnd)
+		m_yMax(lowerRightY), m_zMin(frontEnd), m_zMax(backEnd)
 	{
 		resize(m_xMin, m_yMin, m_xMax, m_yMax, m_zMin, m_zMax);
 	}
@@ -121,6 +121,7 @@ public:
 
 		else{
 			//		find largest dimension:
+			int ref;
 			if (width > height)	ref = width;
 			else ref = height;
 			if(ref < depth) ref =depth;

@@ -13,14 +13,9 @@ int main(int argc,char *argv[]) {
 
 	grainhdl* my_sim = NULL;
 
-	if(Settings::ExecuteInParallel)
-	{
-		my_sim = new parallelHandler() ;
-	}
-	else
-	{
-		my_sim = new grainhdl();
-	}
+
+	my_sim = new grainhdl();
+
 	
 	my_sim->setSimulationParameter();
 	
