@@ -92,6 +92,7 @@ public:
 	LSbox(int id, int nvertex, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner);
     LSbox(int aID, vector<double>& vertices, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
+	bool outOfDomain(int i,int j,int k);
 	void distancefunction();
 //    void distancefunctionToEdges(int nedges, double* edges);
     void redist_box();
@@ -121,6 +122,7 @@ public:
 //	void saveGrain(ofstream* dest_file);
 
 	void plot_box(bool distanceplot, int select, string simstep, bool local);
+	void plot_box_3d( int select, string simstep);
 	double mis_ori(LSbox* grain_2);
 	void checkIntersect_zero_grain();
 //	void resizeGrid(double shrinkFactor);

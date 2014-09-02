@@ -8,7 +8,7 @@
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
 #define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
 // #define min(x,y) (x<y?x:y)
-// #define max(x,y) (x>y?x:y)
+#define max(x,y) (x>y?x:y)
 	
 
 using namespace voro;
@@ -17,6 +17,7 @@ using namespace std;
 class Weightmap;
 class LSbox;
 class mathMethods;
+class DimensionalBufferReal;
 
 class grainhdl{
   protected:
@@ -32,6 +33,7 @@ class grainhdl{
 		
 	
 	public:
+	DimensionalBufferReal* IDField;
 	double KernelNormalizationFactor;
 	int currentNrGrains;
 	mathMethods* mymath;
