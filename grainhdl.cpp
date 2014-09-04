@@ -240,7 +240,7 @@ void grainhdl::VOROMicrostructure() {
 				z = double(k * h) - delta;
 				if (con.find_voronoi_cell(x, y, z, rx, ry, rz, cell_id)) {
 					//	cout << "found "<< cell_id << endl;
-					int box_id = cell_id+1;
+					int box_id = cell_id + 1;
 					IDField->setValueAt(i, j, k, box_id);
 				} else {
 					//	cout << "no grain found at " << i << "  " << j <<"  " << k << endl;
@@ -389,7 +389,9 @@ void grainhdl::level_set() {
 			removeGrain(i);
 		}
 		//TODO: Implement find contour.
-		//		else grains[i]->find_contour();
+		// now only checks for positive points
+		else grains[i]->find_contour();
+
 	}
 }
 
@@ -488,14 +490,14 @@ void grainhdl::run_sim() {
 	// 	determineIDs();
 	for (loop = Settings::StartTime; loop <= Settings::StartTime
 			+ Settings::NumberOfTimesteps; loop++) {
-//		gridCoarsement();
+		//		gridCoarsement();
 
 		convolution();
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
 		comparison_box();
 		switchDistancebuffer();
-		//		level_set();
+		level_set();
 		redistancing();
 		//		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		//			saveAllContourEnergies();

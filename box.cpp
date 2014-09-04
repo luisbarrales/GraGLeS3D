@@ -64,13 +64,13 @@ LSbox::LSbox(int aID, vector<double>& vertices, grainhdl* owner) :
 	for (int i = 0; i < vertices.size() / 3; i++) {
 		pos[0] = vertices[i * 3]; //y
 		pos[1] = vertices[i * 3 + 1]; //x
-		pos[2] = vertices[3 * i + 2];//z
+		pos[2] = vertices[i * 3 + 2];//z
 
-		ymin = min(ymin, (int) (pos[1] / h));
-		ymax = max(ymax, (int) (pos[1] / h) + 1);
+		ymin = min(ymin, (int) (pos[0] / h));
+		ymax = max(ymax, (int) (pos[0] / h) + 1);
 
-		xmin = min(xmin, (int) (pos[0] / h));
-		xmax = max(xmax, (int) (pos[0] / h) + 1);
+		xmin = min(xmin, (int) (pos[1] / h));
+		xmax = max(xmax, (int) (pos[1] / h) + 1);
 
 		zmin = min(zmin, (int) (pos[2] / h));
 		zmax = max(zmax, (int) (pos[2] / h) + 1);
@@ -335,7 +335,7 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1,
 
 bool LSbox::outOfDomain(int i, int j, int k) {
 	int min = handler->get_grid_blowup();
-	int max = handler->get_ngridpoints() - min -1;
+	int max = handler->get_ngridpoints() - min - 1;
 	if (i < min || i > max || j < min || j > max || k < min || k > max)
 		return true;
 	else
@@ -591,7 +591,7 @@ void LSbox::boundaryCondition() {
 				distZMin = -(k - grid_blowup);
 				distXMax = (j - (m - grid_blowup));
 				distYMax = (i - (m - grid_blowup));
-				distYMax = (k - (m - grid_blowup));
+				distZMax = (k - (m - grid_blowup));
 
 				if (abs(distXMin) < abs(distXMax))
 					distX = distXMin;
@@ -607,66 +607,44 @@ void LSbox::boundaryCondition() {
 					distZ = distZMin;
 				else
 					distZ = distZMax;
+
 				// the point is outside in one of the 8 corners:
 				if (distX > 0 && distY > 0 && distZ > 0)
 					dist = sqrt(
 							(double) distX * distX + distY * distY + distZ
 									* distZ);
-									
+
 				// the point is inside the domain - > value is maximum of the negative distances:					
-				else if (distX < 0 && distY < 0 && distZ < 0){
+				else if (distX < 0 && distY < 0 && distZ < 0) {
 					dist = max (distX, distY);
 					dist = max(dist, distZ);
 				}
-									
+
 				// the point is outside in x direction
-				else if (distX > 0){
-					if (distY < 0 && distZ < 0)
+				else if (distX >= 0) {
+					if (distY < 0 && distZ < 0) // next to one x-plane
 						dist = distX;
-					else if (distY < 0 && distZ > 0)
+					else if (distY < 0 && distZ >= 0)
 						dist = sqrt((double) distX * distX + distZ * distZ);
-					else if (distY > 0 && distZ < 0)
+					else if (distY >= 0 && distZ < 0)
 						dist = sqrt((double) distX * distX + distY * distY);
 				}
-				
-				else if (distZ > 0){
-					if (distY < 0 && distX < 0)
-						dist = distZ;
-					else if (distY < 0 && distZ > 0)
-						dist = sqrt((double) distX * distX + distZ * distZ);
-					else if (distY > 0 && distZ < 0)
-						dist = sqrt((double) distX * distX + distY * distY);
-				}
-				
-				else if (distY > 0){
-					if (distZ < 0 && distX < 0)
+
+				else if (distY >= 0) {
+					if (distZ < 0 && distX < 0) // next to one y-plane
 						dist = distY;
+					else if (distX < 0 && distZ >= 0)
+						dist = sqrt((double) distY * distY + distZ * distZ);
 				}
-				
-				
-// 				else if (distY > 0 && distX < 0 && distZ < 0)
-// 					dist = distY;
-// 
-// 
-// 				else if (distZ > 0 && distX < 0 && distY < 0)
-// 					dist = distZ;
-// 
-// 				else if (distX < 0 && distY < 0 && distZ < 0) {
-// 					double first = max(distX, distY);
-// 					dist = max(first, distZ);
-// 				}
-// 
+
+				else if (distZ >= 0) {
+					if (distY < 0 && distX < 0) // next to one z-plane
+						dist = distZ;
+				}
+
 				else if (distX == 0 || distY == 0 || distZ == 0)
 					dist = 0; // one or more are zero the other lower
-// 
-// 				else if (distY > 0)
-// 					dist = distY;
-// 
-// 				else if (distX > 0)
-// 					dist = distX;
-// 
-// 				else if (distZ > 0)
-// 					dist = distZ;
+
 
 				if (dist * h > outputDistance->getValueAt(i, j, k)) {
 					outputDistance->setValueAt(i, j, k, dist * h);
@@ -1259,67 +1237,80 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool) {
 /**************************************/
 /**************************************/
 
-//void LSbox::find_contour() {
-//	exist = false;
-//
-//	contourGrain.clear();
-////	vector<GrainJunction> Junctions;
-//    MarchingSquaresAlgorithm marcher(*inputDistance, IDLocal, this);
-//    junctions.clear();
-//    exist = marcher.generateContour(contourGrain, junctions);
-//
-//	if(!exist) return;
-//    int grid_blowup = handler->get_grid_blowup();
-//	int m = handler->get_ngridpoints();
-//
-//    int xminNew = m, xmaxNew = 0, yminNew = m, ymaxNew = 0;
-//    for(int i=0; i<contourGrain.size(); i++)
-//    {
-//    	if(int(contourGrain[i].x + 0.5) - grid_blowup < xminNew)
-//    		xminNew = int(contourGrain[i].x + 0.5) - grid_blowup;
-//    	if(int(contourGrain[i].x + 0.5) + grid_blowup > xmaxNew)
-//    		xmaxNew = int(contourGrain[i].x + 0.5) + grid_blowup;
-//    	if(int(contourGrain[i].y + 0.5) - grid_blowup < yminNew)
-//    		yminNew = int(contourGrain[i].y + 0.5) - grid_blowup;
-//    	if(int(contourGrain[i].y + 0.5) + grid_blowup > ymaxNew)
-//    		ymaxNew = int(contourGrain[i].y + 0.5) + grid_blowup;
-//    }
-//
-//
-//	double h = handler->get_h();
-//	int loop = handler->loop;
-//
-//	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
-//		cout <<endl << "Timestep: " <<handler->loop << endl << endl;
-//
-//		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
-//		cout << "Number of gridpoints: " << m << endl;
-//		cout << yminNew << " || " << xminNew << " || " << ymaxNew  << " || " << xmaxNew << endl;
-//		for(int i=0; i<contourGrain.size(); i++){
-//			cout << contourGrain[i].y << "   " << contourGrain[i].x << endl;
-//		}
-//	}
-//
-//    // compute Volume and Energy
-//	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-//		computeVolumeAndEnergy();
-//
-//	}
-//	else updateFirstOrderNeigbors();
-//
-//	if(grainCharacteristics.size() < 2 ) {
-////		cout << endl << "Timestep: " <<handler->loop << endl;
-////		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
-////		plot_box(true, 2, "error_grain", true);
-////		plot_box(true, 1, "error_grain", true);
-////		plot_box_contour(handler->loop, true);
-//		exist =false;
-//	}
-//	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
-// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
-//
-//	return;
-//}
+void LSbox::find_contour() {
+
+	exist = false;
+	for (int k = inputDistance->getMinZ(); k < inputDistance->getMaxZ(); k++) {
+		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++) {
+			for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX(); j++) {
+				if (inputDistance->getValueAt(i,j,k) > 0){
+					exist =true;
+					return;
+				}
+			}
+		}
+	}
+	return;
+
+	//
+	//	contourGrain.clear();
+	////	vector<GrainJunction> Junctions;
+	//    MarchingSquaresAlgorithm marcher(*inputDistance, IDLocal, this);
+	//    junctions.clear();
+	//    exist = marcher.generateContour(contourGrain, junctions);
+	//
+	//	if(!exist) return;
+	//    int grid_blowup = handler->get_grid_blowup();
+	//	int m = handler->get_ngridpoints();
+	//
+	//    int xminNew = m, xmaxNew = 0, yminNew = m, ymaxNew = 0;
+	//    for(int i=0; i<contourGrain.size(); i++)
+	//    {
+	//    	if(int(contourGrain[i].x + 0.5) - grid_blowup < xminNew)
+	//    		xminNew = int(contourGrain[i].x + 0.5) - grid_blowup;
+	//    	if(int(contourGrain[i].x + 0.5) + grid_blowup > xmaxNew)
+	//    		xmaxNew = int(contourGrain[i].x + 0.5) + grid_blowup;
+	//    	if(int(contourGrain[i].y + 0.5) - grid_blowup < yminNew)
+	//    		yminNew = int(contourGrain[i].y + 0.5) - grid_blowup;
+	//    	if(int(contourGrain[i].y + 0.5) + grid_blowup > ymaxNew)
+	//    		ymaxNew = int(contourGrain[i].y + 0.5) + grid_blowup;
+	//    }
+	//
+	//
+	//	double h = handler->get_h();
+	//	int loop = handler->loop;
+	//
+	//	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
+	//		cout <<endl << "Timestep: " <<handler->loop << endl << endl;
+	//
+	//		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
+	//		cout << "Number of gridpoints: " << m << endl;
+	//		cout << yminNew << " || " << xminNew << " || " << ymaxNew  << " || " << xmaxNew << endl;
+	//		for(int i=0; i<contourGrain.size(); i++){
+	//			cout << contourGrain[i].y << "   " << contourGrain[i].x << endl;
+	//		}
+	//	}
+	//
+	//    // compute Volume and Energy
+	//	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
+	//		computeVolumeAndEnergy();
+	//
+	//	}
+	//	else updateFirstOrderNeigbors();
+	//
+	//	if(grainCharacteristics.size() < 2 ) {
+	////		cout << endl << "Timestep: " <<handler->loop << endl;
+	////		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
+	////		plot_box(true, 2, "error_grain", true);
+	////		plot_box(true, 1, "error_grain", true);
+	////		plot_box_contour(handler->loop, true);
+	//		exist =false;
+	//	}
+	//	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
+	// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
+	//
+	//	return;
+}
 
 //revise algorithm to update first order neighbors
 //void LSbox::updateFirstOrderNeigbors(){
