@@ -335,7 +335,7 @@ void LSbox::conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1,
 
 bool LSbox::outOfDomain(int i, int j, int k) {
 	int min = handler->get_grid_blowup();
-	int max = handler->get_ngridpoints() - min;
+	int max = handler->get_ngridpoints() - min -1;
 	if (i < min || i > max || j < min || j > max || k < min || k > max)
 		return true;
 	else
@@ -357,6 +357,7 @@ void LSbox::distancefunction() {
 			}
 		}
 	}
+
 	redist_box();
 	plot_box_3d(1, "distIni");
 	plot_box_3d(2, "distIni");
@@ -606,38 +607,66 @@ void LSbox::boundaryCondition() {
 					distZ = distZMin;
 				else
 					distZ = distZMax;
-
+				// the point is outside in one of the 8 corners:
 				if (distX > 0 && distY > 0 && distZ > 0)
 					dist = sqrt(
 							(double) distX * distX + distY * distY + distZ
 									* distZ);
-
-				else if (distX > 0 && distY < 0 && distZ < 0)
-					dist = distX;
-
-				else if (distY > 0 && distX < 0 && distZ < 0)
-					dist = distY;
-
-
-				else if (distZ > 0 && distX < 0 && distY < 0)
-					dist = distZ;
-
-				else if (distX < 0 && distY < 0 && distZ < 0) {
-					double first = max(distX, distY);
-					dist = max(first, distZ);
+									
+				// the point is inside the domain - > value is maximum of the negative distances:					
+				else if (distX < 0 && distY < 0 && distZ < 0){
+					dist = max (distX, distY);
+					dist = max(dist, distZ);
 				}
-
-				else if (distX <= 0 && distY <= 0 && distZ <= 0)
+									
+				// the point is outside in x direction
+				else if (distX > 0){
+					if (distY < 0 && distZ < 0)
+						dist = distX;
+					else if (distY < 0 && distZ > 0)
+						dist = sqrt((double) distX * distX + distZ * distZ);
+					else if (distY > 0 && distZ < 0)
+						dist = sqrt((double) distX * distX + distY * distY);
+				}
+				
+				else if (distZ > 0){
+					if (distY < 0 && distX < 0)
+						dist = distZ;
+					else if (distY < 0 && distZ > 0)
+						dist = sqrt((double) distX * distX + distZ * distZ);
+					else if (distY > 0 && distZ < 0)
+						dist = sqrt((double) distX * distX + distY * distY);
+				}
+				
+				else if (distY > 0){
+					if (distZ < 0 && distX < 0)
+						dist = distY;
+				}
+				
+				
+// 				else if (distY > 0 && distX < 0 && distZ < 0)
+// 					dist = distY;
+// 
+// 
+// 				else if (distZ > 0 && distX < 0 && distY < 0)
+// 					dist = distZ;
+// 
+// 				else if (distX < 0 && distY < 0 && distZ < 0) {
+// 					double first = max(distX, distY);
+// 					dist = max(first, distZ);
+// 				}
+// 
+				else if (distX == 0 || distY == 0 || distZ == 0)
 					dist = 0; // one or more are zero the other lower
-
-				else if (distY > 0)
-					dist = distY;
-
-				else if (distX > 0)
-					dist = distX;
-
-				else if (distZ > 0)
-					dist = distZ;
+// 
+// 				else if (distY > 0)
+// 					dist = distY;
+// 
+// 				else if (distX > 0)
+// 					dist = distX;
+// 
+// 				else if (distZ > 0)
+// 					dist = distZ;
 
 				if (dist * h > outputDistance->getValueAt(i, j, k)) {
 					outputDistance->setValueAt(i, j, k, dist * h);

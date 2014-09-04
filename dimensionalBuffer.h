@@ -124,8 +124,9 @@ public:
 			int ref;
 			if (width > height)	ref = width;
 			else ref = height;
+			
 			if(ref < depth) ref =depth;
-
+			
 
 			if (ref > width)
 			{
