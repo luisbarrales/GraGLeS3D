@@ -96,7 +96,7 @@ public:
 	void distancefunction();
 //    void distancefunctionToEdges(int nedges, double* edges);
     void redist_box();
-//	void find_contour();
+	void find_contour();
 	int  getID();
 
 //    void determineIDs();

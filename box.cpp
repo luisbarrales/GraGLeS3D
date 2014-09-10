@@ -103,8 +103,8 @@ LSbox::LSbox(int aID, vector<double>& vertices, grainhdl* owner) :
 	inputDistance->clearValues(0.0);
 	outputDistance->clearValues(0.0);
 
-	get_new_IDLocalSize();
-	IDLocal.resize(xminId, yminId, xmaxId, ymaxId, zminId, zmaxId);
+	//	get_new_IDLocalSize();
+	//	IDLocal.resize(xminId, yminId, xmaxId, ymaxId, zminId, zmaxId);
 
 	local_weights = new Weightmap(owner);
 	boundaryGrain = false;
@@ -359,8 +359,8 @@ void LSbox::distancefunction() {
 	}
 
 	redist_box();
-	plot_box_3d(1, "distIni");
-	plot_box_3d(2, "distIni");
+	//	plot_box_3d(1, "distIni");
+	//	plot_box_3d(2, "distIni");
 }
 
 /*************************************/
@@ -515,29 +515,34 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool) {
 						double dist = (**it_nn).getDistance(i, j, k);
 						if (abs(dist) < handler->delta) {
 							if (dist > outputDistance->getValueAt(i, j, k)) {
-								if (IDLocal.getValueAt(i, j, k).total_elements
-										== 0) {
-									distance_2neighbor.setValueAt(i, j, k,
-											outputDistance->getValueAt(i, j, k));
-								}
+								//								if (IDLocal.getValueAt(i, j, k).total_elements
+								//										== 0) {
+								//									distance_2neighbor.setValueAt(i, j, k,
+								//											outputDistance->getValueAt(i, j, k));
+								//								}
 								outputDistance->setValueAt(i, j, k, dist);
-								IDLocal.getValueAt(i, j, k).insertAtPosition(
-										E_FIRST_POSITION, *it_nn);
-							} else if (dist > distance_2neighbor.getValueAt(i,
-									j, k)) { //candidate of neighbor is closer than 2nd neighbor
-								distance_2neighbor.setValueAt(i, j, k, dist);
-								IDLocal.getValueAt(i, j, k).insertAtPosition(
-										E_SECOND_POSITION, *it_nn);
-							} else {
-								IDLocal.getValueAt(i, j, k).insertAtPosition(
-										E_LAST_POSITION, *it_nn);
+								//								IDLocal.getValueAt(i, j, k).insertAtPosition(
+								//										E_FIRST_POSITION, *it_nn);
 							}
+							//							 else if (dist > distance_2neighbor.getValueAt(i,
+							//									j, k)) { //candidate of neighbor is closer than 2nd neighbor
+							//								distance_2neighbor.setValueAt(i, j, k, dist);
+							//								IDLocal.getValueAt(i, j, k).insertAtPosition(
+							//										E_SECOND_POSITION, *it_nn);
+							//							} else {
+							//								IDLocal.getValueAt(i, j, k).insertAtPosition(
+							//										E_LAST_POSITION, *it_nn);
+							//							}
 						}
 					}
 				}
 			}
 		}
 	}
+
+	if (id == 30)
+		plot_box_3d(2, "Com");
+
 	if (BoundaryIntersection()) {
 		boundaryGrain = true;
 		boundaryCondition();
@@ -545,8 +550,9 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool) {
 		boundaryGrain = false;
 	set_comparison();
 
-	plot_box_3d(1, "Com");
-	plot_box_3d(2, "Com");
+	if (id == 30)
+		plot_box_3d(2, "Com2");
+	//	plot_box_3d(2, "Com");
 	//	plot_box(true,2,"Com",true);
 	//	if(id==201) plot_box(true,2,"Combig",false);
 
@@ -569,8 +575,9 @@ bool LSbox::BoundaryIntersection() {
 			&& outputDistance->getMinZ() > zMinBoundary
 			&& outputDistance->getMaxZ() < zMaxBoundary)
 		return false;
-	else
+	else {
 		return true;
+	}
 }
 
 //TODO comparison to boundary
@@ -645,15 +652,18 @@ void LSbox::boundaryCondition() {
 				else if (distX == 0 || distY == 0 || distZ == 0)
 					dist = 0; // one or more are zero the other lower
 
-
-				if (dist * h > outputDistance->getValueAt(i, j, k)) {
-					outputDistance->setValueAt(i, j, k, dist * h);
-					IDLocal.getValueAt(i, j, k).insertAtPosition(
-							E_FIRST_POSITION, boundary);
-				} else {
-					IDLocal.getValueAt(i, j, k).insertAtPosition(
-							E_LAST_POSITION, boundary);
-				}
+				if (dist > -grid_blowup)
+					if (dist * h > outputDistance->getValueAt(i, j, k)) {
+						outputDistance->setValueAt(i, j, k, dist * h);
+						//					IDLocal.getValueAt(i, j, k).insertAtPosition(
+						//							E_FIRST_POSITION, boundary);
+						if (!outOfDomain(i, j, k))
+							boundaryGrain = true;
+					}
+				//					else {
+				//					IDLocal.getValueAt(i, j, k).insertAtPosition(
+				//							E_LAST_POSITION, boundary);
+				//				}
 				//			}
 			}
 		}
@@ -841,7 +851,8 @@ void LSbox::redist_box() {
 		for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++) {
 			for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 				// x-direction forward
-				if (k < intersec_zmax - 1) {
+				if (k < intersec_zmax - 1 && i < intersec_ymax && j
+						< intersec_xmax) {
 					if (inputDistance->getValueAt(i, j, k)
 							* inputDistance->getValueAt(i, j, k + 1) <= 0.0) {
 						// interpolate
@@ -879,7 +890,7 @@ void LSbox::redist_box() {
 		for (int i = intersec_ymin; i < outputDistance->getMaxY(); i++) {
 			for (int j = intersec_xmin; j < outputDistance->getMaxX(); j++) {
 				// x-direction forward
-				if (k > intersec_zmin) {
+				if (k > intersec_zmin && i < intersec_ymax && j < intersec_xmax) {
 					if (inputDistance->getValueAt(i, j, k)
 							* inputDistance->getValueAt(i, j, k - 1) <= 0.0) {
 						// interpolate
@@ -919,9 +930,18 @@ void LSbox::redist_box() {
 	inputDistance->resize(outputDistance->getMinX(), outputDistance->getMinY(),
 			outputDistance->getMaxX(), outputDistance->getMaxY(),
 			outputDistance->getMinZ(), outputDistance->getMaxZ());
+
 	// 	 set the references for the convolution step
-	plot_box_3d(1, "Redist");
-	plot_box_3d(2, "Redist");
+	//	plot_box_3d(1, "Redist");
+	//	if (id == 56 && handler->loop % Settings::AnalysisTimestep == 0) {
+	//		for (auto it = neighbors_2order.begin(); it != neighbors_2order.end(); it++) {
+	//			cout << (*it)->id << "  is boundary grains "
+	//					<< (*it)->boundaryGrain << endl;
+	//			(*it)->plot_box_3d(2, "Custer");
+	//		}
+	//	}
+	if (id == 30)
+		plot_box_3d(2, "Redist");
 }
 
 /**************************************/
@@ -957,12 +977,15 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool) {
 	{
 		destroyFFTWs(fwdPlan, bwdPlan);
 	}
-
-	IDLocal.clear();
-	get_new_IDLocalSize();
-	IDLocal.resize(xminId, yminId, xmaxId, ymaxId, zminId, zmaxId);
-	plot_box_3d(1, "Convoluted");
-	plot_box_3d(2, "Convoluted");
+	if (id == 30) {
+		plot_box_3d(1, "Convo");
+		plot_box_3d(2, "Convo");
+	}
+	//	IDLocal.clear();
+	//	get_new_IDLocalSize();
+	//	IDLocal.resize(xminId, yminId, xmaxId, ymaxId, zminId, zmaxId);
+	//	plot_box_3d(1, "Convoluted");
+	//	plot_box_3d(2, "Convoluted");
 }
 
 //
@@ -1238,78 +1261,73 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool) {
 /**************************************/
 
 void LSbox::find_contour() {
-
+	cout << handler->loop << endl;
+	cout << "current size of id: " << id << ":" << endl
+			<< outputDistance->getMinX() << "  " << outputDistance->getMaxX()
+			<< "  " << outputDistance->getMinY() << "  "
+			<< outputDistance->getMaxY() << "  " << outputDistance->getMinZ()
+			<< "  " << outputDistance->getMaxZ() << endl;
+	int m = handler->get_ngridpoints();
+	int grid_blowup = handler->get_grid_blowup();
+	int xminNew = m, xmaxNew = 0, yminNew = m, ymaxNew = 0, zminNew = m,
+			zmaxNew = 0;
+	volume = 0.0;
 	exist = false;
+	double h = handler->get_h();
+	double unitVol = h * h * h;
 	for (int k = inputDistance->getMinZ(); k < inputDistance->getMaxZ(); k++) {
 		for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++) {
 			for (int j = inputDistance->getMinX(); j < inputDistance->getMaxX(); j++) {
-				if (inputDistance->getValueAt(i,j,k) > 0){
-					exist =true;
-					return;
+				if (inputDistance->getValueAt(i, j, k) > 0) {
+					exist = true;
+					if (j - grid_blowup < xminNew && xminNew > 0)
+						xminNew = j - grid_blowup;
+					if (j + grid_blowup > xmaxNew && xmaxNew < m - 1)
+						xmaxNew = j + grid_blowup;
+					if (i - grid_blowup < yminNew && yminNew > 0)
+						yminNew = i - grid_blowup;
+					if (i + grid_blowup > ymaxNew && ymaxNew < m - 1)
+						ymaxNew = i + grid_blowup;
+					if (k - grid_blowup < zminNew && zminNew > 0)
+						zminNew = k - grid_blowup;
+					if (k + grid_blowup > zmaxNew && zmaxNew < m - 1)
+						zmaxNew = k + grid_blowup;
+					volume += unitVol;
 				}
 			}
 		}
 	}
-	return;
+	cout << "suggested size: " << xminNew << "  " << xmaxNew << "  " << yminNew
+			<< "  " << ymaxNew << "  " << zminNew << "  " << zmaxNew << endl;
+	if (xminNew > outputDistance->getMinX() + 1)
+		xminNew = outputDistance->getMinX() + 1;
+	if (yminNew > outputDistance->getMinY() + 1)
+		yminNew = outputDistance->getMinY() + 1;
+	if (zminNew > outputDistance->getMinZ() + 1)
+		zminNew = outputDistance->getMinZ() + 1;
 
-	//
-	//	contourGrain.clear();
-	////	vector<GrainJunction> Junctions;
-	//    MarchingSquaresAlgorithm marcher(*inputDistance, IDLocal, this);
-	//    junctions.clear();
-	//    exist = marcher.generateContour(contourGrain, junctions);
-	//
-	//	if(!exist) return;
-	//    int grid_blowup = handler->get_grid_blowup();
-	//	int m = handler->get_ngridpoints();
-	//
-	//    int xminNew = m, xmaxNew = 0, yminNew = m, ymaxNew = 0;
-	//    for(int i=0; i<contourGrain.size(); i++)
-	//    {
-	//    	if(int(contourGrain[i].x + 0.5) - grid_blowup < xminNew)
-	//    		xminNew = int(contourGrain[i].x + 0.5) - grid_blowup;
-	//    	if(int(contourGrain[i].x + 0.5) + grid_blowup > xmaxNew)
-	//    		xmaxNew = int(contourGrain[i].x + 0.5) + grid_blowup;
-	//    	if(int(contourGrain[i].y + 0.5) - grid_blowup < yminNew)
-	//    		yminNew = int(contourGrain[i].y + 0.5) - grid_blowup;
-	//    	if(int(contourGrain[i].y + 0.5) + grid_blowup > ymaxNew)
-	//    		ymaxNew = int(contourGrain[i].y + 0.5) + grid_blowup;
-	//    }
-	//
-	//
-	//	double h = handler->get_h();
-	//	int loop = handler->loop;
-	//
-	//	if(xminNew < 0 || yminNew < 0 || ymaxNew > m|| xmaxNew > m) {
-	//		cout <<endl << "Timestep: " <<handler->loop << endl << endl;
-	//
-	//		cout << "WARNING - undefined Boxsize in Box: "<< id <<" in Timestep: "<<loop << "!!" <<endl;
-	//		cout << "Number of gridpoints: " << m << endl;
-	//		cout << yminNew << " || " << xminNew << " || " << ymaxNew  << " || " << xmaxNew << endl;
-	//		for(int i=0; i<contourGrain.size(); i++){
-	//			cout << contourGrain[i].y << "   " << contourGrain[i].x << endl;
-	//		}
-	//	}
-	//
-	//    // compute Volume and Energy
-	//	if ( (loop % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
-	//		computeVolumeAndEnergy();
-	//
-	//	}
-	//	else updateFirstOrderNeigbors();
-	//
-	//	if(grainCharacteristics.size() < 2 ) {
-	////		cout << endl << "Timestep: " <<handler->loop << endl;
-	////		cout << "GRAIN: " << id << " has a positive Volume but less than 2 neighbors" << endl;
-	////		plot_box(true, 2, "error_grain", true);
-	////		plot_box(true, 1, "error_grain", true);
-	////		plot_box_contour(handler->loop, true);
-	//		exist =false;
-	//	}
-	//	outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew);
-	// 	outputDistance->resizeToSquare(handler->get_ngridpoints());
-	//
-	//	return;
+	if (xmaxNew < outputDistance->getMaxX() - 1)
+		xmaxNew = outputDistance->getMaxX() - 1;
+	if (ymaxNew < outputDistance->getMaxY() - 1)
+		ymaxNew = outputDistance->getMaxY() - 1;
+	if (zmaxNew < outputDistance->getMaxZ() - 1)
+		zmaxNew = outputDistance->getMaxZ() - 1;
+
+	if (volume > 0.0) {
+		outputDistance->resize(xminNew, yminNew, xmaxNew, ymaxNew, zminNew,
+				zmaxNew);
+		outputDistance->resizeToCube(m);
+	}
+	cout << "resized: " << outputDistance->getMinX() << "  "
+			<< outputDistance->getMaxX() << "  " << outputDistance->getMinY()
+			<< "  " << outputDistance->getMaxY() << "  "
+			<< outputDistance->getMinZ() << "  " << outputDistance->getMaxZ()
+			<< endl;
+	if (outputDistance->getMaxY() - outputDistance->getMinY() == 2
+			* grid_blowup)
+		exist == false;
+	cout << "new volume: " << volume << endl;
+	return;
 }
 
 //revise algorithm to update first order neighbors

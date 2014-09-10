@@ -100,7 +100,7 @@ public:
 		m_zMin = frontEnd;
 		m_zMax = backEnd;
 
-		m_values.resize((m_zMax - m_zMin)*(m_xMax - m_xMin) * (m_yMax - m_yMin));
+		m_values.resize((m_zMax - m_zMin) * (m_xMax - m_xMin) * (m_yMax - m_yMin));
 	}
 
 	/*!
