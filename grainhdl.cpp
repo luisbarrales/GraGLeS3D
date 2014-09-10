@@ -491,7 +491,7 @@ void grainhdl::run_sim() {
 	for (loop = Settings::StartTime; loop <= Settings::StartTime
 			+ Settings::NumberOfTimesteps; loop++) {
 		//		gridCoarsement();
-
+		switchDistancebuffer();
 		convolution();
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
@@ -499,6 +499,7 @@ void grainhdl::run_sim() {
 		switchDistancebuffer();
 		level_set();
 		redistancing();
+
 		//		if ( ((loop-Settings::StartTime) % int(Settings::AnalysisTimestep)) == 0 || loop == Settings::NumberOfTimesteps ) {
 		//			saveAllContourEnergies();
 		//			save_texture();
