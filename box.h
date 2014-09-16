@@ -88,6 +88,7 @@ public:
     ~LSbox();
 	vector<LSbox*> neighbourCandidates;
 	vector<LSbox*> neighbors_2order;
+	vector<LSbox*> neighborFirst;
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
 	LSbox(int id, int nvertex, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner);
     LSbox(int aID, vector<double>& vertices, grainhdl* owner);

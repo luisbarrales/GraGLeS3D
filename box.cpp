@@ -473,7 +473,7 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool) {
 
 	int loop = handler->loop;
 	std::vector<LSbox*>::iterator it_nn;
-
+	neighborFirst.clear();
 	for (it_nn = neighbors_2order.begin(); it_nn != neighbors_2order.end(); it_nn++) {
 		int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
 
@@ -520,9 +520,16 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool) {
 								//									distance_2neighbor.setValueAt(i, j, k,
 								//											outputDistance->getValueAt(i, j, k));
 								//								}
+								if(abs(inputDistance->getValueAt(i, j, k)) < 2* handler->get_h()){
+									if(abs(dist) < 2* handler->get_h())
+										neighborFirst.push_back(*it_nn);
+								}
 								outputDistance->setValueAt(i, j, k, dist);
 								//								IDLocal.getValueAt(i, j, k).insertAtPosition(
 								//										E_FIRST_POSITION, *it_nn);
+							}
+							if(abs(inputDistance->getValueAt(i, j, k)) < 2* handler->get_h()){
+
 							}
 							//							 else if (dist > distance_2neighbor.getValueAt(i,
 							//									j, k)) { //candidate of neighbor is closer than 2nd neighbor
@@ -540,8 +547,26 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool) {
 		}
 	}
 
-	if (id == 30)
-		plot_box_3d(2, "Com");
+	neighbors_2order.clear();
+	for (auto it_nC = neighborFirst.begin(); it_nC
+			!= neighborFirst.end(); it_nC++) {
+		bool just_in = false;
+		if ((*it_nC) == this)
+			continue;
+		if ((*it_nC) == handler->boundary)
+			continue;
+		for (auto it_com = neighbors_2order.begin(); it_com
+				!= neighbors_2order.end(); it_com++) {
+			if ((*it_com) == (*it_nC)) {
+				just_in = true;
+				break;
+			}
+		}
+		if ((!just_in))
+			neighbors_2order.push_back((*it_nC));
+	}
+//	if (id == 30)
+//		plot_box_3d(2, "Com");
 
 	if (BoundaryIntersection()) {
 		boundaryGrain = true;
@@ -550,8 +575,8 @@ void LSbox::comparison(ExpandingVector<char>& mem_pool) {
 		boundaryGrain = false;
 	set_comparison();
 
-	if (id == 30)
-		plot_box_3d(2, "Com2");
+//	if (id == 30)
+//		plot_box_3d(2, "Com2");
 	//	plot_box_3d(2, "Com");
 	//	plot_box(true,2,"Com",true);
 	//	if(id==201) plot_box(true,2,"Combig",false);
@@ -933,14 +958,14 @@ void LSbox::redist_box() {
 
 	// 	 set the references for the convolution step
 	//	plot_box_3d(1, "Redist");
-	//	if (id == 56 && handler->loop % Settings::AnalysisTimestep == 0) {
-	//		for (auto it = neighbors_2order.begin(); it != neighbors_2order.end(); it++) {
-	//			cout << (*it)->id << "  is boundary grains "
-	//					<< (*it)->boundaryGrain << endl;
-	//			(*it)->plot_box_3d(2, "Custer");
-	//		}
-	//	}
-	if (id == 30)
+		if (id == 4 && handler->loop % Settings::AnalysisTimestep == 0) {
+			for (auto it = neighbors_2order.begin(); it != neighbors_2order.end(); it++) {
+//				cout << (*it)->id << "  is boundary grains "
+//						<< (*it)->boundaryGrain << endl;
+				(*it)->plot_box_3d(2, "Custer");
+			}
+		}
+//	if (id == 30)
 		plot_box_3d(2, "Redist");
 }
 
@@ -1261,12 +1286,12 @@ void LSbox::convolution(ExpandingVector<char>& mem_pool) {
 /**************************************/
 
 void LSbox::find_contour() {
-	cout << handler->loop << endl;
-	cout << "current size of id: " << id << ":" << endl
-			<< outputDistance->getMinX() << "  " << outputDistance->getMaxX()
-			<< "  " << outputDistance->getMinY() << "  "
-			<< outputDistance->getMaxY() << "  " << outputDistance->getMinZ()
-			<< "  " << outputDistance->getMaxZ() << endl;
+//	cout << handler->loop << endl;
+//	cout << "current size of id: " << id << ":" << endl
+//			<< outputDistance->getMinX() << "  " << outputDistance->getMaxX()
+//			<< "  " << outputDistance->getMinY() << "  "
+//			<< outputDistance->getMaxY() << "  " << outputDistance->getMinZ()
+//			<< "  " << outputDistance->getMaxZ() << endl;
 	int m = handler->get_ngridpoints();
 	int grid_blowup = handler->get_grid_blowup();
 	int xminNew = m, xmaxNew = 0, yminNew = m, ymaxNew = 0, zminNew = m,
@@ -1297,8 +1322,8 @@ void LSbox::find_contour() {
 			}
 		}
 	}
-	cout << "suggested size: " << xminNew << "  " << xmaxNew << "  " << yminNew
-			<< "  " << ymaxNew << "  " << zminNew << "  " << zmaxNew << endl;
+//	cout << "suggested size: " << xminNew << "  " << xmaxNew << "  " << yminNew
+//			<< "  " << ymaxNew << "  " << zminNew << "  " << zmaxNew << endl;
 	if (xminNew > outputDistance->getMinX() + 1)
 		xminNew = outputDistance->getMinX() + 1;
 	if (yminNew > outputDistance->getMinY() + 1)
@@ -1318,15 +1343,15 @@ void LSbox::find_contour() {
 				zmaxNew);
 		outputDistance->resizeToCube(m);
 	}
-	cout << "resized: " << outputDistance->getMinX() << "  "
-			<< outputDistance->getMaxX() << "  " << outputDistance->getMinY()
-			<< "  " << outputDistance->getMaxY() << "  "
-			<< outputDistance->getMinZ() << "  " << outputDistance->getMaxZ()
-			<< endl;
+//	cout << "resized: " << outputDistance->getMinX() << "  "
+//			<< outputDistance->getMaxX() << "  " << outputDistance->getMinY()
+//			<< "  " << outputDistance->getMaxY() << "  "
+//			<< outputDistance->getMinZ() << "  " << outputDistance->getMaxZ()
+//			<< endl;
 	if (outputDistance->getMaxY() - outputDistance->getMinY() == 2
 			* grid_blowup)
 		exist == false;
-	cout << "new volume: " << volume << endl;
+//	cout << "new volume: " << volume << endl;
 	return;
 }
 
@@ -1830,10 +1855,10 @@ void LSbox::plot_box_3d(int select, string simstep) {
 		filename << "Box3D_" << simstep << "out_T" << handler->loop << "_"
 				<< id << ".gnu";
 		datei.open(filename.str());
-		for (int k = inputDistance->getMinZ(); k < inputDistance->getMaxZ(); k++) {
-			for (int i = inputDistance->getMinY(); i < inputDistance->getMaxY(); i++) {
-				for (int j = inputDistance->getMinX(); j
-						< inputDistance->getMaxX(); j++) {
+		for (int k = outputDistance->getMinZ(); k < outputDistance->getMaxZ(); k++) {
+			for (int i = outputDistance->getMinY(); i < outputDistance->getMaxY(); i++) {
+				for (int j = outputDistance->getMinX(); j
+						< outputDistance->getMaxX(); j++) {
 					//					if ((outputDistance->getValueAt(i, j,
 					//							k) )>0)
 					datei << i << "  " << j << "  " << k << "  "
