@@ -506,6 +506,10 @@ void grainhdl::run_sim() {
 		//			if(loop == Settings::NumberOfTimesteps) saveMicrostructure();
 		//		}
 		simulationTime += dt;
+		if(loop % Settings::AnalysisTimestep == 0 || loop == Settings::NumberOfTimesteps) {
+			nr_grains.push_back(currentNrGrains);
+			cout << "Number of Grains: " << currentNrGrains << endl;
+		}
 		if (currentNrGrains < 0.03 * ngrains) {
 			cout
 					<< "Network has coarsed to less than 3% of the population. Break and save."
@@ -568,9 +572,9 @@ void grainhdl::save_sim() {
 	ofstream myfile;
 	myfile.open("NrGrains&EnergyStatistics.txt");
 	for (int i = 0; i < nr_grains.size(); i++) {
-		myfile << time[i] << "\t";
+//		myfile << time[i] << "\t";
 		myfile << nr_grains[i] << "\t";
-		myfile << totalenergy[i] << endl;
+//		myfile << totalenergy[i] << endl;
 	}
 	myfile.close();
 
