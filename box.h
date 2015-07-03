@@ -1,151 +1,182 @@
+/*
+	GraGLeS 2D A grain growth simulation utilizing level set approaches
+    Copyright (C) 2015  Christian Miessen, Nikola Velinov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #ifndef BOX_H
 #define BOX_H
 
-#include "ggLS.h"
 #include "dimensionalBufferIDLocal.h"
 #include "dimensionalBufferReal.h"
 #include "junction.h"
 #include "dimensionalBuffer.h"
 #include "pooledDimensionalBufferDouble.h"
 #include "spoint.h"
+#include "contourSector.h"
+#include "minimalisticBoundary.h"
+#include "grainBoundary.h"
+#include "charasteristic.h"
+#include "triangle.h"
+#include "RTree.h"
+#include "fftw3.h"
+#include "Eigen/Dense"
 
 using namespace std;
+using namespace Eigen;
 
-class LSbox;
 class grainhdl;
-class Weightmap;
 class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
 
-struct SPoint;
-struct VolEvolution{
-//!
-//! This struct stores the evolution of
-//! area and the corresponding number
-//! of vertices.
-//!
-	double dA;
-	int nVertex;
-
-	VolEvolution(double da, int nr) : dA(da), nVertex(nr)
-	{}
+enum E_BUFFER_SELECTION
+{
+	E_INPUT_DISTANCE,
+	E_OUTPUT_DISTANCE,
+	E_IDLOCAL,
+	E_INVALID_BUFFER
 };
 
-struct characteristics{
-    LSbox* directNeighbour;
-    double length;
-    double energyDensity;
-    double mis_ori;
-	double mobility;
-    characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(1)
-	{}
-	characteristics(LSbox* directNeighbour, double length, double energyDensity, double mis_ori, double mu) : directNeighbour(directNeighbour), length(length), energyDensity(energyDensity), mis_ori(mis_ori), mobility(mu)
-	{}
-	characteristics( const characteristics& other ) :
-		directNeighbour(other.directNeighbour), length(other.length), energyDensity(other.energyDensity), mis_ori(other.mis_ori), mobility(other.mobility)
-	{}
-};
 /*!
- * \class LSBox
+ * \class LSbox
  * \brief Class encapsulating a Level Set Box.
  *
  * LSbox class contains the coordinates of the box in the actual grid. <br>
  * For each point that the LSbox covers, it stores: <br>
- * - Distances to the actual grain boundry. <br>
- * - List of pointers to other LSBoxes that influence the point.
+ * - Distances to the actual grain boundary. <br>
+ * - The ID of the closest grain.
  *
- * The class also stores the coordinates of the LSBox, a weightmap,Euler angles that represent
+ * The class also stores the coordinates of the LSbox, Euler angles that represent
  * the orientation, the volume of the grain, <br>
  * the energy of the grain and a pointer to the \b grainhdl object.
  *
  */
 class LSbox {
-	unsigned int id;
-	int xmaxId ,xminId , ymaxId, yminId, zminId, zmaxId;
-	bool boundaryGrain;
-	bool exist;
-	DimensionalBufferIDLocal IDLocal;
-	Weightmap* local_weights;
+private:
+	unsigned int 				m_ID;
+	bool 						m_exists;
+	grainhdl* 					m_grainHandler;
+	ExplicitGrainBoundary		m_explicitBoundary;
+	bool 						m_isMotionRegular;
+	bool 						m_intersectsBoundaryGrain;
+	DimensionalBufferIDLocal 	m_IDLocal;
 
-	int nvertices;
-	double* quaternion;
-	double energy, volume, perimeter;
-	grainhdl* handler;
-	vector<SPoint> contourGrain;
-	vector<characteristics> grainCharacteristics;
-//	vector<GrainJunction> junctions;
-	//! Declaration of a vector for VolEvolution struct
-//	vector<VolEvolution> VolEvo;
-
-
-	DimensionalBufferReal* inputDistance;
-	DimensionalBufferReal* outputDistance;
-
+	double* 					m_orientationQuat;
+	double 						m_volume;
+	double 						m_energy;
+	double 						m_perimeter;
+	int 						m_newXMin;
+	int							m_newXMax;
+	int							m_newYMin;
+	int							m_newYMax;
+	int							m_newZMin;
+	int							m_newZMax;
+	double 						m_volumeEvolution;
+	SPoint 						m_centroid;
+	DimensionalBufferReal* 		m_inputDistance;
+	DimensionalBufferReal* 		m_outputDistance;
+	fftwp_plan 					m_backwardsPlan;
+	fftwp_plan 					m_forwardPlan;
+	vector<unsigned int> 		m_comparisonList;
+	vector<unsigned int> 		m_secondOrderNeighbours;
+	vector<Triangle>			m_grainHull;
 
 public:
-	friend class grainhdl;
-    LSbox();
-    ~LSbox();
-	vector<LSbox*> neighbourCandidates;
-	vector<LSbox*> neighbors_2order;
-	vector<LSbox*> neighborFirst;
+	//Constructors to document
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
-	LSbox(int id, int nvertex, double* vertices, double q1, double q2, double q3, double q4, grainhdl* owner);
-    LSbox(int aID, vector<double>& vertices, grainhdl* owner);
-	LSbox(int id, int nvertex, double* vertices, double phi1, double PHI, double phi2, grainhdl* owner);
-	bool outOfDomain(int i,int j,int k);
-	void distancefunction();
-//    void distancefunctionToEdges(int nedges, double* edges);
-    void redist_box();
-	void find_contour();
-	int  getID();
-
-//    void determineIDs();
-    void comparison(ExpandingVector<char>& mem_pool);
-	double getDistance(int i, int j, int k);
-    void set_comparison();
-//    void add_n2o();
-	void add_n2o_2();
-//    void computeVolumeAndEnergy();
+	LSbox(int id, vector<Vector3d>& hull, grainhdl* owner);
+	LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner);
+	//Dtors
+	virtual ~LSbox();
+	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);
+    void executeRedistancing();
+	void extractContour();
+	inline bool isMotionRegular() const { return m_isMotionRegular; }
+    void executeComparison();
+	double getDistanceFromInputBuff(int i, int j, int k);
+    void executeSetComparison();
+	void computeSecondOrderNeighbours();
+	void computeDirectNeighbours(const RTree<unsigned int, int, 3, float>& rtree);
+	double computeVolume();
+    void computeVolumeAndEnergy();
 	double getGBEnergyTimesGBMobility(int i,int j);
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);
 	double getGBEnergy(LSbox* neighbour);
-	
-//	void constructBoundarySectors(bool test_plot);
-
-    bool checkIntersect(LSbox* box2);   	
-	void free_memory_distance();
+	double getWeigthFromHandler(int i, int j);
+	void constructBoundarySectors();
+	double getWeight(int i, int j, bool minimal = false);
+	int getDirectNeighbourCount() { return -1; }
+	vector<int>	getDirectNeighbourIDs();
+	vector<double> getGBLengths();
+	map<int, double>& getDiscreteEnergyDistribution() { }
+    bool checkIntersection(LSbox* box2);   	
       
-	void convolution(ExpandingVector<char>& mem_pool);
-	void get_new_IDLocalSize();
 
-	void plot_box_contour(int timestep = -1, bool plot_energy=false, ofstream* dest_file = NULL);
-//	void saveGrain(ofstream* dest_file);
+	void reizeIDLocalToDistanceBuffer();
+	void recalculateIDLocal();
 
-	void plot_box(bool distanceplot, int select, string simstep, bool local);
-	void plot_box_3d( int select, string simstep);
-	double mis_ori(LSbox* grain_2);
-	void checkIntersect_zero_grain();
-//	void resizeGrid(double shrinkFactor);
+	//Debug printing functions
+	void plotBoxContour(bool absoluteCoordinates = false);
+	void plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection);
+	void plotBoxIDLocal();
+
+	double computeMisorientation(LSbox* grain_2);
+	double computeMisorientation(unsigned int grainID);
+	void resizeGrid(int newSize);
 	
+	void initConvoMemory(ExpandingVector<char>& memory_dump);
+	void createConvolutionPlans(ExpandingVector<char>& memory_dump);
+	void executeConvolution(ExpandingVector<char>& mem_pool);
+	void cleanupConvolution();
+
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
+	void convolutionGeneratorFFTW(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void executeFFTW(fftw_plan fftplan);
 	void executeFFTW(fftwf_plan fftplan);
-	void destroyFFTWs(fftw_plan fwdPlan, fftw_plan bwdPlan);
-	void destroyFFTWs(fftwf_plan fwdPlan, fftwf_plan bwdPlan);
 
-	void conv_generator(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void switchInNOut();
+	//todo: refactor with a proper name
 	void boundaryCondition();
+	inline bool intersectsBoundaryGrain() const {return m_intersectsBoundaryGrain;}
 	void updateFirstOrderNeigbors();
 	double GBmobilityModel(double thetaMis);
 	bool isNeighbour(LSbox* candidate);
 	bool BoundaryIntersection();
 
-	inline bool get_status(){ return exist;}
-	inline int get_id() 	{ return id; }
-	inline double get_vol() {return volume ;}
-	inline double getEnergy(){ return energy;}
+	//todo: Analyze if function is required
+	vector<double> linearRegression(vector<SPoint>& points2D);
+	void calculateTriangleCentroid(vector<SPoint>& triangleCentroid, vector<SPoint> triangle);
+	void calculateCentroid(SPoint& centroid, vector<GrainJunction> junctions);
+
+	double get_h();
+
+	void outputMemoryUsage(ofstream& output);
+
+	inline bool grainExists() const {return m_exists;}
+	inline double getVolume() const {return m_volume;}
+	inline double getEnergy() const {return m_energy;}
+	inline double getPerimeter() const { return m_perimeter; }
+	inline unsigned int  getID() const { return m_ID; }
+	inline int getMinX() const {return m_outputDistance->getMinX();}
+	inline int getMaxX() const {return m_outputDistance->getMaxX();}
+	inline int getMinY() const {return m_outputDistance->getMinY();}
+	inline int getMaxY() const {return m_outputDistance->getMaxY();}
+	inline int getMinZ() const {return m_outputDistance->getMinZ();}
+	inline int getMaxZ() const {return m_outputDistance->getMaxZ();}
+	inline SPoint getCentroid() const {return m_centroid;}
+	inline const double* getOrientationQuat() {return m_orientationQuat;}
+	int getNeighbourAt(int i, int j, int k);
 };
 #endif

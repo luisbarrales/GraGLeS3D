@@ -1,44 +1,63 @@
+/*
+	GraGLeS 2D A grain growth simulation utilizing level set approaches
+    Copyright (C) 2015  Christian Miessen, Nikola Velinov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #ifndef __POOLED_DIMENSIONAL_BUFFER_REAL__
 #define __POOLED_DIMENSIONAL_BUFFER_REAL__
+
+/*!
+ * \class PooledDimensionalBufferReal
+ * \brief Class that can create a dimensional buffer from an already allocated memory. The
+ * class is not responsible for freeing the memory.
+ */
 class PooledDimensionalBufferReal
 {
 public:
 	PooledDimensionalBufferReal(char* pool, unsigned int size,
 			unsigned int upperLeftX, unsigned int upperLeftY,
-			unsigned int lowerRightX, unsigned int lowerRightY,
-			unsigned int frontEnd, unsigned int backEnd):
-				m_xMin(upperLeftX), m_xMax(lowerRightX), m_yMin(upperLeftY), m_yMax(lowerRightY), m_zMin(frontEnd), m_zMax(backEnd),
+			unsigned int lowerRightX, unsigned int lowerRightY) :
+				m_xMin(upperLeftX), m_xMax(lowerRightX), m_yMin(upperLeftY), m_yMax(lowerRightY),
 				m_pool(pool), m_poolSize(size)
 	{
 	}
-	float getValueAt(unsigned int row, unsigned int column, unsigned int layer)
+	float getValueAt(unsigned int row, unsigned int column)
 	{
 		float* pointer = (float*) m_pool;
-		return pointer[(layer-m_zMin)*(m_xMax-m_xMin)*(m_yMax-m_yMin) + (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
+		return pointer[(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)];
 	}
 
-	void setValueAt(unsigned int row, unsigned int column, unsigned int layer, float value)
+	void setValueAt(unsigned int row, unsigned int column, float value)
 	{
 		float* pointer = (float*) m_pool;
-		pointer[(layer-m_zMin)*(m_xMax-m_xMin)*(m_yMax-m_yMin) + (row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
+		pointer[(row - m_yMin) * (m_xMax - m_xMin) + (column - m_xMin)] = value;
 	}
 	void clearValues(float value)
 	{
-		for(int i = 0; i < m_poolSize / sizeof(float); i++)
+		for(unsigned int i = 0; i < m_poolSize / sizeof(float); i++)
 		{
-			float* pointer = (float*)m_pool;
 			m_pool[i] = value;
 		}
 	}
 
 private:
-	char*	m_pool;
-	int 	m_poolSize;
 	int 	m_xMin;
 	int 	m_xMax;
 	int 	m_yMin;
 	int 	m_yMax;
-	int 	m_zMin;
-	int		m_zMax;
+	char*	m_pool;
+	int 	m_poolSize;
 };
 #endif 	//__POOLED_DIMENSIONAL_BUFFER_REAL__

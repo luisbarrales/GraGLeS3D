@@ -1,76 +1,32 @@
+/*
+	GraGLeS 2D A grain growth simulation utilizing level set approaches
+    Copyright (C) 2015  Christian Miessen, Nikola Velinov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #ifndef utilities_h
 #define utilities_h
 
 #include "ggLS.h"
 
 
-namespace utils {
-  
-template <class T >
-void print_vector(const vector<T> &w) ;
-
-template <class T >
-void print_vector(const vector<T> &w) {
-	stringstream os;
-		for(int i=0; i< (w.size()-1); i++){
-		os << ::std::fixed << w[i] << "\t";
-	}
-	os << ::std::fixed << w[w.size()-1];
-	std::cout << os.str() << endl;
-}
-
-template <class T >
-void print_2dim_array( T* arr, int m , int n);
-
-template <class T >
-void print_2dim_array( T* arr, int m , int n){
-	stringstream os;
-	for (int i = 0; i < m; i++){
-	  for (int j = 0; j < n; j++) {
-		os << ::std::fixed << arr[i*n+j] << "\t";
-		}
-		os << endl;
-	}
-	std::cout << os.str() << endl;
-}
-
-
-template <class T>
-void save_2dim_array( T *arr, int m , int n, const char* filename);
-
-
-template <class T>
-void save_2dim_array( T *arr, int m , int n, const char* filename){
-    ofstream datei;
-    datei.open(filename);
-// 	stringstream os;
-	  for (int i = 0; i < m; i++){
-		for (int j = 0; j < n; j++){
-		  datei << ::std::fixed << arr[i*n+j] << "\t";
-		}
-		datei << endl;
-	}
-// 	datei << os << endl;
-    datei.close();
-}
-
-void plotContour(const char *fileName, const char *plotfiles, int len);
-
 
 inline double rnd() {return double(rand())/RAND_MAX;}
 
-inline int sgn(double x)
+template <typename T> int sgn(T val)
 {
-    if (x==0.0)
-        return 0.0;
-    else
-        return (x>.0) ? 1. : -1.;
+	return (T(0) < val) - (val < T(0));
 }
 
-    void plotGnu(const char *fileName, const char *plotfiles, int len);
-    void plotGnuPNG(const char *fileName, const char *plotfiles, int len);
-    void PNGtoGIF(const char *fileName);
-    void CreateMakeGif(char* outputFile= "EnergyDistribution.gif");
-
-};
 #endif

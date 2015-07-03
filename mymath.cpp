@@ -1,3 +1,20 @@
+/*
+	Utility math library
+    Copyright (C) 2015  Markus Kuehbach
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "mymath.h"
 #include "applic.h"
 #include "random.h"
@@ -39,8 +56,6 @@ void mathMethods::factorizeIn3( long n, long * factors )
 
 	long nhalf = (long) (0.5*n);
 	long *Fac = (long *) calloc( nhalf, sizeof( long ) );
-
-	if( !Fac ) exitus("ERROR: Cannot allocate more memory :(");
 
 	int count=0;
 
@@ -715,11 +730,6 @@ double mathMethods::misorientationCubicOrigInv( double pa1, double Pa, double pa
         //in the fundamental zone, this vector possesses the smallest angle, in such a way
         //that r0 is actually the scalar part of this quaternion
 
-	double a,b,c,d;
-	Real rt3=sqrt(3.0);
-
-	a=r[0]; b=r[1]; c=r[2]; d=r[3];
-
 	Real fac = 1 / sqrt( 2.0 ); //0.70710678;
 
 	r0[0][0]=(r[0]+r[1])*fac; r0[0][1]=(r[0]-r[1])*fac; r0[0][2]=(r[2]+r[3])*fac; r0[0][3]=(r[2]-r[3])*fac;
@@ -851,10 +861,6 @@ double mathMethods::misorientationCubicCOReV2( double pa1, double Pa, double pa2
         //in the fundamental zone, this vector possesses the smallest angle, in such a way
         //that r0 is actually the scalar part of this quaternion
 
-	double a,b,c,d;
-	Real rt3=sqrt(3.0);
-
-	a=r[0]; b=r[1]; c=r[2]; d=r[3];
 
 	Real fac=0.70710678;
 
@@ -930,11 +936,6 @@ double mathMethods::misorientationCubicCorrectCOReV2InvertAndMult( double pa1, d
         //in the fundamental zone, this vector possesses the smallest angle, in such a way
         //that r0 is actually the scalar part of this quaternion
 
-	double a,b,c,d;
-	Real rt3=sqrt(3.0);
-
-	a=r[0]; b=r[1]; c=r[2]; d=r[3];
-
 	Real fac=0.70710678;
 
 	r0[0][0]=(r[0]+r[1])*fac; r0[0][1]=(r[0]-r[1])*fac; r0[0][2]=(r[2]+r[3])*fac; r0[0][3]=(r[2]-r[3])*fac;
@@ -989,7 +990,6 @@ void mathMethods::newOrientationFromReferenceFixedAngularCone(double * oriOri, d
 
 void mathMethods::rotateOrientation( double *oriOri, double angle, double u, double v, double w, double *newOri ) //Angle in radians
 {
-        Real qr[4];
         Real ori[4], qideal[4];
         Real _norm = 1.0 / sqrt(SQR(u)+SQR(v)+SQR(w));
 
@@ -1036,13 +1036,13 @@ void mathMethods::euler2quaternion( double * euler, double * q )
 	q[3] = p[3];
 }
 
-void mathMethods::quaternion2Euler( double * quat, double * euler )
+void mathMethods::quaternion2Euler( const double * quat, double * euler )
 {
 	//convention: Bunge, ZXZ, equal to case (3,1,3) as 
 	//  analyzed in Diebel, James, 2006: 
 	//  Representing Attitude: Euler Angles, Unit Quaternions and Rotation Vectors
 	//Gimbal lock situation analyzed following the line of Melcher et. al., Conversion of EBSD data by a quaternion based algorithm....
-	//TECHNISCHE MECHANIK, 30, 4, (2010), 401 – 413
+	//TECHNISCHE MECHANIK, 30, 4, (2010), 401 ï¿½ 413
 	//dont forget to define QUAT2EUL_ETA 1e-20
 
 	Real q0 = quat[0];
@@ -1157,7 +1157,7 @@ void mathMethods::patalaQuat2RGB ( double *q, unsigned char *rgb)
 /*
 	//Patala, Schuh unique coloring of misorientations via HSV2RGB
 	//Diebel, James Representing Attitude: Euler Angles, Unit Quaternions, and Rotation Vectors, 2006 Stanford University
-	//Patala, Schuh Acta Materialia 59 (2011) 554–562
+	//Patala, Schuh Acta Materialia 59 (2011) 554ï¿½562
 	//HSV2RGB by Gonzalez 
 	
 	//first get axis-angle parameterization of unit quaternion
