@@ -5,7 +5,7 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES ggLS.cpp vektor.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp domainCl.cpp utilities.cpp weightmap.cpp Settings.cpp contourSector.cpp grahamScan.cpp)
+set(MY_SOURCES ggLS.cpp mymath.cpp io.cpp random.cpp applic.cpp grainhdl.cpp box.cpp domainCl.cpp utilities.cpp weightmap.cpp Settings.cpp contourSector.cpp grahamScan.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
