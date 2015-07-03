@@ -20,7 +20,6 @@
 #include "dimensionalBufferReal.h"
 #include "pooledDimensionalBufferReal.h"
 #include "contourSector.h"
-#include "grahamScan.h"
 #include "minimalisticBoundary.h"
 #include "utilities.h"
 #include "grainhdl.h"
@@ -28,6 +27,7 @@
 #include "marchingCubes.h"
 #include <algorithm>
 #include <cstdio>
+#include <stdexcept>
 
 #define PERIODIC(x, f) (((x)+f)%f)
 
@@ -1116,8 +1116,8 @@ struct vectorComparator{
 
 void LSbox::plotBoxContour(bool absoluteCoordinates)
 {
-	string filename = string("GrainHull_")+to_string(m_ID)+string("Timestep_")+
-			to_string(m_grainHandler->loop)+string(".vtk");
+	string filename = string("GrainHull_")+to_string((unsigned long long)m_ID)+string("Timestep_")+
+			to_string((unsigned long long)m_grainHandler->loop)+string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if(output == NULL)
 	{
@@ -1194,8 +1194,8 @@ void LSbox::plotBoxContour(bool absoluteCoordinates)
 
 void LSbox::plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection)
 {
-	string filename = string("GrainVolume_")+to_string(m_ID)+string("Timestep_")+
-				to_string(m_grainHandler->loop)+identifier+string(".vtk");
+	string filename = string("GrainVolume_")+to_string((unsigned long long)m_ID)+string("Timestep_")+
+				to_string((unsigned long long)m_grainHandler->loop)+identifier+string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if(output == NULL)
 	{
@@ -1211,8 +1211,8 @@ void LSbox::plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelect
 			distance = m_outputDistance;
 			break;
 		default:
-			throw runtime_error(string("Invalid buffer selection in plotBoxVolumetric for grain") + to_string(m_ID)+
-					string(" at timestep ") + to_string(m_grainHandler->loop));
+			throw runtime_error(string("Invalid buffer selection in plotBoxVolumetric for grain") + to_string((unsigned long long)m_ID)+
+					string(" at timestep ") + to_string((unsigned long long)m_grainHandler->loop));
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
@@ -1243,8 +1243,8 @@ void LSbox::plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelect
 
 void LSbox::plotBoxIDLocal()
 {
-	string filename = string("GrainIDLocal_")+to_string(m_ID)+string("Timestep_")+
-				to_string(m_grainHandler->loop)+string(".vtk");
+	string filename = string("GrainIDLocal_")+to_string((unsigned long long)m_ID)+string("Timestep_")+
+				to_string((unsigned long long)m_grainHandler->loop)+string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if(output == NULL)
 	{
