@@ -17,7 +17,6 @@
 */
 #include "grainhdl.h"
 #include "Settings.h"
-#include "grahamScan.h"
 #include "spoint.h"
 #include "RTree.h"
 #include "utilities.h"
