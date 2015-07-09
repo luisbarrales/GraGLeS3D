@@ -102,7 +102,7 @@ public:
 	void find_neighbors();
 
 	void distanceInitialisation();
-	void convolution();
+	void convolution(double& planOverhead);
 	void createConvolutionPlans();
 	void destroyConvolutionPlans();
 	void save_conv_step();

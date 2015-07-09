@@ -17,6 +17,7 @@
 */
 #include "grainhdl.h"
 #include "Settings.h"
+#include "grahamScan.h"
 #include "spoint.h"
 #include "RTree.h"
 #include "utilities.h"
@@ -242,9 +243,10 @@ void grainhdl::distanceInitialisation() {
 		}
 }
 
-void grainhdl::convolution() {
+void grainhdl::convolution(double& planOverhead) {
 	unsigned int j;
-
+	double timer=0;
+	timeval time;
 #pragma omp parallel for private(j)
 	for(unsigned int i=0; i< Settings::MaximumNumberOfThreads; i++)
 		for(j=0; j < Settings::NumberOfParticles/Settings::MaximumNumberOfThreads + 1; j++)
@@ -256,11 +258,15 @@ void grainhdl::convolution() {
 					grains[id]->initConvoMemory(m_ThreadMemPool[omp_get_thread_num()]);
 			}
 		}
+	gettimeofday(&time, NULL);
+	timer = time.tv_sec + time.tv_usec/1000000.0;
 	for(unsigned int i=1; i< grains.size(); i++)
 	{
 		if(grains[i] != NULL)
 			grains[i]->createConvolutionPlans(m_ThreadMemPool[(i - 1)%Settings::MaximumNumberOfThreads]);
 	}
+	gettimeofday(&time, NULL);
+	planOverhead+= time.tv_sec + time.tv_usec/1000000.0 - timer;
 
 #pragma omp parallel for private(j)
 	for(unsigned int i=0; i< Settings::MaximumNumberOfThreads; i++)
@@ -273,11 +279,16 @@ void grainhdl::convolution() {
 					grains[id]->executeConvolution(m_ThreadMemPool[omp_get_thread_num()]);
 			}
 		}
+
+	gettimeofday(&time, NULL);
+	timer = time.tv_sec + time.tv_usec/1000000.0;
 	for(unsigned int i=1; i< grains.size(); i++)
 		{
 			if(grains[i] != NULL)
 				grains[i]->cleanupConvolution();
 		}
+	gettimeofday(&time, NULL);
+	planOverhead+= time.tv_sec + time.tv_usec/1000000.0 - timer;
 }
 
 void grainhdl::comparison_box() {
@@ -341,16 +352,16 @@ void grainhdl::redistancing() {
 void grainhdl::save_texture() {
 }
 
-double parallelRest=0;
-double convo_time=0;
-double comparison_time=0;
-double levelset_time=0;
-double redistancing_time=0;
-double plan_overhead = 0;
 void grainhdl::run_sim() {
+	double parallelRest=0;
+	double convo_time=0;
+	double comparison_time=0;
+	double levelset_time=0;
+	double redistancing_time=0;
+	double plan_overhead = 0;
+
 	timeval time;
 	double timer;
-	double overhead;
 	distanceInitialisation();
 	simulationTime = 0;
 	find_neighbors();
@@ -364,7 +375,7 @@ void grainhdl::run_sim() {
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec/1000000.0;
-			convolution();
+			convolution(plan_overhead);
 		gettimeofday(&time, NULL);
 		convo_time += time.tv_sec + time.tv_usec/1000000.0 - timer;
 
@@ -512,8 +523,6 @@ void grainhdl::saveNetworkState() {
 				int id = j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num();
 				if (grains[id] == NULL)
 					continue;
-				grains[id]->plotBoxContour();
-				grains[id]->plotBoxIDLocal();
 			}
 		}
 }
@@ -599,8 +608,8 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
 #pragma omp critical
 					{
 					exceptionHappened = true;
-					error_message += string("Grain ") + to_string((unsigned long long)id) + string(" failed at timestep ")
-							+ to_string((unsigned long long)loop) + " in its constructor! Reason : " + e.what() + string("\n");
+					error_message += string("Grain ") + to_string(id) + string(" failed at timestep ")
+							+ to_string(loop) + " in its constructor! Reason : " + e.what() + string("\n");
 					}
 				}
 			}
