@@ -51,7 +51,7 @@ void grainhdl::initializeSimulation()
 	//! for MicrostructureGenMode 4
 	ngrains = Settings::NumberOfParticles;
 	currentNrGrains = ngrains;
-	realDomainSize = sqrt(Settings::NumberOfParticles) * Settings::NumberOfPointsPerGrain; // half open container of VORO++
+	realDomainSize = pow(Settings::NumberOfParticles, 1/3.0) * Settings::NumberOfPointsPerGrain; // half open container of VORO++
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(), discreteEnergyDistribution.end(),
 			0);
@@ -70,7 +70,7 @@ void grainhdl::initializeSimulation()
 		}
 		case E_GAUSSIAN:
 		{
-			dt = 0.4 / double(realDomainSize * realDomainSize / 2);
+			dt = 1 / double(realDomainSize * realDomainSize);
 			break;
 		}
 		default:
@@ -414,6 +414,14 @@ void grainhdl::run_sim() {
 			saveNetworkState();
 			save_texture();
 			save_sim();
+			for(const auto & it : grains)
+				{if (it!= NULL)
+					if(it->getID()!=0){
+					it->plotBoxContour();
+					it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
+					}
+				}
+
 			cout<<"Remaining number of grains: " << currentNrGrains << endl;
 		}
 		simulationTime += dt;
