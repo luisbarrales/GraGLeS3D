@@ -417,8 +417,6 @@ void grainhdl::run_sim() {
 			for(const auto & it : grains)
 				{if (it!= NULL)
 					if(it->getID()!=0){
-					it->plotBoxContour();
-					it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
 					}
 				}
 
@@ -615,8 +613,8 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
 #pragma omp critical
 					{
 					exceptionHappened = true;
-					error_message += string("Grain ") + to_string(id) + string(" failed at timestep ")
-							+ to_string(loop) + " in its constructor! Reason : " + e.what() + string("\n");
+					error_message += string("Grain ") + to_string((unsigned long long)id) + string(" failed at timestep ")
+							+ to_string((unsigned long long)loop) + " in its constructor! Reason : " + e.what() + string("\n");
 					}
 				}
 			}
