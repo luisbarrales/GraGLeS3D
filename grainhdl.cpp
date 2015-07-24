@@ -60,17 +60,17 @@ void grainhdl::initializeSimulation()
 	{
 		case E_LAPLACE:
 		{
-			dt = 0.8 / double(realDomainSize * realDomainSize);
+			dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
 			break;
 		}
 		case E_LAPLACE_RITCHARDSON:
 		{
-			dt = 0.8 / double(realDomainSize * realDomainSize);
+			dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
 			break;
 		}
 		case E_GAUSSIAN:
 		{
-			dt = 1 / double(realDomainSize * realDomainSize);
+			dt = 5. / double(realDomainSize * realDomainSize * realDomainSize);
 			break;
 		}
 		default:
@@ -274,8 +274,13 @@ void grainhdl::convolution(double& planOverhead) {
 			if(j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num() < grains.size())
 			{
 				int id = j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num();
-				if(grains[id] != NULL)
+				if(grains[id] != NULL){
 					grains[id]->executeConvolution(m_ThreadMemPool[omp_get_thread_num()]);
+//					if(id % 10 ==0 ){
+//					grains[id]->plotBoxVolumetric("Convo1", E_INPUT_DISTANCE);
+//					grains[id]->plotBoxVolumetric("Convo", E_OUTPUT_DISTANCE);
+//					}
+				}
 			}
 		}
 
@@ -417,8 +422,8 @@ void grainhdl::run_sim() {
 			for(const auto & it : grains)
 				{if (it!= NULL)
 					if(it->getID()!=0){
-					it->plotBoxContour();
-					it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
+					//it->plotBoxContour();
+					//it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
 					}
 				}
 

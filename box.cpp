@@ -296,7 +296,7 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp, fftwp_plan fftplan1
 	double dt = m_grainHandler->get_dt();
 	int n2 = floor(n / 2) + 1;
 	int nn = m_grainHandler->get_realDomainSize();
-	double nsq = nn * nn;
+	double nsq = nn * nn *nn;
 	double G;
 	int j2;
 	int i2;
@@ -308,7 +308,7 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp, fftwp_plan fftplan1
 	{
 		case E_GAUSSIAN:
 		{
-			nsq = n * n * n;
+			double n_nsq = n*n*n;
 			//			Convolution with Normaldistribution
 			for (int k = 0; k < n; k++) {
 				int k2 = min(k,n-k);
@@ -316,7 +316,7 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp, fftwp_plan fftplan1
 					i2 = min(i,n-i);
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j,n-j);
-						G = exp(-(static_cast<double> (i2 * i2 + j2 * j2 + k2 * k2)) * 8.0 * dt * PI * PI * PI) / nsq;
+						G = exp(-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq / n_nsq * PI * PI * PI) / n_nsq;
 						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n * k)][0] * G;
 						fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n * k)][1] * G;
 					}
