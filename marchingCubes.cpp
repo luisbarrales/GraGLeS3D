@@ -1,7 +1,7 @@
 #include "marchingCubes.h"
 #include "box.h"
 #include <cmath>
-#include <set>
+#include <algorithm>
 
 MarchingCubesAlgorithm::MarchingCubesAlgorithm(DimensionalBufferReal& distance_buffer, LSbox* owner) :
 	m_DistanceBuffer(distance_buffer),
@@ -365,6 +365,7 @@ bool MarchingCubesAlgorithm::generateHull(vector<Triangle>& triangles)
 {
 	Vector3d vertlist[12];
 	triangles.clear();
+	m_distinctGrains.clear();
 	for(int z = m_DistanceBuffer.getMinZ(); z < m_DistanceBuffer.getMaxZ()-1; z++)
 		for(int y = m_DistanceBuffer.getMinY(); y < m_DistanceBuffer.getMaxY()-1; y++)
 			for(int x = m_DistanceBuffer.getMinX(); x < m_DistanceBuffer.getMaxX()-1; x++)
@@ -498,54 +499,95 @@ Vector3d MarchingCubesAlgorithm::VertexInterp(Vector3d p1,Vector3d p2,double val
 
 int MarchingCubesAlgorithm::generateAdditionalInformation()
 {
-	set<int> interactingGrains;
+	int distinctNeighbors[8];
+	int interactingGrains=0;
+	fill_n(distinctNeighbors, 8, -1);
 
 	if(isInside(m_leftBottomFront[0], m_leftBottomFront[1], m_leftBottomFront[2]))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0], m_leftBottomFront[2]));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0], m_leftBottomFront[2]),
+							  distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0]+1, m_leftBottomFront[1], m_leftBottomFront[2]))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0]+1, m_leftBottomFront[2]));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0]+1, m_leftBottomFront[2]),
+				 distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0]+1, m_leftBottomFront[1]+1, m_leftBottomFront[2]))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0]+1, m_leftBottomFront[2]));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0]+1, m_leftBottomFront[2]),
+				 distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0], m_leftBottomFront[1]+1, m_leftBottomFront[2]))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0], m_leftBottomFront[2]));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0], m_leftBottomFront[2]),
+				 distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0], m_leftBottomFront[1], m_leftBottomFront[2]+1))
-			interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0], m_leftBottomFront[2]+1));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0], m_leftBottomFront[2]+1),
+				 distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0]+1, m_leftBottomFront[1], m_leftBottomFront[2]+1))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0]+1, m_leftBottomFront[2]+1));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1], m_leftBottomFront[0]+1, m_leftBottomFront[2]+1),
+				 distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0]+1, m_leftBottomFront[1]+1, m_leftBottomFront[2]+1))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0]+1, m_leftBottomFront[2]+1));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0]+1, m_leftBottomFront[2]+1),
+				 distinctNeighbors, interactingGrains);
 
 	if(isInside(m_leftBottomFront[0], m_leftBottomFront[1]+1, m_leftBottomFront[2]+1))
-		interactingGrains.insert(m_currentGrain->getID());
+		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
 	else
-		interactingGrains.insert(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0], m_leftBottomFront[2]+1));
+		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0], m_leftBottomFront[2]+1),
+				 distinctNeighbors, interactingGrains);
 
-	int result=0;
+	recordNewGrains(distinctNeighbors, interactingGrains);
+	return interactingGrains;
+}
 
-	if(interactingGrains.find(-1) != interactingGrains.end())
-		result = interactingGrains.size() - 1;
-	else
-		result =  interactingGrains.size();
+void MarchingCubesAlgorithm::insertDistinctInteger(int integer, int* array, int& elem_count) const
+{
+	bool found = false;
+	for(int i=0; i<elem_count; i++){
+		if(array[i] == integer)
+		{
+			found = true;
+			break;
+		}
+	}
+	if(false == found)
+	{
+		array[elem_count] = integer;
+		elem_count++;
+	}
+}
 
-	return result;
+void MarchingCubesAlgorithm::recordNewGrains(int* grainIDs, int length)
+{
+	for(int i=0; i<length; i++)
+	{
+		if(grainIDs[i] == -1)
+			continue;
+		bool found = false;
+		for(const auto it : m_distinctGrains)
+		{
+			if(it == grainIDs[i])
+			{
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			m_distinctGrains.push_back(grainIDs[i]);
+	}
 }

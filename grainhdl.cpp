@@ -140,10 +140,6 @@ void grainhdl::VOROMicrostructure() {
 
 	grains.resize(Settings::NumberOfParticles + 1);
 
-	vector<LSbox*> local_grains;
-
-	std::vector<LSbox*>::iterator itg;
-
 	bool randbedingung = false; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
 	if (randbedingung == false)
 		realDomainSize -= 1;
@@ -274,13 +270,8 @@ void grainhdl::convolution(double& planOverhead) {
 			if(j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num() < grains.size())
 			{
 				int id = j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num();
-				if(grains[id] != NULL){
+				if(grains[id] != NULL)
 					grains[id]->executeConvolution(m_ThreadMemPool[omp_get_thread_num()]);
-//					if(id % 10 ==0 ){
-//					grains[id]->plotBoxVolumetric("Convo1", E_INPUT_DISTANCE);
-//					grains[id]->plotBoxVolumetric("Convo", E_OUTPUT_DISTANCE);
-//					}
-				}
 			}
 		}
 
@@ -347,13 +338,31 @@ void grainhdl::redistancing() {
 					continue;
 #pragma omp atomic
 				currentNrGrains += 1;
-				grains[id]->computeVolumeAndEnergy();
 				grains[id]->executeRedistancing();
 			}
 		}
 }
 
-void grainhdl::save_texture() {
+void grainhdl::save_texture()
+{
+	string filename = string("Texture_")+to_string((unsigned long long)loop)+string(".ori");
+	ofstream file;
+	file.open(filename.c_str());
+	double eulerAngles[3];
+	for(int i=1; i<grains.size(); i++)
+	{
+		if(grains[i] != NULL && grains[i]->grainExists())
+		{
+			mymath->quaternion2Euler(grains[i]->getOrientationQuat(), eulerAngles);
+			file<<grains[i]->getID() << " " << grains[i]->getDirectNeighbourCount() << " "
+				<<grains[i]->intersectsBoundaryGrain() << " " << grains[i]->getVolume() << " "
+				<< 0 << " " << grains[i]->getSurface() << " " << grains[i]->getEnergy() << " "
+				<< eulerAngles[0] << " " << eulerAngles[1] << " " << eulerAngles[2] << "\n";
+
+		}
+	}
+
+	file.close();
 }
 
 void grainhdl::run_sim() {

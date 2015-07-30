@@ -71,11 +71,11 @@ private:
 	bool 						m_isMotionRegular;
 	bool 						m_intersectsBoundaryGrain;
 	DimensionalBufferIDLocal 	m_IDLocal;
-
+	unsigned int				m_neighborCount;
 	double* 					m_orientationQuat;
 	double 						m_volume;
 	double 						m_energy;
-	double 						m_perimeter;
+	double 						m_surface;
 	int 						m_newXMin;
 	int							m_newXMax;
 	int							m_newYMin;
@@ -109,6 +109,7 @@ public:
 	void computeSecondOrderNeighbours();
 	void computeDirectNeighbours(const RTree<unsigned int, int, 3, float>& rtree);
 	double computeVolume();
+	double computeSurface();
     void computeVolumeAndEnergy();
 	double getGBEnergyTimesGBMobility(int i,int j);
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);
@@ -116,14 +117,14 @@ public:
 	double getWeigthFromHandler(int i, int j);
 	void constructBoundarySectors();
 	double getWeight(int i, int j, bool minimal = false);
-	int getDirectNeighbourCount() { return -1; }
+	int getDirectNeighbourCount() { return m_neighborCount;}
 	vector<int>	getDirectNeighbourIDs();
 	vector<double> getGBLengths();
 	map<int, double>& getDiscreteEnergyDistribution() { }
     bool checkIntersection(LSbox* box2);   	
       
 
-	void reizeIDLocalToDistanceBuffer();
+	void resizeIDLocalToDistanceBuffer();
 	void recalculateIDLocal();
 
 	//Debug printing functions
@@ -167,7 +168,7 @@ public:
 	inline bool grainExists() const {return m_exists;}
 	inline double getVolume() const {return m_volume;}
 	inline double getEnergy() const {return m_energy;}
-	inline double getPerimeter() const { return m_perimeter; }
+	inline double getSurface() const { return m_surface; }
 	inline unsigned int  getID() const { return m_ID; }
 	inline int getMinX() const {return m_outputDistance->getMinX();}
 	inline int getMaxX() const {return m_outputDistance->getMaxX();}

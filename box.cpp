@@ -34,7 +34,7 @@
 LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_ID(id), m_exists(true),m_grainHandler(owner), m_explicitBoundary(this),
 	m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
-	m_volume(0), m_energy(0), m_perimeter(0)
+	m_volume(0), m_energy(0), m_surface(0)
 {
 	m_orientationQuat = new double[4];
 	double euler[3] = { phi1, PHI, phi2 };
@@ -49,7 +49,7 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 	m_ID(id), m_exists(true),m_grainHandler(owner), m_explicitBoundary(this),
 	m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
-	m_volume(0), m_energy(0), m_perimeter(0)
+	m_volume(0), m_energy(0), m_surface(0)
 {
 	int grid_blowup = owner->get_grid_blowup();
 	m_volumeEvolution = rnd() * 100; //Zufallszahl zwischen 0 und 100
@@ -108,13 +108,13 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 		m_inputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 
-		reizeIDLocalToDistanceBuffer();
+		resizeIDLocalToDistanceBuffer();
 }
 
 LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 	m_ID(id), m_exists(true),m_grainHandler(owner), m_explicitBoundary(this),
 	m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
-	m_volume(0), m_energy(0), m_perimeter(0)
+	m_volume(0), m_energy(0), m_surface(0)
 {
 	int grid_blowup = owner->get_grid_blowup();
 	m_volumeEvolution = rnd() * 100; //Zufallszahl zwischen 0 und 100
@@ -168,7 +168,7 @@ LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 		m_inputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 
-		reizeIDLocalToDistanceBuffer();
+		resizeIDLocalToDistanceBuffer();
 }
 LSbox::~LSbox() {
 	if (m_orientationQuat != NULL)
@@ -213,7 +213,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 	fftwp_complex *fftTemp = (fftwp_complex*) &mem_pool[0];
 	convolutionGeneratorFFTW(fftTemp, m_forwardPlan, m_backwardsPlan);
 
-	reizeIDLocalToDistanceBuffer();
+	resizeIDLocalToDistanceBuffer();
 	m_IDLocal.clear();
 }
 
@@ -234,7 +234,7 @@ double LSbox::getGBEnergy(LSbox* neighbour) {
 	return -1;
 }
 
-void LSbox::reizeIDLocalToDistanceBuffer() {
+void LSbox::resizeIDLocalToDistanceBuffer() {
 	int xmaxId = m_outputDistance->getMaxX();
 	int xminId = m_outputDistance->getMinX();
 	int ymaxId = m_outputDistance->getMaxY();
@@ -666,13 +666,12 @@ void LSbox::extractContour() {
 		return;
 	}
 
-	if(m_exists)
-	{
-		m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax, m_newYMax, m_newZMax);
-		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
-	}
+	m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax, m_newYMax, m_newZMax);
+	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	m_neighborCount = marcher.getIdentifiedNeighborCount();
 
-	return;
+	computeVolume();
+	computeSurface();
 }
 
 void LSbox::updateFirstOrderNeigbors() {
@@ -681,7 +680,40 @@ void LSbox::updateFirstOrderNeigbors() {
 	return;
 }
 double LSbox::computeVolume() {
-	return -1;
+	m_volume = 0;
+
+	if (grainExists() != true)
+		return m_volume;
+
+	for(unsigned int i=0; i<m_grainHull.size(); i++)
+	{
+		Triangle& tri = m_grainHull[i];
+		double v321 = tri.points[2][0]*tri.points[1][1]*tri.points[0][2];
+		double v231 = tri.points[1][0]*tri.points[2][1]*tri.points[0][2];
+		double v312 = tri.points[2][0]*tri.points[0][1]*tri.points[1][2];
+		double v132 = tri.points[0][0]*tri.points[2][1]*tri.points[1][2];
+		double v213 = tri.points[1][0]*tri.points[0][1]*tri.points[2][2];
+		double v123 = tri.points[0][0]*tri.points[1][1]*tri.points[2][2];
+		m_volume += (1.0f/6.0f)*(-v321 + v231 + v312 - v132 - v213 + v123);
+	}
+	m_volume = abs(m_volume) * m_grainHandler->get_h() * m_grainHandler->get_h() *m_grainHandler->get_h() ;
+	return m_volume;
+}
+
+double LSbox::computeSurface()
+{
+	m_surface = 0;
+	if (grainExists() != true)
+		return m_surface;
+	for(unsigned int i=0; i<m_grainHull.size(); i++)
+	{
+		Triangle& tri = m_grainHull[i];
+		Vector3d AB = tri.points[0] - tri.points[1];
+		Vector3d BC = tri.points[0] - tri.points[2];
+		m_surface += AB.cross(BC).norm()/2.0;
+	}
+	m_surface = m_surface * m_grainHandler->get_h() * m_grainHandler->get_h();
+	return m_surface;
 }
 
 void LSbox::computeVolumeAndEnergy() {
@@ -923,7 +955,7 @@ void LSbox::resizeGrid(int newSize) {
 }
 
 void LSbox::recalculateIDLocal() {
-	reizeIDLocalToDistanceBuffer();
+	resizeIDLocalToDistanceBuffer();
 	executeComparison();
 }
 
@@ -1066,12 +1098,19 @@ void LSbox::calculateTriangleCentroid(vector<SPoint>& triangleCentroid,
 }
 
 void LSbox::outputMemoryUsage(ofstream& output) {
-	output << m_inputDistance->getTotalMemoryUsed()
-			+ m_outputDistance->getTotalMemoryUsed()
-			+ m_IDLocal.getTotalMemoryUsed() << endl;
+	output << m_inputDistance->getTotalMemoryUsed() <<
+			" " << m_outputDistance->getTotalMemoryUsed() <<
+			" " <<  m_IDLocal.getTotalMemoryUsed() << endl;
 
 	output << m_outputDistance->getMaxX() - m_outputDistance->getMinX() << " "
-			<< m_outputDistance->getMaxY() - m_outputDistance->getMinY() << endl;
+			<< m_outputDistance->getMaxY() - m_outputDistance->getMinY() << " "
+			<< m_outputDistance->getMaxZ() - m_outputDistance->getMinZ() <<endl;
+	output << m_inputDistance->getMaxX() - m_inputDistance->getMinX() << " "
+			<< m_inputDistance->getMaxY() - m_inputDistance->getMinY() << " "
+			<< m_inputDistance->getMaxZ() - m_inputDistance->getMinZ() <<endl;
+	output << m_IDLocal.getMaxX() - m_IDLocal.getMinX() << " "
+			<< m_IDLocal.getMaxY() - m_IDLocal.getMinY() << " "
+			<< m_IDLocal.getMaxZ() - m_IDLocal.getMinZ() <<endl;
 }
 
 vector<int> LSbox::getDirectNeighbourIDs() {
