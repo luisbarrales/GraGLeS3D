@@ -5,13 +5,13 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp grainBoundary.cpp marchingCubes.cpp)
+set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp grainBoundary.cpp marchingCubes.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 
-
-set(CMAKE_CXX_FLAGS "-g -O3 -Wall")
+set(CMAKE_CXX_FLAGS "-g -O3 -Wall ")
+#set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 
@@ -31,6 +31,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
 endif()
 
 
+
 #find_package(Voro++ REQUIRED)
 
 
@@ -42,7 +43,7 @@ endif()
 include_directories(${VORO++_INCLUDE_DIRS})
 #include_directories(${MPI_INCLUDE_PATH})
 
-link_directories(${Boost_LIBRARY_DIR})
+link_directories(${Boost_LIBRARY_DIR} ${CMAKE_SOURCE_DIR})
 
 #find_package(MPI REQUIRED)
 
@@ -54,7 +55,7 @@ ADD_DEFINITIONS("-DUSE_FFTW")
 add_executable(LevelSet_IMM ${MY_SOURCES})
 
 target_link_libraries(LevelSet_IMM ${MPI_LIBRARIES}  ${VORO++_LIBRARIES} 
-${Boost_LIBRARIES} -lfftw3 -lfftw3f -lm)
+${Boost_LIBRARIES} -lfftw3 -lfftw3f -lm -lnuma -ljemalloc)
 
 
 ADD_CUSTOM_TARGET (clearAll
