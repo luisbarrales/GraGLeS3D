@@ -572,10 +572,7 @@ void grainhdl::switchDistancebuffer() {
 		}
 }
 
-void grainhdl::gridCoarsement() {
-	//TODO: Implement grid coarsement
-	switchDistancebuffer();
-}
+
 
 void grainhdl::clear_mem() {
 	if (ST != NULL) {
@@ -677,6 +674,7 @@ void grainhdl::initNUMABindings() {
 	vector<NUMANode> nodes;
 	nodes.reserve(16);
 	numa_available();
+	// returns a mask of CPUs on which the current task is allowed to run.
 	bitmask* mask = numa_get_run_node_mask();
 	bitmask* cpus = numa_allocate_cpumask();
 	for (unsigned int j = 0; j < mask->size; j++) {
@@ -684,6 +682,8 @@ void grainhdl::initNUMABindings() {
 			printf("We are allowed to used node %d\n", j);
 			NUMANode node;
 			memset(&node, 0xFF, sizeof(node));
+			//converts a node number to a bitmask of CPUs.
+			//The user must pass a bitmask structure with a mask buffer long enough to represent all possible cpu's
 			numa_node_to_cpus(j, cpus);
 			node.num_cpus = numa_bitmask_weight(cpus);
 			int cpuCounter = 0;
@@ -719,5 +719,65 @@ void grainhdl::initNUMABindings() {
 			}
 			threadID -= nodes.at(i).num_cpus;
 		}
+	}
+}
+
+
+void grainhdl::gridCoarsement() {
+	if ((double)currentNrGrains/(double)ngrains < Settings::GridCoarsementGradient
+			&& loop != 0 && Settings::GridCoarsement) {
+		int newSize = pow(Settings::NumberOfParticles, 1 / 3.0) * Settings::NumberOfPointsPerGrain;
+		cout << "coarsing the current grid in Timestep: "<< loop <<endl;
+		cout<< "newSize :" << newSize << endl << endl;
+#pragma omp parallel
+{
+		for(unsigned int j=0; j < Settings::NumberOfParticles/Settings::MaximumNumberOfThreads + 1; j++)
+		{
+			if(j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num() < grains.size())
+			{
+				int id = j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num();
+				if (grains[id] == NULL)
+					continue;
+				grains[id]->resizeGrid(newSize);
+			}
+
+		}
+}
+		realDomainSize = newSize;
+		delta = Settings::DomainBorderSize * 1 / double(realDomainSize);
+		ngridpoints = realDomainSize + 2 * grid_blowup;
+		h = 1.0 / realDomainSize;
+		//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
+		dt = 5. / double(realDomainSize * realDomainSize * realDomainSize);
+		ngrains= currentNrGrains;
+#pragma omp parallel
+{
+		for(unsigned int j=0; j < Settings::NumberOfParticles/Settings::MaximumNumberOfThreads + 1; j++)
+		{
+			if(j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num() < grains.size())
+			{
+				int id = j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num();
+				if (grains[id] == NULL)
+					continue;
+				grains[id]->recalculateIDLocal();
+			}
+		}
+}
+#pragma omp parallel
+{
+	for(unsigned int j=0; j < Settings::NumberOfParticles/Settings::MaximumNumberOfThreads + 1; j++)
+	{
+		if(j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num() < grains.size())
+		{
+			int id = j*Settings::MaximumNumberOfThreads + 1 + omp_get_thread_num();
+			if (grains[id] == NULL)
+				continue;
+			grains[id]->extractContour();
+		}
+	}
+}
+
+	} else {
+		switchDistancebuffer();
 	}
 }
