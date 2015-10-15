@@ -726,7 +726,7 @@ void grainhdl::initNUMABindings() {
 void grainhdl::gridCoarsement() {
 	if ((double)currentNrGrains/(double)ngrains < Settings::GridCoarsementGradient
 			&& loop != 0 && Settings::GridCoarsement) {
-		int newSize = pow(Settings::NumberOfParticles, 1 / 3.0) * Settings::NumberOfPointsPerGrain;
+		int newSize = pow(currentNrGrains, 1 / 3.0) * Settings::NumberOfPointsPerGrain;
 		cout << "coarsing the current grid in Timestep: "<< loop <<endl;
 		cout<< "newSize :" << newSize << endl << endl;
 #pragma omp parallel
