@@ -32,6 +32,7 @@
 #include "RTree.h"
 #include "fftw3.h"
 #include "Eigen/Dense"
+#include "myQuaternion.h"
 
 using namespace std;
 using namespace Eigen;
@@ -39,6 +40,7 @@ using namespace Eigen;
 class grainhdl;
 class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
+class myQuaternion;
 
 enum E_BUFFER_SELECTION
 {
@@ -72,7 +74,7 @@ private:
 	bool 						m_intersectsBoundaryGrain;
 	DimensionalBufferIDLocal 	m_IDLocal;
 	unsigned int				m_neighborCount;
-	double* 					m_orientationQuat;
+	myQuaternion* 				m_orientationQuat;
 	double 						m_volume;
 	double 						m_energy;
 	double 						m_surface;
@@ -120,7 +122,7 @@ public:
 	int getDirectNeighbourCount() { return m_neighborCount;}
 	vector<int>	getDirectNeighbourIDs();
 	vector<double> getGBLengths();
-	map<int, double>& getDiscreteEnergyDistribution() { }
+	//map<int, double>& getDiscreteEnergyDistribution() { }
     bool checkIntersection(LSbox* box2);   	
       
 
@@ -177,7 +179,7 @@ public:
 	inline int getMinZ() const {return m_outputDistance->getMinZ();}
 	inline int getMaxZ() const {return m_outputDistance->getMaxZ();}
 	inline SPoint getCentroid() const {return m_centroid;}
-	inline const double* getOrientationQuat() {return m_orientationQuat;}
+	inline const myQuaternion* getOrientationQuat() {return m_orientationQuat;}
 	int getNeighbourAt(int i, int j, int k);
 };
 #endif

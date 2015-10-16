@@ -68,6 +68,7 @@ class Settings
 	static unsigned int NumberOfParticles;
 	static unsigned long NumberOfPointsPerGrain;
 	static unsigned long NumberOfTimesteps;
+	static unsigned long BreakupNumber;
 	static unsigned long AnalysisTimestep;
 	static unsigned long DiscreteSamplingRate;
 	static unsigned long DomainBorderSize;

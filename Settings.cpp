@@ -31,6 +31,7 @@ unsigned long Settings::StartTime = 0;
 unsigned int Settings::NumberOfParticles = 0;
 unsigned long Settings::NumberOfPointsPerGrain = 0;
 unsigned long Settings::NumberOfTimesteps = 0;
+unsigned long Settings::BreakupNumber=0;
 unsigned long Settings::AnalysisTimestep = 0;
 unsigned long Settings::DiscreteSamplingRate = 0;
 unsigned long Settings::DomainBorderSize = 0;
@@ -95,6 +96,10 @@ void Settings::initializeParameters(string filename) {
 		NumberOfTimesteps = std::stoul(
 				rootNode->first_node("NumberOfTimesteps")->value());
 	}
+	if (0 != rootNode->first_node("BreakupNumber")) {
+					BreakupNumber = std::stoul(rootNode->first_node(
+							"BreakupNumber")->value());
+			}
 	if (0 != rootNode->first_node("DiscreteSamplingRate")) {
 		DiscreteSamplingRate = std::stoul(rootNode->first_node(
 				"DiscreteSamplingRate")->value());
@@ -208,6 +213,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(NumberOfPointsPerGrain);
 	PUSH_PARAM(AnalysisTimestep);
 	PUSH_PARAM(NumberOfTimesteps);
+	PUSH_PARAM(10);
 	PUSH_PARAM(DiscreteSamplingRate);
 	PUSH_PARAM(DomainBorderSize);
 	PUSH_VALUE(MicrostructureGenMode, 0);

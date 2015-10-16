@@ -26,6 +26,7 @@
 #include "Eigen/Dense"
 #include <omp.h>
 #include <numa.h>
+#include "myQuaternion.h"
 
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
 #define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
@@ -37,6 +38,7 @@ using namespace Eigen;
 
 class LSbox;
 class mathMethods;
+class myQuaternion;
 /*!
  * \class grainhdl
  * \brief Class that manages the grain growth simulation.
@@ -53,7 +55,6 @@ protected:
 
 	int Mode;
 public:
-	double KernelNormalizationFactor;
 	int currentNrGrains;
 	mathMethods* mymath;
 	unsigned int loop;
@@ -74,7 +75,6 @@ public:
 	//! A 2D vector which stores weights.
 	vector<vector<double> > weightsMatrix;
 
-	double tubeRadius;
 	double *ST;
 	double *part_pos;
 	double delta;

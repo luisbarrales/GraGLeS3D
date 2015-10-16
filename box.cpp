@@ -35,10 +35,9 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitBoundary(this),
 			m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
 			m_volume(0), m_energy(0), m_surface(0) {
-	m_orientationQuat = new double[4];
+	m_orientationQuat = new myQuaternion();
 	double euler[3] = { phi1, PHI, phi2 };
-	(*(m_grainHandler->mymath)).euler2quaternion(euler, m_orientationQuat);
-
+	m_orientationQuat->euler2Quaternion(euler);
 	m_inputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_outputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 
@@ -53,17 +52,16 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 	m_volumeEvolution = rnd() * 100; //Zufallszahl zwischen 0 und 100
 	double h = owner->get_h();
 	// determine size of grain
-	m_orientationQuat = new double[4];
+	m_orientationQuat = new myQuaternion();
 #pragma omp critical
 	{
 		if (Settings::UseTexture) {
 			double newOri[3];
 			(*(m_grainHandler->mymath)).newOrientationFromReference(
 					m_grainHandler->bunge, m_grainHandler->deviation, newOri);
-			(*(m_grainHandler->mymath)).euler2quaternion(newOri,
-					m_orientationQuat);
+			m_orientationQuat->euler2Quaternion(newOri);
 		} else
-			(*(m_grainHandler->mymath)).randomOriShoemakeQuat(m_orientationQuat);
+			m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
 	}
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
@@ -118,17 +116,16 @@ LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 	m_volumeEvolution = rnd() * 100; //Zufallszahl zwischen 0 und 100
 	double h = owner->get_h();
 	// determine size of grain
-	m_orientationQuat = new double[4];
+	m_orientationQuat = new myQuaternion();
 #pragma omp critical
 	{
 		if (Settings::UseTexture) {
 			double newOri[3];
 			(*(m_grainHandler->mymath)).newOrientationFromReference(
 					m_grainHandler->bunge, m_grainHandler->deviation, newOri);
-			(*(m_grainHandler->mymath)).euler2quaternion(newOri,
-					m_orientationQuat);
+			m_orientationQuat->euler2Quaternion(newOri);
 		} else
-			(*(m_grainHandler->mymath)).randomOriShoemakeQuat(m_orientationQuat);
+			m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
 	}
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
@@ -1033,16 +1030,20 @@ void LSbox::recalculateIDLocal() {
 }
 
 double LSbox::computeMisorientation(LSbox* grain_2) {
+	double result = 0.0;
 
-	double result = (*(m_grainHandler->mymath)).misorientationCubicQxQ(
-			m_orientationQuat[0], m_orientationQuat[1], m_orientationQuat[2],
-			m_orientationQuat[3], grain_2->m_orientationQuat[0],
-			grain_2->m_orientationQuat[1], grain_2->m_orientationQuat[2],
-			grain_2->m_orientationQuat[3]);
-
-	if (result < 3 * PI / 180.0)
-		result = 3 * PI / 180.0;
-	return result;
+//	if (Settings::LatticeType == E_CUBIC) {
+		result = m_orientationQuat->misorientationCubicQxQ(
+				grain_2->m_orientationQuat);
+//	} else if (Settings::LatticeType == E_HEXAGONAL) {
+//		result
+//				= m_grainHandler->m_misOriHdl->calculateMisorientation_hexagonal(
+//						m_orientationQuat, grain_2->m_orientationQuat);
+//	}
+	if (result > 1 * PI / 180.0)
+		return result;
+	else
+		return 1 * PI / 180.0;
 }
 double LSbox::computeMisorientation(unsigned int grainID) {
 	return computeMisorientation(m_grainHandler->getGrainByID(grainID));
@@ -1053,7 +1054,7 @@ double LSbox::GBmobilityModel(double thetaMis) {
 }
 
 bool LSbox::isNeighbour(LSbox* candidate) {
-
+  return true;
 }
 
 double LSbox::getWeight(int i, int j, bool minimal) {
