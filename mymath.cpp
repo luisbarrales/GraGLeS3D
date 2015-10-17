@@ -16,9 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "mymath.h"
-#include "applic.h"
 #include "random.h"
 
+#define QUICKASSERT(X)
 
 //###LB: Unless indicated, all functions in radians.
 //###MK: Quaternion algebra: q = -q define an equivalent rotation.

@@ -108,6 +108,7 @@ public:
 	void destroyConvolutionPlans();
 	void save_conv_step();
 	void comparison_box();
+	void countGrains();
 
 	void updateSecondOrderNeighbors();
 	void level_set();

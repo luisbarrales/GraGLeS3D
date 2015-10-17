@@ -361,10 +361,11 @@ int triTable[256][16] =
 {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
-bool MarchingCubesAlgorithm::generateHull(vector<Triangle>& triangles)
+bool MarchingCubesAlgorithm::generateHull(vector<Triangle>& triangles, vector<NeighborList>& neighborLists)
 {
 	Vector3d vertlist[12];
 	triangles.clear();
+	neighborLists.clear();
 	m_distinctGrains.clear();
 	for(int z = m_DistanceBuffer.getMinZ(); z < m_DistanceBuffer.getMaxZ()-1; z++)
 		for(int y = m_DistanceBuffer.getMinY(); y < m_DistanceBuffer.getMaxY()-1; y++)
@@ -461,7 +462,7 @@ bool MarchingCubesAlgorithm::generateHull(vector<Triangle>& triangles)
 											  m_DistanceBuffer.getValueAt(y,x,z),
 											  m_DistanceBuffer.getValueAt(y+1,x,z));
 				}
-				int interestingness = generateAdditionalInformation();
+				int neighborIndex = generateAdditionalInformation(neighborLists);
 				/* Create the triangles */
 				for (int i=0;triTable[cubeindex][i]!=-1;i+=3)
 				{
@@ -469,7 +470,7 @@ bool MarchingCubesAlgorithm::generateHull(vector<Triangle>& triangles)
 					tri.points[0]  = vertlist[triTable[cubeindex][i  ]];
 					tri.points[1]  = vertlist[triTable[cubeindex][i+1]];
 					tri.points[2]  = vertlist[triTable[cubeindex][i+2]];
-					tri.additionalData = interestingness;
+					tri.additionalData = neighborIndex;
 					triangles.push_back(tri);
 				}
 			}
@@ -497,11 +498,10 @@ Vector3d MarchingCubesAlgorithm::VertexInterp(Vector3d p1,Vector3d p2,double val
    return(p);
 }
 
-int MarchingCubesAlgorithm::generateAdditionalInformation()
+int MarchingCubesAlgorithm::generateAdditionalInformation(vector<NeighborList>& neighborLists)
 {
-	int distinctNeighbors[8];
+	NeighborList distinctNeighbors;
 	int interactingGrains=0;
-	fill_n(distinctNeighbors, 8, -1);
 
 	if(isInside(m_leftBottomFront[0], m_leftBottomFront[1], m_leftBottomFront[2]))
 		insertDistinctInteger(m_currentGrain->getID(), distinctNeighbors, interactingGrains);
@@ -551,15 +551,16 @@ int MarchingCubesAlgorithm::generateAdditionalInformation()
 		insertDistinctInteger(m_currentGrain->getNeighbourAt(m_leftBottomFront[1]+1, m_leftBottomFront[0], m_leftBottomFront[2]+1),
 				 distinctNeighbors, interactingGrains);
 
-	recordNewGrains(distinctNeighbors, interactingGrains);
-	return interactingGrains;
+	recordNewGrains(distinctNeighbors);
+
+	return insertNeighborList(distinctNeighbors, neighborLists);
 }
 
-void MarchingCubesAlgorithm::insertDistinctInteger(int integer, int* array, int& elem_count) const
+void MarchingCubesAlgorithm::insertDistinctInteger(unsigned int integer, NeighborList& n, int& elem_count) const
 {
 	bool found = false;
 	for(int i=0; i<elem_count; i++){
-		if(array[i] == integer)
+		if(n.neighbors[i] == integer)
 		{
 			found = true;
 			break;
@@ -567,27 +568,51 @@ void MarchingCubesAlgorithm::insertDistinctInteger(int integer, int* array, int&
 	}
 	if(false == found)
 	{
-		array[elem_count] = integer;
+		for(int i=0; i<elem_count; i++)
+		{
+			if(integer < n.neighbors[i])
+			{
+				unsigned int swap = n.neighbors[i];
+				n.neighbors[i] = integer;
+				integer = swap;
+			}
+		}
+		n.neighbors[elem_count] = integer;
 		elem_count++;
 	}
 }
 
-void MarchingCubesAlgorithm::recordNewGrains(int* grainIDs, int length)
+void MarchingCubesAlgorithm::recordNewGrains(NeighborList& grainIDs)
 {
-	for(int i=0; i<length; i++)
+	for(int i=0; i<NEIGHBOR_LIST_SIZE; i++)
 	{
-		if(grainIDs[i] == -1)
+		if(grainIDs.neighbors[i] == 0xFFFFFFFF)
 			continue;
 		bool found = false;
 		for(const auto it : m_distinctGrains)
 		{
-			if(it == grainIDs[i])
+			if(it == grainIDs.neighbors[i])
 			{
 				found = true;
 				break;
 			}
 		}
 		if(!found)
-			m_distinctGrains.push_back(grainIDs[i]);
+			m_distinctGrains.push_back(grainIDs.neighbors[i]);
 	}
+}
+
+int MarchingCubesAlgorithm::insertNeighborList(NeighborList& neighborList,
+		vector<NeighborList>& neighborLists)
+{
+	for(unsigned int i=0; i < neighborLists.size(); i++)
+	{
+		if(memcmp(&neighborList, &neighborLists[i], sizeof(NeighborList)) == 0)
+		{
+			return i;
+		}
+	}
+	neighborLists.push_back(neighborList);
+	return neighborLists.size() -1;
+
 }

@@ -24,9 +24,7 @@
 #include "dimensionalBuffer.h"
 #include "pooledDimensionalBufferDouble.h"
 #include "spoint.h"
-#include "contourSector.h"
-#include "minimalisticBoundary.h"
-#include "grainBoundary.h"
+#include "grainHull.h"
 #include "charasteristic.h"
 #include "triangle.h"
 #include "RTree.h"
@@ -69,7 +67,7 @@ private:
 	unsigned int 				m_ID;
 	bool 						m_exists;
 	grainhdl* 					m_grainHandler;
-	ExplicitGrainBoundary		m_explicitBoundary;
+	GrainHull					m_explicitHull;
 	bool 						m_isMotionRegular;
 	bool 						m_intersectsBoundaryGrain;
 	DimensionalBufferIDLocal 	m_IDLocal;
@@ -92,7 +90,6 @@ private:
 	fftwp_plan 					m_forwardPlan;
 	vector<unsigned int> 		m_comparisonList;
 	vector<unsigned int> 		m_secondOrderNeighbours;
-	vector<Triangle>			m_grainHull;
 
 public:
 	//Constructors to document
@@ -107,11 +104,12 @@ public:
 	inline bool isMotionRegular() const { return m_isMotionRegular; }
     void executeComparison();
 	double getDistanceFromInputBuff(int i, int j, int k);
+	DimensionalBufferReal& getInputDistanceBuffer() { return *m_inputDistance; }
     void executeSetComparison();
 	void computeSecondOrderNeighbours();
 	void computeDirectNeighbours(const RTree<unsigned int, int, 3, float>& rtree);
-	double computeVolume();
-	double computeSurface();
+	void computeVolume();
+	void computeSurface();
     void computeVolumeAndEnergy();
 	double getGBEnergyTimesGBMobility(int i,int j);
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);

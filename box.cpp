@@ -19,22 +19,22 @@
 #include "Settings.h"
 #include "dimensionalBufferReal.h"
 #include "pooledDimensionalBufferReal.h"
-#include "contourSector.h"
-#include "minimalisticBoundary.h"
 #include "utilities.h"
 #include "grainhdl.h"
 #include "mymath.h"
 #include "marchingCubes.h"
 #include <algorithm>
 #include <cstdio>
+#include <fstream>
 #include <stdexcept>
 
 #define PERIODIC(x, f) (((x)+f)%f)
 
 LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
-	m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitBoundary(this),
-			m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
-			m_volume(0), m_energy(0), m_surface(0) {
+	m_ID(id), m_exists(true),m_grainHandler(owner),
+	m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
+	m_volume(0), m_energy(0), m_surface(0), m_explicitHull(this)
+{
 	m_orientationQuat = new myQuaternion();
 	double euler[3] = { phi1, PHI, phi2 };
 	m_orientationQuat->euler2Quaternion(euler);
@@ -45,9 +45,10 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 }
 
 LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
-	m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitBoundary(this),
-			m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
-			m_volume(0), m_energy(0), m_surface(0) {
+	m_ID(id), m_exists(true),m_grainHandler(owner),
+	m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
+	m_volume(0), m_energy(0), m_surface(0), m_explicitHull(this)
+{
 	int grid_blowup = owner->get_grid_blowup();
 	m_volumeEvolution = rnd() * 100; //Zufallszahl zwischen 0 und 100
 	double h = owner->get_h();
@@ -109,9 +110,10 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 }
 
 LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
-	m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitBoundary(this),
-			m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
-			m_volume(0), m_energy(0), m_surface(0) {
+	m_ID(id), m_exists(true),m_grainHandler(owner),
+	m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
+	m_volume(0), m_energy(0), m_surface(0), m_explicitHull(this)
+{
 	int grid_blowup = owner->get_grid_blowup();
 	m_volumeEvolution = rnd() * 100; //Zufallszahl zwischen 0 und 100
 	double h = owner->get_h();
@@ -166,7 +168,7 @@ LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 }
 LSbox::~LSbox() {
 	if (m_orientationQuat != NULL)
-		delete[] m_orientationQuat;
+		delete m_orientationQuat;
 	delete m_inputDistance;
 	delete m_outputDistance;
 }
@@ -176,7 +178,8 @@ double LSbox::get_h() {
 }
 
 //TODO: Distance function must be properly implemented using point to mesh distance
-void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
+void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField)
+{
 	int min = m_grainHandler->get_grid_blowup();
 	int max = m_grainHandler->get_ngridpoints() - min - 1;
 	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
@@ -213,6 +216,53 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 
 	resizeIDLocalToDistanceBuffer();
 	m_IDLocal.clear();
+	if (!Settings::IsIsotropicNetwork && m_grainHandler->loop != 0 && m_isMotionRegular == true)
+	{
+		int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax, intersec_zmin, intersec_zmax;
+		if (m_IDLocal.getMinX() < m_outputDistance->getMinX())
+			intersec_xmin = m_outputDistance->getMinX();
+		else
+			intersec_xmin = m_IDLocal.getMinX();
+
+		if (m_IDLocal.getMinY() < m_outputDistance->getMinY())
+			intersec_ymin = m_outputDistance->getMinY();
+		else
+			intersec_ymin = m_IDLocal.getMinY();
+
+		if (m_IDLocal.getMinZ() < m_outputDistance->getMinZ())
+			intersec_zmin = m_outputDistance->getMinZ();
+		else
+			intersec_zmin = m_IDLocal.getMinZ();
+
+		if (m_IDLocal.getMaxX() > m_outputDistance->getMaxX())
+			intersec_xmax = m_outputDistance->getMaxX();
+		else
+			intersec_xmax = m_IDLocal.getMaxX();
+
+		if (m_IDLocal.getMaxY() > m_outputDistance->getMaxY())
+			intersec_ymax = m_outputDistance->getMaxY();
+		else
+			intersec_ymax = m_IDLocal.getMaxY();
+
+		if (m_IDLocal.getMaxZ() > m_outputDistance->getMaxZ())
+			intersec_zmax = m_outputDistance->getMaxZ();
+		else
+			intersec_zmax = m_IDLocal.getMaxZ();
+
+		for(int k=intersec_zmin; k < intersec_zmax; k++)
+			for (int i = intersec_ymin; i < intersec_ymax; i++)
+				for (int j = intersec_xmin; j < intersec_xmax; j++)
+				{
+					Vector3d point(j,i,k);		//its x y z => j i k
+					const Triangle& closestTriangle = m_explicitHull.projectPointToSurface(point);
+					const NeighborList& interactingGrains = m_explicitHull.getNeighborList(closestTriangle);
+					//Do some magic with interactingGrains
+					//Structure contains a neighbors array
+					//interactingGrains.neighbors iterate through it from 0 - NEIGHBOR_LIST_SIZE
+					//Ids different from 0xFFFFFFFF are valid. Possibly could add a field with the count
+					//Of the neighbors
+				}
+	}
 }
 
 void LSbox::cleanupConvolution() {
@@ -646,17 +696,16 @@ void LSbox::computeSecondOrderNeighbours() {
 /**************************************/
 
 void LSbox::extractContour() {
-	MarchingCubesAlgorithm marcher(*m_inputDistance, this);
-	marcher.generateHull(m_grainHull);
-	if (m_grainHull.size() == 0) {
-		m_exists = false;
+
+	m_exists = m_explicitHull.generateHull();
+	if(!m_exists)
+	{
 		return;
 	}
 
-	m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
-			m_newYMax, m_newZMax);
+	m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax, m_newYMax, m_newZMax);
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
-	m_neighborCount = marcher.getIdentifiedNeighborCount();
+	m_neighborCount = m_explicitHull.getAllNeighborsCount();
 
 	computeVolume();
 	computeSurface();
@@ -667,39 +716,13 @@ void LSbox::updateFirstOrderNeigbors() {
 		return;
 	return;
 }
-double LSbox::computeVolume() {
-	m_volume = 0;
-
-	if (grainExists() != true)
-		return m_volume;
-
-	for (unsigned int i = 0; i < m_grainHull.size(); i++) {
-		Triangle& tri = m_grainHull[i];
-		double v321 = tri.points[2][0] * tri.points[1][1] * tri.points[0][2];
-		double v231 = tri.points[1][0] * tri.points[2][1] * tri.points[0][2];
-		double v312 = tri.points[2][0] * tri.points[0][1] * tri.points[1][2];
-		double v132 = tri.points[0][0] * tri.points[2][1] * tri.points[1][2];
-		double v213 = tri.points[1][0] * tri.points[0][1] * tri.points[2][2];
-		double v123 = tri.points[0][0] * tri.points[1][1] * tri.points[2][2];
-		m_volume += (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
-	}
-	m_volume = abs(m_volume) * m_grainHandler->get_h()
-			* m_grainHandler->get_h() * m_grainHandler->get_h();
-	return m_volume;
+void LSbox::computeVolume() {
+	m_volume = m_explicitHull.computeVolume();
 }
 
-double LSbox::computeSurface() {
-	m_surface = 0;
-	if (grainExists() != true)
-		return m_surface;
-	for (unsigned int i = 0; i < m_grainHull.size(); i++) {
-		Triangle& tri = m_grainHull[i];
-		Vector3d AB = tri.points[0] - tri.points[1];
-		Vector3d BC = tri.points[0] - tri.points[2];
-		m_surface += AB.cross(BC).norm() / 2.0;
-	}
-	m_surface = m_surface * m_grainHandler->get_h() * m_grainHandler->get_h();
-	return m_surface;
+void LSbox::computeSurface()
+{
+	m_surface = m_explicitHull.computeSurface();
 }
 
 void LSbox::computeVolumeAndEnergy() {
@@ -1171,20 +1194,19 @@ void LSbox::calculateTriangleCentroid(vector<SPoint>& triangleCentroid,
 }
 
 void LSbox::outputMemoryUsage(ofstream& output) {
-	output << m_inputDistance->getTotalMemoryUsed() << " "
-			<< m_outputDistance->getTotalMemoryUsed() << " "
-			<< m_IDLocal.getTotalMemoryUsed() << endl;
+	output << m_inputDistance->getTotalMemoryUsed() <<
+			" " << m_outputDistance->getTotalMemoryUsed() <<
+			" " <<  m_IDLocal.getTotalMemoryUsed() << endl;
 
 	output << m_outputDistance->getMaxX() - m_outputDistance->getMinX() << " "
 			<< m_outputDistance->getMaxY() - m_outputDistance->getMinY() << " "
-			<< m_outputDistance->getMaxZ() - m_outputDistance->getMinZ()
-			<< endl;
+			<< m_outputDistance->getMaxZ() - m_outputDistance->getMinZ() <<endl;
 	output << m_inputDistance->getMaxX() - m_inputDistance->getMinX() << " "
 			<< m_inputDistance->getMaxY() - m_inputDistance->getMinY() << " "
-			<< m_inputDistance->getMaxZ() - m_inputDistance->getMinZ() << endl;
+			<< m_inputDistance->getMaxZ() - m_inputDistance->getMinZ() <<endl;
 	output << m_IDLocal.getMaxX() - m_IDLocal.getMinX() << " "
 			<< m_IDLocal.getMaxY() - m_IDLocal.getMinY() << " "
-			<< m_IDLocal.getMaxZ() - m_IDLocal.getMinZ() << endl;
+			<< m_IDLocal.getMaxZ() - m_IDLocal.getMinZ() <<endl;
 }
 
 vector<int> LSbox::getDirectNeighbourIDs() {
@@ -1206,171 +1228,84 @@ void LSbox::computeDirectNeighbours(
 	max[2] = getMaxZ();
 	vector<unsigned int> intersectingGrains;
 	tree.Search(min, max, intersectingGrains);
-	for (unsigned int k = 0; k < intersectingGrains.size(); k++) {
-		if (m_ID != intersectingGrains[k]) {
-			m_secondOrderNeighbours.push_back(intersectingGrains[k]);
-			m_explicitBoundary.addDirectNeighbor(intersectingGrains[k]);
-		}
-	}
-}
-
-struct vectorComparator {
-	bool operator()(const Vector3d& a, const Vector3d& b) const {
-		return a[0] < b[0] ? true : (a[0] > b[0] ? false : (a[1] < b[1] ? true
-				: (a[1] > b[1] ? false : (a[2] < b[2] ? true : false))));
-	}
-};
-
-void LSbox::plotBoxContour(bool absoluteCoordinates) {
-	string filename = string("GrainHull_") + to_string(
-			(unsigned long long) m_ID) + string("Timestep_") + to_string(
-			(unsigned long long) m_grainHandler->loop) + string(".vtk");
-	FILE* output = fopen(filename.c_str(), "wt");
-	if (output == NULL) {
-		throw runtime_error("Unable to save box hull!");
-	}
-
-	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-		"vtk output\n"
-		"ASCII\n"
-		"DATASET POLYDATA\n");
-
-	int counter = 0;
-	map<Vector3d, int, vectorComparator> mymap;
-	map<int, Vector3d> orderedPoints;
-	for (unsigned int i = 0; i < m_grainHull.size(); i++) {
-		if (mymap.find(m_grainHull[i].points[0]) == mymap.end()) {
-			mymap.insert(
-					pair<Vector3d, int> (m_grainHull[i].points[0], counter));
-			counter++;
-		}
-		if (mymap.find(m_grainHull[i].points[1]) == mymap.end()) {
-			mymap.insert(
-					pair<Vector3d, int> (m_grainHull[i].points[1], counter));
-			counter++;
-		}
-		if (mymap.find(m_grainHull[i].points[2]) == mymap.end()) {
-			mymap.insert(
-					pair<Vector3d, int> (m_grainHull[i].points[2], counter));
-			counter++;
-		}
-	}for ( const auto &myPair : mymap )
+	for(unsigned int k=0; k < intersectingGrains.size(); k++)
 	{
-		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
-	}
-
-	fprintf(output, "POINTS %lu float\n", orderedPoints.size());
-
-	for ( const auto &myPair : orderedPoints )
-	{
-		fprintf(output, "%f %f %f\n", myPair.second[0], myPair.second[1], myPair.second[2]);
-	}
-
-	fprintf(output, "POLYGONS %lu %lu\n", m_grainHull.size(),
-			m_grainHull.size() * 4);
-	for (unsigned int i = 0; i < m_grainHull.size(); i++) {
-
-		fprintf(output, "3 %d %d %d \n",
-				(*(mymap.find(m_grainHull[i].points[2]))).second,
-				(*(mymap.find(m_grainHull[i].points[1]))).second,
-				(*(mymap.find(m_grainHull[i].points[0]))).second);
-	}
-
-	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
-	fprintf(output, "FIELD FieldData 1\n");
-	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
-
-	for ( const auto &myPair : orderedPoints )
-	{
-		const Vector3d& point = myPair.second;
-		int interestingness = 0;
-		for(unsigned int i=0; i<m_grainHull.size(); i++)
+		if(m_ID != intersectingGrains[k])
 		{
-			if( point == m_grainHull[i].points[0] || point == m_grainHull[i].points[1] ||
-					point == m_grainHull[i].points[2])
-			{
-				interestingness = max(interestingness, m_grainHull[i].additionalData);
-			}
+			m_secondOrderNeighbours.push_back(intersectingGrains[k]);
 		}
-		fprintf(output, "%d ", interestingness);
 	}
-	fclose(output);
 }
 
-void LSbox::plotBoxVolumetric(string identifier,
-		E_BUFFER_SELECTION bufferSelection) {
-	string filename = string("GrainVolume_") + to_string(
-			(unsigned long long) m_ID) + string("Timestep_") + to_string(
-			(unsigned long long) m_grainHandler->loop) + identifier + string(
-			".vtk");
+void LSbox::plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection)
+{
+	string filename = string("GrainVolume_")+to_string((unsigned long long)m_ID)+string("Timestep_")+
+				to_string((unsigned long long)m_grainHandler->loop)+identifier+string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
-	if (output == NULL) {
+	if(output == NULL)
+	{
 		throw runtime_error("Unable to save box hull!");
 	}
 	DimensionalBufferReal* distance;
-	switch (bufferSelection) {
-	case E_INPUT_DISTANCE:
-		distance = m_inputDistance;
-		break;
-	case E_OUTPUT_DISTANCE:
-		distance = m_outputDistance;
-		break;
-	default:
-		throw runtime_error(
-				string(
-						"Invalid buffer selection in plotBoxVolumetric for grain")
-						+ to_string((unsigned long long) m_ID) + string(
-						" at timestep ") + to_string(
-						(unsigned long long) m_grainHandler->loop));
+	switch(bufferSelection)
+	{
+		case E_INPUT_DISTANCE:
+			distance = m_inputDistance;
+			break;
+		case E_OUTPUT_DISTANCE:
+			distance = m_outputDistance;
+			break;
+		default:
+			throw runtime_error(string("Invalid buffer selection in plotBoxVolumetric for grain") + to_string((unsigned long long)m_ID)+
+					string(" at timestep ") + to_string((unsigned long long)m_grainHandler->loop));
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-		"vtk output\n"
-		"ASCII\n"
-		"DATASET STRUCTURED_GRID");
-	int totalPoints = (distance->getMaxX() - distance->getMinX())
-			* (distance->getMaxY() - distance->getMinY())
-			* (distance->getMaxZ() - distance->getMinZ());
-	fprintf(output, "DIMENSIONS %d %d %d\n",
-			distance->getMaxX() - distance->getMinX(),
-			distance->getMaxY() - distance->getMinY(),
-			distance->getMaxZ() - distance->getMinZ());
+							"vtk output\n"
+							"ASCII\n"
+							"DATASET STRUCTURED_GRID");
+	int totalPoints = 	(distance->getMaxX()-distance->getMinX())*
+						(distance->getMaxY()-distance->getMinY())*
+						(distance->getMaxZ()-distance->getMinZ());
+	fprintf(output, "DIMENSIONS %d %d %d\n",distance->getMaxX()-distance->getMinX(),
+											distance->getMaxY()-distance->getMinY(),
+											distance->getMaxZ()-distance->getMinZ());
 	fprintf(output, "POINTS %d int\n", totalPoints);
-	for (int i = distance->getMinY(); i < distance->getMaxY(); i++)
-		for (int j = distance->getMinX(); j < distance->getMaxX(); j++)
-			for (int k = distance->getMinZ(); k < distance->getMaxZ(); k++)
-				fprintf(output, "%d %d %d\n", j, i, k);
+	for(int i=distance->getMinY(); i<distance->getMaxY(); i++)
+		for(int j=distance->getMinX(); j<distance->getMaxX(); j++)
+			for(int k=distance->getMinZ(); k<distance->getMaxZ(); k++)
+				fprintf(output, "%d %d %d\n", j,i,k);
 
 	fprintf(output, "\nPOINT_DATA %d\n", totalPoints);
 	fprintf(output, "FIELD FieldData 1\n");
 	fprintf(output, "Distance 1 %d float\n", totalPoints);
-	for (int i = distance->getMinY(); i < distance->getMaxY(); i++)
-		for (int j = distance->getMinX(); j < distance->getMaxX(); j++)
-			for (int k = distance->getMinZ(); k < distance->getMaxZ(); k++)
-				fprintf(output, "%f\n", distance->getValueAt(i, j, k));
+	for(int i=distance->getMinY(); i<distance->getMaxY(); i++)
+			for(int j=distance->getMinX(); j<distance->getMaxX(); j++)
+				for(int k=distance->getMinZ(); k<distance->getMaxZ(); k++)
+					fprintf(output, "%f\n", distance->getValueAt(i,j,k));
 	fclose(output);
 }
 
-void LSbox::plotBoxIDLocal() {
-	string filename = string("GrainIDLocal_") + to_string(
-			(unsigned long long) m_ID) + string("Timestep_") + to_string(
-			(unsigned long long) m_grainHandler->loop) + string(".vtk");
+void LSbox::plotBoxIDLocal()
+{
+	string filename = string("GrainIDLocal_")+to_string((unsigned long long)m_ID)+string("Timestep_")+
+				to_string((unsigned long long)m_grainHandler->loop)+string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
-	if (output == NULL) {
+	if(output == NULL)
+	{
 		throw runtime_error("Unable to save box hull!");
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-		"vtk output\n"
-		"ASCII\n"
-		"DATASET STRUCTURED_GRID");
-	int totalPoints = (m_IDLocal.getMaxX() - m_IDLocal.getMinX())
-			* (m_IDLocal.getMaxY() - m_IDLocal.getMinY())
-			* (m_IDLocal.getMaxZ() - m_IDLocal.getMinZ());
-	fprintf(output, "DIMENSIONS %d %d %d\n",
-			m_IDLocal.getMaxX() - m_IDLocal.getMinX(),
-			m_IDLocal.getMaxY() - m_IDLocal.getMinY(),
-			m_IDLocal.getMaxZ() - m_IDLocal.getMinZ());
+							"vtk output\n"
+							"ASCII\n"
+							"DATASET STRUCTURED_GRID");
+	int totalPoints = 	(m_IDLocal.getMaxX()-m_IDLocal.getMinX())*
+						(m_IDLocal.getMaxY()-m_IDLocal.getMinY())*
+						(m_IDLocal.getMaxZ()-m_IDLocal.getMinZ());
+	fprintf(output, "DIMENSIONS %d %d %d\n",m_IDLocal.getMaxX()-m_IDLocal.getMinX(),
+											m_IDLocal.getMaxY()-m_IDLocal.getMinY(),
+											m_IDLocal.getMaxZ()-m_IDLocal.getMinZ());
 	fprintf(output, "POINTS %d int\n", totalPoints);
 	for (int i = m_IDLocal.getMinY(); i < m_IDLocal.getMaxY(); i++)
 		for (int j = m_IDLocal.getMinX(); j < m_IDLocal.getMaxX(); j++)
