@@ -42,6 +42,9 @@ GrainBoundary::GrainBoundary(int id): neighbor(id){
 GrainBoundary::~GrainBoundary(){
 }
 
+void GrainBoundary::addTriangle(Triangle current){
+	GBTriangles.push_back(current);
+}
 
 GrainHull::GrainHull(LSbox* owner) :
 	m_owner(owner) {
@@ -155,12 +158,12 @@ void GrainHull::recordGB(Triangle current){
 	}
 	if (!found){
 		m_Grainboundary.push_back(GrainBoundary(id));
-		m_Grainboundary.end()->GBTriangles.push_back(current);
+		m_Grainboundary.end()->addTriangle(current);
 		m_Grainboundary.end()->computeGrainBoundaryProperties();
 	}
 	else {
 		// add triangle too local list
-		it->GBTriangles.push_back(current);
+		it->addTriangle(current);
 	}
 }
 
