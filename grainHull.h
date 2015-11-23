@@ -25,6 +25,46 @@
 
 using namespace std;
 
+class QuadrupleJunction{
+private:
+	Triangle QuadruplePointTriangles[2];
+	Vector3d position;
+	int neighborID[3];
+	double mobility;
+	double weight;
+public:
+	QuadrupleJunction();
+	~QuadrupleJunction();
+
+};
+class TripleLine{
+private:
+	vector<QuadrupleJunction> vertices;
+	vector<Triangle> TripleLineTriangles;
+	int neighborID[2];
+	double energy;
+	double mobility;
+public:
+	TripleLine();
+	~TripleLine();
+};
+
+class GrainBoundary{
+private:
+	vector<Triangle> GBTriangles;
+	vector<TripleLines> edges;
+	vector<QuadrupleJunction> vertices;
+	int neighborID;
+	double mobility;
+	double energy;
+public:
+	GrainBoundary(int id);
+	~GrainBoundary();
+	//TODO:
+	void addTriangle(Triangle);
+	void computeGrainBoundaryProperties();
+};
+
 class LSbox;
 
 class GrainHull
@@ -34,6 +74,7 @@ private:
 	vector<NeighborList>		m_triangleNeighborLists;
 	LSbox*						m_owner;
 	vector<unsigned int>		m_neighbors;
+	vector<GrainBoundary>		m_Grainboundary;
 public:
 	GrainHull(LSbox* owner);
 	~GrainHull();
@@ -45,6 +86,11 @@ public:
 	const vector<unsigned int>&	getAllNeighbors();
 	unsigned int				getAllNeighborsCount() { return m_neighbors.size(); }
 	void 						plotContour(bool absoluteCoordinates, int timestep);
+	//new:
+	void 						computeGrainBoudaryElements();
+	void 						recordGB(Triangle current);
+	void 						computeGrainBoundaryProperties();
+	const Triangle&				projectPointGrainBoundary(Vector3d& point, GrainBoundary* nearestPlane);
 };
 
 #endif //__GRAIN_HULL__

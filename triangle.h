@@ -7,7 +7,8 @@ using namespace Eigen;
 struct Triangle
 {
 	Vector3d 	points[3];
-	int			additionalData;
+	int additionaldata;
+	vector<int> adjacentGrainIDs;
 };
 
 #endif		//__TRIANGLE_H__
