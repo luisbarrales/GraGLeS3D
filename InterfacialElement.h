@@ -9,13 +9,15 @@
 #define INTERFACIALELEMENTS_H
 
 #include <vector>
-#include "myQuaternion.h"
 #include "triangle.h"
-#include "marchingCubes.h"
-#include "Settings.h"
+struct NeighborList;
 
 class LSbox;
 class grainhdl;
+class Settings;
+class MarchingCubesAlgorithm;
+class myQuaternion;
+
 using namespace std;
 
 class InterfacialElement {
@@ -26,7 +28,7 @@ protected:
 	double energy;
 public:
 	InterfacialElement();
-	InterfacialElement(int key, NeighborList newNeighborList, LSbox* owner);
+	InterfacialElement(int key, NeighborList newNeighborList);
 	virtual ~InterfacialElement();
 	double computeMobility(double misori);
 	double computeReadShockleyEnergy(double misori);

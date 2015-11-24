@@ -8,6 +8,10 @@
 #include "InterfacialElement.h"
 #include "box.h"
 #include "grainhdl.h"
+#include "marchingCubes.h"
+#include "Settings.h"
+#include "myQuaternion.h"
+
 
 InterfacialElement::InterfacialElement(int key, NeighborList newNeighborList) :
 	Key_NeighborList(key) {
