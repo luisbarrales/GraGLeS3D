@@ -40,7 +40,8 @@ class grainhdl;
 class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
 class myQuaternion;
-class GrainHull;
+
+
 
 enum E_BUFFER_SELECTION
 {

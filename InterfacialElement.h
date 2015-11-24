@@ -5,18 +5,16 @@
  *      Author: cm654063
  */
 
+#ifndef INTERFACIALELEMENTS_H
+#define INTERFACIALELEMENTS_H
+
 #include <vector>
 #include "myQuaternion.h"
 #include "triangle.h"
 #include "marchingCubes.h"
 #include "Settings.h"
 
-
-class grainhdl;
-class myQuaternion;
 class LSbox;
-class Settings;
-
 using namespace std;
 
 class InterfacialElement {
@@ -27,6 +25,7 @@ protected:
 	double energy;
 public:
 	InterfacialElement();
+	InterfacialElement(int key, NeighborList newNeighborList, LSbox* owner);
 	virtual ~InterfacialElement();
 	double computeMobility(double misori);
 	double computeReadShockleyEnergy(double misori);
@@ -59,3 +58,5 @@ public:
 	GrainBoundary(int key, NeighborList newboundary, LSbox* myBox);
 	~GrainBoundary();
 };
+
+#endif
