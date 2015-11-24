@@ -69,7 +69,6 @@ const NeighborList& GrainHull::getNeighborList(const Triangle& triangle) {
 	return m_triangleNeighborLists[triangle.additionalData];
 }
 
-
 const vector<unsigned int>& GrainHull::getAllNeighbors() {
 	return m_neighbors;
 }
@@ -103,29 +102,31 @@ const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 void GrainHull::computeGrainBoundaryElements() {
 	m_Grainboundary.clear();
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
-		switch (m_triangleNeighborLists[i].getNeighborsListCount())
-		case 0:{
+		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
+		switch (junctionType) {
+		case 0: {
 			//probably error case - something went wrong
 			break;
 		}
 		case 1: {
-			m_Grainboundary.push_back(i, m_triangleNeighborLists[i]);
+			m_Grainboundary.emplace_back(i, m_triangleNeighborLists[i], m_owner);
 			//triangle has only one adjacent grain
 			break;
 		}
 		case 2: {
-			m_TripleLines.push_back(i, m_triangleNeighborLists[i]);
+			m_TripleLines.emplace_back(i, m_triangleNeighborLists[i], m_owner);
 			//triangle is part of tripleLine
 			break;
 		}
 		case 3: {
-			m_QuadrupelPoints.push_back(i, m_triangleNeighborLists[i]);
+			m_QuadrupelPoints.emplace_back(i, m_triangleNeighborLists[i], m_owner);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
 		default: {
 			// high order junction is found
 			//TODO:
+		}
 		}
 	}
 }

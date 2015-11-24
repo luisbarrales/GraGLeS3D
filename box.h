@@ -32,6 +32,7 @@
 #include "Eigen/Dense"
 #include "myQuaternion.h"
 
+
 using namespace std;
 using namespace Eigen;
 
@@ -39,6 +40,7 @@ class grainhdl;
 class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
 class myQuaternion;
+class GrainHull;
 
 enum E_BUFFER_SELECTION
 {
@@ -108,8 +110,8 @@ public:
     void executeSetComparison();
 	void computeSecondOrderNeighbours();
 	void computeDirectNeighbours(const RTree<unsigned int, int, 3, float>& rtree);
-	void computeVolume();
-	void computeSurface();
+	void computeGrainVolume();
+	void computeSurfaceArea();
     void computeVolumeAndEnergy();
 	double getGBEnergyTimesGBMobility(int i,int j);
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);

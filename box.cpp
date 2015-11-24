@@ -707,8 +707,8 @@ void LSbox::extractContour() {
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
 
-	computeVolume();
-	computeSurface();
+	computeGrainVolume();
+	computeSurfaceArea();
 }
 
 void LSbox::updateFirstOrderNeigbors() {

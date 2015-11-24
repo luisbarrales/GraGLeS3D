@@ -31,7 +31,7 @@ public:
 	unsigned int getNeighborsListCount() {
 		int interactingGrains = 0;
 		for (int j = 0; j < NEIGHBOR_LIST_SIZE; j++)
-			interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+			interactingGrains += (neighbors[j] == 0xFFFFFFFF ? 0 : 1);
 		return interactingGrains;
 	}
 };

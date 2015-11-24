@@ -5,7 +5,7 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp)
+set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
