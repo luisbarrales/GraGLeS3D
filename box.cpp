@@ -716,13 +716,13 @@ void LSbox::updateFirstOrderNeigbors() {
 		return;
 	return;
 }
-void LSbox::computeVolume() {
-	m_volume = m_explicitHull.computeVolume();
+void LSbox::computeGrainVolume() {
+	m_volume = m_explicitHull.computeGrainVolume();
 }
 
-void LSbox::computeSurface()
+void LSbox::computeSurfaceArea()
 {
-	m_surface = m_explicitHull.computeSurface();
+	m_surface = m_explicitHull.computeSurfaceArea();
 }
 
 void LSbox::computeVolumeAndEnergy() {

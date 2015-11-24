@@ -24,35 +24,13 @@
 
 using namespace std;
 
-
-QuadrupleJunction::QuadrupleJunction(){
-}
-QuadrupleJunction::~QuadrupleJunction(){
-}
-
-
-TripleLine::TripleLine(){
-}
-TripleLine::~TripleLine(){
-}
-
-
-GrainBoundary::GrainBoundary(int id): neighbor(id){
-}
-GrainBoundary::~GrainBoundary(){
-}
-
-void GrainBoundary::addTriangle(Triangle current){
-	GBTriangles.push_back(current);
-}
-
 GrainHull::GrainHull(LSbox* owner) :
 	m_owner(owner) {
 }
 GrainHull::~GrainHull() {
 }
 
-double GrainHull::computeVolume() {
+double GrainHull::computeGrainVolume() {
 	double volume = 0;
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 		Triangle& tri = m_actualHull[i];
@@ -69,7 +47,7 @@ double GrainHull::computeVolume() {
 	return volume;
 }
 
-double GrainHull::computeSurface() {
+double GrainHull::computeSurfaceArea() {
 	double surface = 0;
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 		Triangle& tri = m_actualHull[i];
@@ -88,9 +66,9 @@ const NeighborList& GrainHull::getNeighborList(const Triangle& triangle) {
 		throw runtime_error(
 				"Invalid additional data in triangle. Neighbor List unavailable!");
 	}
-
 	return m_triangleNeighborLists[triangle.additionalData];
 }
+
 
 const vector<unsigned int>& GrainHull::getAllNeighbors() {
 	return m_neighbors;
@@ -122,64 +100,48 @@ const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 	return m_actualHull[minIndex];
 }
 
-void GrainHull::computeGrainBoudaryElements() {
+void GrainHull::computeGrainBoundaryElements() {
 	m_Grainboundary.clear();
-	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-		switch (m_actualHull[i].adjacentGrainIDs.size())case 1: {
-			recordGB();
+	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
+		switch (m_triangleNeighborLists[i].getNeighborsListCount())
+		case 0:{
+			//probably error case - something went wrong
+			break;
+		}
+		case 1: {
+			m_Grainboundary.push_back(i, m_triangleNeighborLists[i]);
 			//triangle has only one adjacent grain
 			break;
 		}
 		case 2: {
+			m_TripleLines.push_back(i, m_triangleNeighborLists[i]);
 			//triangle is part of tripleLine
 			break;
 		}
 		case 3: {
+			m_QuadrupelPoints.push_back(i, m_triangleNeighborLists[i]);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
 		default: {
-			//probably error case
-		}
-
-	}
-}
-
-void GrainHull::recordGB(Triangle current){
-	bool found = false;
-	int id = current.adjacentGrainIDs[0];
-	for(const auto it : m_Grainboundary)
-	{
-		if(it->neighborID == id)
-		{
-			found = true;
-			break;
+			// high order junction is found
+			//TODO:
 		}
 	}
-	if (!found){
-		m_Grainboundary.push_back(GrainBoundary(id));
-		m_Grainboundary.end()->addTriangle(current);
-		m_Grainboundary.end()->computeGrainBoundaryProperties();
-	}
-	else {
-		// add triangle too local list
-		it->addTriangle(current);
-	}
 }
-
 
 const Triangle& GrainHull::projectPointGrainBoundary(Vector3d& point,
 		GrainBoundary* nearestPlane) {
 	double minimalDistance = 10000000.0;
 	unsigned int minIndex = 0xFFFFFFFF;
-	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-		double distance = pointToTriangleDistance(point, m_actualHull[i]);
-		if (distance < minimalDistance) {
-			minimalDistance = distance;
-			minIndex = i;
-		}
-	}
-	return m_actualHull[minIndex];
+	//	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+	//		double distance = pointToTriangleDistance(point, m_actualHull[i]);
+	//		if (distance < minimalDistance) {
+	//			minimalDistance = distance;
+	//			minIndex = i;
+	//		}
+	//	}
+	//	return m_actualHull[minIndex];
 }
 
 double pointToTriangleDistance(Vector3d& point, Triangle& triangle) {

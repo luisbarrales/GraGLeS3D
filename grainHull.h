@@ -25,43 +25,41 @@
 
 using namespace std;
 
-class QuadrupleJunction{
-private:
+struct QuadrupleJunction{
 	Triangle QuadruplePointTriangles[2];
 	Vector3d position;
 	int neighborID[3];
 	double mobility;
 	double weight;
-public:
-	QuadrupleJunction();
+	int Key_NeighborList;
+	QuadrupleJunction(int key, NeighborList newQuadrupleJunction) : Key_NeighborList(key){};
 	~QuadrupleJunction();
-
 };
-class TripleLine{
-private:
-	vector<QuadrupleJunction> vertices;
+
+struct TripleLine{
 	vector<Triangle> TripleLineTriangles;
+	vector<int> vertices;
 	int neighborID[2];
 	double energy;
 	double mobility;
-public:
-	TripleLine();
+	int Key_NeighborList;
+	TripleLine(int key, NeighborList newTripleLine) : Key_NeighborList(key){};
 	~TripleLine();
 };
 
-class GrainBoundary{
-private:
+struct GrainBoundary{
 	vector<Triangle> GBTriangles;
-	vector<TripleLines> edges;
-	vector<QuadrupleJunction> vertices;
+	vector<int> edges; // saves the indexes of edges in clockwise order
 	int neighborID;
 	double mobility;
 	double energy;
-public:
-	GrainBoundary(int id);
+	int Key_NeighborList;
+	GrainBoundary(int key, NeighborList newboundary) : Key_NeighborList(key){};
 	~GrainBoundary();
 	//TODO:
-	void addTriangle(Triangle);
+	void addTriangle(Triangle current) {
+		GBTriangles.push_back(current);
+	}
 	void computeGrainBoundaryProperties();
 };
 
@@ -75,20 +73,21 @@ private:
 	LSbox*						m_owner;
 	vector<unsigned int>		m_neighbors;
 	vector<GrainBoundary>		m_Grainboundary;
+	vector<TripleLine>			m_TripleLines;
+	vector<QuadrupleJunction>	m_QuadrupelPoints;
 public:
 	GrainHull(LSbox* owner);
 	~GrainHull();
 	bool 						generateHull();
 	const NeighborList&			getNeighborList(const Triangle& triangle);
-	double 						computeVolume();
-	double 						computeSurface();
+	double 						computeGrainVolume();
+	double 						computeSurfaceArea();
 	const Triangle&				projectPointToSurface(Vector3d& point);
 	const vector<unsigned int>&	getAllNeighbors();
 	unsigned int				getAllNeighborsCount() { return m_neighbors.size(); }
 	void 						plotContour(bool absoluteCoordinates, int timestep);
 	//new:
-	void 						computeGrainBoudaryElements();
-	void 						recordGB(Triangle current);
+	void 						computeGrainBoundaryElements();
 	void 						computeGrainBoundaryProperties();
 	const Triangle&				projectPointGrainBoundary(Vector3d& point, GrainBoundary* nearestPlane);
 };
