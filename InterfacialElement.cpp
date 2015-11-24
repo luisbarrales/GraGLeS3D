@@ -7,10 +7,13 @@
 
 #include "InterfacialElement.h"
 #include "box.h"
+#include "grainhdl.h"
 
-InterfacialElement::InterfacialElement(int key,
-		NeighborList newNeighborList, LSbox* owner) :
+InterfacialElement::InterfacialElement(int key, NeighborList newNeighborList) :
 	Key_NeighborList(key) {
+}
+
+InterfacialElement::~InterfacialElement() {
 }
 double InterfacialElement::computeMobility(double misori) {
 	//	if (Settings::UseMobilityModel == 1) {
@@ -41,10 +44,10 @@ double InterfacialElement::computeReadShockleyEnergy(double misori) {
 }
 
 GrainBoundary::GrainBoundary(int key, NeighborList newboundary, LSbox* myBox) :
-	InterfacialElement(key, newboundary, myBox) {
+	InterfacialElement(key, newboundary) {
 	int neighborID = newboundary.neighbors[0];
-	double misori = myBox->computeMisorientation(399.);
-			//myBox->m_grainHandler->grains[neighborID]);
+	LSbox* neighbor = myBox->get_grainHandler()->grains[neighborID];
+	double misori = myBox->computeMisorientation(neighbor);
 	mobility = computeMobility(misori);
 	energy = computeReadShockleyEnergy(misori);
 }
@@ -52,14 +55,14 @@ GrainBoundary::~GrainBoundary() {
 }
 
 TripleLine::TripleLine(int key, NeighborList newTripleLine, LSbox* myBox) :
-	InterfacialElement(key, newTripleLine, myBox) {
+	InterfacialElement(key, newTripleLine) {
 }
 TripleLine::~TripleLine() {
 }
 
 QuadrupleJunction::QuadrupleJunction(int key,
 		NeighborList newQuadrupleJunction, LSbox* myBox) :
-	InterfacialElement(key, newQuadrupleJunction, myBox) {
+	InterfacialElement(key, newQuadrupleJunction) {
 }
 
 QuadrupleJunction::~QuadrupleJunction() {

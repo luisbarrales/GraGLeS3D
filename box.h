@@ -181,6 +181,7 @@ public:
 	inline int getMaxZ() const {return m_outputDistance->getMaxZ();}
 	inline SPoint getCentroid() const {return m_centroid;}
 	inline const myQuaternion* getOrientationQuat() {return m_orientationQuat;}
+	inline grainhdl* get_grainHandler(){return m_grainHandler;}
 	int getNeighbourAt(int i, int j, int k);
 };
 #endif

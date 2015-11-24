@@ -15,6 +15,7 @@
 #include "Settings.h"
 
 class LSbox;
+class grainhdl;
 using namespace std;
 
 class InterfacialElement {
