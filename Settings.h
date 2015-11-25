@@ -76,7 +76,7 @@ class Settings
 	static E_RESEARCH_PROJECT ResearchProject;
 	static std::string ReadFromFilename;
 	static double HAGB;
-	static double TriplePointDrag;
+	static double TripleLineDrag;
 	static bool UseMobilityFactor;
 	static bool IsIsotropicNetwork;
 	static bool UseTexture;

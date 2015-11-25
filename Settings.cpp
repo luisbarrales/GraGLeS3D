@@ -42,7 +42,7 @@ E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VAL;
 E_RESEARCH_PROJECT Settings::ResearchProject = E_DEFAULT;
 string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
-double Settings::TriplePointDrag = 0.0;
+double Settings::TripleLineDrag = 0.0;
 bool Settings::UseMobilityFactor = false;
 bool Settings::IsIsotropicNetwork = false;
 bool Settings::UseTexture = false;
@@ -120,9 +120,9 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("HAGB")) {
 		HAGB = std::stod(rootNode->first_node("HAGB")->value());
 	}
-	if (0 != rootNode->first_node("TriplePointDrag")) {
-		TriplePointDrag = std::stod(
-				rootNode->first_node("TriplePointDrag")->value());
+	if (0 != rootNode->first_node("TripleLineDrag")) {
+		TripleLineDrag = std::stod(
+				rootNode->first_node("TripleLineDrag")->value());
 	}
 	if (0 != rootNode->first_node("UseMobilityFactor")) {
 		UseMobilityFactor = (bool) std::stoul(rootNode->first_node(
@@ -219,7 +219,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_VALUE(MicrostructureGenMode, 0);
 	PUSH_VALUE(ReadFromFilename, filename);
 	PUSH_PARAM(HAGB);
-	PUSH_PARAM(TriplePointDrag);
+	PUSH_PARAM(TripleLineDrag);
 	PUSH_PARAM(UseMobilityFactor);
 	PUSH_PARAM(IsIsotropicNetwork);
 	PUSH_PARAM(UseTexture);

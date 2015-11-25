@@ -28,7 +28,6 @@ using namespace std;
 
 class LSbox;
 
-
 class GrainHull {
 private:
 	vector<Triangle> m_actualHull;
@@ -51,9 +50,10 @@ public:
 		return m_neighbors.size();
 	}
 	void plotContour(bool absoluteCoordinates, int timestep);
+	const InterfacialElement& findInterfacialElement(int key, vector<InterfacialElement> *list);
 	//new:
 	void computeGrainBoundaryElements();
-	void computeGrainBoundaryProperties();
+	void subDivideTrianglesToInterfacialElements();
 	const Triangle& projectPointGrainBoundary(Vector3d& point,
 			GrainBoundary* nearestPlane);
 };

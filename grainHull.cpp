@@ -109,17 +109,17 @@ void GrainHull::computeGrainBoundaryElements() {
 			break;
 		}
 		case 1: {
-			m_Grainboundary.emplace_back(i, m_triangleNeighborLists[i], m_owner);
+			m_Grainboundary.emplace_back(i, m_owner);
 			//triangle has only one adjacent grain
 			break;
 		}
 		case 2: {
-			m_TripleLines.emplace_back(i, m_triangleNeighborLists[i], m_owner);
+			m_TripleLines.emplace_back(i, m_owner);
 			//triangle is part of tripleLine
 			break;
 		}
 		case 3: {
-			m_QuadrupelPoints.emplace_back(i, m_triangleNeighborLists[i], m_owner);
+			m_QuadrupelPoints.emplace_back(i, m_owner);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
@@ -127,6 +127,45 @@ void GrainHull::computeGrainBoundaryElements() {
 			// high order junction is found
 			//TODO:
 		}
+		}
+	}
+}
+
+void GrainHull::subDivideTrianglesToInterfacialElements() {
+	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+		int key = m_actualHull[i].additionalData;
+		unsigned int type =
+				m_triangleNeighborLists[key].getNeighborsListCount();
+		switch (type) {
+		case 1: {
+			InterfacialElement& GB = findInterfacialElement(key,
+					m_Grainboundary);
+			GB.addTriangle(m_actualHull[i]);
+			break;
+		}
+		case 2: {
+			InterfacialElement& TL = findInterfacialElement(key, m_TripleLines);
+			TL.addTriangle(m_actualHull[i]);
+			break;
+		}
+		case 3: {
+			InterfacialElement& QJ = findInterfacialElement(key,
+					m_QuadrupelPoints);
+			QJ.addTriangle(m_actualHull[i]);
+			break;
+		}
+		}
+	}
+	m_actualHull.clear();
+}
+
+const InterfacialElement& GrainHull::findInterfacialElement(int key,
+		vector<InterfacialElement> *list) {
+	for(const auto it : *list)
+	{
+		if(it.get_m_Key_NeighborList() == key)
+		{
+			return &(&it);
 		}
 	}
 }
