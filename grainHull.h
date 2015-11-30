@@ -60,7 +60,8 @@ public:
 	void clearInterfacialElements();
 	void computeGrainBoundaryElements();
 	void subDivideTrianglesToInterfacialElements();
-	double projectPointGrainBoundary(Vector3d& point, int id);
+	void computeInterfacialElementMesh();
+	double projectPointToGrainBoundary(Vector3d& point, int id);
 };
 
 #endif //__GRAIN_HULL__

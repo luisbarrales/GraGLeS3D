@@ -254,7 +254,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						Vector3d point(j, i, k); //its x y z => j i k
 						IDChunkMinimal grain = m_IDLocal.getValueAt(j, i, k);
 						double weight =
-								m_explicitHull.projectPointGrainBoundary(point,
+								m_explicitHull.projectPointToGrainBoundary(point,
 										grain.grainID);
 						m_outputDistance->setValueAt(
 								j,
@@ -729,6 +729,7 @@ void LSbox::computeSurfaceArea() {
 void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
+	m_explicitHull.computeInterfacialElementMesh();
 }
 
 void LSbox::computeVolumeAndEnergy() {

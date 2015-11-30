@@ -172,6 +172,18 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 	m_actualHull.clear();
 }
 
+void GrainHull::computeInterfacialElementMesh(){
+	//TODO:
+	//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
+	// find the center of mass of a QuadruplePoint
+	// attach the quadruplePoints to TripleLines
+	// interpolate through the set of points describing the TL
+	// attach these objects to the GrainBoundary
+	// optimize the search routine to find nearest Triangle
+	// extend the classes interfacial elements etc. to capture the analytic descriptions
+}
+
+
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
 	for(const auto it : m_Grainboundary)
 	{
@@ -205,7 +217,7 @@ QuadrupleJunction* GrainHull::findQuadrupleJunction(int key) {
 	return NULL;
 }
 
-double GrainHull::projectPointGrainBoundary(Vector3d& point, int id) {
+double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	double minimalDistance = 10000000.0;
 	double weight = 1.0;
 

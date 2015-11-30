@@ -46,9 +46,17 @@ public:
 	}
 	inline double get_Correction_Weight(){return m_energy*m_mobility;}
 };
+class HighOrderJunction: public InterfacialElement {
+	//TODO:
+public:
+	friend class GrainHull;
+	HighOrderJunction(int key, GrainHull *owner);
+	~HighOrderJunction();
+	void computeEnergy();
+	void computeMobility();
+};
 
 class QuadrupleJunction: public InterfacialElement {
-	Triangle QuadruplePointTriangles[2];
 	Vector3d position;
 	int neighborID[3];
 public:
