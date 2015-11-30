@@ -13,13 +13,13 @@
 #include "myQuaternion.h"
 #include "grainHull.h"
 
-InterfacialElement::InterfacialElement(int key, GrainHull owner) :
+InterfacialElement::InterfacialElement(int key, GrainHull* owner) :
 	m_Key_NeighborList(key), m_owner(owner) {
 }
 
 InterfacialElement::~InterfacialElement() {
 }
-double InterfacialElement::computeMobility(double misori) {
+double InterfacialElement::computeMobilityMisori(double misori) {
 	//	if (Settings::UseMobilityModel == 1) {
 	//check for twin boundary
 	// 8.66025 = Theta (15)* 1/ sqrt(SIGMA) here SiGMA is the number od coincidence points (3 for the Twinboundary)
@@ -31,8 +31,6 @@ double InterfacialElement::computeMobility(double misori) {
 	//			return 1 - (1.0 * exp(-5. * (pow(thetaMis / (15 * PI / 180), 4.))));
 	//		} else
 	return 1 - (1.0 * exp(-5. * (pow(misori / (15 * PI / 180), 4.))));
-	//	} else
-	//		return 1;
 }
 
 double InterfacialElement::computeReadShockleyEnergy(double misori) {
@@ -47,7 +45,7 @@ double InterfacialElement::computeReadShockleyEnergy(double misori) {
 	return gamma;
 }
 
-GrainBoundary::GrainBoundary(int key, GrainHull owner) :
+GrainBoundary::GrainBoundary(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
 	neighborID = m_owner->m_triangleNeighborLists[key].neighbors[0];
 	computeMobility();
@@ -59,14 +57,16 @@ GrainBoundary::~GrainBoundary() {
 void GrainBoundary::computeEnergy() {
 	LSbox* neighbor = m_owner->m_owner->get_grainHandler()->grains[neighborID];
 	double misori = m_owner->m_owner->computeMisorientation(neighbor);
-	energy = computeReadShockleyEnergy(misori);
+	m_energy = computeReadShockleyEnergy(misori);
 }
 
 void GrainBoundary::computeMobility() {
-	mobility = computeMobility(misori);
+	LSbox* neighbor = m_owner->m_owner->get_grainHandler()->grains[neighborID];
+	double misori = m_owner->m_owner->computeMisorientation(neighbor);
+	m_mobility = computeMobilityMisori(misori);
 }
 
-TripleLine::TripleLine(int key, GrainHull owner) :
+TripleLine::TripleLine(int key, GrainHull *owner) :
 	InterfacialElement(key, owner) {
 	neighborID[0] = m_owner->m_triangleNeighborLists[key].neighbors[0];
 	neighborID[1] = m_owner->m_triangleNeighborLists[key].neighbors[1];
@@ -84,22 +84,22 @@ void TripleLine::computeEnergy() {
 	double theta_ref = 15.0 * PI / 180;
 	double theta_mis;
 	LSbox* me = m_owner->m_owner;
-	grainhdl* handler = m_owner->m_owner->m_grainHandler;
+	grainhdl* handler = m_owner->m_owner->get_grainHandler();
 	LSbox* neighborGrains[2] = { handler->getGrainByID(neighborID[0]),
 			handler->getGrainByID(neighborID[1]) };
 
 	if (Settings::ResearchMode != 1) {
 
 		theta_mis = me->computeMisorientation(neighborGrains[0]);
-		averageMobility += computeMobility(theta_mis);
+		averageMobility += computeMobilityMisori(theta_mis);
 		gamma[0] = computeReadShockleyEnergy(theta_mis);
 
 		theta_mis = neighborGrains[0]->computeMisorientation(neighborGrains[1]);
-		averageMobility += computeMobility(theta_mis);
+		averageMobility += computeMobilityMisori(theta_mis);
 		gamma[1] = computeReadShockleyEnergy(theta_mis);
 
 		theta_mis = me->computeMisorientation(neighborGrains[1]);
-		averageMobility += computeMobility(theta_mis);
+		averageMobility += computeMobilityMisori(theta_mis);
 		gamma[2] = computeReadShockleyEnergy(theta_mis);
 
 	} else if (Settings::ResearchMode == 1) {
@@ -130,9 +130,8 @@ void TripleLine::computeMobility() {
 	//the triple Line will move with an effective mobility computed above
 }
 
-QuadrupleJunction::QuadrupleJunction(int key,
-		NeighborList newQuadrupleJunction, LSbox* myBox) :
-	InterfacialElement(key, newQuadrupleJunction) {
+QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
+	InterfacialElement(key, owner) {
 	neighborID[0] = m_owner->m_triangleNeighborLists[key].neighbors[0];
 	neighborID[1] = m_owner->m_triangleNeighborLists[key].neighbors[1];
 	neighborID[2] = m_owner->m_triangleNeighborLists[key].neighbors[2];
@@ -148,7 +147,7 @@ void QuadrupleJunction::computeEnergy() {
 	m_energy =1;
 }
 
-void QuadrupleJunction::computeMObility() {
+void QuadrupleJunction::computeMobility() {
 	//TODO::
 	m_mobility =1;
 }

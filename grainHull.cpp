@@ -99,8 +99,20 @@ const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 	return m_actualHull[minIndex];
 }
 
-void GrainHull::computeGrainBoundaryElements() {
+void GrainHull::clearInterfacialElements() {
+	for (auto it : m_Grainboundary)
+	delete &(*it);
 	m_Grainboundary.clear();
+	for (auto it : m_TripleLines)
+	delete &(*it);
+	m_TripleLines.clear();
+	for (auto it : m_QuadrupelPoints)
+	delete &(*it);
+	m_QuadrupelPoints.clear();
+}
+
+void GrainHull::computeGrainBoundaryElements() {
+	clearInterfacialElements();
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
 		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
 		switch (junctionType) {
@@ -109,17 +121,20 @@ void GrainHull::computeGrainBoundaryElements() {
 			break;
 		}
 		case 1: {
-			m_Grainboundary.emplace_back(i, m_owner);
+			GrainBoundary* newGB = new GrainBoundary(i, this);
+			m_Grainboundary.push_back(newGB);
 			//triangle has only one adjacent grain
 			break;
 		}
 		case 2: {
-			m_TripleLines.emplace_back(i, m_owner);
+			TripleLine* newTL = new TripleLine(i, this);
+			m_TripleLines.push_back(newTL);
 			//triangle is part of tripleLine
 			break;
 		}
 		case 3: {
-			m_QuadrupelPoints.emplace_back(i, m_owner);
+			QuadrupleJunction* newQJ = new QuadrupleJunction(i, this);
+			m_QuadrupelPoints.push_back(newQJ);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
@@ -138,20 +153,18 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 				m_triangleNeighborLists[key].getNeighborsListCount();
 		switch (type) {
 		case 1: {
-			InterfacialElement& GB = findInterfacialElement(key,
-					m_Grainboundary);
-			GB.addTriangle(m_actualHull[i]);
+			GrainBoundary* GB = findGrainBoundary(key);
+			GB->addTriangle(m_actualHull[i]);
 			break;
 		}
 		case 2: {
-			InterfacialElement& TL = findInterfacialElement(key, m_TripleLines);
-			TL.addTriangle(m_actualHull[i]);
+			TripleLine* TL = findTripleLine(key);
+			TL->addTriangle(m_actualHull[i]);
 			break;
 		}
 		case 3: {
-			InterfacialElement& QJ = findInterfacialElement(key,
-					m_QuadrupelPoints);
-			QJ.addTriangle(m_actualHull[i]);
+			QuadrupleJunction* QJ = findQuadrupleJunction(key);
+			QJ->addTriangle(m_actualHull[i]);
 			break;
 		}
 		}
@@ -159,29 +172,90 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 	m_actualHull.clear();
 }
 
-const InterfacialElement& GrainHull::findInterfacialElement(int key,
-		vector<InterfacialElement> *list) {
-	for(const auto it : *list)
+GrainBoundary* GrainHull::findGrainBoundary(int key) {
+	for(const auto it : m_Grainboundary)
 	{
-		if(it.get_m_Key_NeighborList() == key)
+		if(it->get_m_Key_NeighborList() == key)
 		{
-			return &(&it);
+			return &(*it);
 		}
 	}
+	return NULL;
 }
 
-const Triangle& GrainHull::projectPointGrainBoundary(Vector3d& point,
-		GrainBoundary* nearestPlane) {
+TripleLine* GrainHull::findTripleLine(int key) {
+	for(const auto it : m_TripleLines)
+	{
+		if(it->get_m_Key_NeighborList() == key)
+		{
+			return &(*it);
+		}
+	}
+	return NULL;
+}
+QuadrupleJunction* GrainHull::findQuadrupleJunction(int key) {
+
+	for(const auto it : m_QuadrupelPoints)
+	{
+		if(it->get_m_Key_NeighborList() == key)
+		{
+			return &(*it);
+		}
+	}
+	return NULL;
+}
+
+double GrainHull::projectPointGrainBoundary(Vector3d& point, int id) {
 	double minimalDistance = 10000000.0;
-	unsigned int minIndex = 0xFFFFFFFF;
-	//	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-	//		double distance = pointToTriangleDistance(point, m_actualHull[i]);
-	//		if (distance < minimalDistance) {
-	//			minimalDistance = distance;
-	//			minIndex = i;
-	//		}
-	//	}
-	//	return m_actualHull[minIndex];
+	double weight = 1.0;
+
+	//search in HighOrderJunctions
+	//TODO:
+
+	//search in QuadrupleJunctions
+	for (int j = 0; j < m_QuadrupelPoints.size(); j++) {
+		if (m_QuadrupelPoints[j]->neighborID[0] == id
+				|| m_QuadrupelPoints[j]->neighborID[1] == id
+				|| m_QuadrupelPoints[j]->neighborID[2] == id) {
+			for (unsigned int i = 0; i
+					< m_QuadrupelPoints[j]->m_Triangles.size(); i++) {
+				double distance = pointToTriangleDistance(point,
+						m_QuadrupelPoints[j]->m_Triangles[i]);
+				if (distance < minimalDistance) {
+					minimalDistance = distance;
+					weight = m_QuadrupelPoints[j]->get_Correction_Weight();
+				}
+			}
+		}
+	}
+	//search in TripleJunctions
+	for (int j = 0; j < m_TripleLines.size(); j++) {
+		if (m_TripleLines[j]->neighborID[0] == id
+				|| m_TripleLines[j]->neighborID[1] == id) {
+			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size(); i++) {
+				double distance = pointToTriangleDistance(point,
+						m_TripleLines[j]->m_Triangles[i]);
+				if (distance < minimalDistance) {
+					minimalDistance = distance;
+					weight = m_TripleLines[j]->get_Correction_Weight();
+				}
+			}
+		}
+	}
+	//search in GrainBoundaries:
+	for (int j = 0; j < m_Grainboundary.size(); j++) {
+		if (m_Grainboundary[j]->neighborID == id) {
+			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size(); i++) {
+				double distance = pointToTriangleDistance(point,
+						m_Grainboundary[j]->m_Triangles[i]);
+				if (distance < minimalDistance) {
+					minimalDistance = distance;
+					weight = m_Grainboundary[j]->get_Correction_Weight();
+				}
+			}
+		}
+	}
+	return weight;
 }
 
 double pointToTriangleDistance(Vector3d& point, Triangle& triangle) {

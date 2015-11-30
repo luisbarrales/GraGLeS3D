@@ -113,6 +113,7 @@ public:
 	void computeDirectNeighbours(const RTree<unsigned int, int, 3, float>& rtree);
 	void computeGrainVolume();
 	void computeSurfaceArea();
+	void computeSurfaceElements();
     void computeVolumeAndEnergy();
 	double getGBEnergyTimesGBMobility(int i,int j);
 	double getGBEnergyTimesGBMobility(LSbox* neighbour);

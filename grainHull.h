@@ -30,14 +30,17 @@ class LSbox;
 
 class GrainHull {
 private:
+	friend class GrainBoundary;
+	friend class TripleLine;
+	friend class QuadrupleJunction;
 	vector<Triangle> m_actualHull;
 	vector<NeighborList> m_triangleNeighborLists;
-	LSbox* m_owner;
 	vector<unsigned int> m_neighbors;
-	vector<GrainBoundary> m_Grainboundary;
-	vector<TripleLine> m_TripleLines;
-	vector<QuadrupleJunction> m_QuadrupelPoints;
+	vector<GrainBoundary*> m_Grainboundary;
+	vector<TripleLine*> m_TripleLines;
+	vector<QuadrupleJunction*> m_QuadrupelPoints;
 public:
+	LSbox* m_owner;
 	GrainHull(LSbox* owner);
 	~GrainHull();
 	bool generateHull();
@@ -50,12 +53,14 @@ public:
 		return m_neighbors.size();
 	}
 	void plotContour(bool absoluteCoordinates, int timestep);
-	const InterfacialElement& findInterfacialElement(int key, vector<InterfacialElement> *list);
+	QuadrupleJunction* findQuadrupleJunction(int key);
+	TripleLine* findTripleLine(int key);
+	GrainBoundary* findGrainBoundary(int key);
 	//new:
+	void clearInterfacialElements();
 	void computeGrainBoundaryElements();
 	void subDivideTrianglesToInterfacialElements();
-	const Triangle& projectPointGrainBoundary(Vector3d& point,
-			GrainBoundary* nearestPlane);
+	double projectPointGrainBoundary(Vector3d& point, int id);
 };
 
 #endif //__GRAIN_HULL__

@@ -30,18 +30,21 @@ protected:
 	GrainHull* m_owner;
 public:
 	InterfacialElement();
-	InterfacialElement(int key, GrainHull owner);
+	InterfacialElement(int key, GrainHull* owner);
 	virtual ~InterfacialElement();
-	double computeMobility(double misori);
+	double computeMobilityMisori(double misori);
 	double computeReadShockleyEnergy(double misori);
-	virtual void computeEnergy();
-	virtual void computeMobility();
+
+	virtual void computeEnergy()= 0;
+	virtual void computeMobility()= 0;
+
 	void addTriangle(Triangle current) {
 		m_Triangles.push_back(current);
 	}
 	int get_m_Key_NeighborList() {
 		return m_Key_NeighborList;
 	}
+	inline double get_Correction_Weight(){return m_energy*m_mobility;}
 };
 
 class QuadrupleJunction: public InterfacialElement {
@@ -49,24 +52,33 @@ class QuadrupleJunction: public InterfacialElement {
 	Vector3d position;
 	int neighborID[3];
 public:
-	QuadrupleJunction(int key, GrainHull owner);
+	friend class GrainHull;
+	QuadrupleJunction(int key, GrainHull *owner);
 	~QuadrupleJunction();
+	void computeEnergy();
+	void computeMobility();
 };
 
 class TripleLine: public InterfacialElement {
 	vector<int> vertices;
 	int neighborID[2];
 public:
-	TripleLine(int key, GrainHull owner);
+	friend class GrainHull;
+	TripleLine(int key, GrainHull *owner);
 	~TripleLine();
+	void computeEnergy();
+	void computeMobility();
 };
 
 class GrainBoundary: public InterfacialElement {
 	vector<int> edges; // saves the indexes of edges in clockwise order
 	int neighborID;
 public:
-	GrainBoundary(int key, GrainHull owner);
+	friend class GrainHull;
+	GrainBoundary(int key, GrainHull *owner);
 	~GrainBoundary();
+	void computeEnergy();
+	void computeMobility();
 };
 
 #endif

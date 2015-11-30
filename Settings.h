@@ -77,7 +77,7 @@ class Settings
 	static std::string ReadFromFilename;
 	static double HAGB;
 	static double TripleLineDrag;
-	static bool UseMobilityFactor;
+	static bool UseMobilityModel;
 	static bool IsIsotropicNetwork;
 	static bool UseTexture;
 	static bool ExecuteInParallel;

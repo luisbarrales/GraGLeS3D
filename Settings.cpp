@@ -43,7 +43,7 @@ E_RESEARCH_PROJECT Settings::ResearchProject = E_DEFAULT;
 string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
 double Settings::TripleLineDrag = 0.0;
-bool Settings::UseMobilityFactor = false;
+bool Settings::UseMobilityModel = false;
 bool Settings::IsIsotropicNetwork = false;
 bool Settings::UseTexture = false;
 bool Settings::ExecuteInParallel = false;
@@ -125,7 +125,7 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("TripleLineDrag")->value());
 	}
 	if (0 != rootNode->first_node("UseMobilityFactor")) {
-		UseMobilityFactor = (bool) std::stoul(rootNode->first_node(
+		UseMobilityModel = (bool) std::stoul(rootNode->first_node(
 				"UseMobilityFactor")->value());
 	}
 	if (0 != rootNode->first_node("IsIsotropicNetwork")) {
@@ -220,7 +220,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_VALUE(ReadFromFilename, filename);
 	PUSH_PARAM(HAGB);
 	PUSH_PARAM(TripleLineDrag);
-	PUSH_PARAM(UseMobilityFactor);
+	PUSH_PARAM(UseMobilityModel);
 	PUSH_PARAM(IsIsotropicNetwork);
 	PUSH_PARAM(UseTexture);
 	PUSH_PARAM(ExecuteInParallel);

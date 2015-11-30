@@ -1,20 +1,20 @@
 /*
-	GraGLeS 2D A grain growth simulation utilizing level set approaches
-    Copyright (C) 2015  Christian Miessen, Nikola Velinov
+ GraGLeS 2D A grain growth simulation utilizing level set approaches
+ Copyright (C) 2015  Christian Miessen, Nikola Velinov
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef GRAINHDL_h
 #define GRAINHDL_h
@@ -89,7 +89,6 @@ public:
 	grainhdl();
 	~grainhdl();
 
-
 	void initializeSimulation();
 
 	void VOROMicrostructure();
@@ -135,12 +134,13 @@ public:
 	//! Used if points are set manually
 	int read_ScenarioPoints();
 
-	inline LSbox* getGrainByID(unsigned int ID)
-	{
-		if (ID == 0) return boundary;
-		else if(ID > 0 && ID < grains.size())
+	inline LSbox* getGrainByID(unsigned int ID) {
+		if (ID == 0)
+			return boundary;
+		else if (ID > 0 && ID < grains.size())
 			return grains[ID];
-		else return NULL;
+		else
+			return NULL;
 	}
 
 	inline long get_ngrains() {
@@ -166,6 +166,9 @@ public:
 	}
 	inline double getBoundaryGrainTube() {
 		return BoundaryGrainTube;
+	}
+	inline double get_ds() {
+		return 1/realDomainSize;
 	}
 
 protected:
