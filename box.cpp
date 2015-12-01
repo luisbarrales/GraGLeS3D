@@ -250,21 +250,23 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 			for (int i = intersec_ymin; i < intersec_ymax; i++)
 				for (int j = intersec_xmin; j < intersec_xmax; j++) {
 					double val = m_inputDistance->getValueAt(i, j, k);
-					if (val > -m_grainHandler->delta) {
-						Vector3d point(j, i, k); //its x y z => j i k
-						IDChunkMinimal grain = m_IDLocal.getValueAt(j, i, k);
+					if (abs(val) < m_grainHandler->delta) {
+						Vector3d point(i, j, k); //its x y z => j i k
+						IDChunkMinimal grain = m_IDLocal.getValueAt(i, j, k);
 						double weight =
-								m_explicitHull.projectPointToGrainBoundary(point,
-										grain.grainID);
+								m_explicitHull.projectPointToGrainBoundary(
+										point, grain.grainID);
 						m_outputDistance->setValueAt(
-								j,
 								i,
+								j,
 								k,
-								val + (m_outputDistance->getValueAt(j, i, k)
+								val + (m_outputDistance->getValueAt(i, j, k)
 										- val) * weight);
 					}
 				}
 	}
+	resizeIDLocalToDistanceBuffer();
+	m_IDLocal.clear();
 }
 
 void LSbox::cleanupConvolution() {

@@ -167,6 +167,10 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			QJ->addTriangle(m_actualHull[i]);
 			break;
 		}
+		case 4:{
+			cout << "high order junction found" << endl;
+			break;
+		}
 		}
 	}
 	m_actualHull.clear();
