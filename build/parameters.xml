@@ -19,7 +19,7 @@
    <HAGB> 1. </HAGB>
    <TriplePointDrag> 1 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
-   <IsIsotropicNetwork> 0 </IsIsotropicNetwork>
+   <DisableConvolutionCorrection> 0 </DisableConvolutionCorrection>
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel> 1 </ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
@@ -31,9 +31,9 @@
 	(	1		E_LAPLACE_RITCHARDSON,	)
 		2		E_GAUSSIAN, only one available for 3D
    -->
-   <ResearchMode> 0 </ResearchMode>
+   <UniqueGBEnergies> 0 </UniqueGBEnergies>
 		<!-- USAGE:
-   		0 	Energies defined by misorientation
-			1	  Energies clambed to 0.3 or 0.6  -- use Texture == false			
+   		0 	Energies defined by ReadShockley Model
+			1	  Energies set to 1			
    -->
 </Parameters>

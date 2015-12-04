@@ -20,20 +20,17 @@ InterfacialElement::InterfacialElement(int key, GrainHull* owner) :
 InterfacialElement::~InterfacialElement() {
 }
 double InterfacialElement::computeMobilityMisori(double misori) {
-	//	if (Settings::UseMobilityModel == 1) {
-	//check for twin boundary
-	// 8.66025 = Theta (15)* 1/ sqrt(SIGMA) here SiGMA is the number od coincidence points (3 for the Twinboundary)
-	// thus 8.66 is the permissible deviation from the perfect Twinboundary SIGMA 3
-	//		if (Settings::IdentifyTwins) {
-	//							if (MisoriToTwinBoundary(candidate) < 8.66025 * PI / 180.0)
-	//							return 0.01;
-	//							else
-	//			return 1 - (1.0 * exp(-5. * (pow(thetaMis / (15 * PI / 180), 4.))));
-	//		} else
-	return 1 - (1.0 * exp(-5. * (pow(misori / (15 * PI / 180), 4.))));
+	if (Settings::UseMobilityModel == 0)
+		return 1.0;
+	if (Settings::UseMobilityModel == 1)
+		return 1 - (1.0 * exp(-5. * (pow(misori / (15 * PI / 180), 4.))));
+	else
+		return 1.0;
 }
 
 double InterfacialElement::computeReadShockleyEnergy(double misori) {
+	if (Settings::UniqueGBEnergies == 1)
+		return 1.0;
 	double gamma_hagb = Settings::HAGB;
 	double theta_ref = 15 * PI / 180;
 	double gamma;
@@ -43,6 +40,7 @@ double InterfacialElement::computeReadShockleyEnergy(double misori) {
 		gamma = gamma_hagb * (misori / theta_ref) * (1.0 - log(
 				misori / theta_ref));
 	return gamma;
+
 }
 
 GrainBoundary::GrainBoundary(int key, GrainHull* owner) :
@@ -73,51 +71,36 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 	computeMobility();
 	computeEnergy();
 }
+TripleLine::TripleLine(int neighbor1, int neighbor2, GrainHull* owner) :
+	InterfacialElement(-1, owner) {
+	neighborID[0] = neighbor1;
+	neighborID[1] = neighbor2;
+	computeMobility();
+	computeEnergy();
+}
+
 TripleLine::~TripleLine() {
 }
 
 void TripleLine::computeEnergy() {
-	double averageMobility = 0;
 	double sigma;
 	double gamma[3] = { 0.0, 0.0, 0.0 };
-	double gamma_hagb = Settings::HAGB;
-	double theta_ref = 15.0 * PI / 180;
 	double theta_mis;
 	LSbox* me = m_owner->m_owner;
 	grainhdl* handler = m_owner->m_owner->get_grainHandler();
 	LSbox* neighborGrains[2] = { handler->getGrainByID(neighborID[0]),
 			handler->getGrainByID(neighborID[1]) };
+	theta_mis = me->computeMisorientation(neighborGrains[0]);
+	gamma[0] = computeReadShockleyEnergy(theta_mis);
 
-	if (Settings::ResearchMode != 1) {
+	theta_mis = neighborGrains[0]->computeMisorientation(neighborGrains[1]);
+	gamma[1] = computeReadShockleyEnergy(theta_mis);
 
-		theta_mis = me->computeMisorientation(neighborGrains[0]);
-		averageMobility += computeMobilityMisori(theta_mis);
-		gamma[0] = computeReadShockleyEnergy(theta_mis);
+	theta_mis = me->computeMisorientation(neighborGrains[1]);
+	gamma[2] = computeReadShockleyEnergy(theta_mis);
 
-		theta_mis = neighborGrains[0]->computeMisorientation(neighborGrains[1]);
-		averageMobility += computeMobilityMisori(theta_mis);
-		gamma[1] = computeReadShockleyEnergy(theta_mis);
-
-		theta_mis = me->computeMisorientation(neighborGrains[1]);
-		averageMobility += computeMobilityMisori(theta_mis);
-		gamma[2] = computeReadShockleyEnergy(theta_mis);
-
-	} else if (Settings::ResearchMode == 1) {
-		gamma[0] = 1.0;
-		gamma[1] = 1.0;
-		gamma[2] = 1.0;
-	}
-
-	// find the asociated weight
 	sigma = gamma[0] - gamma[1] + gamma[2];
 
-	if (Settings::UseMobilityModel > 0 && Settings::TripleLineDrag > 0) {
-		averageMobility /= 3;
-		double ds = handler->get_ds();
-		double drag = 1 / ((1 / (ds * Settings::TripleLineDrag)) + 1
-				/ averageMobility);
-		sigma *= drag;
-	}
 	if (sigma < 0.01) {
 		//cout << "negative sigma " << endl;
 		sigma = 0.01;
@@ -126,8 +109,24 @@ void TripleLine::computeEnergy() {
 }
 
 void TripleLine::computeMobility() {
-	m_mobility = 1;
-	//the triple Line will move with an effective mobility computed above
+	double averageMobility = 0;
+	double theta_mis;
+	LSbox* me = m_owner->m_owner;
+	grainhdl* handler = m_owner->m_owner->get_grainHandler();
+	LSbox* neighborGrains[2] = { handler->getGrainByID(neighborID[0]),
+			handler->getGrainByID(neighborID[1]) };
+	theta_mis = me->computeMisorientation(neighborGrains[0]);
+	averageMobility += computeMobilityMisori(theta_mis);
+	theta_mis = neighborGrains[0]->computeMisorientation(neighborGrains[1]);
+	averageMobility += computeMobilityMisori(theta_mis);
+	theta_mis = me->computeMisorientation(neighborGrains[1]);
+	averageMobility += computeMobilityMisori(theta_mis);
+	averageMobility /= 3;
+	//TODO:
+	double ds = 3 * sqrt(3* handler->get_ds() * handler->get_ds());
+	// ds is the extension of the Tripleline - maximum 3 times the diagonal of a grid cell
+	m_mobility = 1 / ((1 / (ds * Settings::TripleLineDrag)) + 1
+			/ averageMobility);
 }
 
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
@@ -143,12 +142,15 @@ QuadrupleJunction::~QuadrupleJunction() {
 }
 
 void QuadrupleJunction::computeEnergy() {
-	//TODO::
-	m_energy =1;
+	//compute average weight for all possible Triplets
+	TripleLine T1(neighborID[0], neighborID[1], m_owner);
+	TripleLine T2(neighborID[1], neighborID[2], m_owner);
+	TripleLine T3(neighborID[0], neighborID[2], m_owner);
+	m_energy = (T1.get_energy() + T2.get_energy() + T3.get_energy()) / 3;
 }
 
 void QuadrupleJunction::computeMobility() {
 	//TODO::
-	m_mobility =1;
+	m_mobility = 1;
 }
 

@@ -51,7 +51,7 @@ double GrainJunction::getWeight(LSbox* me)
 	if (Settings::MicrostructureGenMode == E_GENERATE_WITH_VORONOY
 			|| Settings::MicrostructureGenMode == E_READ_FROM_FILE) {
 
-		if (Settings::ResearchMode == 1) {
+		if (Settings::UniqueGBEnergies == 1) {
 						gamma[0] = 1.0;
 						gamma[1] = 1.0;
 						gamma[2] = 1.0;
@@ -90,7 +90,7 @@ double GrainJunction::getWeight(LSbox* me)
 		gamma[2] = handler->ST[(me->getID() - 1)
 				+ (handler->get_ngrains() * (neighbours[1] - 1))];
 
-		if (Settings::ResearchMode == 1) {
+		if (Settings::UniqueGBEnergies == 1) {
 		
 			if (handler->project == E_TRIPLE_JUNCTION_DRAG_NETWORK) {
 

@@ -78,11 +78,11 @@ class Settings
 	static double HAGB;
 	static double TripleLineDrag;
 	static bool UseMobilityModel;
-	static bool IsIsotropicNetwork;
+	static bool DisableConvolutionCorrection;
 	static bool UseTexture;
 	static bool ExecuteInParallel;
 	static bool GridCoarsement;
-	static bool ResearchMode;
+	static bool UniqueGBEnergies;
 	static double GridCoarsementGradient;
 	static unsigned long MaximumNumberOfThreads;
 	static E_CONVOLUTION_MODE ConvolutionMode;

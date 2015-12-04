@@ -44,12 +44,12 @@ string Settings::ReadFromFilename;
 double Settings::HAGB = 0.0;
 double Settings::TripleLineDrag = 0.0;
 bool Settings::UseMobilityModel = false;
-bool Settings::IsIsotropicNetwork = false;
+bool Settings::DisableConvolutionCorrection = false;
 bool Settings::UseTexture = false;
 bool Settings::ExecuteInParallel = false;
 bool Settings::GridCoarsement = false;
 //! Enables the generation and capture of a wider spectrum of analysing data
-bool Settings::ResearchMode = false;
+bool Settings::UniqueGBEnergies = false;
 double Settings::ConstantSectorRadius = 0.0;
 double Settings::InterpolatingSectorRadius = 0.0;
 unsigned long Settings::NeighbourTracking = 0;
@@ -129,7 +129,7 @@ void Settings::initializeParameters(string filename) {
 				"UseMobilityFactor")->value());
 	}
 	if (0 != rootNode->first_node("IsIsotropicNetwork")) {
-		IsIsotropicNetwork = (bool) std::stoul(rootNode->first_node(
+		DisableConvolutionCorrection = (bool) std::stoul(rootNode->first_node(
 				"IsIsotropicNetwork")->value());
 	}
 	if (0 != rootNode->first_node("UseTexture")) {
@@ -160,9 +160,9 @@ void Settings::initializeParameters(string filename) {
 			ConvolutionMode = E_INVALID_VALUE;
 	}
 	//!
-	if (0 != rootNode->first_node("ResearchMode")) {
-		ResearchMode
-				= std::stoul(rootNode->first_node("ResearchMode")->value());
+	if (0 != rootNode->first_node("UniqueGBEnergies")) {
+		UniqueGBEnergies
+				= std::stoul(rootNode->first_node("UniqueGBEnergies")->value());
 	}
 	//! Research modification
 	if (0 != rootNode->first_node("ResearchProject")) {
@@ -221,14 +221,14 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(HAGB);
 	PUSH_PARAM(TripleLineDrag);
 	PUSH_PARAM(UseMobilityModel);
-	PUSH_PARAM(IsIsotropicNetwork);
+	PUSH_PARAM(DisableConvolutionCorrection);
 	PUSH_PARAM(UseTexture);
 	PUSH_PARAM(ExecuteInParallel);
 	PUSH_PARAM(MaximumNumberOfThreads);
 	PUSH_PARAM(GridCoarsement);
 	PUSH_PARAM(GridCoarsementGradient);
 	PUSH_PARAM(ConvolutionMode);
-	PUSH_PARAM(ResearchMode);
+	PUSH_PARAM(UniqueGBEnergies);
 	PUSH_PARAM(ResearchProject);
 	PUSH_PARAM(ConstantSectorRadius);
 	PUSH_PARAM(InterpolatingSectorRadius);

@@ -44,7 +44,15 @@ public:
 	int get_m_Key_NeighborList() {
 		return m_Key_NeighborList;
 	}
-	inline double get_Correction_Weight(){return m_energy*m_mobility;}
+	inline double get_Correction_Weight() {
+		return m_energy * m_mobility;
+	}
+	inline double get_energy() {
+		return m_energy;
+	}
+	inline double get_mobility() {
+		return m_mobility;
+	}
 };
 class HighOrderJunction: public InterfacialElement {
 	//TODO:
@@ -73,6 +81,7 @@ class TripleLine: public InterfacialElement {
 public:
 	friend class GrainHull;
 	TripleLine(int key, GrainHull *owner);
+	TripleLine(int neighbor1, int neighbor2, GrainHull* owner);
 	~TripleLine();
 	void computeEnergy();
 	void computeMobility();

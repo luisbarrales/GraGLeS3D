@@ -212,7 +212,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 
 	resizeIDLocalToDistanceBuffer();
 	m_IDLocal.clear();
-	if (!Settings::IsIsotropicNetwork && m_grainHandler->loop != 0
+	if (!Settings::DisableConvolutionCorrection && m_grainHandler->loop != 0
 			&& m_isMotionRegular == true) {
 		int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax,
 				intersec_zmin, intersec_zmax;
