@@ -91,7 +91,7 @@ void grainhdl::initializeSimulation() {
 	// 	(*boundary).plot_box(false,2,"no.gnu");
 	//!grains.resize(Settings::NumberOfParticles + 1);
 	grains.resize(Settings::NumberOfParticles + 1);
-
+	grains[0]=boundary;
 	switch (Settings::MicrostructureGenMode) {
 	case E_GENERATE_WITH_VORONOY: {
 		if (Settings::UseTexture) {

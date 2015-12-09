@@ -65,8 +65,8 @@ public:
 };
 
 class QuadrupleJunction: public InterfacialElement {
-	Vector3d position;
-	int neighborID[3];
+	Vector3d m_position;
+	int m_neighborID[3];
 public:
 	friend class GrainHull;
 	QuadrupleJunction(int key, GrainHull *owner);
@@ -76,8 +76,8 @@ public:
 };
 
 class TripleLine: public InterfacialElement {
-	vector<int> vertices;
-	int neighborID[2];
+	vector<int> m_vertices;
+	int m_neighborID[2];
 public:
 	friend class GrainHull;
 	TripleLine(int key, GrainHull *owner);
@@ -88,8 +88,8 @@ public:
 };
 
 class GrainBoundary: public InterfacialElement {
-	vector<int> edges; // saves the indexes of edges in clockwise order
-	int neighborID;
+	vector<int> m_edges; // saves the indexes of edges in clockwise order
+	int m_neighborID;
 public:
 	friend class GrainHull;
 	GrainBoundary(int key, GrainHull *owner);

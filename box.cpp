@@ -710,7 +710,7 @@ void LSbox::extractContour() {
 			m_newYMax, m_newZMax);
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
-
+	m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();

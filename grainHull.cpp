@@ -116,23 +116,19 @@ void GrainHull::computeGrainBoundaryElements() {
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
 		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
 		switch (junctionType) {
-		case 0: {
-			//probably error case - something went wrong
-			break;
-		}
-		case 1: {
+		case 2: {
 			GrainBoundary* newGB = new GrainBoundary(i, this);
 			m_Grainboundary.push_back(newGB);
 			//triangle has only one adjacent grain
 			break;
 		}
-		case 2: {
+		case 3: {
 			TripleLine* newTL = new TripleLine(i, this);
 			m_TripleLines.push_back(newTL);
 			//triangle is part of tripleLine
 			break;
 		}
-		case 3: {
+		case 4: {
 			QuadrupleJunction* newQJ = new QuadrupleJunction(i, this);
 			m_QuadrupelPoints.push_back(newQJ);
 			//triangle contains to QuadrupleJunction
@@ -152,17 +148,17 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 		unsigned int type =
 				m_triangleNeighborLists[key].getNeighborsListCount();
 		switch (type) {
-		case 1: {
+		case 2: {
 			GrainBoundary* GB = findGrainBoundary(key);
 			GB->addTriangle(m_actualHull[i]);
 			break;
 		}
-		case 2: {
+		case 3: {
 			TripleLine* TL = findTripleLine(key);
 			TL->addTriangle(m_actualHull[i]);
 			break;
 		}
-		case 3: {
+		case 4: {
 			QuadrupleJunction* QJ = findQuadrupleJunction(key);
 			QJ->addTriangle(m_actualHull[i]);
 			break;
@@ -230,9 +226,9 @@ double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 
 	//search in QuadrupleJunctions
 	for (int j = 0; j < m_QuadrupelPoints.size(); j++) {
-		if (m_QuadrupelPoints[j]->neighborID[0] == id
-				|| m_QuadrupelPoints[j]->neighborID[1] == id
-				|| m_QuadrupelPoints[j]->neighborID[2] == id) {
+		if (m_QuadrupelPoints[j]->m_neighborID[0] == id
+				|| m_QuadrupelPoints[j]->m_neighborID[1] == id
+				|| m_QuadrupelPoints[j]->m_neighborID[2] == id) {
 			for (unsigned int i = 0; i
 					< m_QuadrupelPoints[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
@@ -246,8 +242,8 @@ double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	}
 	//search in TripleJunctions
 	for (int j = 0; j < m_TripleLines.size(); j++) {
-		if (m_TripleLines[j]->neighborID[0] == id
-				|| m_TripleLines[j]->neighborID[1] == id) {
+		if (m_TripleLines[j]->m_neighborID[0] == id
+				|| m_TripleLines[j]->m_neighborID[1] == id) {
 			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_TripleLines[j]->m_Triangles[i]);
@@ -260,7 +256,7 @@ double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	}
 	//search in GrainBoundaries:
 	for (int j = 0; j < m_Grainboundary.size(); j++) {
-		if (m_Grainboundary[j]->neighborID == id) {
+		if (m_Grainboundary[j]->m_neighborID == id) {
 			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_Grainboundary[j]->m_Triangles[i]);
@@ -386,7 +382,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 
 	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
 	fprintf(output, "FIELD FieldData 1\n");
-	fprintf(output, "Number of adjacent grains 1 %lu int\n",
+	fprintf(output, "Interestingness 1 %lu int\n",
 			orderedPoints.size());
 
 	for ( const auto &myPair : orderedPoints )
@@ -398,10 +394,10 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 			if( point == m_actualHull[i].points[0] || point == m_actualHull[i].points[1] ||
 					point == m_actualHull[i].points[2])
 			{
-				const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-				int interactingGrains=0;
-				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+				int interactingGrains = m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
 				interestingness = max(interestingness, interactingGrains);
 			}
 		}
