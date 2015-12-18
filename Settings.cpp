@@ -41,6 +41,7 @@ E_CONVOLUTION_MODE Settings::ConvolutionMode = E_INVALID_VALUE;
 E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VAL;
 E_RESEARCH_PROJECT Settings::ResearchProject = E_DEFAULT;
 string Settings::ReadFromFilename;
+string Settings::AdditionalFilename;
 double Settings::HAGB = 0.0;
 double Settings::TripleLineDrag = 0.0;
 bool Settings::UseMobilityModel = false;
@@ -113,6 +114,9 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("MicrostructureGenMode")->value());
 		if (MicrostructureGenMode >= E_INVALID_VAL)
 			MicrostructureGenMode = E_INVALID_VAL;
+	}
+	if (0 != rootNode->first_node("AdditionalFilename")) {
+		AdditionalFilename = rootNode->first_node("AdditionalFilename")->value();
 	}
 	if (0 != rootNode->first_node("ReadFromFilename")) {
 		ReadFromFilename = rootNode->first_node("ReadFromFilename")->value();

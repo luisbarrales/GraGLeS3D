@@ -163,6 +163,74 @@ LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 
 	resizeIDLocalToDistanceBuffer();
 }
+
+LSbox::LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori,
+		grainhdl* owner) :
+	m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitHull(this),
+			m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
+			m_volume(0), m_energy(0), m_surface(0) {
+	m_orientationQuat = new myQuaternion(ori.get_q0(), ori.get_q1(),
+			ori.get_q2(), ori.get_q3());
+	//m_grainBoundary.getRawBoundary() = vertices;
+//	if (Settings::UseMagneticField)
+//		calculateMagneticEnergy();
+
+	int grid_blowup = m_grainHandler->get_grid_blowup();
+	double h = m_grainHandler->get_h();
+	// determine size of grain
+	int xmax = 0;
+	int xmin = m_grainHandler->get_ngridpoints();
+	int ymax = 0;
+	int ymin = xmin;
+	int zmax = 0;
+	int zmin = xmin;
+
+	double z, y, x;
+	for (int k = 0; k < vertices.size(); k++) {
+		y = vertices[k].y;
+		x = vertices[k].x;
+		z = vertices[k].z;
+		if (y < ymin)
+			ymin = y;
+		if (y > ymax)
+			ymax = y;
+		if (x < xmin)
+			xmin = x;
+		if (x > xmax)
+			xmax = x;
+		if (z < zmin)
+			zmin = z;
+		if (z > xmax)
+			zmax = z;
+	}
+	xmax += 2 * grid_blowup;
+	ymax += 2 * grid_blowup;
+	zmax += 2 * grid_blowup;
+
+	if (ymax > m_grainHandler->get_ngridpoints())
+		ymax = m_grainHandler->get_ngridpoints();
+	if (xmax > m_grainHandler->get_ngridpoints())
+		xmax = m_grainHandler->get_ngridpoints();
+	if (zmax > m_grainHandler->get_ngridpoints())
+		zmax = m_grainHandler->get_ngridpoints();
+	if (ymin < 0)
+		ymin = 0;
+	if (xmin < 0)
+		xmin = 0;
+	if (zmin < 0)
+		zmin = 0;
+	//	cout << "constructed a box with size: "<< xmin << "  " << xmax << "  " << ymin << "  " << xmax << "  " << endl;
+
+	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax, zmax);
+	m_outputDistance = new DimensionalBufferReal(xmin, ymin,zmin, xmax, ymax, zmax);
+	m_inputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	//	inputDistance->clearValues(0.0);
+	//	outputDistance->clearValues(0.0);
+
+	resizeIDLocalToDistanceBuffer();
+}
+
 LSbox::~LSbox() {
 	if (m_orientationQuat != NULL)
 		delete m_orientationQuat;
@@ -186,7 +254,7 @@ void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
 						> max)
 					m_inputDistance->setValueAt(i, j, k,
 							-m_grainHandler->get_h());
-				else if (m_ID == m_grainHandler->IDField.getValueAt(i, j, k))
+				else if (m_ID == m_grainHandler->IDField->getValueAt(i, j, k))
 					m_inputDistance->setValueAt(i, j, k,
 							m_grainHandler->get_h());
 				else
@@ -710,7 +778,7 @@ void LSbox::extractContour() {
 			m_newYMax, m_newZMax);
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
-	m_explicitHull.plotContour(true, m_grainHandler->get_loop());
+	//m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();

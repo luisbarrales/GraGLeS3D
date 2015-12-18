@@ -70,7 +70,7 @@ public:
 	vector<double> totalenergy;
 	vector<int> nr_grains;
 	vector<double> discreteEnergyDistribution;
-	DimensionalBuffer<int> IDField;
+	DimensionalBuffer<int>* IDField;
 
 	//! A 2D vector which stores weights.
 	vector<vector<double> > weightsMatrix;
@@ -90,10 +90,12 @@ public:
 	~grainhdl();
 
 	void initializeSimulation();
+	void read_HeaderCPG();
 
 	void VOROMicrostructure();
 	void readMicrostructureFromVertex();
 	void readMicrostructure();
+	void read_voxelized_microstructure();
 	void saveMicrostructure();
 
 	void createParamsForSim(const char* param_filename,
@@ -168,13 +170,15 @@ public:
 		return BoundaryGrainTube;
 	}
 	inline double get_ds() {
-		return 1/realDomainSize;
+		return 1 / realDomainSize;
 	}
 
 protected:
 	void initEnvironment();
 	void initNUMABindings();
 	void buildBoxVectors(vector<vector<Vector3d>>& hulls);
+	void buildBoxVectors(int* ID, vector<vector<SPoint>>& contours,
+			myQuaternion* Quaternionen);
 	int m_ThreadPoolCount;
 	vector<ExpandingVector<char> > m_ThreadMemPool;
 };

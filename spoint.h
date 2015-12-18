@@ -27,29 +27,30 @@
  */
 struct SPoint
 {
-	SPoint() : x(-1), y(-1),energy(0)
+	SPoint() : x(-1), y(-1), z(-1)
 	{}
-	SPoint(double _x, double _y, double _energy) : x(_x), y(_y), energy(_energy)
+	SPoint(double _x, double _y, double _z) : x(_x), y(_y), z(_z)
 	{}
-	SPoint(const SPoint& other) : x(other.x), y(other.y), energy(other.energy)
+	SPoint(const SPoint& other) : x(other.x), y(other.y), z(other.z)
 	{}
 	double squaredDistanceTo(const SPoint& other) const
 	{
-		return (x-other.x)*(x-other.x) + (y-other.y)*(y-other.y);
+		return (x-other.x)*(x-other.x) + (y-other.y)*(y-other.y) + (y-other.z)*(y-other.z);
 	}
 	bool operator==(const SPoint &other) const
 	{
-		return (x == other.x) && (y == other.y);
+		return (x == other.x) && (y == other.y) && (z == other.z);
 	}
 	bool operator<(const SPoint& other) const
 	{
-		return y>other.y || (!(other.y>y) && x<other.x);
+		return len() < other.len();
 	}
 	SPoint operator+(const SPoint& other) const
 	{
 		SPoint result(0,0,0);
 		result.x = this->x + other.x;
 		result.y = this->y + other.y;
+		result.z = this->z + other.z;
 		return result;
 	}
 	SPoint operator-(const SPoint& other) const
@@ -57,6 +58,7 @@ struct SPoint
 		SPoint result(0,0,0);
 		result.x = this->x - other.x;
 		result.y = this->y - other.y;
+		result.z = this->z - other.z;
 		return result;
 	}
 	SPoint operator*(const double other)
@@ -64,23 +66,24 @@ struct SPoint
 		SPoint result;
 		result.x = this->x * other;
 		result.y = this->y * other;
+		result.z = this->z * other;
 		return result;
 	}
 	double dot(const SPoint& other) const
 	{
-		return x*other.x + y*other.y;
+		return x*other.x + y*other.y + z*other.z;
 	}
 	double cross(const SPoint& other) const
 	{
-		return x*other.y - y*other.x;
+		return x*other.y - y*other.x - z*other.z;
 	}
 	double len() const
 	{
-		return sqrt(x*x + y*y);
+		return sqrt(x*x + y*y + z*z);
 	}
 	double x;
 	double y;
-	double energy;
+	double z;
 };
 
 #endif	//__SPOINT__

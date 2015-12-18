@@ -99,6 +99,7 @@ public:
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
 	LSbox(int id, vector<Vector3d>& hull, grainhdl* owner);
 	LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner);
+	LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori, grainhdl* owner);
 	//Dtors
 	virtual ~LSbox();
 	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);

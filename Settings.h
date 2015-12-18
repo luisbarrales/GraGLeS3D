@@ -32,6 +32,7 @@ enum E_MICROSTRUCTURE_GEN_MODE
 	E_GENERATE_WITH_VORONOY,
 	E_READ_VERTEX,
 	E_GENERATE_TESTCASE,
+	E_READ_VOXELIZED_MICROSTRUCTURE,
 	E_INVALID_VAL
 };
 /*!
@@ -75,6 +76,7 @@ class Settings
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;
 	static E_RESEARCH_PROJECT ResearchProject;
 	static std::string ReadFromFilename;
+	static std::string AdditionalFilename;
 	static double HAGB;
 	static double TripleLineDrag;
 	static bool UseMobilityModel;
