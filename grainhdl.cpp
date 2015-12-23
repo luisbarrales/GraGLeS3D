@@ -373,7 +373,7 @@ void grainhdl::read_voxelized_microstructure() {
 			ID[nn] = -1;
 			continue;
 		}
-		ID[nn] = ++id;
+		ID[nn] = id;
 		Quaternionen[nn].euler2Quaternion(bunge);
 		vertices[nn].push_back(SPoint(xmin, ymin, zmin));
 		vertices[nn].push_back(SPoint(xmin, ymax, zmin));
@@ -401,16 +401,16 @@ void grainhdl::read_voxelized_microstructure() {
 	IDField = new DimensionalBuffer<int> (0, 0, 0, ngridpoints, ngridpoints,
 			ngridpoints);
 	for (int k = 0; k < ngridpoints; k++) {
-		for (int j = 0; j < ngridpoints; j++) {
-			for (int i = 0; i < ngridpoints; i++) {
+		for (int  i = 0; i < ngridpoints; i++) {
+			for (int j = 0; j < ngridpoints; j++) {
 				if (i < grid_blowup || j < grid_blowup || k < grid_blowup || i
 						>= ngridpoints - grid_blowup || j >= ngridpoints
 						- grid_blowup || k >= ngridpoints - grid_blowup)
-					IDField->setValueAt(j, i, k, 0);
+					IDField->setValueAt(i, j, k, 0);
 				else {
 					int box_id;
 					fread(&box_id, sizeof(int), 1, voxelized_data);
-					IDField->setValueAt(j, i, k, box_id + 1);
+					IDField->setValueAt(i, j, k, box_id);
 				}
 
 			}
@@ -426,7 +426,7 @@ void grainhdl::read_voxelized_microstructure() {
 	//	fclose(voxelized_data);
 
 	//TODO:
-	// buildBoxVectors(ID, vertices, Quaternionen);
+	buildBoxVectors(ID, vertices, Quaternionen);
 
 
 	delete[] ID;
