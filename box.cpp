@@ -1385,6 +1385,9 @@ void LSbox::computeDirectNeighbours(
 		}
 	}
 }
+void LSbox::plotBoxContour(bool absoluteCoordinates){
+	m_explicitHull.plotContour(false,m_grainHandler->loop);
+}
 
 void LSbox::plotBoxVolumetric(string identifier,
 		E_BUFFER_SELECTION bufferSelection) {

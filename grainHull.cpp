@@ -164,7 +164,7 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			break;
 		}
 		default:{
-			cout << "high order junction found" << endl;
+			//cout << "high order junction found" << endl;
 			break;
 		}
 		}

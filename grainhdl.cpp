@@ -245,7 +245,8 @@ void grainhdl::VOROMicrostructure() {
 			cellIndex++;
 		} while (vl.inc());
 
-		IDField->resize(0, 0, 0, ngridpoints, ngridpoints, ngridpoints);
+		IDField =new DimensionalBuffer<int> (0, 0, 0, ngridpoints, ngridpoints,
+				ngridpoints);
 		double x, y, z, rx, ry, rz;
 		int cell_id;
 		for (int k = 0; k < ngridpoints; k++) {
