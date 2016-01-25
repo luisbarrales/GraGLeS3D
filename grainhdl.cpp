@@ -401,12 +401,12 @@ void grainhdl::read_voxelized_microstructure() {
 	IDField = new DimensionalBuffer<int> (0, 0, 0, ngridpoints, ngridpoints,
 			ngridpoints);
 	for (int k = 0; k < ngridpoints; k++) {
-		for (int j = 0; j < ngridpoints; j++) {
-			for (int i = 0; i < ngridpoints; i++) {
+		for (int  i = 0; i < ngridpoints; i++) {
+			for (int j = 0; j < ngridpoints; j++) {
 				if (i < grid_blowup || j < grid_blowup || k < grid_blowup || i
 						>= ngridpoints - grid_blowup || j >= ngridpoints
 						- grid_blowup || k >= ngridpoints - grid_blowup)
-					IDField->setValueAt(j, i, k, 0);
+					IDField->setValueAt(i, j, k, 0);
 				else {
 					int box_id;
 					fread(&box_id, sizeof(int), 1, voxelized_data);
