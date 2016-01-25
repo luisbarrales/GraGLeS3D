@@ -1,3 +1,4 @@
+
 #!/usr/bin/env zsh
 
 ### Job name
@@ -10,40 +11,30 @@
 #BSUB -e LEVELSET.e%J
 
 
-
-###  Request vitual memory  you  need  for your job  in  MB / 50000 = 9GB
+###  Request vitual memory  you  need  for your job  in  MB 
 ### Memory limit for ALL nodes
-#BSUB -M  42000
+#BSUB -M  90000
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [ hour :] minute ,
 ### that means for 80 minutes you could also use this : 1:20
-#BSUB -W 4:15
+#BSUB -W 1:20
 
 ### Specify your mail address
-#BSUB -u miessen@imm.rwth-aachen.de
+#BSUB -u fatim-zahra.mouhib@rwth-aachen.de
 
 ### Send a mail when job is done
 #BSUB -N
 
 #### compute nodes
-<<<<<<< HEAD
-#BSUB -n 8
 
+#BSUB -n 128
 
-=======
-#BSUB -n 64
->>>>>>> master
 ### for shared memory jobs (OpenMP)
 #BSUB -a "bcs openmp"
 
 ### Change to the work directory
-mkdir mySim64_test_50000 
-cd mySim642_test_50000
 
-
-cp ../LevelSet_IMM ./
-cp ../parameters.xml ./
-
+ulimit -u unlimited
 ### Execute your application
-time LevelSet_IMM parameters.xml
+LevelSet_IMM AreaChangeRates.xml

@@ -337,14 +337,14 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						Vector3d point(i, j, k); //its x y z => j i k
 						IDChunkMinimal grain = m_IDLocal.getValueAt(i, j, k);
 						double radiuscorrection;
-						if (actualGrainRadius < rLimit) {
-							const double yInterceptBottom = 0.77;
-							double radiuscorrection = 1.0;
-							double const a = 4.5;
-							radiuscorrection = 1
-									- exp(-actualGrainRadius / a)
-											* (1 - yInterceptBottom);
-						}
+//						if (actualGrainRadius < rLimit) {
+//							const double yInterceptBottom = 0.77;
+//							double radiuscorrection = 1.0;
+//							double const a = 4.5;
+//							radiuscorrection = 1
+//									- exp(-actualGrainRadius / a)
+//											* (1 - yInterceptBottom);
+//						}
 						double weight = 1.0;
 //								m_explicitHull.projectPointToGrainBoundary(
 //										point, grain.grainID);

@@ -149,7 +149,7 @@ void grainhdl::read_HeaderCPG() {
 	int NX, NY, NZ;
 
 	for (int i = 1; i <= 12; i++) {
-		if (i == 1 || i == 12) {
+		if (i == 12) {
 			do {
 				c = fgetc(compressedGrainInfo);
 			} while (c != '\n');
@@ -189,7 +189,7 @@ void grainhdl::read_HeaderCPG() {
 					&Settings::NumberOfParticles);
 			//cout << buffer << "\t" << grains << endl;
 		}
-		if (i == 10 || i == 11)
+		if (i ==1 || i == 10 || i == 11)
 			fscanf(compressedGrainInfo, "\n");
 	}
 	ngrains = Settings::NumberOfParticles;
@@ -373,7 +373,7 @@ void grainhdl::read_voxelized_microstructure() {
 			ID[nn] = -1;
 			continue;
 		}
-		ID[nn] = ++id;
+		ID[nn] = id;
 		Quaternionen[nn].euler2Quaternion(bunge);
 		vertices[nn].push_back(SPoint(xmin, ymin, zmin));
 		vertices[nn].push_back(SPoint(xmin, ymax, zmin));
@@ -410,7 +410,7 @@ void grainhdl::read_voxelized_microstructure() {
 				else {
 					int box_id;
 					fread(&box_id, sizeof(int), 1, voxelized_data);
-					IDField->setValueAt(j, i, k, box_id + 1);
+					IDField->setValueAt(j, i, k, box_id);
 				}
 
 			}
@@ -426,7 +426,7 @@ void grainhdl::read_voxelized_microstructure() {
 	//	fclose(voxelized_data);
 
 	//TODO:
-	// buildBoxVectors(ID, vertices, Quaternionen);
+	buildBoxVectors(ID, vertices, Quaternionen);
 
 
 	delete[] ID;

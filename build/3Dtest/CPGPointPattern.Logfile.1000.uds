@@ -1,0 +1,15 @@
+
+"SimID"		 0 
+"DX"		 0 
+"DY"		 0 
+"DZ"		 0  
+"NX"		31
+"NY"		31
+"NZ"		31
+"NPoints"		 3 
+
+
+|| Points || *(iiiifffiiiiiii) || ID, x, y,z, bunge1, bunge2, bunge3, xmin, xmax, ymin, ymax, zmin, zmax, cnt
+1		1		1		1		1		2		3		0		15		14		14		0		30		1
+2		1		1		1		1		2		3		0		30		30		30		0		30		1
+3		15.5		15.5		15.5		1		2		3		10		20		10		20		10		20		1
