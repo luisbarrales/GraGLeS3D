@@ -200,7 +200,7 @@ LSbox::LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori,
 			xmax = x;
 		if (z < zmin)
 			zmin = z;
-		if (z > xmax)
+		if (z > zmax)
 			zmax = z;
 	}
 	xmax += 2 * grid_blowup;

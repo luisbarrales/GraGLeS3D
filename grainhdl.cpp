@@ -410,7 +410,7 @@ void grainhdl::read_voxelized_microstructure() {
 				else {
 					int box_id;
 					fread(&box_id, sizeof(int), 1, voxelized_data);
-					IDField->setValueAt(j, i, k, box_id);
+					IDField->setValueAt(i, j, k, box_id);
 				}
 
 			}
