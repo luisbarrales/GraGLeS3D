@@ -961,6 +961,16 @@ struct NUMANode {
 	int numa_cpus[64];
 };
 
+unsigned int my_numa_bitmask_weight(const struct bitmask *mask) {
+	unsigned int weight = 0;
+	for (unsigned int j = 0; j < mask->size; j++) {
+		if (numa_bitmask_isbitset(mask, j)) {
+			weight++;
+		}
+	}
+	return weight;
+}
+
 void grainhdl::initNUMABindings() {
 	vector<NUMANode> nodes;
 	nodes.reserve(16);
@@ -976,7 +986,7 @@ void grainhdl::initNUMABindings() {
 			//converts a node number to a bitmask of CPUs.
 			//The user must pass a bitmask structure with a mask buffer long enough to represent all possible cpu's
 			numa_node_to_cpus(j, cpus);
-			node.num_cpus = numa_bitmask_weight(cpus);
+			node.num_cpus = my_numa_bitmask_weight(cpus);
 			int cpuCounter = 0;
 			for (unsigned int i = 0; i < cpus->size; i++) {
 
