@@ -336,7 +336,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 					if (abs(val) < m_grainHandler->delta) {
 						Vector3d point(i, j, k); //its x y z => j i k
 						IDChunkMinimal grain = m_IDLocal.getValueAt(i, j, k);
-						double radiuscorrection;
+						double radiuscorrection =1.0;
 //						if (actualGrainRadius < rLimit) {
 //							const double yInterceptBottom = 0.77;
 //							double radiuscorrection = 1.0;
@@ -671,9 +671,9 @@ void LSbox::boundaryCondition() {
 				i++) {
 			for (int j = m_inputDistance->getMinX();
 					j < m_inputDistance->getMaxX(); j++) {
-				distXMin = -(j - grid_blowup);
-				distYMin = -(i - grid_blowup);
-				distZMin = -(k - grid_blowup);
+				distXMin = -(j - grid_blowup-1);
+				distYMin = -(i - grid_blowup-1);
+				distZMin = -(k - grid_blowup-1);
 				distXMax = (j - (m - grid_blowup));
 				distYMax = (i - (m - grid_blowup));
 				distZMax = (k - (m - grid_blowup));

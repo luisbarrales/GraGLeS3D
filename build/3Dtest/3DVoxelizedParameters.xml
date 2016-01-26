@@ -3,8 +3,8 @@
 	 <StartTime> 0 </StartTime>
    <NumberOfParticles>3 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
-   <AnalysisTimestep> 20 </AnalysisTimestep>
-   <NumberOfTimesteps> 20 </NumberOfTimesteps>
+   <AnalysisTimestep> 1 </AnalysisTimestep>
+   <NumberOfTimesteps> 10 </NumberOfTimesteps>
    <BreakupNumber> 1 </BreakupNumber>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
@@ -16,8 +16,8 @@
 	(	2		E_READ_VERTEX,		)
 	(	3		E_GENERATE_TESTCASE,	)
    -->
-   <ReadFromFilename>CPGPointPattern.Logfile.1000.uds</ReadFromFilename>
-   <AdditionalFilename>CPG.SyntheticStructure.1000.bin</AdditionalFilename>
+   <ReadFromFilename>CPG.SyntheticStructure.1000.bin</ReadFromFilename>
+   <AdditionalFilename>CPGPointPattern.Logfile.1000.uds</AdditionalFilename>
    <HAGB> 1. </HAGB>
    <TriplePointDrag> 1 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
@@ -33,7 +33,7 @@
 	(	1		E_LAPLACE_RITCHARDSON,	)
 		2		E_GAUSSIAN, only one available for 3D
    -->
-   <UniqueGBEnergies> 0 </UniqueGBEnergies>
+   <UniqueGBEnergies> 1 </UniqueGBEnergies>
 		<!-- USAGE:
    		0 	Energies defined by ReadShockley Model
 			1	  Energies set to 1			
