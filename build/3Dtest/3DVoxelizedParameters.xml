@@ -4,7 +4,7 @@
    <NumberOfParticles>3 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
    <AnalysisTimestep> 1 </AnalysisTimestep>
-   <NumberOfTimesteps> 10 </NumberOfTimesteps>
+   <NumberOfTimesteps> 30 </NumberOfTimesteps>
    <BreakupNumber> 1 </BreakupNumber>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
