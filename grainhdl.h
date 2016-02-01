@@ -180,7 +180,7 @@ protected:
 	void initEnvironment();
 	void initNUMABindings();
 	void buildBoxVectors(vector<vector<Vector3d>>& hulls);
-	void buildBoxVectors(int* ID, vector<vector<SPoint>>& contours,
+	void buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
 			myQuaternion* Quaternionen);
 	int m_ThreadPoolCount;
 	vector<ExpandingVector<char> > m_ThreadMemPool;

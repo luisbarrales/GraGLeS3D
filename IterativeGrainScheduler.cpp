@@ -1,5 +1,5 @@
 #include "IterativeGrainScheduler.h"
-
+#include "Eigen/Dense"
 
 IterativeGrainScheduler::IterativeGrainScheduler(int numberOfThreads,
 		int totalNumberOfGrains, int startIndex) :
@@ -10,7 +10,7 @@ IterativeGrainScheduler::IterativeGrainScheduler(int numberOfThreads,
 }
 IterativeGrainScheduler::~IterativeGrainScheduler(){
 }
-void IterativeGrainScheduler::buildGrainWorkloads(vector<vector<SPoint>>& contours, int n_gridpoints) {
+void IterativeGrainScheduler::buildGrainWorkloads(vector<vector<Eigen::Vector3d>>& hulls, int n_gridpoints) {
 	for (int i = 0; i < m_totalNumberOfThreads; i++) {
 		m_threadWorkVectors.at(i).reserve(
 				m_totalNumberOfGrains / m_totalNumberOfThreads + 1);

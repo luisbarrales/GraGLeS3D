@@ -58,6 +58,12 @@ enum E_RESEARCH_PROJECT
 	E_TRIPLE_JUNCTION_DRAG_NETWORK,
 	E_DEFAULT
 };
+
+enum E_GRAIN_SCHEDULER {
+	E_ITERATIVE,
+	E_SQUARES,
+	E_DEFAULT_SCHEDULER
+};
 /*!
  * \class Settings
  * \brief Class that holds all global settings that are simulation specific.
@@ -73,6 +79,7 @@ class Settings
 	static unsigned long AnalysisTimestep;
 	static unsigned long DiscreteSamplingRate;
 	static unsigned long DomainBorderSize;
+	static unsigned long GrainScheduler;
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;
 	static E_RESEARCH_PROJECT ResearchProject;
 	static std::string ReadFromFilename;

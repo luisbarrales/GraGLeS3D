@@ -18,10 +18,10 @@ public:
 	SquaresGrainScheduler(int numberOfThreads, int totalNumberOfGrains, int startIndex = 1);
 	~SquaresGrainScheduler();
 
-	void buildGrainWorkloads(vector<vector<SPoint>>& contours, int n_gridpoints);
+	void buildGrainWorkloads(vector<vector<Eigen::Vector3d>>& hulls, int n_gridpoints);
 	void buildSubWorkloads(int offsetThreadID, vector<unsigned int>& grainlist,
 			int NumberOfThreads);
-	SPoint find_center(vector<SPoint>& contour, int n_gridpoints);
+	SPoint find_center(vector<Eigen::Vector3d>& hulls, int n_gridpoints);
 	vector<unsigned int>& getThreadWorkload(int threadID);
 
 private:

@@ -107,7 +107,7 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 	resizeIDLocalToDistanceBuffer();
 }
 
-LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
+LSbox::LSbox(int id, const vector<Vector3d>& vertices, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 		m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(
 				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
 				0), m_surface(0), m_explicitHull(this) {
@@ -132,26 +132,47 @@ LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 	int ymin = xmin;
 	int zmin = ymin;
 	int zmax = 0;
+	double z, y, x;
+		for (int k = 0; k < vertices.size(); k++) {
+			x = vertices[k][0]/h;
+			y = vertices[k][1]/h;
+			z = vertices[k][2]/h;
+			if (y < ymin)
+				ymin = y;
+			if (y > ymax)
+				ymax = y;
+			if (x < xmin)
+				xmin = x;
+			if (x > xmax)
+				xmax = x;
+			if (z < zmin)
+				zmin = z;
+			if (z > zmax)
+				zmax = z;
+		}
+		xmax += 2 * grid_blowup;
+		ymax += 2 * grid_blowup;
+		zmax += 2 * grid_blowup;
 
-	for (int i = IDField.getMinY(); i < IDField.getMaxY(); i++)
-		for (int j = IDField.getMinX(); j < IDField.getMaxX(); j++)
-			for (int k = IDField.getMinZ(); k < IDField.getMaxZ(); k++) {
-				if (m_ID == IDField.getValueAt(i, j, k)) {
-					xmax = max(j, xmax);
-					xmin = min(j, xmin);
-					ymax = max(i, ymax);
-					ymin = min(i, ymin);
-					zmax = max(k, zmax);
-					zmin = min(k, zmin);
-				}
-			}
-
-	xmax += grid_blowup;
-	xmin -= grid_blowup;
-	ymax += grid_blowup;
-	ymin -= grid_blowup;
-	zmax += grid_blowup;
-	zmin -= grid_blowup;
+//	for (int i = IDField.getMinY(); i < IDField.getMaxY(); i++)
+//		for (int j = IDField.getMinX(); j < IDField.getMaxX(); j++)
+//			for (int k = IDField.getMinZ(); k < IDField.getMaxZ(); k++) {
+//				if (m_ID == IDField.getValueAt(i, j, k)) {
+//					xmax = max(j, xmax);
+//					xmin = min(j, xmin);
+//					ymax = max(i, ymax);
+//					ymin = min(i, ymin);
+//					zmax = max(k, zmax);
+//					zmin = min(k, zmin);
+//				}
+//			}
+//
+//	xmax += grid_blowup;
+//	xmin -= grid_blowup;
+//	ymax += grid_blowup;
+//	ymin -= grid_blowup;
+//	zmax += grid_blowup;
+//	zmin -= grid_blowup;
 
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
@@ -164,7 +185,7 @@ LSbox::LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner) :
 	resizeIDLocalToDistanceBuffer();
 }
 
-LSbox::LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori,
+LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		grainhdl* owner) :
 		m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitHull(this), m_isMotionRegular(
 				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
@@ -187,9 +208,9 @@ LSbox::LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori,
 
 	double z, y, x;
 	for (int k = 0; k < vertices.size(); k++) {
-		y = vertices[k].y;
-		x = vertices[k].x;
-		z = vertices[k].z;
+		x = vertices[k][0];
+		y = vertices[k][1];
+		z = vertices[k][2];
 		if (y < ymin)
 			ymin = y;
 		if (y > ymax)
@@ -273,6 +294,17 @@ void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
 // Convolution und Helperfunctions 
 /**************************************/
 /**************************************/
+
+void LSbox::preallocateMemory(ExpandingVector<char>& memory_dump) {
+	int n = m_outputDistance->getMaxX() - m_outputDistance->getMinX();
+	int desired_size = 0;
+#ifdef USE_FFTW
+	desired_size = n * n * (floor(n / 2) + 1) * sizeof(fftwp_complex);
+	#elif defined USE_MKL
+	desired_size = n * n * (floor(n / 2) + 1) * sizeof(MKL_Complex16);
+#endif
+	memory_dump.expand(desired_size);
+}
 
 void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 
@@ -424,13 +456,6 @@ void LSbox::createConvolutionPlans(ExpandingVector<char>& memory_dump) {
 			fftTemp, &m_forwardPlan, &m_backwardsPlan);
 }
 
-void LSbox::initConvoMemory(ExpandingVector<char>& memory_dump) {
-	int n = m_outputDistance->getMaxX() - m_outputDistance->getMinX();
-	int m = m_outputDistance->getMaxY() - m_outputDistance->getMinY();
-	int l = m_outputDistance->getMaxZ() - m_outputDistance->getMinZ();
-	int desired_size = n * m * (floor(l / 2) + 1) * sizeof(fftwp_complex);
-	memory_dump.expand(desired_size);
-}
 
 void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 fftwp_plan fftplan1, fftwp_plan fftplan2) {

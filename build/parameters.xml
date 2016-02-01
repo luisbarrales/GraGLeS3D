@@ -27,13 +27,18 @@
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
    <ConvolutionMode> 2 </ConvolutionMode>   
    <!-- USAGE:
-   	(	O		E_LAPLACE,		)
-	(	1		E_LAPLACE_RITCHARDSON,	)
-		2		E_GAUSSIAN, only one available for 3D
+   (	O		E_LAPLACE,		)
+   (	1		E_LAPLACE_RITCHARDSON,	)
+	2		E_GAUSSIAN, only one available for 3D
    -->
    <UniqueGBEnergies> 0 </UniqueGBEnergies>
-		<!-- USAGE:
-   		0 	Energies defined by ReadShockley Model
-			1	  Energies set to 1			
+<!-- USAGE:
+	0 	Energies defined by ReadShockley Model
+	1	Energies set to 1			
+   -->
+   <GrainScheduler> 0 </GrainScheduler>
+   <!-- USAGE:
+    	0   	E_ITERATIVE
+   	1   	E_SQUARES
    -->
 </Parameters>

@@ -2,18 +2,17 @@
 #define		__IGRAIN_SCHEDULER__
 
 #include <vector>
-#include "spoint.h"
-
+#include "Eigen/Dense"
 
 using namespace std;
 
-struct SPoint;
+
 class IGrainScheduler
 {
 public:
 	IGrainScheduler(){}
 	virtual ~IGrainScheduler(){}
-	virtual void buildGrainWorkloads(vector<vector<SPoint>>&, int) = 0;
+	virtual void buildGrainWorkloads(vector<vector<Eigen::Vector3d>>& hulls, int n_gridpoints) = 0;
 	virtual std::vector<unsigned int>&	getThreadWorkload(int threadID) = 0;
 };
 

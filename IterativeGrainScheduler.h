@@ -9,7 +9,7 @@ public:
 	IterativeGrainScheduler(int numberOfThreads, int totalNumberOfGrains, int startIndex = 1);
 	~IterativeGrainScheduler();
 
-	void buildGrainWorkloads(vector<vector<SPoint>>& contours, int n_gridpoints);
+	void buildGrainWorkloads(vector<vector<Eigen::Vector3d>>& hulls, int n_gridpoints);
 	vector<unsigned int>&	getThreadWorkload(int threadID);
 
 private:

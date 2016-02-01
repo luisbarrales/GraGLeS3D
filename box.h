@@ -98,8 +98,8 @@ public:
 	//Constructors to document
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
 	LSbox(int id, vector<Vector3d>& hull, grainhdl* owner);
-	LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner);
-	LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori, grainhdl* owner);
+	LSbox(int id, const vector<Vector3d>& vertices, DimensionalBuffer<int>& IDField, grainhdl* owner);
+	LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori, grainhdl* owner);
 	//Dtors
 	virtual ~LSbox();
 	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);
@@ -126,7 +126,8 @@ public:
 	vector<int>	getDirectNeighbourIDs();
 	vector<double> getGBLengths();
 	//map<int, double>& getDiscreteEnergyDistribution() { }
-    bool checkIntersection(LSbox* box2);   	
+    bool checkIntersection(LSbox* box2);
+    void preallocateMemory(ExpandingVector<char>& memory_dump);
       
 
 	void resizeIDLocalToDistanceBuffer();

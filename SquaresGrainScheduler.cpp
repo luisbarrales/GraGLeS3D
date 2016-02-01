@@ -10,6 +10,8 @@
 #include "Settings.h"
 #include <omp.h>
 #include <iostream>
+#include "Eigen/Dense"
+#include "spoint.h"
 
 SquaresGrainScheduler::SquaresGrainScheduler(int numberOfThreads,
 		int totalNumberOfGrains, int startIndex) :
@@ -22,28 +24,35 @@ SquaresGrainScheduler::~SquaresGrainScheduler() {
 
 }
 void SquaresGrainScheduler::buildGrainWorkloads(
-		vector<vector<SPoint>>& contours, int n_gridpoints) {
+		vector<vector<Eigen::Vector3d>>& hulls, int n_gridpoints) {
 	if (Settings::ExecuteInParallel == 0 || omp_get_max_threads() == 1) {
-		for (int i = 1; i < contours.size(); i++)
+		for (int i = 1; i < hulls.size(); i++)
 			m_threadWorkVectors.at(0).push_back(i);
 	} else if (omp_get_max_threads() < 4) {
-		for (int i = 1; i < contours.size(); i++)
+		for (int i = 1; i < hulls.size(); i++)
 			m_threadWorkVectors.at(0).push_back(i);
-		std::cout<< "method not implemented for less than 4 threads, use sequential one. "<< endl;
+		std::cout
+				<< "method not implemented for less than 4 threads, use sequential one. "
+				<< endl;
 	} else {
 		vector<vector<unsigned int>> list;
 		list.resize(4);
-		for (unsigned int i = 1; i < contours.size(); i++) {
-			int pos_x, pos_y;
-			SPoint center = find_center(contours[i], n_gridpoints);
+		for (unsigned int i = 1; i < hulls.size(); i++) {
+			int pos_x, pos_y, pos_z;
+			SPoint center = find_center(hulls[i], n_gridpoints);
 			//check for coordinate system
 			if (center.x > 2) { // coordinates are in gridpoint ids
 				pos_x = int(center.x / n_gridpoints + 0.5);
 				pos_y = int(center.y / n_gridpoints + 0.5);
+				pos_z = int(center.z / n_gridpoints + 0.5);
 			} else { // coordinates are in between [0,1]
 				pos_x = int(center.x + 0.5);
 				pos_y = int(center.y + 0.5);
+				pos_z = int(center.z + 0.5);
 			}
+			// add grain to processing list depending on local position
+			// as only 4 numa nodes are available, we just order the grains utilizing 2 coordinates
+			// this is results in a structure similar to 4 pommes frites in a cube.
 			if (pos_x == 0 && pos_y == 0)
 				list[0].push_back(i);
 			else if (pos_x == 1 && pos_y == 0)
@@ -95,16 +104,19 @@ void SquaresGrainScheduler::buildGrainWorkloads(
 	}
 }
 
-SPoint SquaresGrainScheduler::find_center(vector<SPoint>& contour,
+SPoint SquaresGrainScheduler::find_center(vector<Eigen::Vector3d>& hull,
 		int n_gridpoints) {
-	double x, y;
+	double x, y, z;
 	double xmax = 0;
 	double xmin = n_gridpoints;
 	double ymax = 0;
 	double ymin = xmin;
-	for (int k = 0; k < (contour).size(); k++) {
-		y = contour[k].y;
-		x = contour[k].x;
+	double zmax = 0;
+	double zmin = xmin;
+	for (int k = 0; k < hull.size(); k++) {
+		z = hull[k][2];
+		y = hull[k][1];
+		x = hull[k][0];
 		if (y < ymin)
 			ymin = y;
 		if (y > ymax)
@@ -113,8 +125,13 @@ SPoint SquaresGrainScheduler::find_center(vector<SPoint>& contour,
 			xmin = x;
 		if (x > xmax)
 			xmax = x;
+		if (z < zmin)
+			zmin = z;
+		if (z > zmax)
+			zmax = z;
 	}
-	SPoint center((xmax - xmin) / 2 + xmin, (ymax - ymin) / 2 + ymin, 0, 0);
+	SPoint center((xmax - xmin) / 2 + xmin, (ymax - ymin) / 2 + ymin,
+			(zmax - zmin) / 2 + zmin);
 	return center;
 }
 
