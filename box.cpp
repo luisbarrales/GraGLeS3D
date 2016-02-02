@@ -133,7 +133,7 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, DimensionalBuffer<int>& I
 	int zmin = ymin;
 	int zmax = 0;
 	double z, y, x;
-		for (int k = 0; k < vertices.size(); k++) {
+/*		for (int k = 0; k < vertices.size(); k++) {
 			x = vertices[k][0]/h;
 			y = vertices[k][1]/h;
 			z = vertices[k][2]/h;
@@ -153,26 +153,26 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, DimensionalBuffer<int>& I
 		xmax += 2 * grid_blowup;
 		ymax += 2 * grid_blowup;
 		zmax += 2 * grid_blowup;
+*/
+	for (int i = IDField.getMinY(); i < IDField.getMaxY(); i++)
+		for (int j = IDField.getMinX(); j < IDField.getMaxX(); j++)
+			for (int k = IDField.getMinZ(); k < IDField.getMaxZ(); k++) {
+				if (m_ID == IDField.getValueAt(i, j, k)) {
+					xmax = max(j, xmax);
+					xmin = min(j, xmin);
+					ymax = max(i, ymax);
+					ymin = min(i, ymin);
+					zmax = max(k, zmax);
+					zmin = min(k, zmin);
+				}
+			}
 
-//	for (int i = IDField.getMinY(); i < IDField.getMaxY(); i++)
-//		for (int j = IDField.getMinX(); j < IDField.getMaxX(); j++)
-//			for (int k = IDField.getMinZ(); k < IDField.getMaxZ(); k++) {
-//				if (m_ID == IDField.getValueAt(i, j, k)) {
-//					xmax = max(j, xmax);
-//					xmin = min(j, xmin);
-//					ymax = max(i, ymax);
-//					ymin = min(i, ymin);
-//					zmax = max(k, zmax);
-//					zmin = min(k, zmin);
-//				}
-//			}
-//
-//	xmax += grid_blowup;
-//	xmin -= grid_blowup;
-//	ymax += grid_blowup;
-//	ymin -= grid_blowup;
-//	zmax += grid_blowup;
-//	zmin -= grid_blowup;
+	xmax += grid_blowup;
+	xmin -= grid_blowup;
+	ymax += grid_blowup;
+	ymin -= grid_blowup;
+	zmax += grid_blowup;
+	zmin -= grid_blowup;
 
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);

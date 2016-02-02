@@ -658,8 +658,8 @@ void grainhdl::run_sim() {
 for		(const auto & it : grains)
 		{	if (it!= NULL)
 			if(it->getID()!=0) {
-				it->plotBoxContour();
-				it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
+//				it->plotBoxContour();
+//				it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
 			}
 		}
 	}
