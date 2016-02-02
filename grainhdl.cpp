@@ -35,6 +35,9 @@
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
+#ifdef USE_MKL
+#include "mkl.h"
+#endif
 
 using namespace std;
 

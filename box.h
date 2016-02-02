@@ -31,6 +31,9 @@
 #include "fftw3.h"
 #include "Eigen/Dense"
 #include "myQuaternion.h"
+#ifdef USE_MKL
+#include "mkl_dfti.h"
+#endif
 
 
 using namespace std;
@@ -93,7 +96,15 @@ private:
 	fftwp_plan 					m_forwardPlan;
 	vector<unsigned int> 		m_comparisonList;
 	vector<unsigned int> 		m_secondOrderNeighbours;
-
+#ifdef USE_MKL
+	DFTI_DESCRIPTOR_HANDLE m_handle;
+	DFTI_DESCRIPTOR_HANDLE m_b_handle;
+	MKL_LONG m_dimensions[3];
+	MKL_LONG m_f_input_strides[4];
+	MKL_LONG m_f_output_strides[4];
+	MKL_LONG m_b_input_strides[4];
+	MKL_LONG m_b_output_strides[4];
+#endif
 public:
 	//Constructors to document
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
@@ -145,14 +156,18 @@ public:
 	void initConvoMemory(ExpandingVector<char>& memory_dump);
 	void createConvolutionPlans(ExpandingVector<char>& memory_dump);
 	void executeConvolution(ExpandingVector<char>& mem_pool);
-	void cleanupConvolution();
 
+
+#ifdef USE_FFTW
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
 	void convolutionGeneratorFFTW(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void executeFFTW(fftw_plan fftplan);
 	void executeFFTW(fftwf_plan fftplan);
-
+	void cleanupConvolution();
+#elif defined USE_MKL
+	void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
+#endif
 	void switchInNOut();
 	//todo: refactor with a proper name
 	void boundaryCondition();

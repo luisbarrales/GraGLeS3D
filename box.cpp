@@ -133,31 +133,31 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	int ymin = xmin;
 	int zmin = ymin;
 	int zmax = 0;
-//	for (int i = IDField.getMinY(); i < IDField.getMaxY(); i++)
-//		for (int j = IDField.getMinX(); j < IDField.getMaxX(); j++)
-//			for (int k = IDField.getMinZ(); k < IDField.getMaxZ(); k++) {
-//				if (m_ID == IDField.getValueAt(i, j, k)) {
-//					xmax = max(j, xmax);
-//					xmin = min(j, xmin);
-//					ymax = max(i, ymax);
-//					ymin = min(i, ymin);
-//					zmax = max(k, zmax);
-//					zmin = min(k, zmin);
-//				}
-//			}
-//
-//	xmax += grid_blowup;
-//	xmin -= grid_blowup;
-//	ymax += grid_blowup;
-//	ymin -= grid_blowup;
-//	zmax += grid_blowup;
-//	zmin -= grid_blowup;
+	//	for (int i = IDField.getMinY(); i < IDField.getMaxY(); i++)
+	//		for (int j = IDField.getMinX(); j < IDField.getMaxX(); j++)
+	//			for (int k = IDField.getMinZ(); k < IDField.getMaxZ(); k++) {
+	//				if (m_ID == IDField.getValueAt(i, j, k)) {
+	//					xmax = max(j, xmax);
+	//					xmin = min(j, xmin);
+	//					ymax = max(i, ymax);
+	//					ymin = min(i, ymin);
+	//					zmax = max(k, zmax);
+	//					zmin = min(k, zmin);
+	//				}
+	//			}
+	//
+	//	xmax += grid_blowup;
+	//	xmin -= grid_blowup;
+	//	ymax += grid_blowup;
+	//	ymin -= grid_blowup;
+	//	zmax += grid_blowup;
+	//	zmin -= grid_blowup;
 
 	int z, y, x;
 	for (int k = 0; k < vertices.size(); k++) {
-		y = vertices[k][0] / h +0.5;
-		x = vertices[k][1] / h +0.5;
-		z = vertices[k][2] / h +0.5;
+		y = vertices[k][0] / h + 0.5;
+		x = vertices[k][1] / h + 0.5;
+		z = vertices[k][2] / h + 0.5;
 		if (y < ymin)
 			ymin = y;
 		if (y > ymax)
@@ -310,9 +310,13 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 	if (grainExists() != true)
 		return;
 	//  set references for the convolution step
+#ifdef USE_FFTW
 	fftwp_complex *fftTemp = (fftwp_complex*) &mem_pool[0];
 	convolutionGeneratorFFTW(fftTemp, m_forwardPlan, m_backwardsPlan);
-
+#elif defined USE_MKL
+	MKL_Complex16* fftTemp = (MKL_Complex16*) &mem_pool[0];
+	convolutionGeneratorMKL(fftTemp);
+#endif
 	resizeIDLocalToDistanceBuffer();
 	m_IDLocal.clear();
 	if (!Settings::DisableConvolutionCorrection && m_grainHandler->loop != 0
@@ -393,11 +397,6 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 	m_IDLocal.clear();
 }
 
-void LSbox::cleanupConvolution() {
-	fftw_destroy_planp(m_forwardPlan);
-	fftw_destroy_planp(m_backwardsPlan);
-}
-
 double LSbox::getGBEnergyTimesGBMobility(int i, int j) {
 	return -1;
 }
@@ -419,6 +418,7 @@ void LSbox::resizeIDLocalToDistanceBuffer() {
 	int zmaxId = m_outputDistance->getMaxZ();
 	m_IDLocal.resize(xminId, yminId, zminId, xmaxId, ymaxId, zmaxId);
 }
+#ifdef USE_FFTW
 void LSbox::makeFFTPlans(double *in, double* out, fftw_complex *fftTemp,
 		fftw_plan *fftplan1, fftw_plan *fftplan2) { /* creates plans for FFT and IFFT */
 	int n = m_outputDistance->getMaxX() - m_outputDistance->getMinX();
@@ -449,6 +449,11 @@ void LSbox::makeFFTPlans(float *in, float* out, fftwf_complex *fftTemp,
 
 }
 
+void LSbox::cleanupConvolution() {
+	fftw_destroy_planp(m_forwardPlan);
+	fftw_destroy_planp(m_backwardsPlan);
+}
+
 void LSbox::createConvolutionPlans(ExpandingVector<char>& memory_dump) {
 	fftwp_complex *fftTemp = (fftwp_complex*) &memory_dump[0];
 
@@ -472,28 +477,28 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 	//	Forward DFT
 
 	switch (Settings::ConvolutionMode) {
-	case E_GAUSSIAN: {
-		double n_nsq = n * n * n;
-		//			Convolution with Normaldistribution
-		for (int k = 0; k < n; k++) {
-			int k2 = min(k, n - k);
-			for (int i = 0; i < n; i++) {
-				i2 = min(i, n - i);
-				for (int j = 0; j < n2; j++) {
-					j2 = min(j, n - j);
-					G = exp(
-							-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
-									/ n_nsq * PI * PI * PI) / n_nsq;
-					fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
-							* k)][0] * G;
-					fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
-							* k)][1] * G;
+		case E_GAUSSIAN: {
+			double n_nsq = n * n * n;
+			//			Convolution with Normaldistribution
+			for (int k = 0; k < n; k++) {
+				int k2 = min(k, n - k);
+				for (int i = 0; i < n; i++) {
+					i2 = min(i, n - i);
+					for (int j = 0; j < n2; j++) {
+						j2 = min(j, n - j);
+						G = exp(
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
+								/ n_nsq * PI * PI * PI) / n_nsq;
+						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
+								* k)][0] * G;
+						fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
+								* k)][1] * G;
+					}
 				}
 			}
+			break;
 		}
-		break;
-	}
-	default:
+		default:
 		throw runtime_error("Unknown convolution mode!");
 	}
 
@@ -509,6 +514,106 @@ void LSbox::executeFFTW(fftwf_plan fftplan) {
 	fftwf_execute(fftplan);
 }
 
+#elif defined USE_MKL
+
+void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
+{
+	//	MKL_LONG dimensions[2];
+
+	if (m_grainHandler->get_loop()==0) {
+		m_dimensions[0]=0; m_dimensions[1]=0; m_dimensions[2]=0;
+		m_b_input_strides[0] = 0; m_b_input_strides[3] = 1;
+		m_b_output_strides[0] = 0; m_b_output_strides[3] = 1;
+		m_f_input_strides[0] = 0; m_f_input_strides[3] = 1;
+		m_f_output_strides[0] = 0; m_f_output_strides[3] = 1;
+		m_handle =0; m_b_handle = 0;
+	}
+
+	//	m_handle = 0;
+
+	DFTI_CONFIG_VALUE precision;
+
+#if PRECISION > 0
+	precision = DFTI_SINGLE;
+#else
+	precision = DFTI_DOUBLE;
+#endif
+	bool update_backward_plan = false;
+	if (m_dimensions[0] != m_outputDistance->getMaxX() - m_outputDistance->getMinX()) {
+		update_backward_plan = true;
+		m_dimensions[0] = m_outputDistance->getMaxX() - m_outputDistance->getMinX();
+		m_dimensions[1] = m_outputDistance->getMaxY() - m_outputDistance->getMinY();
+		m_dimensions[2] = m_outputDistance->getMaxZ() - m_outputDistance->getMinZ();
+		DftiFreeDescriptor(&m_handle);
+		DftiCreateDescriptor(&m_handle, precision, DFTI_REAL, 3, m_dimensions);
+		DftiSetValue(m_handle, DFTI_PLACEMENT, DFTI_NOT_INPLACE);
+		DftiSetValue(m_handle, DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
+		//what comes next is magic!
+		m_f_input_strides[1] = m_dimensions[0]* m_dimensions[0];
+		m_f_input_strides[2] = m_dimensions[0];
+		DftiSetValue(m_handle, DFTI_INPUT_STRIDES, m_f_input_strides);
+		m_f_output_strides[1] = m_dimensions[0]* m_dimensions[0]; //m_dimensions[0]/2 + 1;
+		m_f_output_strides[2] = m_dimensions[0];
+		DftiSetValue(m_handle, DFTI_OUTPUT_STRIDES, m_f_output_strides);
+		DftiCommitDescriptor(m_handle);
+	}
+
+	DftiComputeForward(m_handle, m_inputDistance->getRawData(), fftTemp);
+
+	int n = m_dimensions[0];
+	double dt = m_grainHandler->get_dt();
+	int n2 = floor(n / 2) + 1;
+	int nn = (*m_grainHandler).get_realDomainSize();
+	double nsq = nn * nn *nn;
+	double G;
+	int j2;
+	int i2;
+
+	switch (Settings::ConvolutionMode) {
+		case E_GAUSSIAN: {
+			//cout << n * n << "   " << nsq << endl;
+			double n_nsq = n * n * n;
+			//			Convolution with Normaldistribution
+			for (int k = 0; k < n; k++) {
+				int k2 = min(k, n - k);
+				for (int i = 0; i < n; i++) {
+					i2 = min(i, n - i);
+					for (int j = 0; j < n2; j++) {
+						j2 = min(j, n - j);
+						G = exp(
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
+								/ n_nsq * PI * PI * PI) / n_nsq;
+						fftTemp[i + n2 * j].real = fftTemp[i + n2 * j].real * G;
+						fftTemp[i + n2 * j].imag = fftTemp[i + n2 * j].imag * G;
+					}
+				}
+			}
+			break;
+		}
+		default:
+		throw runtime_error("Unknown convolution mode!");
+	}
+	break;
+}
+if (update_backward_plan) {
+	DftiFreeDescriptor(&m_b_handle);
+	DftiCreateDescriptor(&m_b_handle, precision, DFTI_REAL, 3, m_dimensions);
+	DftiSetValue(m_b_handle, DFTI_PLACEMENT, DFTI_NOT_INPLACE);
+	DftiSetValue(m_b_handle, DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
+	m_f_input_strides[1] = m_dimensions[0]* m_dimensions[0];
+	m_f_input_strides[2] = m_dimensions[0];
+	//m_b_input_strides[1] = m_dimensions[0]/2 + 1;
+	DftiSetValue(m_b_handle, DFTI_INPUT_STRIDES, m_b_input_strides);
+	m_f_output_strides[1] = m_dimensions[0]* m_dimensions[0]; //m_dimensions[0]/2 + 1;
+	m_f_output_strides[2] = m_dimensions[0];
+	//m_b_output_strides[1] = m_dimensions[0];
+	DftiSetValue(m_b_handle, DFTI_OUTPUT_STRIDES, m_b_output_strides);
+	DftiCommitDescriptor(m_b_handle);
+}
+DftiComputeBackward(m_b_handle, fftTemp, m_outputDistance->getRawData());
+
+}
+#endif
 /**************************************/
 /**************************************/
 
