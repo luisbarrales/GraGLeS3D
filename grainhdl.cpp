@@ -500,6 +500,7 @@ for	(auto id : workload)
 				m_ThreadMemPool[omp_get_thread_num()]);
 	}
 }
+#ifdef USE_FFTW
 gettimeofday(&time, NULL);
 timer = time.tv_sec + time.tv_usec / 1000000.0;
 for (unsigned int i = 1; i < grains.size(); i++) {
@@ -507,6 +508,7 @@ for (unsigned int i = 1; i < grains.size(); i++) {
 	grains[i]->cleanupConvolution();
 }
 gettimeofday(&time, NULL);
+#endif
 planOverhead += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 }
 

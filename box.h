@@ -99,11 +99,7 @@ private:
 #ifdef USE_MKL
 	DFTI_DESCRIPTOR_HANDLE m_handle;
 	DFTI_DESCRIPTOR_HANDLE m_b_handle;
-	MKL_LONG m_dimensions[3];
-	MKL_LONG m_f_input_strides[4];
-	MKL_LONG m_f_output_strides[4];
-	MKL_LONG m_b_input_strides[4];
-	MKL_LONG m_b_output_strides[4];
+	MKL_LONG m_dimensions;
 #endif
 public:
 	//Constructors to document
@@ -166,7 +162,7 @@ public:
 	void executeFFTW(fftwf_plan fftplan);
 	void cleanupConvolution();
 #elif defined USE_MKL
-	void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
+	void convolutionGeneratorMKL(MKL_Complex16* fftTemp);
 #endif
 	void switchInNOut();
 	//todo: refactor with a proper name
