@@ -233,20 +233,20 @@ void grainhdl::VOROMicrostructure() {
 	vector < vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
 	if (vl.start()) {
-		initialHulls.resize(ngrains+1);
-		int cellIndex = 1;
+		initialHulls.resize(ngrains + 1);
 		do {
 			double cur_x, cur_y, cur_z;
 			con.compute_cell(c, vl);
+			//new: get the grain_id
+			int box_id = vl.pid() + 1;
 			vl.pos(cur_x, cur_y, cur_z);
 			c.vertices(cur_x, cur_y, cur_z, cellCoordinates);
 			for (unsigned int i = 0; i < cellCoordinates.size() / 3; i++) {
-				initialHulls.at(cellIndex).push_back(
-						Vector3d(cellCoordinates.at(3 * i + 1),
+				initialHulls.at(box_id).push_back(
+						Vector3d(cellCoordinates.at(3 * i +1 ),
 								cellCoordinates.at(3 * i),
 								cellCoordinates.at(3 * i + 2)));
 			}
-			cellIndex++;
 		} while (vl.inc());
 
 		IDField = new DimensionalBuffer<int> (0, 0, 0, ngridpoints,

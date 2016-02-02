@@ -50,9 +50,9 @@ void SquaresGrainScheduler::buildGrainWorkloads(
 				pos_y = int(center.y + 0.5);
 				pos_z = int(center.z + 0.5);
 			}
-			// add grain to processing list depending on local position
-			// as only 4 numa nodes are available, we just order the grains utilizing 2 coordinates
-			// this is results in a structure similar to 4 pommes frites in a cube.
+			// add grain to processing list depending on spatial position
+			// as only 4 NUMA nodes are available, we just cluster the grains by 2 coordinates of their barrycenters
+			// this is resides in a structure similar to 4 fat belgium pommes frites composing a cube.
 			if (pos_x == 0 && pos_y == 0)
 				list[0].push_back(i);
 			else if (pos_x == 1 && pos_y == 0)
