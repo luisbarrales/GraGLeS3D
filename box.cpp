@@ -515,7 +515,6 @@ void LSbox::executeFFTW(fftwf_plan fftplan) {
 }
 
 #elif defined USE_MKL
-
 void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 {
 	if (m_grainHandler->get_loop()==0) {
@@ -534,8 +533,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 		const MKL_LONG N = m_outputDistance->getMaxX() - m_outputDistance->getMinX();
 		m_dimensions = N;
 		MKL_LONG dimensions[3] = {N,N,N};
-		MKL_LONG input_strides[4] = {0,N*(N/2+1)*2,(N/2+1) *2,1};
-		MKL_LONG output_strides[4] = {0,N*(N/2+1),N/2+1,1};
+		MKL_LONG input_strides[4] = {0,N,N*N,1};
+		MKL_LONG output_strides[4] = {0,(N/2+1),(N/2+1)*N,1};
 		const MKL_LONG PO = N*N*N;
 		const MKL_LONG SO = N*N*(N/2+1);
 		update_backward_plan = true;
@@ -545,8 +544,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 		DftiSetValue(m_handle, DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
 		DftiSetValue(m_handle, DFTI_INPUT_STRIDES, input_strides);
 		DftiSetValue(m_handle, DFTI_OUTPUT_STRIDES, output_strides);
-		DftiSetValue(m_handle, DFTI_INPUT_DISTANCE, PO) ;
-		DftiSetValue(m_handle, DFTI_OUTPUT_DISTANCE, SO) ;
+		//DftiSetValue(m_handle, DFTI_INPUT_DISTANCE, PO) ;
+		//DftiSetValue(m_handle, DFTI_OUTPUT_DISTANCE, SO) ;
 		DftiCommitDescriptor(m_handle);
 	}
 	DftiComputeForward(m_handle, m_inputDistance->getRawData(), fftTemp);
@@ -562,7 +561,6 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 
 	switch (Settings::ConvolutionMode) {
 		case E_GAUSSIAN: {
-			//cout << n * n << "   " << nsq << endl;
 			double n_nsq = n * n * n;
 			//			Convolution with Normaldistribution
 			for (int k = 0; k < n; k++) {
@@ -572,10 +570,10 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
-						-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
-						/ n_nsq * PI * PI * PI) / n_nsq;
-						fftTemp[i + n2 * j].real = fftTemp[i + n2 * j].real * G;
-						fftTemp[i + n2 * j].imag = fftTemp[i + n2 * j].imag * G;
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
+								/ n_nsq * PI * PI * PI) / n_nsq;
+						fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
+						fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
 					}
 				}
 			}
@@ -591,8 +589,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 		DftiFreeDescriptor(&m_b_handle);
 		MKL_LONG N = m_dimensions;
 		MKL_LONG dimensions[3] = {N,N,N};
-		MKL_LONG input_strides[4] = {0,N*(N/2+1),N/2+1,1};
-		MKL_LONG output_strides[4] = {0,N*(N/2+1)*2,(N/2+1) *2,1};
+		MKL_LONG input_strides[4] = {0,(N/2+1),(N/2+1)*N,1};
+		MKL_LONG output_strides[4] = {0,N,N*N,1};
 		const MKL_LONG PO = N*N*N;
 		const MKL_LONG SO = N*N*(N/2+1);
 		DftiCreateDescriptor(&m_b_handle, precision, DFTI_REAL, 3, dimensions);
@@ -600,8 +598,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 		DftiSetValue(m_b_handle, DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
 		DftiSetValue(m_b_handle, DFTI_INPUT_STRIDES, input_strides);
 		DftiSetValue(m_b_handle, DFTI_OUTPUT_STRIDES, output_strides);
-		DftiSetValue(m_b_handle, DFTI_INPUT_DISTANCE, PO) ;
-		DftiSetValue(m_b_handle, DFTI_OUTPUT_DISTANCE, SO) ;
+		//DftiSetValue(m_b_handle, DFTI_INPUT_DISTANCE, PO) ;
+		//DftiSetValue(m_b_handle, DFTI_OUTPUT_DISTANCE, SO) ;
 		DftiCommitDescriptor(m_b_handle);
 	}
 	DftiComputeBackward(m_b_handle, fftTemp, m_outputDistance->getRawData());

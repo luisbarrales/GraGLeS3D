@@ -4,7 +4,7 @@
    <NumberOfParticles> 50 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
    <AnalysisTimestep> 1 </AnalysisTimestep>
-   <NumberOfTimesteps> 20 </NumberOfTimesteps>
+   <NumberOfTimesteps> 2 </NumberOfTimesteps>
    <BreakupNumber> 1 </BreakupNumber>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
@@ -19,9 +19,9 @@
    <HAGB> 1. </HAGB>
    <TriplePointDrag> 1 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
-   <DisableConvolutionCorrection> 0 </DisableConvolutionCorrection>
+   <DisableConvolutionCorrection> 1 </DisableConvolutionCorrection>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 1 </ExecuteInParallel>
+   <ExecuteInParallel> 0</ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
    <GridCoarsement> 0 </GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
@@ -36,7 +36,7 @@
 	0 	Energies defined by ReadShockley Model
 	1	Energies set to 1			
    -->
-   <GrainScheduler> 1 </GrainScheduler>
+   <GrainScheduler> 0 </GrainScheduler>
    <!-- USAGE:
     	0   	E_ITERATIVE
    	1   	E_SQUARES

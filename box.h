@@ -92,11 +92,12 @@ private:
 	SPoint 						m_centroid;
 	DimensionalBufferReal* 		m_inputDistance;
 	DimensionalBufferReal* 		m_outputDistance;
-	fftwp_plan 					m_backwardsPlan;
-	fftwp_plan 					m_forwardPlan;
 	vector<unsigned int> 		m_comparisonList;
 	vector<unsigned int> 		m_secondOrderNeighbours;
-#ifdef USE_MKL
+#ifdef USE_FFTW
+	fftwp_plan 					m_backwardsPlan;
+	fftwp_plan 					m_forwardPlan;
+#elif defined USE_MKL
 	DFTI_DESCRIPTOR_HANDLE m_handle;
 	DFTI_DESCRIPTOR_HANDLE m_b_handle;
 	MKL_LONG m_dimensions;

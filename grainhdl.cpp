@@ -622,6 +622,14 @@ void grainhdl::run_sim() {
 		convolution(plan_overhead);
 		gettimeofday(&time, NULL);
 		convo_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+		for		(const auto & it : grains)
+				{	if (it!= NULL)
+					if(it->getID()!=0) {
+		//				it->plotBoxContour();
+						it->plotBoxVolumetric("in",E_INPUT_DISTANCE);
+						it->plotBoxVolumetric("out",E_OUTPUT_DISTANCE);
+					}
+				}
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
@@ -664,7 +672,7 @@ for		(const auto & it : grains)
 		{	if (it!= NULL)
 			if(it->getID()!=0) {
 //				it->plotBoxContour();
-//				it->plotBoxVolumetric("",E_OUTPUT_DISTANCE);
+				it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
 			}
 		}
 	}
