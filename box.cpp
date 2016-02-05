@@ -380,9 +380,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//									- exp(-actualGrainRadius / a)
 						//											* (1 - yInterceptBottom);
 						//						}
-						double weight = 1.0;
-						//								m_explicitHull.projectPointToGrainBoundary(
-						//										point, grain.grainID);
+						double weight = m_explicitHull.projectPointToGrainBoundary(point, grain.grainID);
 
 						m_outputDistance->setValueAt(
 								i,

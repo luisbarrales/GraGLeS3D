@@ -21,6 +21,7 @@
 #include "marchingCubes.h"
 #include <stdexcept>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -163,16 +164,16 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			QJ->addTriangle(m_actualHull[i]);
 			break;
 		}
-		default:{
+		default: {
 			//cout << "high order junction found" << endl;
 			break;
 		}
 		}
 	}
-	m_actualHull.clear();
+	//m_actualHull.clear();
 }
 
-void GrainHull::computeInterfacialElementMesh(){
+void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
 	//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
 	// find the center of mass of a QuadruplePoint
@@ -182,7 +183,6 @@ void GrainHull::computeInterfacialElementMesh(){
 	// optimize the search routine to find nearest Triangle
 	// extend the classes interfacial elements etc. to capture the analytic descriptions
 }
-
 
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
 	for(const auto it : m_Grainboundary)
@@ -342,6 +342,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	int counter = 0;
 	map<Vector3d, int, vectorComparator> mymap;
 	map<int, Vector3d> orderedPoints;
+
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 		if (mymap.find(m_actualHull[i].points[0]) == mymap.end()) {
 			mymap.insert(
@@ -373,7 +374,6 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	fprintf(output, "POLYGONS %lu %lu\n", m_actualHull.size(),
 			m_actualHull.size() * 4);
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-
 		fprintf(output, "3 %d %d %d \n",
 				(*(mymap.find(m_actualHull[i].points[2]))).second,
 				(*(mymap.find(m_actualHull[i].points[1]))).second,
@@ -382,27 +382,27 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 
 	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
 	fprintf(output, "FIELD FieldData 1\n");
-	fprintf(output, "Interestingness 1 %lu int\n",
-			orderedPoints.size());
+	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
 
-	for ( const auto &myPair : orderedPoints )
+for ( const auto &myPair : orderedPoints )
+{
+	const Vector3d& point = myPair.second;
+	int interestingness = 0;
+	for(unsigned int i=0; i<m_actualHull.size(); i++)
 	{
-		const Vector3d& point = myPair.second;
-		int interestingness = 0;
-		for(unsigned int i=0; i<m_actualHull.size(); i++)
+		if( point == m_actualHull[i].points[0] || point == m_actualHull[i].points[1] ||
+				point == m_actualHull[i].points[2])
 		{
-			if( point == m_actualHull[i].points[0] || point == m_actualHull[i].points[1] ||
-					point == m_actualHull[i].points[2])
-			{
-				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-				int interactingGrains = m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
-//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
-				interestingness = max(interestingness, interactingGrains);
-			}
+			//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+			int interactingGrains = m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+			//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+			//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+			interestingness = max(interestingness, interactingGrains);
 		}
-		fprintf(output, "%d ", interestingness);
 	}
-	fclose(output);
+	fprintf(output, "%d ", interestingness);
+
+}
+fclose( output);
 }
 

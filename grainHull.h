@@ -30,9 +30,6 @@ class LSbox;
 
 class GrainHull {
 private:
-	friend class GrainBoundary;
-	friend class TripleLine;
-	friend class QuadrupleJunction;
 	vector<Triangle> m_actualHull;
 	vector<NeighborList> m_triangleNeighborLists;
 	vector<unsigned int> m_neighbors;
@@ -40,6 +37,9 @@ private:
 	vector<TripleLine*> m_TripleLines;
 	vector<QuadrupleJunction*> m_QuadrupelPoints;
 public:
+	friend class GrainBoundary;
+	friend class TripleLine;
+	friend class QuadrupleJunction;
 	LSbox* m_owner;
 	GrainHull(LSbox* owner);
 	~GrainHull();

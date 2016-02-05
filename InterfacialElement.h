@@ -41,7 +41,7 @@ public:
 	void addTriangle(Triangle current) {
 		m_Triangles.push_back(current);
 	}
-	int get_m_Key_NeighborList() {
+	inline int get_m_Key_NeighborList() {
 		return m_Key_NeighborList;
 	}
 	inline double get_Correction_Weight() {
