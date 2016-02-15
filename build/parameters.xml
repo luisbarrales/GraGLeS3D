@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
 	 <StartTime> 0 </StartTime>
-   <NumberOfParticles> 10 </NumberOfParticles> 
+   <NumberOfParticles> 20 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
-   <AnalysisTimestep> 20 </AnalysisTimestep>
-   <NumberOfTimesteps> 20 </NumberOfTimesteps>
+   <AnalysisTimestep> 1 </AnalysisTimestep>
+   <NumberOfTimesteps> 1 </NumberOfTimesteps>
    <BreakupNumber> 1 </BreakupNumber>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>

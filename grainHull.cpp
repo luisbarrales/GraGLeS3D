@@ -325,6 +325,87 @@ struct vectorComparator {
 	}
 };
 
+//void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
+//	string filename = string("GrainHull_") + to_string(
+//			(unsigned long long) m_owner->getID()) + string("Timestep_")
+//			+ to_string((unsigned long long) timestep) + string(".vtk");
+//	FILE* output = fopen(filename.c_str(), "wt");
+//	if (output == NULL) {
+//		throw runtime_error("Unable to save box hull!");
+//	}
+//
+//	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
+//		"vtk output\n"
+//		"ASCII\n"
+//		"DATASET POLYDATA\n");
+//
+//	int counter = 0;
+//	map<Vector3d, int, vectorComparator> mymap;
+//	map<int, Vector3d> orderedPoints;
+//
+//	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+//		if (mymap.find(m_actualHull[i].points[0]) == mymap.end()) {
+//			mymap.insert(
+//					pair<Vector3d, int> (m_actualHull[i].points[0], counter));
+//			counter++;
+//		}
+//		if (mymap.find(m_actualHull[i].points[1]) == mymap.end()) {
+//			mymap.insert(
+//					pair<Vector3d, int> (m_actualHull[i].points[1], counter));
+//			counter++;
+//		}
+//		if (mymap.find(m_actualHull[i].points[2]) == mymap.end()) {
+//			mymap.insert(
+//					pair<Vector3d, int> (m_actualHull[i].points[2], counter));
+//			counter++;
+//		}
+//	}for ( const auto &myPair : mymap )
+//	{
+//		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
+//	}
+//
+//	fprintf(output, "POINTS %lu float\n", orderedPoints.size());
+//
+//	for ( const auto &myPair : orderedPoints )
+//	{
+//		fprintf(output, "%f %f %f\n", myPair.second[0], myPair.second[1], myPair.second[2]);
+//	}
+//
+//	fprintf(output, "POLYGONS %lu %lu\n", m_actualHull.size(),
+//			m_actualHull.size() * 4);
+//	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+//		fprintf(output, "3 %d %d %d \n",
+//				(*(mymap.find(m_actualHull[i].points[2]))).second,
+//				(*(mymap.find(m_actualHull[i].points[1]))).second,
+//				(*(mymap.find(m_actualHull[i].points[0]))).second);
+//	}
+//
+//	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
+//	fprintf(output, "FIELD FieldData 1\n");
+//	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
+//
+//for ( const auto &myPair : orderedPoints )
+//{
+//	const Vector3d& point = myPair.second;
+//	int interestingness = 0;
+//	for(unsigned int i=0; i<m_actualHull.size(); i++)
+//	{
+//		if( point == m_actualHull[i].points[0] || point == m_actualHull[i].points[1] ||
+//				point == m_actualHull[i].points[2])
+//		{
+//			//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+//			int interactingGrains = m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+//			//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+//			//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+//			interestingness = max(interestingness, interactingGrains);
+//		}
+//	}
+//	fprintf(output, "%d ", interestingness);
+//
+//}
+//fclose( output);
+//}
+
 void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	string filename = string("GrainHull_") + to_string(
 			(unsigned long long) m_owner->getID()) + string("Timestep_")
@@ -384,25 +465,27 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	fprintf(output, "FIELD FieldData 1\n");
 	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
 
-for ( const auto &myPair : orderedPoints )
-{
-	const Vector3d& point = myPair.second;
-	int interestingness = 0;
-	for(unsigned int i=0; i<m_actualHull.size(); i++)
+	for ( const auto &myPair : orderedPoints )
 	{
-		if( point == m_actualHull[i].points[0] || point == m_actualHull[i].points[1] ||
-				point == m_actualHull[i].points[2])
+		const Vector3d& point = myPair.second;
+		int interestingness = 0;
+		int key=0;
+		for(unsigned int i=0; i<m_actualHull.size(); i++)
 		{
-			//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-			int interactingGrains = m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
-			//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-			//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
-			interestingness = max(interestingness, interactingGrains);
+			if( point == m_actualHull[i].points[0] || point == m_actualHull[i].points[1] ||
+					point == m_actualHull[i].points[2])
+			{
+				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+				int interactingGrains = m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+				key = m_actualHull[i].additionalData;
+				//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+				//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+				interestingness = max(interestingness, interactingGrains);
+			}
 		}
+		interestingness = 100* interestingness + key;
+		fprintf(output, "%d ", interestingness);
+
 	}
-	fprintf(output, "%d ", interestingness);
-
+	fclose(output);
 }
-fclose( output);
-}
-
