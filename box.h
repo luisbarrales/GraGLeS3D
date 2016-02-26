@@ -142,6 +142,7 @@ public:
 	void recalculateIDLocal();
 
 	//Debug printing functions
+	void plotBoxInterfacialElements(bool absoluteCoordinates = false);
 	void plotBoxContour(bool absoluteCoordinates = false);
 	void plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection);
 	void plotBoxIDLocal();

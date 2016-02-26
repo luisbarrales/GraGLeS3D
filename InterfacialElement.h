@@ -73,10 +73,13 @@ public:
 	~QuadrupleJunction();
 	void computeEnergy();
 	void computeMobility();
+	inline int get_FirstNeighbor(){return m_neighborID[0];};
+	inline int get_SecondNeighbor(){return m_neighborID[1];};
+	inline int get_ThirdNeighbor(){return m_neighborID[2];};
 };
 
 class TripleLine: public InterfacialElement {
-	vector<int> m_vertices;
+	vector<QuadrupleJunction*> m_vertices;
 	int m_neighborID[2];
 public:
 	friend class GrainHull;
@@ -85,11 +88,13 @@ public:
 	~TripleLine();
 	void computeEnergy();
 	void computeMobility();
+	void findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*>);
 };
 
 class GrainBoundary: public InterfacialElement {
-	vector<int> m_edges; // saves the indexes of edges in clockwise order
+	vector<TripleLine*> m_edges; // saves the indexes of edges in clockwise order
 	int m_neighborID;
+	Vector3d inclination;
 public:
 	friend class GrainHull;
 	GrainBoundary(int key, GrainHull *owner);

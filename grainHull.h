@@ -35,7 +35,7 @@ private:
 	vector<unsigned int> m_neighbors;
 	vector<GrainBoundary*> m_Grainboundary;
 	vector<TripleLine*> m_TripleLines;
-	vector<QuadrupleJunction*> m_QuadrupelPoints;
+	vector<QuadrupleJunction*> m_QuadruplePoints;
 public:
 	friend class GrainBoundary;
 	friend class TripleLine;
@@ -62,6 +62,7 @@ public:
 	void subDivideTrianglesToInterfacialElements();
 	void computeInterfacialElementMesh();
 	double projectPointToGrainBoundary(Vector3d& point, int id);
+	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
 };
 
 #endif //__GRAIN_HULL__

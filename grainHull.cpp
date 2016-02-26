@@ -107,9 +107,9 @@ void GrainHull::clearInterfacialElements() {
 	for (auto it : m_TripleLines)
 	delete &(*it);
 	m_TripleLines.clear();
-	for (auto it : m_QuadrupelPoints)
+	for (auto it : m_QuadruplePoints)
 	delete &(*it);
-	m_QuadrupelPoints.clear();
+	m_QuadruplePoints.clear();
 }
 
 void GrainHull::computeGrainBoundaryElements() {
@@ -131,7 +131,7 @@ void GrainHull::computeGrainBoundaryElements() {
 		}
 		case 4: {
 			QuadrupleJunction* newQJ = new QuadrupleJunction(i, this);
-			m_QuadrupelPoints.push_back(newQJ);
+			m_QuadruplePoints.push_back(newQJ);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
@@ -175,6 +175,11 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
+
+	for(const auto it : m_TripleLines)
+		{
+			it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
+		}
 	//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
 	// find the center of mass of a QuadruplePoint
 	// attach the quadruplePoints to TripleLines
@@ -207,7 +212,7 @@ TripleLine* GrainHull::findTripleLine(int key) {
 }
 QuadrupleJunction* GrainHull::findQuadrupleJunction(int key) {
 
-	for(const auto it : m_QuadrupelPoints)
+	for(const auto it : m_QuadruplePoints)
 	{
 		if(it->get_m_Key_NeighborList() == key)
 		{
@@ -225,17 +230,17 @@ double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	//TODO:
 
 	//search in QuadrupleJunctions
-	for (int j = 0; j < m_QuadrupelPoints.size(); j++) {
-		if (m_QuadrupelPoints[j]->m_neighborID[0] == id
-				|| m_QuadrupelPoints[j]->m_neighborID[1] == id
-				|| m_QuadrupelPoints[j]->m_neighborID[2] == id) {
+	for (int j = 0; j < m_QuadruplePoints.size(); j++) {
+		if (m_QuadruplePoints[j]->m_neighborID[0] == id
+				|| m_QuadruplePoints[j]->m_neighborID[1] == id
+				|| m_QuadruplePoints[j]->m_neighborID[2] == id) {
 			for (unsigned int i = 0; i
-					< m_QuadrupelPoints[j]->m_Triangles.size(); i++) {
+					< m_QuadruplePoints[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
-						m_QuadrupelPoints[j]->m_Triangles[i]);
+						m_QuadruplePoints[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
-					weight = m_QuadrupelPoints[j]->get_Correction_Weight();
+					weight = m_QuadruplePoints[j]->get_Correction_Weight();
 				}
 			}
 		}
@@ -488,4 +493,46 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 
 	}
 	fclose(output);
+}
+
+void GrainHull::plotInterfacialElements(bool absoluteCoordinates, int timestep) {
+	int ID=0;
+	string filename = string("InterfacialElements_") + to_string(
+				(unsigned long long) m_owner->getID()) + string("Timestep_")
+				+ to_string((unsigned long long) timestep) + string(".vtk");
+		FILE* output = fopen(filename.c_str(), "wt");
+		if (output == NULL) {
+			throw runtime_error("Unable to save box hull!");
+		}
+
+for(const auto it : m_Grainboundary){
+	for(const auto Triangle : it->m_Triangles){
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[0][0],Triangle.points[0][1],Triangle.points[0][2], ID);
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[1][0],Triangle.points[1][1],Triangle.points[1][2], ID);
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[2][0],Triangle.points[2][1],Triangle.points[2][2], ID);
+	}
+	ID++;
+}
+
+		fprintf(output, "\n\nTRIPLELINES %lu\n", m_TripleLines.size());
+for(const auto it : m_TripleLines)
+{
+	for(const auto Triangle : it->m_Triangles) {
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[0][0],Triangle.points[0][1],Triangle.points[0][2], ID);
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[1][0],Triangle.points[1][1],Triangle.points[1][2], ID);
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[2][0],Triangle.points[2][1],Triangle.points[2][2], ID);
+		}
+		ID++;
+}
+
+fprintf(output, "\n\nQUADRUPLEJUNCTIONS %lu\n", m_QuadruplePoints.size());
+for(const auto it : m_QuadruplePoints)
+{
+	for(const auto Triangle : it->m_Triangles){
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[0][0],Triangle.points[0][1],Triangle.points[0][2], ID);
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[1][0],Triangle.points[1][1],Triangle.points[1][2], ID);
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", Triangle.points[2][0],Triangle.points[2][1],Triangle.points[2][2], ID);
+		}
+		ID++;
+}
 }

@@ -8,6 +8,16 @@ struct Triangle
 {
 	Vector3d 	points[3];
 	int additionalData;
+	Vector3d computeBarycenter(){
+		Vector3d barycenter;
+		//TODO;
+		return barycenter;
+	}
+	Vector compute outerUnitNormal(){
+		Vector3d outerUnitNormal;
+		//TODO:
+		return outerUnitNormal;
+	}
 };
 
 #endif		//__TRIANGLE_H__

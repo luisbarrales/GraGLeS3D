@@ -1454,6 +1454,11 @@ void LSbox::computeDirectNeighbours(
 		}
 	}
 }
+
+void LSbox::plotBoxInterfacialElements(bool absoluteCoordinates){
+	m_explicitHull.plotInterfacialElements(false, m_grainHandler->loop);
+}
+
 void LSbox::plotBoxContour(bool absoluteCoordinates) {
 	m_explicitHull.plotContour(false, m_grainHandler->loop);
 }
