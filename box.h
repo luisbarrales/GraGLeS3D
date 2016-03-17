@@ -31,6 +31,9 @@
 #include "fftw3.h"
 #include "Eigen/Dense"
 #include "myQuaternion.h"
+#ifdef USE_MKL
+#include "mkl_dfti.h"
+#endif
 
 
 using namespace std;
@@ -89,17 +92,22 @@ private:
 	SPoint 						m_centroid;
 	DimensionalBufferReal* 		m_inputDistance;
 	DimensionalBufferReal* 		m_outputDistance;
-	fftwp_plan 					m_backwardsPlan;
-	fftwp_plan 					m_forwardPlan;
 	vector<unsigned int> 		m_comparisonList;
 	vector<unsigned int> 		m_secondOrderNeighbours;
-
+#ifdef USE_FFTW
+	fftwp_plan 					m_backwardsPlan;
+	fftwp_plan 					m_forwardPlan;
+#elif defined USE_MKL
+	DFTI_DESCRIPTOR_HANDLE m_handle;
+	DFTI_DESCRIPTOR_HANDLE m_b_handle;
+	MKL_LONG m_dimensions;
+#endif
 public:
 	//Constructors to document
 	LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner);
 	LSbox(int id, vector<Vector3d>& hull, grainhdl* owner);
-	LSbox(int id, DimensionalBuffer<int>& IDField, grainhdl* owner);
-	LSbox(int id, const vector<SPoint>& vertices, myQuaternion ori, grainhdl* owner);
+	LSbox(int id, const vector<Vector3d>& vertices, DimensionalBuffer<int>& IDField, grainhdl* owner);
+	LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori, grainhdl* owner);
 	//Dtors
 	virtual ~LSbox();
 	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);
@@ -126,13 +134,15 @@ public:
 	vector<int>	getDirectNeighbourIDs();
 	vector<double> getGBLengths();
 	//map<int, double>& getDiscreteEnergyDistribution() { }
-    bool checkIntersection(LSbox* box2);   	
+    bool checkIntersection(LSbox* box2);
+    void preallocateMemory(ExpandingVector<char>& memory_dump);
       
 
 	void resizeIDLocalToDistanceBuffer();
 	void recalculateIDLocal();
 
 	//Debug printing functions
+	void plotBoxInterfacialElements(bool absoluteCoordinates = false);
 	void plotBoxContour(bool absoluteCoordinates = false);
 	void plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection);
 	void plotBoxIDLocal();
@@ -144,14 +154,18 @@ public:
 	void initConvoMemory(ExpandingVector<char>& memory_dump);
 	void createConvolutionPlans(ExpandingVector<char>& memory_dump);
 	void executeConvolution(ExpandingVector<char>& mem_pool);
-	void cleanupConvolution();
 
+
+#ifdef USE_FFTW
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
 	void convolutionGeneratorFFTW(fftwp_complex *fftTemp, fftwp_plan fftplan1, fftwp_plan fftplan2);
 	void executeFFTW(fftw_plan fftplan);
 	void executeFFTW(fftwf_plan fftplan);
-
+	void cleanupConvolution();
+#elif defined USE_MKL
+	void convolutionGeneratorMKL(MKL_Complex16* fftTemp);
+#endif
 	void switchInNOut();
 	//todo: refactor with a proper name
 	void boundaryCondition();

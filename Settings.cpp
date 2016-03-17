@@ -36,6 +36,7 @@ unsigned long Settings::AnalysisTimestep = 0;
 unsigned long Settings::DiscreteSamplingRate = 0;
 unsigned long Settings::DomainBorderSize = 0;
 unsigned long Settings::MaximumNumberOfThreads = 0;
+unsigned long Settings::GrainScheduler = 0;
 double Settings::GridCoarsementGradient = 0.95;
 E_CONVOLUTION_MODE Settings::ConvolutionMode = E_INVALID_VALUE;
 E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VAL;
@@ -190,6 +191,12 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("DislocationEnergy")) {
 		DislocationEnergy = std::stoul(rootNode->first_node("DislocationEnergy")->value());
 			}
+	if (0 != rootNode->first_node("GrainScheduler")) {
+			GrainScheduler = (E_GRAIN_SCHEDULER) std::stoi(
+					rootNode->first_node("GrainScheduler")->value());
+			if (GrainScheduler >= E_DEFAULT_SCHEDULER)
+				GrainScheduler = E_DEFAULT_SCHEDULER;
+		}
 	file.close();
 }
 
@@ -238,6 +245,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(InterpolatingSectorRadius);
 	PUSH_PARAM(NeighbourTracking);
 	PUSH_PARAM(DislocationEnergy);
+	PUSH_PARAM(GrainScheduler);
 	return params;
 }
 #undef PUSH_PARAM

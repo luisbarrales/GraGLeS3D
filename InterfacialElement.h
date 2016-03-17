@@ -24,6 +24,8 @@ using namespace std;
 class InterfacialElement {
 protected:
 	vector<Triangle> m_Triangles;
+	vector<Vector3d> m_barycenterTriangles;
+	vector<Vector3d> m_UnitNormalTriangles;
 	int m_Key_NeighborList;
 	double m_mobility;
 	double m_energy;
@@ -37,11 +39,13 @@ public:
 
 	virtual void computeEnergy()= 0;
 	virtual void computeMobility()= 0;
-
+	void addBaryCenter(Vector3d current) {
+		m_barycenterTriangles.push_back(current);
+	}
 	void addTriangle(Triangle current) {
 		m_Triangles.push_back(current);
 	}
-	int get_m_Key_NeighborList() {
+	inline int get_m_Key_NeighborList() {
 		return m_Key_NeighborList;
 	}
 	inline double get_Correction_Weight() {
@@ -73,10 +77,14 @@ public:
 	~QuadrupleJunction();
 	void computeEnergy();
 	void computeMobility();
+	inline int get_FirstNeighbor(){return m_neighborID[0];};
+	inline int get_SecondNeighbor(){return m_neighborID[1];};
+	inline int get_ThirdNeighbor(){return m_neighborID[2];};
+	inline Vector3d get_Position(){return m_position;};
 };
 
 class TripleLine: public InterfacialElement {
-	vector<int> m_vertices;
+	vector<QuadrupleJunction*> m_vertices;
 	int m_neighborID[2];
 public:
 	friend class GrainHull;
@@ -85,17 +93,25 @@ public:
 	~TripleLine();
 	void computeEnergy();
 	void computeMobility();
+	void findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*>);
+	inline int get_FirstNeighbor(){return m_neighborID[0];}
+	inline int get_SecondNeighbor(){return m_neighborID[1];}
+	inline vector<QuadrupleJunction*> get_vertices(){return m_vertices;}
+
 };
 
 class GrainBoundary: public InterfacialElement {
-	vector<int> m_edges; // saves the indexes of edges in clockwise order
+	vector<TripleLine*> m_edges; // saves the indexes of edges in clockwise order
 	int m_neighborID;
+	Vector3d inclination;
 public:
 	friend class GrainHull;
 	GrainBoundary(int key, GrainHull *owner);
 	~GrainBoundary();
 	void computeEnergy();
 	void computeMobility();
+	void findAdjacentTripleLines(vector<TripleLine*>);
+	inline vector<TripleLine*> get_edges(){return m_edges;}
 };
 
 #endif

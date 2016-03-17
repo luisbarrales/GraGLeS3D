@@ -30,16 +30,16 @@ class LSbox;
 
 class GrainHull {
 private:
-	friend class GrainBoundary;
-	friend class TripleLine;
-	friend class QuadrupleJunction;
 	vector<Triangle> m_actualHull;
 	vector<NeighborList> m_triangleNeighborLists;
 	vector<unsigned int> m_neighbors;
 	vector<GrainBoundary*> m_Grainboundary;
 	vector<TripleLine*> m_TripleLines;
-	vector<QuadrupleJunction*> m_QuadrupelPoints;
+	vector<QuadrupleJunction*> m_QuadruplePoints;
 public:
+	friend class GrainBoundary;
+	friend class TripleLine;
+	friend class QuadrupleJunction;
 	LSbox* m_owner;
 	GrainHull(LSbox* owner);
 	~GrainHull();
@@ -62,6 +62,7 @@ public:
 	void subDivideTrianglesToInterfacialElements();
 	void computeInterfacialElementMesh();
 	double projectPointToGrainBoundary(Vector3d& point, int id);
+	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
 };
 
 #endif //__GRAIN_HULL__

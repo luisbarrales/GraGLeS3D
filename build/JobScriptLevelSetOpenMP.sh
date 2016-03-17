@@ -21,7 +21,7 @@
 #BSUB -W 1:20
 
 ### Specify your mail address
-#BSUB -u fatim-zahra.mouhib@rwth-aachen.de
+#BSUB -u miessen@imm.rwth-aachen.de
 
 ### Send a mail when job is done
 #BSUB -N
@@ -37,4 +37,4 @@
 
 ulimit -u unlimited
 ### Execute your application
-LevelSet_IMM AreaChangeRates.xml
+LevelSet_IMM parameters.xml

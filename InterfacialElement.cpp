@@ -138,7 +138,30 @@ void TripleLine::computeMobility() {
 	double ds = 3 * sqrt(3 * handler->get_ds() * handler->get_ds());
 	// ds is the extension of the Tripleline - maximum 3 times the diagonal of a grid cell
 	m_mobility = 1 / ((1 / (ds * Settings::TripleLineDrag)) + 1
-			/ averageMobility);
+
+	/ averageMobility);
+}
+
+void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions){
+	int i= 0;
+	for(const auto it : Junctions)
+	{
+		if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID){
+				m_edges[i]=&(*it); i++;
+				if(i==1) return ;
+			}
+	}
+}
+void TripleLine::findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*> Junctions){
+	int i= 0;
+	for(const auto it : Junctions)
+	{
+		if (it->get_FirstNeighbor() == m_neighborID[0] || it->get_SecondNeighbor() == m_neighborID[0] || it->get_ThirdNeighbor() == m_neighborID[0])
+			if (it->get_FirstNeighbor() == m_neighborID[1] || it->get_SecondNeighbor() == m_neighborID[1] || it->get_ThirdNeighbor() == m_neighborID[1]){
+				m_vertices[i]=&(*it); i++;
+				if(i==2) return ;
+			}
+	}
 }
 
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :

@@ -26,7 +26,8 @@
 #include "Eigen/Dense"
 #include <omp.h>
 #include <numa.h>
-#include "myQuaternion.h"
+
+
 
 #define xsect(p1,p2) (h[p2]*xh[p1]-h[p1]*xh[p2])/(h[p2]-h[p1])
 #define ysect(p1,p2) (h[p2]*yh[p1]-h[p1]*yh[p2])/(h[p2]-h[p1])
@@ -39,6 +40,7 @@ using namespace Eigen;
 class LSbox;
 class mathMethods;
 class myQuaternion;
+class IGrainScheduler;
 /*!
  * \class grainhdl
  * \brief Class that manages the grain growth simulation.
@@ -54,6 +56,7 @@ protected:
 	int grid_blowup;
 
 	int Mode;
+	IGrainScheduler* m_grainScheduler;
 public:
 	int currentNrGrains;
 	mathMethods* mymath;
@@ -177,7 +180,7 @@ protected:
 	void initEnvironment();
 	void initNUMABindings();
 	void buildBoxVectors(vector<vector<Vector3d>>& hulls);
-	void buildBoxVectors(int* ID, vector<vector<SPoint>>& contours,
+	void buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
 			myQuaternion* Quaternionen);
 	int m_ThreadPoolCount;
 	vector<ExpandingVector<char> > m_ThreadMemPool;
