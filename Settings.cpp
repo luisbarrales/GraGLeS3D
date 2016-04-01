@@ -1,20 +1,20 @@
 /*
-	GraGLeS 2D A grain growth simulation utilizing level set approaches
-    Copyright (C) 2015  Christian Miessen, Nikola Velinov
+ GraGLeS 2D A grain growth simulation utilizing level set approaches
+ Copyright (C) 2015  Christian Miessen, Nikola Velinov
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "Settings.h"
 #include "rapidxml.hpp"
 #include <fstream>
@@ -31,7 +31,7 @@ unsigned long Settings::StartTime = 0;
 unsigned int Settings::NumberOfParticles = 0;
 unsigned long Settings::NumberOfPointsPerGrain = 0;
 unsigned long Settings::NumberOfTimesteps = 0;
-unsigned long Settings::BreakupNumber=0;
+unsigned long Settings::BreakupNumber = 0;
 unsigned long Settings::AnalysisTimestep = 0;
 unsigned long Settings::DiscreteSamplingRate = 0;
 unsigned long Settings::DomainBorderSize = 0;
@@ -43,7 +43,10 @@ E_MICROSTRUCTURE_GEN_MODE Settings::MicrostructureGenMode = E_INVALID_VAL;
 E_RESEARCH_PROJECT Settings::ResearchProject = E_DEFAULT;
 string Settings::ReadFromFilename;
 string Settings::AdditionalFilename;
-double Settings::HAGB = 0.0;
+double Settings::HAGB_Mobility = 0.0;
+double Settings::HAGB_Energy = 0.0;
+double Settings::Physical_Domain_Size = 0.0;
+unsigned long Settings::PlotInterval = 0;
 double Settings::TripleLineDrag = 0.0;
 bool Settings::UseMobilityModel = false;
 bool Settings::DisableConvolutionCorrection = false;
@@ -61,8 +64,7 @@ void Settings::initializeParameters(string filename) {
 	if (0 == filename.compare(""))
 		filename = string("parameters.xml");
 	ifstream file(filename);
-	if (file.fail())
-	{
+	if (file.fail()) {
 		throw runtime_error(string("Unable to locate file ") + filename);
 	}
 	stringstream contents;
@@ -70,11 +72,10 @@ void Settings::initializeParameters(string filename) {
 	string xmlDocument(contents.str());
 
 	xml_document<> tree;
-	tree.parse<0> (&xmlDocument[0]);
+	tree.parse<0>(&xmlDocument[0]);
 
 	xml_node<>* rootNode = tree.first_node();
-	if (0 != strcmp(rootNode->name(), "Parameters"))
-	{
+	if (0 != strcmp(rootNode->name(), "Parameters")) {
 		throw runtime_error("Malformed parameters file!");
 	}
 
@@ -87,8 +88,8 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("NumberOfParticles")->value());
 	}
 	if (0 != rootNode->first_node("NumberOfPointsPerGrain")) {
-		NumberOfPointsPerGrain = std::stoul(rootNode->first_node(
-				"NumberOfPointsPerGrain")->value());
+		NumberOfPointsPerGrain = std::stoul(
+				rootNode->first_node("NumberOfPointsPerGrain")->value());
 	}
 	if (0 != rootNode->first_node("AnalysisTimestep")) {
 		AnalysisTimestep = std::stoul(
@@ -98,13 +99,17 @@ void Settings::initializeParameters(string filename) {
 		NumberOfTimesteps = std::stoul(
 				rootNode->first_node("NumberOfTimesteps")->value());
 	}
+	if (0 != rootNode->first_node("PlotInterval")) {
+		PlotInterval = std::stoul(
+				rootNode->first_node("PlotInterval")->value());
+	}
 	if (0 != rootNode->first_node("BreakupNumber")) {
-					BreakupNumber = std::stoul(rootNode->first_node(
-							"BreakupNumber")->value());
-			}
+		BreakupNumber = std::stoul(
+				rootNode->first_node("BreakupNumber")->value());
+	}
 	if (0 != rootNode->first_node("DiscreteSamplingRate")) {
-		DiscreteSamplingRate = std::stoul(rootNode->first_node(
-				"DiscreteSamplingRate")->value());
+		DiscreteSamplingRate = std::stoul(
+				rootNode->first_node("DiscreteSamplingRate")->value());
 	}
 	if (0 != rootNode->first_node("DomainBorderSize")) {
 		DomainBorderSize = std::stoul(
@@ -117,37 +122,46 @@ void Settings::initializeParameters(string filename) {
 			MicrostructureGenMode = E_INVALID_VAL;
 	}
 	if (0 != rootNode->first_node("AdditionalFilename")) {
-		AdditionalFilename = rootNode->first_node("AdditionalFilename")->value();
+		AdditionalFilename =
+				rootNode->first_node("AdditionalFilename")->value();
 	}
 	if (0 != rootNode->first_node("ReadFromFilename")) {
 		ReadFromFilename = rootNode->first_node("ReadFromFilename")->value();
 	}
-	if (0 != rootNode->first_node("HAGB")) {
-		HAGB = std::stod(rootNode->first_node("HAGB")->value());
+	if (0 != rootNode->first_node("HAGB_Mobility")) {
+		HAGB_Mobility = std::stod(
+				rootNode->first_node("HAGB_Mobility")->value());
+	}
+	if (0 != rootNode->first_node("Physical_Domain_Size")) {
+		Physical_Domain_Size = std::stod(
+				rootNode->first_node("Physical_Domain_Size")->value());
+	}
+	if (0 != rootNode->first_node("HAGB_Energy")) {
+		HAGB_Energy = std::stod(rootNode->first_node("HAGB_Energy")->value());
 	}
 	if (0 != rootNode->first_node("TripleLineDrag")) {
 		TripleLineDrag = std::stod(
 				rootNode->first_node("TripleLineDrag")->value());
 	}
 	if (0 != rootNode->first_node("UseMobilityFactor")) {
-		UseMobilityModel = (bool) std::stoul(rootNode->first_node(
-				"UseMobilityFactor")->value());
+		UseMobilityModel = (bool) std::stoul(
+				rootNode->first_node("UseMobilityFactor")->value());
 	}
 	if (0 != rootNode->first_node("IsIsotropicNetwork")) {
-		DisableConvolutionCorrection = (bool) std::stoul(rootNode->first_node(
-				"IsIsotropicNetwork")->value());
+		DisableConvolutionCorrection = (bool) std::stoul(
+				rootNode->first_node("IsIsotropicNetwork")->value());
 	}
 	if (0 != rootNode->first_node("UseTexture")) {
 		UseTexture = (bool) std::stoul(
 				rootNode->first_node("UseTexture")->value());
 	}
 	if (0 != rootNode->first_node("ExecuteInParallel")) {
-		ExecuteInParallel = (bool) std::stoul(rootNode->first_node(
-				"ExecuteInParallel")->value());
+		ExecuteInParallel = (bool) std::stoul(
+				rootNode->first_node("ExecuteInParallel")->value());
 	}
 	if (0 != rootNode->first_node("MaximumNumberOfThreads")) {
-		MaximumNumberOfThreads = std::stoul(rootNode->first_node(
-				"MaximumNumberOfThreads")->value());
+		MaximumNumberOfThreads = std::stoul(
+				rootNode->first_node("MaximumNumberOfThreads")->value());
 
 	}
 	if (0 != rootNode->first_node("GridCoarsement")) {
@@ -155,48 +169,109 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("GridCoarsement")->value());
 	}
 	if (0 != rootNode->first_node("GridCoarsementGradient")) {
-		GridCoarsementGradient = std::stod(rootNode->first_node(
-				"GridCoarsementGradient")->value());
+		GridCoarsementGradient = std::stod(
+				rootNode->first_node("GridCoarsementGradient")->value());
 	}
 	if (0 != rootNode->first_node("ConvolutionMode")) {
-		ConvolutionMode = (E_CONVOLUTION_MODE) std::stoi(rootNode->first_node(
-				"ConvolutionMode")->value());
+		ConvolutionMode = (E_CONVOLUTION_MODE) std::stoi(
+				rootNode->first_node("ConvolutionMode")->value());
 		if (ConvolutionMode >= E_INVALID_VALUE)
 			ConvolutionMode = E_INVALID_VALUE;
 	}
 	//!
 	if (0 != rootNode->first_node("UniqueGBEnergies")) {
-		UniqueGBEnergies
-				= std::stoul(rootNode->first_node("UniqueGBEnergies")->value());
+		UniqueGBEnergies = std::stoul(
+				rootNode->first_node("UniqueGBEnergies")->value());
 	}
 	//! Research modification
 	if (0 != rootNode->first_node("ResearchProject")) {
-		ResearchProject = (E_RESEARCH_PROJECT) std::stoi(rootNode->first_node(
-				"ResearchProject")->value());
+		ResearchProject = (E_RESEARCH_PROJECT) std::stoi(
+				rootNode->first_node("ResearchProject")->value());
 		if (ResearchProject >= E_DEFAULT)
 			ResearchProject = E_DEFAULT;
 	}
 	if (0 != rootNode->first_node("ConstantSectorRadius")) {
 		ConstantSectorRadius = std::stod(
-					rootNode->first_node("ConstantSectorRadius")->value());
+				rootNode->first_node("ConstantSectorRadius")->value());
 	}
 	if (0 != rootNode->first_node("InterpolatingSectorRadius")) {
 		InterpolatingSectorRadius = std::stod(
-						rootNode->first_node("InterpolatingSectorRadius")->value());
-		}
+				rootNode->first_node("InterpolatingSectorRadius")->value());
+	}
 	if (0 != rootNode->first_node("NeighbourTracking")) {
-		NeighbourTracking = std::stoul(rootNode->first_node("NeighbourTracking")->value());
-		}
+		NeighbourTracking = std::stoul(
+				rootNode->first_node("NeighbourTracking")->value());
+	}
 
 	if (0 != rootNode->first_node("DislocationEnergy")) {
-		DislocationEnergy = std::stoul(rootNode->first_node("DislocationEnergy")->value());
-			}
+		DislocationEnergy = std::stoul(
+				rootNode->first_node("DislocationEnergy")->value());
+	}
 	if (0 != rootNode->first_node("GrainScheduler")) {
-			GrainScheduler = (E_GRAIN_SCHEDULER) std::stoi(
-					rootNode->first_node("GrainScheduler")->value());
-			if (GrainScheduler >= E_DEFAULT_SCHEDULER)
-				GrainScheduler = E_DEFAULT_SCHEDULER;
-		}
+		GrainScheduler = (E_GRAIN_SCHEDULER) std::stoi(
+				rootNode->first_node("GrainScheduler")->value());
+		if (GrainScheduler >= E_DEFAULT_SCHEDULER)
+			GrainScheduler = E_DEFAULT_SCHEDULER;
+	}
+	file.close();
+	if (UseMagneticField == 1)
+		readMagneticFieldParams(MagneticParams.c_str());
+}
+
+void Settings::readMagneticFieldParams(string filename) {
+	ifstream file(filename);
+	if (file.fail()) {
+		cout
+				<< "Unable to locate simulations parameters for magnetic field. Will now halt !"
+				<< endl;
+		exit(2);
+	}
+	stringstream contents;
+	contents << file.rdbuf();
+	string xmlDocument(contents.str());
+
+	xml_document<> tree;
+	try {
+		tree.parse<0>(&xmlDocument[0]);
+	} catch (parse_error& Error) {
+		cout << filename.c_str() << "is not a valid XML!" << endl;
+		cout << "Exception is " << Error.what() << endl;
+	}
+	xml_node<>* rootNode = tree.first_node();
+	if (0 != strcmp(rootNode->name(), "Parameters")) {
+		cout << "Root node is not 'Parameters'! Will now halt!" << endl;
+		exit(2);
+	}
+
+	if (0 != rootNode->first_node("VacuumPermeability")) {
+		VacuumPermeability = std::stod(
+				rootNode->first_node("VacuumPermeability")->value());
+	}
+	if (0 != rootNode->first_node("MagneticVector_x")) {
+		MagneticVector_x = std::stod(
+				rootNode->first_node("MagneticVector_x")->value());
+	}
+	if (0 != rootNode->first_node("MagneticVector_y")) {
+		MagneticVector_y = std::stod(
+				rootNode->first_node("MagneticVector_y")->value());
+	}
+	if (0 != rootNode->first_node("MagneticVector_z")) {
+		MagneticVector_z = std::stod(
+				rootNode->first_node("MagneticVector_z")->value());
+	}
+	if (0 != rootNode->first_node("deltaMagSys")) {
+		deltaMagSys = std::stod(rootNode->first_node("deltaMagSys")->value());
+	}
+	if (0 != rootNode->first_node("MagneticForceField")) {
+		MagneticForceField = std::stod(
+				rootNode->first_node("MagneticForceField")->value());
+	}
+	if (0 != rootNode->first_node("C_Value")) {
+		C_Value = std::stod(rootNode->first_node("C_Value")->value());
+	}
+	if (0 != rootNode->first_node("A_Value")) {
+		A_Value = std::stod(rootNode->first_node("A_Value")->value());
+	}
 	file.close();
 }
 
@@ -224,13 +299,17 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(NumberOfPointsPerGrain);
 	PUSH_PARAM(AnalysisTimestep);
 	PUSH_PARAM(NumberOfTimesteps);
-	PUSH_PARAM(10);
+	PUSH_PARAM(PlotInterval);
+	PUSH_PARAM(BreakupNumber);
 	PUSH_PARAM(DiscreteSamplingRate);
 	PUSH_PARAM(DomainBorderSize);
 	PUSH_VALUE(MicrostructureGenMode, 0);
 	PUSH_VALUE(ReadFromFilename, filename);
-	PUSH_PARAM(HAGB);
+	PUSH_PARAM(HAGB_Energy);
+	PUSH_PARAM(HAGB_Mobility);
+	PUSH_PARAM(Physical_Domain_Size);
 	PUSH_PARAM(TripleLineDrag);
+	PUSH_PARAM(UseMagneticField);
 	PUSH_PARAM(UseMobilityModel);
 	PUSH_PARAM(DisableConvolutionCorrection);
 	PUSH_PARAM(UseTexture);

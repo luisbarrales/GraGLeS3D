@@ -31,7 +31,7 @@ double InterfacialElement::computeMobilityMisori(double misori) {
 double InterfacialElement::computeReadShockleyEnergy(double misori) {
 	if (Settings::UniqueGBEnergies == 1)
 		return 1.0;
-	double gamma_hagb = Settings::HAGB;
+	double gamma_hagb = 1.0;
 	double theta_ref = 15 * PI / 180;
 	double gamma;
 	if (misori > theta_ref)

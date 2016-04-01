@@ -13,7 +13,7 @@ struct Triangle
 		//TODO;
 		return barycenter;
 	}
-	Vector compute outerUnitNormal(){
+	Vector3d computeOuterUnitNormal(){
 		Vector3d outerUnitNormal;
 		//TODO:
 		return outerUnitNormal;

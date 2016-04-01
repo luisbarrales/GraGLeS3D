@@ -42,7 +42,7 @@ double GrainJunction::getWeight(LSbox* me)
 
 	double sigma;
 	double gamma[3]={0.0,0.0,0.0};
-	double gamma_hagb = Settings::HAGB;
+	double gamma_hagb = 1.0;
 	double theta_ref = 15.0 * PI / 180;
 	double theta_mis;
 
