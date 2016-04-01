@@ -88,12 +88,13 @@ private:
 	int							m_newYMax;
 	int							m_newZMin;
 	int							m_newZMax;
-	double 						m_volumeEvolution;
+	double 						m_StoredElasticEnergy;
 	SPoint 						m_centroid;
 	DimensionalBufferReal* 		m_inputDistance;
 	DimensionalBufferReal* 		m_outputDistance;
 	vector<unsigned int> 		m_comparisonList;
 	vector<unsigned int> 		m_secondOrderNeighbours;
+	double 						m_magneticEnergy;
 #ifdef USE_FFTW
 	fftwp_plan 					m_backwardsPlan;
 	fftwp_plan 					m_forwardPlan;
@@ -113,6 +114,7 @@ public:
 	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);
     void executeRedistancing();
 	void extractContour();
+	void calculateMagneticEnergy();
 	inline bool isMotionRegular() const { return m_isMotionRegular; }
     void executeComparison();
 	double getDistanceFromInputBuff(int i, int j, int k);
@@ -199,5 +201,8 @@ public:
 	inline const myQuaternion* getOrientationQuat() {return m_orientationQuat;}
 	inline grainhdl* get_grainHandler(){return m_grainHandler;}
 	int getNeighbourAt(int i, int j, int k);
+	inline double get_magneticEnergy() {
+		return m_magneticEnergy;
+	}
 };
 #endif

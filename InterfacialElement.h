@@ -21,9 +21,24 @@ class GrainHull;
 
 using namespace std;
 
+struct GBInfo {
+	double energy;
+	double mobility;
+	GBInfo() {
+	}
+	GBInfo(double _mobility, double _energy) :
+			energy(_energy), mobility(_mobility) {
+	}
+	GBInfo(const GBInfo& other) :
+			mobility(other.mobility), energy(other.energy) {
+	}
+};
+
 class InterfacialElement {
 protected:
 	vector<Triangle> m_Triangles;
+	vector<Vector3d> m_barycenterTriangles;
+	vector<Vector3d> m_UnitNormalTriangles;
 	int m_Key_NeighborList;
 	double m_mobility;
 	double m_energy;
@@ -37,15 +52,17 @@ public:
 
 	virtual void computeEnergy()= 0;
 	virtual void computeMobility()= 0;
-
+	void addBaryCenter(Vector3d current) {
+		m_barycenterTriangles.push_back(current);
+	}
 	void addTriangle(Triangle current) {
 		m_Triangles.push_back(current);
 	}
 	inline int get_m_Key_NeighborList() {
 		return m_Key_NeighborList;
 	}
-	inline double get_Correction_Weight() {
-		return m_energy * m_mobility;
+	inline GBInfo get_GBInfo() {
+		return GBInfo(m_energy, m_mobility);
 	}
 	inline double get_energy() {
 		return m_energy;
@@ -73,9 +90,22 @@ public:
 	~QuadrupleJunction();
 	void computeEnergy();
 	void computeMobility();
-	inline int get_FirstNeighbor(){return m_neighborID[0];};
-	inline int get_SecondNeighbor(){return m_neighborID[1];};
-	inline int get_ThirdNeighbor(){return m_neighborID[2];};
+	inline int get_FirstNeighbor() {
+		return m_neighborID[0];
+	}
+	;
+	inline int get_SecondNeighbor() {
+		return m_neighborID[1];
+	}
+	;
+	inline int get_ThirdNeighbor() {
+		return m_neighborID[2];
+	}
+	;
+	inline Vector3d get_Position() {
+		return m_position;
+	}
+	;
 };
 
 class TripleLine: public InterfacialElement {
@@ -89,6 +119,16 @@ public:
 	void computeEnergy();
 	void computeMobility();
 	void findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*>);
+	inline int get_FirstNeighbor() {
+		return m_neighborID[0];
+	}
+	inline int get_SecondNeighbor() {
+		return m_neighborID[1];
+	}
+	inline vector<QuadrupleJunction*> get_vertices() {
+		return m_vertices;
+	}
+
 };
 
 class GrainBoundary: public InterfacialElement {
@@ -101,6 +141,10 @@ public:
 	~GrainBoundary();
 	void computeEnergy();
 	void computeMobility();
+	void findAdjacentTripleLines(vector<TripleLine*>);
+	inline vector<TripleLine*> get_edges() {
+		return m_edges;
+	}
 };
 
 #endif

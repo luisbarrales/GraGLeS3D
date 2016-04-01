@@ -107,6 +107,7 @@ public:
 	static double A_Value;
 
 	static void initializeParameters(std::string filename = "");
+	static void readMagneticFieldParams(std::string filename);
 	static rapidxml::xml_node<>* generateXMLParametersNode(
 			rapidxml::xml_document<>* root, const char* filename, int loop,
 			int grains);

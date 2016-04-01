@@ -60,6 +60,17 @@ double Settings::InterpolatingSectorRadius = 0.0;
 unsigned long Settings::NeighbourTracking = 0;
 unsigned long Settings::DislocationEnergy = 0;
 
+bool Settings::UseMagneticField = false;
+string Settings::MagneticParams;
+double Settings::VacuumPermeability = 0.0;
+double Settings::MagneticVector_x = 0.0;
+double Settings::MagneticVector_y = 0.0;
+double Settings::MagneticVector_z = 0.0;
+double Settings::deltaMagSys = 0.0;
+double Settings::MagneticForceField = 0.0;
+double Settings::A_Value = 0.0;
+double Settings::C_Value = 0.0;
+
 void Settings::initializeParameters(string filename) {
 	if (0 == filename.compare(""))
 		filename = string("parameters.xml");
@@ -154,6 +165,13 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("UseTexture")) {
 		UseTexture = (bool) std::stoul(
 				rootNode->first_node("UseTexture")->value());
+	}
+	if (0 != rootNode->first_node("UseMagneticField")) {
+		UseMagneticField = (bool) std::stoul(
+				rootNode->first_node("UseMagneticField")->value());
+	}
+	if (0 != rootNode->first_node("MagneticParams")) {
+		MagneticParams = rootNode->first_node("MagneticParams")->value();
 	}
 	if (0 != rootNode->first_node("ExecuteInParallel")) {
 		ExecuteInParallel = (bool) std::stoul(

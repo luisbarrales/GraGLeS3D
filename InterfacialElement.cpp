@@ -142,6 +142,16 @@ void TripleLine::computeMobility() {
 	/ averageMobility);
 }
 
+void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions){
+	int i= 0;
+	for(const auto it : Junctions)
+	{
+		if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID){
+				m_edges[i]=&(*it); i++;
+				if(i==1) return ;
+			}
+	}
+}
 void TripleLine::findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*> Junctions){
 	int i= 0;
 	for(const auto it : Junctions)
@@ -152,7 +162,6 @@ void TripleLine::findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*> Junct
 				if(i==2) return ;
 			}
 	}
-
 }
 
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :

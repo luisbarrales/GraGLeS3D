@@ -10,7 +10,7 @@ set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 
-#set(CMAKE_CXX_FLAGS "-g -O3 -Wall ")
+#set(CMAKE_CXX_FLAGS "-g -O0 -Wall ")
 set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
