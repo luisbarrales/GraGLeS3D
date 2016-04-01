@@ -84,7 +84,7 @@ public:
 	double *bunge;
 	double deviation;
 	double BoundaryGrainTube;
-	double simulationTime;
+	double Realtime;
 
 	vector<LSbox*> grains;
 	LSbox* boundary;

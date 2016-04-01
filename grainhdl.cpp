@@ -586,7 +586,7 @@ void grainhdl::save_texture() {
 	}
 	file.close();
 	nr_grains.push_back(currentNrGrains);
-	time.push_back(simulationTime);
+	time.push_back(Realtime);
 	totalenergy.push_back(total_energy);
 	cout << "Timestep " << loop << " complete:" << endl;
 	cout << "Number of grains remaining in the Network :" << currentNrGrains
@@ -607,7 +607,7 @@ void grainhdl::run_sim() {
 	timeval time;
 	double timer;
 	distanceInitialisation();
-	simulationTime = 0;
+	Realtime = 0;
 	find_neighbors();
 	for (loop = Settings::StartTime; loop <= Settings::StartTime
 			+ Settings::NumberOfTimesteps; loop++) {
@@ -669,7 +669,9 @@ for		(const auto & it : grains)
 			}
 		}
 	}
-	simulationTime += dt;
+	Realtime += (dt * (Settings::Physical_Domain_Size
+					* Settings::Physical_Domain_Size) / (TimeSlope
+					* Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
 	if (currentNrGrains < Settings::BreakupNumber) {
 		cout << "Network has coarsed to less than specified by Settings::BreakupNumber. "
 		<< "Remaining Grains: " << currentNrGrains
@@ -680,7 +682,7 @@ for		(const auto & it : grains)
 // 	utils::CreateMakeGif();
 
 cout << "Simulation complete." << endl;
-cout << "Simulation Time: " << simulationTime << endl;
+cout << "Simulation Time: " << Realtime << endl;
 cout << "Detailed timings: " << endl;
 cout << "Convolution time: " << convo_time << endl;
 cout << "     Of which plan overhead is: " << plan_overhead << endl;

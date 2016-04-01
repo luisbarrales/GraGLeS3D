@@ -16,6 +16,7 @@
 		1		E_GENERATE_WITH_VORONOY, 
 	(	2		E_READ_VERTEX,		)
 	(	3		E_GENERATE_TESTCASE,	)
+	(   4	    E_READ_VOXELIZED_MICROSTRUCTURE,    )
    -->
    <ReadFromFilename>points2D.txt</ReadFromFilename>
    <HAGB_Energy>0.324</HAGB_Energy>
@@ -28,6 +29,8 @@
    <!--unit: meter -->
    <TriplePointDrag> 1 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
+   <UseMagneticField>0</UseMagneticField>
+   <MagneticParams> MagneticField.xml </MagneticParams>
    <DisableConvolutionCorrection> 0 </DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
