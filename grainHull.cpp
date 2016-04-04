@@ -280,6 +280,10 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	return weight;
 }
 
+
+
+
+
 double pointToTriangleDistance(Vector3d& point, Triangle& triangle) {
 	//From Real-Time Collision Detection by Christer Ericson, published by Morgan Kaufmann Publishers,  2005 Elsevier Inc
 	// Check if point in vertex region outside triangle.points[0]
