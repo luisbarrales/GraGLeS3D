@@ -178,7 +178,11 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 	}
 	//m_actualHull.clear();
 }
+/*
+bool IsNeighbor(Triangle &T1, Triangle &T2);
 
+void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, Vector3d normal2, double &meanWidth);
+*/
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
 
@@ -195,7 +199,159 @@ void GrainHull::computeInterfacialElementMesh() {
 	// attach these objects to the GrainBoundary
 	// optimize the search routine to find nearest Triangle
 	// extend the classes interfacial elements etc. to capture the analytic descriptions
+
+	/*
+	 * LD hier
+	 * NeighborList local
+	 * computeNormal
+	 * nur LD speichern als Eigenschaft der GrainHull
+	 */
+
+	/*
+	 * Save for every triangle the IDs of the neighbor-triangles
+	 */
+/*
+	vector<int>* NeighborList = new vector<int>[m_actualHull.size()];
+
+	for(int i = 0; i < m_actualHull.size(); i++){
+		for(int j=0; j < i ; j++){
+			if(IsNeighbor(m_actualHull[i],m_actualHull[j]))
+				NeighborList[i].push_back(j);
+		}
+	}
+*/
+	/*
+	 * Calculate the normal vector of every triangle
+	 */
+/*
+	m_normalVectors.clear();
+	Vector3d normal_temp;
+
+	for(int i=0; i< m_actualHull.size(); i++){
+		normal_temp = (m_actualHull[i].points[1]-m_actualHull[i].points[0]).cross((m_actualHull[i].points[2]-m_actualHull[i].points[0]));
+		normal_temp /= normal_temp.norm();
+		m_normalVectors.push_back(normal_temp);
+	}
+*/
+	/*
+	 * Calculate the mean width of the grain
+	 */
+/*
+	for(int i=0; i<m_actualHull.size(); i++){
+		for(int j=0; j<NeighborList[i].size(); j++){
+			calculateMeanWidthComponent(m_actualHull[i],m_actualHull[(NeighborList[i])[j]],m_normalVectors[i],m_normalVectors[(NeighborList[i])[j]],m_LD);
+		}
+	}
+	m_LD /= 2*M_PI;
+*/
+	/*
+	 * Calculate the length of the triple lines
+	 */ 
+/*
+	m_TripleLineLength=0;
+ 	vector<QuadrupleJunction*> vertices_temp;
+	TripleLine* TripleLine_temp;
+ 	for(vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter != m_TripleLines.end(); ++iter){
+		TripleLine_temp = *iter;
+		vertices_temp = TripleLine_temp->get_vertices();
+		m_TripleLineLength += (vertices_temp[0]->get_Position()-vertices_temp[0]->get_Position()).norm();
+	}*/
 }
+/*
+bool IsNeighbor(Triangle &T1, Triangle &T2){
+	int NNeighbors=0;
+	int t1[2];
+	int t2[2];
+	for(int i=0; i<3; i++){
+		for(int j=0; j<3; j++){
+			if(T1.points[i] == T2.points[j]) {
+				t1[NNeighbors] = i;
+				t2[NNeighbors] = j;
+				NNeighbors++;
+			}
+		}
+	}
+	if(NNeighbors == 2){
+*/
+		/*
+ 		 * Check if the triangles have the correct orientation
+ 		 */
+/*
+		if((t1[1]-t1[0]+3)%3-(t2[1]-t2[0]+3)%3==0){
+			Vector3d temp;
+			temp = T2.points[t2[1]];
+			T2.points[t2[1]] = T2.points[t2[0]];
+			T2.points[t2[0]] = temp;
+		}
+		return true;
+	}
+	else
+		return false;
+}
+
+void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, Vector3d normal2, double &meanWidth){
+	double scalarProduct;
+	double beta, epsilon;
+
+	scalarProduct = normal1.transpose() * normal2;
+*/
+	/*
+	 * It is possible that through an numerical error the scalar product of two parallel vectors
+	 * becomes greater than one. In this case the value of the scalar product is set to one.
+	 */
+/*
+	if(scalarProduct>1){
+		scalarProduct = 1.;
+	}
+
+	beta = acos(scalarProduct);
+*/
+	/*
+	 * Find the points that are shared by both triangles
+	 */
+/*
+	int sharedPoints[2];
+	int temp=0;
+	for(int i=0; i<3; i++){
+		for(int j=0; j<3; j++){
+			if(T1.points[i]==T2.points[j]){
+				sharedPoints[temp]=i;
+				temp++;
+			}
+		}
+	}
+*/
+	/*
+	 * Orient the shared line as it is oriented in triangle T1
+	 */
+/*	Vector3d sharedLine;
+	if((sharedPoints[1]-sharedPoints[0]+3)%3==1){
+		sharedLine=T1.points[sharedPoints[1]]-T1.points[sharedPoints[0]];
+	}
+	else
+	{
+		sharedLine=T1.points[sharedPoints[0]]-T1.points[sharedPoints[1]];
+	}
+
+	epsilon = sharedLine.norm();
+*/
+	/*
+	 * If the cross product of the two normal vectors is parallel to the shared line the angle is positive
+	 * if it is antiparallel the angle is negative this is accounted for in the next if-statement
+	 */
+/*
+	if((normal1.cross(normal2).transpose() * sharedLine) < 0)
+	{
+		beta*=-1;
+	}
+	if(beta != beta) {
+		cout << "beta" << endl;
+		cout << normal1.transpose() * normal2 << endl;
+	}
+	if(epsilon != epsilon) cout << "epsilon" << endl;
+	meanWidth += beta*epsilon;
+}
+*/
 
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
 	for (const auto it : m_Grainboundary) {

@@ -579,6 +579,9 @@ void grainhdl::save_texture() {
 					<< grains[i]->intersectsBoundaryGrain() << " "
 					<< grains[i]->getVolume() << " " << 0 << " "
 					<< grains[i]->getSurface() << " " << grains[i]->getEnergy()
+					//TODO LD length of triple lines
+				//	<< " " << grains[i]->getMeanWidth()
+				//	<< " " << grains[i]->getTripleLineLength()
 					<< " " << euler[0] << " " << euler[1] << " " << euler[2]
 					<< "\n";
 

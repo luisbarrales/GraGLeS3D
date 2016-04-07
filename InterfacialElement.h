@@ -29,6 +29,8 @@ protected:
 	int m_Key_NeighborList;
 	double m_mobility;
 	double m_energy;
+//	double m_LD;
+//	double m_TripleLineLength;
 	GrainHull* m_owner;
 public:
 	InterfacialElement();
@@ -57,7 +59,13 @@ public:
 	inline double get_mobility() {
 		return m_mobility;
 	}
-};
+/*	inline double get_MeanWidth(){
+		return m_LD;
+	}
+	inline double get_TripleLineLength(){
+		return m_TripleLineLength;
+	}
+*/};
 class HighOrderJunction: public InterfacialElement {
 	//TODO:
 public:

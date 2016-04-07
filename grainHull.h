@@ -31,11 +31,14 @@ class LSbox;
 class GrainHull {
 private:
 	vector<Triangle> m_actualHull;
+	//vector<Vector3d> m_normalVectors;
 	vector<NeighborList> m_triangleNeighborLists;
 	vector<unsigned int> m_neighbors;
 	vector<GrainBoundary*> m_Grainboundary;
 	vector<TripleLine*> m_TripleLines;
 	vector<QuadrupleJunction*> m_QuadruplePoints;
+	//double m_LD;
+	//double m_TripleLineLength;
 public:
 	friend class GrainBoundary;
 	friend class TripleLine;
