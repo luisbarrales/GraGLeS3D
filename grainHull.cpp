@@ -26,7 +26,7 @@
 using namespace std;
 
 GrainHull::GrainHull(LSbox* owner) :
-		m_owner(owner) {
+	m_owner(owner) {
 }
 GrainHull::~GrainHull() {
 }
@@ -62,8 +62,8 @@ double GrainHull::computeSurfaceArea() {
 }
 
 const NeighborList& GrainHull::getNeighborList(const Triangle& triangle) {
-	if (triangle.additionalData < 0
-			|| triangle.additionalData >= m_triangleNeighborLists.size()) {
+	if (triangle.additionalData < 0 || triangle.additionalData
+			>= m_triangleNeighborLists.size()) {
 		throw runtime_error(
 				"Invalid additional data in triangle. Neighbor List unavailable!");
 	}
@@ -102,13 +102,13 @@ const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 
 void GrainHull::clearInterfacialElements() {
 	for (auto it : m_Grainboundary)
-		delete &(*it);
+	delete &(*it);
 	m_Grainboundary.clear();
 	for (auto it : m_TripleLines)
-		delete &(*it);
+	delete &(*it);
 	m_TripleLines.clear();
 	for (auto it : m_QuadruplePoints)
-		delete &(*it);
+	delete &(*it);
 	m_QuadruplePoints.clear();
 }
 
@@ -183,19 +183,19 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
 
-	for (const auto it : m_TripleLines) {
-		it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
-	}
-	for (const auto it : m_Grainboundary) {
-		it->findAdjacentTripleLines(m_TripleLines);
-	}
-	//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
-	// find the center of mass of a QuadruplePoint
-	// attach the quadruplePoints to TripleLines
-	// interpolate through the set of points describing the TL
-	// attach these objects to the GrainBoundary
-	// optimize the search routine to find nearest Triangle
-	// extend the classes interfacial elements etc. to capture the analytic descriptions
+for (const auto it : m_TripleLines) {
+	it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
+}
+for (const auto it : m_Grainboundary) {
+	it->findAdjacentTripleLines(m_TripleLines);
+}
+//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
+// find the center of mass of a QuadruplePoint
+// attach the quadruplePoints to TripleLines
+// interpolate through the set of points describing the TL
+// attach these objects to the GrainBoundary
+// optimize the search routine to find nearest Triangle
+// extend the classes interfacial elements etc. to capture the analytic descriptions
 }
 
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
@@ -237,8 +237,8 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 		if (m_QuadruplePoints[j]->m_neighborID[0] == id
 				|| m_QuadruplePoints[j]->m_neighborID[1] == id
 				|| m_QuadruplePoints[j]->m_neighborID[2] == id) {
-			for (unsigned int i = 0;
-					i < m_QuadruplePoints[j]->m_Triangles.size(); i++) {
+			for (unsigned int i = 0; i
+					< m_QuadruplePoints[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_QuadruplePoints[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
@@ -252,8 +252,7 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	for (int j = 0; j < m_TripleLines.size(); j++) {
 		if (m_TripleLines[j]->m_neighborID[0] == id
 				|| m_TripleLines[j]->m_neighborID[1] == id) {
-			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size();
-					i++) {
+			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_TripleLines[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
@@ -266,8 +265,7 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	//search in GrainBoundaries:
 	for (int j = 0; j < m_Grainboundary.size(); j++) {
 		if (m_Grainboundary[j]->m_neighborID == id) {
-			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size();
-					i++) {
+			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_Grainboundary[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
@@ -330,14 +328,8 @@ double pointToTriangleDistance(Vector3d& point, Triangle& triangle) {
 
 struct vectorComparator {
 	bool operator()(const Vector3d& a, const Vector3d& b) const {
-		return a[0] < b[0] ?
-				true :
-				(a[0] > b[0] ?
-						false :
-						(a[1] < b[1] ?
-								true :
-								(a[1] > b[1] ?
-										false : (a[2] < b[2] ? true : false))));
+		return a[0] < b[0] ? true : (a[0] > b[0] ? false : (a[1] < b[1] ? true
+				: (a[1] > b[1] ? false : (a[2] < b[2] ? true : false))));
 	}
 };
 
@@ -423,19 +415,18 @@ struct vectorComparator {
 //}
 
 void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
-	string filename = string("GrainHull_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
+	string filename = string("GrainHull_") + to_string(
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save box hull!");
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-			"vtk output\n"
-			"ASCII\n"
-			"DATASET POLYDATA\n");
+		"vtk output\n"
+		"ASCII\n"
+		"DATASET POLYDATA\n");
 
 	int counter = 0;
 	map<Vector3d, int, vectorComparator> mymap;
@@ -444,21 +435,20 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 		if (mymap.find(m_actualHull[i].points[0]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[0], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[0], counter));
 			counter++;
 		}
 		if (mymap.find(m_actualHull[i].points[1]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[1], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[1], counter));
 			counter++;
 		}
 		if (mymap.find(m_actualHull[i].points[2]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[2], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[2], counter));
 			counter++;
 		}
-	}
-	for (const auto &myPair : mymap) {
+	}for (const auto &myPair : mymap) {
 		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
 	}
 
@@ -492,7 +482,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 					|| point == m_actualHull[i].points[2]) {
 				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
 				int interactingGrains =
-						m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+				m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
 				key = m_actualHull[i].additionalData;
 				//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
 				//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
@@ -506,44 +496,45 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	fclose(output);
 }
 
-void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
-		int timestep) {
+void GrainHull::plotInterfacialElements(bool absoluteCoordinates, int timestep) {
 	int ID = 0;
-	string filename = string("InterfacialElements_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
+	string filename = string("InterfacialElements_") + to_string(
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
-		throw runtime_error("Unable to save box hull!");
+		throw runtime_error("Unable to save Interfacialelements hull!");
 	}
 
 	fprintf(output, "\n\nGRAINBOUNDARY %lu\n", m_Grainboundary.size());
-	for (const auto it : m_Grainboundary) {
-		for (const auto it2 : it->m_barycenterTriangles) {
-			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it2[0], it2[1],
-					it2[2], ID);
-			fprintf(output, "\n\nEDGES %lu\n", it->m_edges.size());
-			for (const auto it3 : it->m_edges) {
-				for (const auto it4 : it3->m_barycenterTriangles) {
-					fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it4[0],
-							it4[1], it4[2], ID);
 
-					fprintf(output, "\n\nVERTICES %lu\n",
-							it3->m_vertices.size());
-					for (const auto it5 : it3->m_vertices) {
-						Vector3d point = it5->get_Position();
-						fprintf(output, "%lf \t %lf \t %lf \t %d \n ", point[0],
-								point[1], point[2], ID);
-
-						ID++;
-					}
-				}
-				ID++;
-			}
+for (const auto it : m_Grainboundary) {
+	fprintf(output, "\n\nGRAINBOUNDARY \n");
+	for (const auto it2 : it->m_barycenterTriangles) {
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it2[0], it2[1],
+				it2[2], ID);
+	}
+	ID++;
+	fprintf(output, "\n\nEDGES %lu\n", it->m_edges.size());
+	for (const auto it3 : it->m_edges) {
+		fprintf(output, "\n\nEDGES \n");
+		for (const auto it4 : it3->m_barycenterTriangles) {
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it4[0],
+					it4[1], it4[2], ID);
 		}
 		ID++;
+
+		for (const auto it5 : it3->m_vertices) {
+			fprintf(output, "\n\nVERTICES \n");
+			Vector3d point = it5->get_Position();
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", point[0],
+					point[1], point[2], ID);
+			ID++;
+		}
+
 	}
+
+}
 }
 /*		fprintf(output, "\n\nTRIPLELINES %lu\n", m_TripleLines.size());
  for(const auto it : m_TripleLines)

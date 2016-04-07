@@ -664,7 +664,7 @@ for		(const auto & it : grains)
 		{	if (it!= NULL)
 			if(it->getID()!=0) {
 				it->plotBoxInterfacialElements();
-//				it->plotBoxContour();
+				it->plotBoxContour();
 			//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
 			}
 		}
