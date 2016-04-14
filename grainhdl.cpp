@@ -295,7 +295,7 @@ void grainhdl::read_voxelized_microstructure() {
 	FILE * compressedGrainInfo;
 	compressedGrainInfo = fopen(Settings::AdditionalFilename.c_str(), "rt");
 	if (compressedGrainInfo == NULL) {
-		cout << "Could not read from specified file !";
+		cout << "Could not read from file in Settings::AdditionalFilename !";
 		exit(2);
 	}
 	rewind(compressedGrainInfo);
@@ -402,7 +402,7 @@ void grainhdl::read_voxelized_microstructure() {
 
 	voxelized_data = fopen(Settings::ReadFromFilename.c_str(), "rb");
 	if (voxelized_data == NULL) {
-		cout << "Could not read from specified file !";
+		cout << "Could not read from specified file: Settings::ReadFromFilename !";
 		exit(2);
 	}
 
@@ -664,14 +664,14 @@ for		(const auto & it : grains)
 		{	if (it!= NULL)
 			if(it->getID()!=0) {
 				it->plotBoxInterfacialElements();
-//				it->plotBoxContour();
+				it->plotBoxContour();
 			//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
 			}
 		}
 	}
 	Realtime += (dt * (Settings::Physical_Domain_Size
-					* Settings::Physical_Domain_Size) / (TimeSlope
-					* Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
+					* Settings::Physical_Domain_Size) / (/*TimeSlope
+					* */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
 	if (currentNrGrains < Settings::BreakupNumber) {
 		cout << "Network has coarsed to less than specified by Settings::BreakupNumber. "
 		<< "Remaining Grains: " << currentNrGrains

@@ -147,7 +147,7 @@ void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions){
 	for(const auto it : Junctions)
 	{
 		if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID){
-				m_edges[i]=&(*it); i++;
+				m_edges.push_back(&(*it)); i++;
 				if(i==1) return ;
 			}
 	}
@@ -158,7 +158,7 @@ void TripleLine::findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*> Junct
 	{
 		if (it->get_FirstNeighbor() == m_neighborID[0] || it->get_SecondNeighbor() == m_neighborID[0] || it->get_ThirdNeighbor() == m_neighborID[0])
 			if (it->get_FirstNeighbor() == m_neighborID[1] || it->get_SecondNeighbor() == m_neighborID[1] || it->get_ThirdNeighbor() == m_neighborID[1]){
-				m_vertices[i]=&(*it); i++;
+				m_vertices.push_back(&(*it)); i++;
 				if(i==2) return ;
 			}
 	}
