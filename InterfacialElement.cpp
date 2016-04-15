@@ -12,6 +12,7 @@
 #include "Settings.h"
 #include "myQuaternion.h"
 #include "grainHull.h"
+#include <fstream>
 
 InterfacialElement::InterfacialElement(int key, GrainHull* owner) :
 	m_Key_NeighborList(key), m_owner(owner) {
@@ -164,7 +165,6 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 			if(i==2) return;
 		}
 	}
-
 	for(const auto it : JunctionsH)
 	{
 		vector<int> neighborIDs = it->get_NeighborIDs();
@@ -206,7 +206,7 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		str << "POLYGONS " << m_Triangles.size() << " " << m_Triangles.size()*4 << endl;
 
 		for(int j=0; j<m_Triangles.size(); j++){
-			str << "3\t" << 3*j << " " << 3*j+1 << " " << 3*j+2 << endl;
+			str << "3 " << 3*j << " " << 3*j+1 << " " << 3*j+2 << endl;
 		}
 		str.close();
 		int time = m_owner->m_owner->get_grainHandler()->get_loop();

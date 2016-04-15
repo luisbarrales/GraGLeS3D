@@ -169,7 +169,7 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			TripleLine* TL = findTripleLine(key);
 			Vector3d current = m_actualHull[i].computeBarycenter();
 			TL->addBaryCenter(current);
-			//TL->addTriangle(m_actualHull[i]);
+			TL->addTriangle(m_actualHull[i]);
 			break;
 		}
 		case 4: {
