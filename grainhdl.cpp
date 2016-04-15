@@ -125,8 +125,8 @@ void grainhdl::initializeSimulation() {
 	default: {
 		throw std::runtime_error("Unknown microstructure generation mode!");
 	}
-	}
 
+	}
 	// 	construct_boundary();
 	//program options:
 	cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
@@ -233,7 +233,7 @@ void grainhdl::VOROMicrostructure() {
 
 	/**********************************************************/
 
-	vector < vector<Vector3d> > initialHulls;
+	vector<vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
 	if (vl.start()) {
 		initialHulls.resize(ngrains + 1);
@@ -246,7 +246,7 @@ void grainhdl::VOROMicrostructure() {
 			c.vertices(cur_x, cur_y, cur_z, cellCoordinates);
 			for (unsigned int i = 0; i < cellCoordinates.size() / 3; i++) {
 				initialHulls.at(box_id).push_back(
-						Vector3d(cellCoordinates.at(3 * i +1 ),
+						Vector3d(cellCoordinates.at(3 * i + 1),
 								cellCoordinates.at(3 * i),
 								cellCoordinates.at(3 * i + 2)));
 			}
@@ -282,7 +282,7 @@ void grainhdl::VOROMicrostructure() {
 		throw runtime_error("Voronoy container error at start() method!");
 	}
 
-	buildBoxVectors( initialHulls);
+	buildBoxVectors(initialHulls);
 }
 
 void grainhdl::readMicrostructure() {
@@ -358,7 +358,7 @@ void grainhdl::read_voxelized_microstructure() {
 	int nvertices = 8;
 	int xmin, xmax, ymin, ymax, zmin, zmax;
 	int *counts;
-	vector < vector < Vector3d >> vertices;
+	vector<vector<Vector3d>> vertices;
 	vertices.resize(ngrains + 1);
 	myQuaternion* Quaternionen = new myQuaternion[ngrains + 1];
 	ID = new int[ngrains + 1];
@@ -402,7 +402,8 @@ void grainhdl::read_voxelized_microstructure() {
 
 	voxelized_data = fopen(Settings::ReadFromFilename.c_str(), "rb");
 	if (voxelized_data == NULL) {
-		cout << "Could not read from specified file: Settings::ReadFromFilename !";
+		cout
+				<< "Could not read from specified file: Settings::ReadFromFilename !";
 		exit(2);
 	}
 
@@ -665,13 +666,13 @@ for		(const auto & it : grains)
 			if(it->getID()!=0) {
 				it->plotBoxInterfacialElements();
 				it->plotBoxContour();
-			//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
+				//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
 			}
 		}
 	}
 	Realtime += (dt * (Settings::Physical_Domain_Size
 					* Settings::Physical_Domain_Size) / (/*TimeSlope
-					* */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
+					 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
 	if (currentNrGrains < Settings::BreakupNumber) {
 		cout << "Network has coarsed to less than specified by Settings::BreakupNumber. "
 		<< "Remaining Grains: " << currentNrGrains

@@ -27,6 +27,7 @@
 using namespace std;
 
 class LSbox;
+class grainhdl;
 
 class GrainHull {
 private:
@@ -63,6 +64,7 @@ public:
 	void computeInterfacialElementMesh();
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
+
 };
 
 #endif //__GRAIN_HULL__

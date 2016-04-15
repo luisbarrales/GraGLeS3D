@@ -22,6 +22,9 @@
 #include <stdexcept>
 #include <map>
 #include <vector>
+#include "spoint.h"
+#include "grahamScan.h"
+#include "grainhdl.h"
 
 using namespace std;
 
@@ -183,19 +186,62 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
 
-for (const auto it : m_TripleLines) {
-	it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
-}
-for (const auto it : m_Grainboundary) {
-	it->findAdjacentTripleLines(m_TripleLines);
-}
-//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
-// find the center of mass of a QuadruplePoint
-// attach the quadruplePoints to TripleLines
-// interpolate through the set of points describing the TL
-// attach these objects to the GrainBoundary
-// optimize the search routine to find nearest Triangle
-// extend the classes interfacial elements etc. to capture the analytic descriptions
+	for (const auto it : m_TripleLines) {
+		it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
+	}
+	for (const auto it : m_Grainboundary) {
+		it->findAdjacentTripleLines(m_TripleLines);
+	}
+	//if (m_owner->getID() == 3) {
+	//	vector<SPoint> ProjectedPoints;
+	//	for (const auto it2: m_TripleLines)
+	//	{
+	//		for (const auto itBary : it2->m_barycenterTriangles) {
+	//			SPoint newPoint((itBary)[0],(itBary)[2],(itBary)[1]);
+	//			SPoint projection = newPoint.projectPointToPlane(SPoint(0,0,0.5), SPoint(1,0,0), SPoint(0,1,0));
+	//			ProjectedPoints.push_back(projection);
+	//		}
+
+			//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
+			// find the center of mass of a QuadruplePoint
+			// attach the quadruplePoints to TripleLines
+			// interpolate through the set of points describing the TL
+			// attach these objects to the GrainBoundary
+			// optimize the search routine to find nearest Triangle
+			// extend the classes interfacial elements etc. to capture the analytic descriptions
+		//}
+		//GrahamScan scanner(ProjectedPoints);
+		//vector<SPoint> ConvexHull;
+		//scanner.generateCovnexHull(ConvexHull);
+		//double perimeter =0;
+		//vector<SPoint>::iterator it;
+		//for(it = ConvexHull.begin(); it !=(--ConvexHull.end()); it++){
+		//	perimeter += (*it).DistanceTo(*(++it));
+		//}
+
+		//int timestep = m_owner->get_grainHandler()->get_loop();
+		//if (((timestep - Settings::StartTime) % int(
+		//		Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+		//		|| timestep == Settings::NumberOfTimesteps) {
+
+		//	string filename = string("ConvexHull_") + to_string(timestep)
+		//			+ string(".gnu");
+		//	FILE* output = fopen(filename.c_str(), "wt");
+		//	for (const auto it : ConvexHull) {
+		//		std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+		//	}
+		//	fclose(output);
+
+		//	string filename1 = string("ProjectedPoints_") + to_string(
+		//			(unsigned long long) timestep) + string(".vtk");
+		//	FILE* output1 = fopen(filename1.c_str(), "wt");
+
+		//	for (const auto it : ProjectedPoints) {
+		//		fprintf(output, "%lf \t %lf \n", it.x, it.y);
+		//	}
+		//	fclose(output1);
+		//}
+	//}
 }
 
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
@@ -495,12 +541,11 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	}
 	fclose(output);
 }
-
 void GrainHull::plotInterfacialElements(bool absoluteCoordinates, int timestep) {
 	int ID = 0;
 	string filename = string("InterfacialElements_") + to_string(
-			(unsigned long long) m_owner->getID()) + string("Timestep_")
-			+ to_string((unsigned long long) timestep) + string(".vtk");
+			(unsigned long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save Interfacialelements hull!");
