@@ -39,9 +39,12 @@ struct SPoint {
 		return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y)
 				+ (y - other.z) * (y - other.z);
 	}
-	double DistanceTo(const SPoint& other) const {
-		return sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y)
-				+ (y - other.z) * (y - other.z));
+	double DistanceTo(const SPoint& other) {
+		double dist = sqrt(
+				(x - other.x) * (x - other.x) + (y - other.y) * (y - other.y)
+						+ (z - other.z) * (z - other.z));
+
+		return dist;
 	}
 	bool operator==(const SPoint &other) const {
 		return (x == other.x) && (y == other.y) && (z == other.z);
@@ -71,32 +74,22 @@ struct SPoint {
 		return result;
 	}
 	SPoint projectPointToPlane(SPoint ST, SPoint RV1, SPoint RV2) {
-    SPoint n;
-    SPoint result(0,0,0);
-    double d;
-    double t;
-
-    n.x=RV1.y*RV2.z-RV1.z*RV2.y;
-    n.y=RV1.z*RV2.x-RV1.x*RV2.z;
-    n.z=RV1.x*RV2.y-RV1.y*RV2.x;
-    d=n.dot(ST);
-    t = (d -(n.dot(*this))) / n.lenSqr();
-    //t=(d-n.x*x-n.y*y-n.z*z)/(n.x*n.x+n.y*n.y+n.z*n.z);
-
-    result = (*this) + n*t;
-//       result.x=x+n.x*t;
-//       result.y=y+n.y*t;
-//       result.z=z+n.z*t;
-
-
-
+		SPoint n;
+		SPoint result(0, 0, 0);
+		double d;
+		double t;
+		n = RV1.cross(RV2);
+		d = n.dot(ST);
+		t = (d - (n.dot(*this))) / n.lenSqr();
+		result = (*this) + n * t;
 		return result;
 	}
 	double dot(const SPoint& other) const {
 		return x * other.x + y * other.y + z * other.z;
 	}
-	double cross(const SPoint& other) const {
-		return x * other.y - y * other.x - z * other.z;
+	SPoint cross(const SPoint& other) const {
+		return SPoint(y * other.z - z * other.y, z * other.x - x * other.z,
+				x * other.y - y * other.x);
 	}
 	double len() const {
 		return sqrt(x * x + y * y + z * z);
