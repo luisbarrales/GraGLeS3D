@@ -3,22 +3,34 @@
 	 <StartTime>0</StartTime>
    <NumberOfParticles>15</NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
-   <AnalysisTimestep>5</AnalysisTimestep>
-   <NumberOfTimesteps>2</NumberOfTimesteps>
-   <BreakupNumber>5</BreakupNumber>
-   <DiscreteSamplingRate>25</DiscreteSamplingRate>
-   <DomainBorderSize>10</DomainBorderSize>
-   <MicrostructureGenMode>1</MicrostructureGenMode>
+   <AnalysisTimestep> 1 </AnalysisTimestep>
+   <PlotInterval>1</PlotInterval>
+   <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
+   <NumberOfTimesteps> 1 </NumberOfTimesteps>
+   <BreakupNumber> 1 </BreakupNumber>
+   <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
+   <DomainBorderSize> 7 </DomainBorderSize>
+   <MicrostructureGenMode> 1 </MicrostructureGenMode>
    <!-- USAGE:
    	(	O		E_READ_FROM_FILE,	)
 		1		E_GENERATE_WITH_VORONOY, 
 	(	2		E_READ_VERTEX,		)
 	(	3		E_GENERATE_TESTCASE,	)
+	(   4	    E_READ_VOXELIZED_MICROSTRUCTURE,    )
    -->
    <ReadFromFilename>points2D.txt</ReadFromFilename>
-   <HAGB> 1. </HAGB>
-   <TriplePointDrag>1</TriplePointDrag>
-   <UseMobilityFactor>0</UseMobilityFactor>
+   <HAGB_Energy>0.324</HAGB_Energy>
+   <!--unit: Js/m² -->
+   <HAGB_Mobility>2.6e-13</HAGB_Mobility>
+   <!--unit: m^4/Js -->
+   <DislocEnDensPerSqM>8.81e-10 </DislocEnDensPerSqM>
+   <!--1/2 Gbb - material constant -->
+   <Physical_Domain_Size>2.01e-4 </Physical_Domain_Size>   
+   <!--unit: meter -->
+   <TriplePointDrag> 1 </TriplePointDrag>
+   <UseMobilityFactor> 0 </UseMobilityFactor>
+   <UseMagneticField>0</UseMagneticField>
+   <MagneticParams> MagneticField.xml </MagneticParams>
    <DisableConvolutionCorrection> 0 </DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>

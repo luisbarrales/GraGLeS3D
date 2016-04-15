@@ -26,7 +26,7 @@
 using namespace std;
 
 GrainHull::GrainHull(LSbox* owner) :
-		m_owner(owner) {
+	m_owner(owner) {
 }
 GrainHull::~GrainHull() {
 }
@@ -62,8 +62,8 @@ double GrainHull::computeSurfaceArea() {
 }
 
 const NeighborList& GrainHull::getNeighborList(const Triangle& triangle) {
-	if (triangle.additionalData < 0
-			|| triangle.additionalData >= m_triangleNeighborLists.size()) {
+	if (triangle.additionalData < 0 || triangle.additionalData
+			>= m_triangleNeighborLists.size()) {
 		throw runtime_error(
 				"Invalid additional data in triangle. Neighbor List unavailable!");
 	}
@@ -102,14 +102,17 @@ const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 
 void GrainHull::clearInterfacialElements() {
 	for (auto it : m_Grainboundary)
-		delete &(*it);
+	delete &(*it);
 	m_Grainboundary.clear();
 	for (auto it : m_TripleLines)
-		delete &(*it);
+	delete &(*it);
 	m_TripleLines.clear();
 	for (auto it : m_QuadruplePoints)
-		delete &(*it);
+	delete &(*it);
 	m_QuadruplePoints.clear();
+	for (auto it : m_HighOrderJunctions)
+	delete &(*it);
+	m_HighOrderJunctions.clear();
 }
 
 void GrainHull::computeGrainBoundaryElements() {
@@ -136,8 +139,11 @@ void GrainHull::computeGrainBoundaryElements() {
 			break;
 		}
 		default: {
+			HighOrderJunction* newHJ = new HighOrderJunction(i, this);
+			m_HighOrderJunctions.push_back(newHJ);
 			// high order junction is found
 			//TODO:
+			break;
 		}
 		}
 	}
@@ -171,6 +177,9 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			break;
 		}
 		default: {
+			HighOrderJunction* HJ = findHighOrderJunction(key);
+			Vector3d current = m_actualHull[i].computeBarycenter();
+			HJ->addBaryCenter(current);
 			//cout << "high order junction found" << endl;
 			break;
 		}
@@ -178,16 +187,17 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 	}
 	//m_actualHull.clear();
 }
-/*
+
 bool IsNeighbor(Triangle &T1, Triangle &T2);
 
 void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, Vector3d normal2, double &meanWidth);
-*/
+
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
 
 	for (const auto it : m_TripleLines) {
 		it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
+		it->findAdjacentHighOrderJunctions(m_HighOrderJunctions);
 	}
 	for (const auto it : m_Grainboundary) {
 		it->findAdjacentTripleLines(m_TripleLines);
@@ -210,7 +220,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	/*
 	 * Save for every triangle the IDs of the neighbor-triangles
 	 */
-/*
+
 	vector<int>* NeighborList = new vector<int>[m_actualHull.size()];
 
 	for(int i = 0; i < m_actualHull.size(); i++){
@@ -219,11 +229,11 @@ void GrainHull::computeInterfacialElementMesh() {
 				NeighborList[i].push_back(j);
 		}
 	}
-*/
+
 	/*
 	 * Calculate the normal vector of every triangle
 	 */
-/*
+
 	m_normalVectors.clear();
 	Vector3d normal_temp;
 
@@ -232,32 +242,45 @@ void GrainHull::computeInterfacialElementMesh() {
 		normal_temp /= normal_temp.norm();
 		m_normalVectors.push_back(normal_temp);
 	}
-*/
+
 	/*
 	 * Calculate the mean width of the grain
 	 */
-/*
+
 	for(int i=0; i<m_actualHull.size(); i++){
 		for(int j=0; j<NeighborList[i].size(); j++){
 			calculateMeanWidthComponent(m_actualHull[i],m_actualHull[(NeighborList[i])[j]],m_normalVectors[i],m_normalVectors[(NeighborList[i])[j]],m_LD);
 		}
 	}
 	m_LD /= 2*M_PI;
-*/
+
+	if(m_LD < 0) m_LD *= -1;
+
 	/*
 	 * Calculate the length of the triple lines
 	 */ 
-/*
+
 	m_TripleLineLength=0;
- 	vector<QuadrupleJunction*> vertices_temp;
+ 	vector<QuadrupleJunction*> vertices_temp_quadruplePoint;
+ 	vector<HighOrderJunction*> vertices_temp_higherOrderPoint;
+ 	if(vertices_temp_quadruplePoint.size()+vertices_temp_higherOrderPoint.size()<2) cout << "FEHLER" << endl;
 	TripleLine* TripleLine_temp;
  	for(vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter != m_TripleLines.end(); ++iter){
 		TripleLine_temp = *iter;
-		vertices_temp = TripleLine_temp->get_vertices();
-		m_TripleLineLength += (vertices_temp[0]->get_Position()-vertices_temp[0]->get_Position()).norm();
-	}*/
+		vertices_temp_quadruplePoint = TripleLine_temp->get_vertices();
+		vertices_temp_higherOrderPoint = TripleLine_temp->get_higherOrder_vertices();
+		if(vertices_temp_quadruplePoint.size()==2)	{
+			m_TripleLineLength += (vertices_temp_quadruplePoint[0]->get_Position()-vertices_temp_quadruplePoint[1]->get_Position()).norm();
+		}
+		else if(vertices_temp_quadruplePoint.size()==1){
+			m_TripleLineLength += (vertices_temp_quadruplePoint[0]->get_Position()-vertices_temp_higherOrderPoint[0]->get_Position()).norm();
+		}
+		else{
+			m_TripleLineLength += (vertices_temp_higherOrderPoint[0]->get_Position()-vertices_temp_higherOrderPoint[1]->get_Position()).norm();
+		}
+	}
 }
-/*
+
 bool IsNeighbor(Triangle &T1, Triangle &T2){
 	int NNeighbors=0;
 	int t1[2];
@@ -272,11 +295,11 @@ bool IsNeighbor(Triangle &T1, Triangle &T2){
 		}
 	}
 	if(NNeighbors == 2){
-*/
+
 		/*
  		 * Check if the triangles have the correct orientation
  		 */
-/*
+
 		if((t1[1]-t1[0]+3)%3-(t2[1]-t2[0]+3)%3==0){
 			Vector3d temp;
 			temp = T2.points[t2[1]];
@@ -294,22 +317,22 @@ void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, V
 	double beta, epsilon;
 
 	scalarProduct = normal1.transpose() * normal2;
-*/
+
 	/*
 	 * It is possible that through an numerical error the scalar product of two parallel vectors
 	 * becomes greater than one. In this case the value of the scalar product is set to one.
 	 */
-/*
+
 	if(scalarProduct>1){
 		scalarProduct = 1.;
 	}
 
 	beta = acos(scalarProduct);
-*/
+
 	/*
 	 * Find the points that are shared by both triangles
 	 */
-/*
+
 	int sharedPoints[2];
 	int temp=0;
 	for(int i=0; i<3; i++){
@@ -320,11 +343,11 @@ void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, V
 			}
 		}
 	}
-*/
+
 	/*
 	 * Orient the shared line as it is oriented in triangle T1
 	 */
-/*	Vector3d sharedLine;
+	Vector3d sharedLine;
 	if((sharedPoints[1]-sharedPoints[0]+3)%3==1){
 		sharedLine=T1.points[sharedPoints[1]]-T1.points[sharedPoints[0]];
 	}
@@ -334,12 +357,12 @@ void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, V
 	}
 
 	epsilon = sharedLine.norm();
-*/
+
 	/*
 	 * If the cross product of the two normal vectors is parallel to the shared line the angle is positive
 	 * if it is antiparallel the angle is negative this is accounted for in the next if-statement
 	 */
-/*
+
 	if((normal1.cross(normal2).transpose() * sharedLine) < 0)
 	{
 		beta*=-1;
@@ -351,7 +374,6 @@ void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1, V
 	if(epsilon != epsilon) cout << "epsilon" << endl;
 	meanWidth += beta*epsilon;
 }
-*/
 
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
 	for (const auto it : m_Grainboundary) {
@@ -380,25 +402,53 @@ QuadrupleJunction* GrainHull::findQuadrupleJunction(int key) {
 	return NULL;
 }
 
-double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
+HighOrderJunction* GrainHull::findHighOrderJunction(int key) {
+
+	for (const auto it : m_HighOrderJunctions) {
+		if (it->get_m_Key_NeighborList() == key) {
+			return &(*it);
+		}
+	}
+	return NULL;
+}
+
+GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	double minimalDistance = 10000000.0;
-	double weight = 1.0;
+	GBInfo weight;
 
 	//search in HighOrderJunctions
 	//TODO:
+	for (int j = 0; j < m_HighOrderJunctions.size(); j++) {
+		bool found = false;
+		for(int i=0; i<m_HighOrderJunctions[j]->m_neighborIDs.size(); i++){
+			if(m_HighOrderJunctions[j]->m_neighborIDs[i]==id)
+				found = true;
+		}
+		if(found){
+			for (unsigned int i = 0; i
+			< m_HighOrderJunctions[j]->m_Triangles.size(); i++) {
+				double distance = pointToTriangleDistance(point,
+						m_HighOrderJunctions[j]->m_Triangles[i]);
+				if (distance < minimalDistance) {
+					minimalDistance = distance;
+					weight = m_HighOrderJunctions[j]->get_GBInfo();
+				}
+			}
+		}
+	}
 
 	//search in QuadrupleJunctions
 	for (int j = 0; j < m_QuadruplePoints.size(); j++) {
 		if (m_QuadruplePoints[j]->m_neighborID[0] == id
 				|| m_QuadruplePoints[j]->m_neighborID[1] == id
 				|| m_QuadruplePoints[j]->m_neighborID[2] == id) {
-			for (unsigned int i = 0;
-					i < m_QuadruplePoints[j]->m_Triangles.size(); i++) {
+			for (unsigned int i = 0; i
+					< m_QuadruplePoints[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_QuadruplePoints[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
-					weight = m_QuadruplePoints[j]->get_Correction_Weight();
+					weight = m_QuadruplePoints[j]->get_GBInfo();
 				}
 			}
 		}
@@ -407,13 +457,12 @@ double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	for (int j = 0; j < m_TripleLines.size(); j++) {
 		if (m_TripleLines[j]->m_neighborID[0] == id
 				|| m_TripleLines[j]->m_neighborID[1] == id) {
-			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size();
-					i++) {
+			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_TripleLines[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
-					weight = m_TripleLines[j]->get_Correction_Weight();
+					weight = m_TripleLines[j]->get_GBInfo();
 				}
 			}
 		}
@@ -421,13 +470,12 @@ double GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	//search in GrainBoundaries:
 	for (int j = 0; j < m_Grainboundary.size(); j++) {
 		if (m_Grainboundary[j]->m_neighborID == id) {
-			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size();
-					i++) {
+			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size(); i++) {
 				double distance = pointToTriangleDistance(point,
 						m_Grainboundary[j]->m_Triangles[i]);
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
-					weight = m_Grainboundary[j]->get_Correction_Weight();
+					weight = m_Grainboundary[j]->get_GBInfo();
 				}
 			}
 		}
@@ -485,14 +533,8 @@ double pointToTriangleDistance(Vector3d& point, Triangle& triangle) {
 
 struct vectorComparator {
 	bool operator()(const Vector3d& a, const Vector3d& b) const {
-		return a[0] < b[0] ?
-				true :
-				(a[0] > b[0] ?
-						false :
-						(a[1] < b[1] ?
-								true :
-								(a[1] > b[1] ?
-										false : (a[2] < b[2] ? true : false))));
+		return a[0] < b[0] ? true : (a[0] > b[0] ? false : (a[1] < b[1] ? true
+				: (a[1] > b[1] ? false : (a[2] < b[2] ? true : false))));
 	}
 };
 
@@ -578,19 +620,18 @@ struct vectorComparator {
 //}
 
 void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
-	string filename = string("GrainHull_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
+	string filename = string("GrainHull_") + to_string(
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save box hull!");
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-			"vtk output\n"
-			"ASCII\n"
-			"DATASET POLYDATA\n");
+		"vtk output\n"
+		"ASCII\n"
+		"DATASET POLYDATA\n");
 
 	int counter = 0;
 	map<Vector3d, int, vectorComparator> mymap;
@@ -599,21 +640,20 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 		if (mymap.find(m_actualHull[i].points[0]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[0], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[0], counter));
 			counter++;
 		}
 		if (mymap.find(m_actualHull[i].points[1]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[1], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[1], counter));
 			counter++;
 		}
 		if (mymap.find(m_actualHull[i].points[2]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[2], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[2], counter));
 			counter++;
 		}
-	}
-	for (const auto &myPair : mymap) {
+	}for (const auto &myPair : mymap) {
 		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
 	}
 
@@ -647,7 +687,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 					|| point == m_actualHull[i].points[2]) {
 				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
 				int interactingGrains =
-						m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+				m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
 				key = m_actualHull[i].additionalData;
 				//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
 				//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
@@ -661,44 +701,45 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	fclose(output);
 }
 
-void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
-		int timestep) {
+void GrainHull::plotInterfacialElements(bool absoluteCoordinates, int timestep) {
 	int ID = 0;
-	string filename = string("InterfacialElements_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
+	string filename = string("InterfacialElements_") + to_string(
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
-		throw runtime_error("Unable to save box hull!");
+		throw runtime_error("Unable to save Interfacialelements hull!");
 	}
 
 	fprintf(output, "\n\nGRAINBOUNDARY %lu\n", m_Grainboundary.size());
-	for (const auto it : m_Grainboundary) {
-		for (const auto it2 : it->m_barycenterTriangles) {
-			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it2[0], it2[1],
-					it2[2], ID);
-			fprintf(output, "\n\nEDGES %lu\n", it->m_edges.size());
-			for (const auto it3 : it->m_edges) {
-				for (const auto it4 : it3->m_barycenterTriangles) {
-					fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it4[0],
-							it4[1], it4[2], ID);
 
-					fprintf(output, "\n\nVERTICES %lu\n",
-							it3->m_vertices.size());
-					for (const auto it5 : it3->m_vertices) {
-						Vector3d point = it5->get_Position();
-						fprintf(output, "%lf \t %lf \t %lf \t %d \n ", point[0],
-								point[1], point[2], ID);
-
-						ID++;
-					}
-				}
-				ID++;
-			}
+for (const auto it : m_Grainboundary) {
+	fprintf(output, "\n\nGRAINBOUNDARY \n");
+	for (const auto it2 : it->m_barycenterTriangles) {
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it2[0], it2[1],
+				it2[2], ID);
+	}
+	ID++;
+	fprintf(output, "\n\nEDGES %lu\n", it->m_edges.size());
+	for (const auto it3 : it->m_edges) {
+		fprintf(output, "\n\nEDGES \n");
+		for (const auto it4 : it3->m_barycenterTriangles) {
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it4[0],
+					it4[1], it4[2], ID);
 		}
 		ID++;
+
+		for (const auto it5 : it3->m_vertices) {
+			fprintf(output, "\n\nVERTICES \n");
+			Vector3d point = it5->get_Position();
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", point[0],
+					point[1], point[2], ID);
+			ID++;
+		}
+
 	}
+
+}
 }
 /*		fprintf(output, "\n\nTRIPLELINES %lu\n", m_TripleLines.size());
  for(const auto it : m_TripleLines)

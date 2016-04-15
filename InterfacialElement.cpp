@@ -31,7 +31,7 @@ double InterfacialElement::computeMobilityMisori(double misori) {
 double InterfacialElement::computeReadShockleyEnergy(double misori) {
 	if (Settings::UniqueGBEnergies == 1)
 		return 1.0;
-	double gamma_hagb = Settings::HAGB;
+	double gamma_hagb = 1.0;
 	double theta_ref = 15 * PI / 180;
 	double gamma;
 	if (misori > theta_ref)
@@ -147,7 +147,7 @@ void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions){
 	for(const auto it : Junctions)
 	{
 		if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID){
-				m_edges[i]=&(*it); i++;
+				m_edges.push_back(&(*it)); i++;
 				if(i==1) return ;
 			}
 	}
@@ -158,12 +158,62 @@ void TripleLine::findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*> Junct
 	{
 		if (it->get_FirstNeighbor() == m_neighborID[0] || it->get_SecondNeighbor() == m_neighborID[0] || it->get_ThirdNeighbor() == m_neighborID[0])
 			if (it->get_FirstNeighbor() == m_neighborID[1] || it->get_SecondNeighbor() == m_neighborID[1] || it->get_ThirdNeighbor() == m_neighborID[1]){
-				m_vertices[i]=&(*it); i++;
+				m_vertices.push_back(&(*it)); i++;
 				if(i==2) return ;
 			}
 	}
 }
 
+void TripleLine::findAdjacentHighOrderJunctions(vector<HighOrderJunction*> Junctions){
+	int i=0;
+	for(const auto it : Junctions)
+	{
+		vector<int> neighborIDs = it->get_NeighborIDs();
+		bool found_0 = false;
+		bool found_1 = false;
+		for(int k=0; k< neighborIDs.size(); k++){
+			if(neighborIDs[k]==m_neighborID[0]){
+				found_0 = true;
+			}
+		}
+		for(int k=0; k<neighborIDs.size(); k++){
+			if(neighborIDs[k]==m_neighborID[1]){
+				found_1 = true;
+			}
+		}
+		if(found_0 && found_1){
+			m_vertices_higherOrder.push_back(&(*it)); i++;
+			if(i==2) return ;
+		}
+	}
+}
+
+HighOrderJunction::HighOrderJunction(int key, GrainHull* owner) :
+			InterfacialElement(key, owner) {
+	int currentID = owner->m_owner->getID();
+	int j = 0;
+	j = m_owner->m_triangleNeighborLists[key].neighbors[0];
+	for (int i=0; i < m_owner->m_triangleNeighborLists[key].getNeighborsListCount(); i++) {
+		if (currentID
+				!= m_owner->m_triangleNeighborLists[key].neighbors[i]) {
+			m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[i]);
+			j++;
+		}
+	}
+	computeMobility();
+	computeEnergy();
+}
+
+HighOrderJunction::~HighOrderJunction(){
+}
+
+void HighOrderJunction::computeEnergy(){
+	m_energy = 1;
+
+}
+void HighOrderJunction::computeMobility(){
+	m_mobility = 1;
+}
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
