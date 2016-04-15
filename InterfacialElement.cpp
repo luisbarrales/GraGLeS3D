@@ -218,6 +218,14 @@ void HighOrderJunction::computeEnergy() {
 void HighOrderJunction::computeMobility() {
 	m_mobility = 1;
 }
+
+void HighOrderJunction::computePosition(){
+	m_position = Vector3d(0,0,0);
+	for(int i=0; i<m_barycenterTriangles.size(); i++){
+		m_position += m_barycenterTriangles[i];
+	}
+	m_position/= (double)m_barycenterTriangles.size();
+}
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
@@ -247,5 +255,13 @@ void QuadrupleJunction::computeEnergy() {
 void QuadrupleJunction::computeMobility() {
 	//TODO::
 	m_mobility = 1;
+}
+
+void QuadrupleJunction::computePosition(){
+	m_position = Vector3d(0,0,0);
+	for(int i=0; i<m_barycenterTriangles.size(); i++){
+		m_position += m_barycenterTriangles[i];
+	}
+	m_position/= (double)m_barycenterTriangles.size();
 }
 

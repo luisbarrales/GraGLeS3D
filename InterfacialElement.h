@@ -84,6 +84,7 @@ public:
 	~HighOrderJunction();
 	void computeEnergy();
 	void computeMobility();
+	void computePosition();
 	inline vector<int> get_NeighborIDs() {
 		return m_neighborIDs;
 	}
@@ -103,6 +104,7 @@ public:
 	~QuadrupleJunction();
 	void computeEnergy();
 	void computeMobility();
+	void computePosition();
 	inline int get_FirstNeighbor() {
 		return m_neighborID[0];
 	}

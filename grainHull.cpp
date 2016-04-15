@@ -191,13 +191,14 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 	//m_actualHull.clear();
 }
 
-bool IsNeighbor(Triangle &T1, Triangle &T2);
-
-void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1,
-		Vector3d normal2, double &meanWidth);
-
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
+	for (const auto it : m_QuadruplePoints){
+		it->computePosition();
+	}
+	for (const auto it : m_HighOrderJunctions){
+		it->computePosition();
+	}
 	//findPositionOfJunctions();
 	for (const auto it : m_TripleLines) {
 		it->findAdjacentJunctions(m_QuadruplePoints, m_HighOrderJunctions);
@@ -656,8 +657,8 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 void GrainHull::plotInterfacialElements(bool absoluteCoordinates, int timestep) {
 	int ID = 0;
 	string filename = string("InterfacialElements_") + to_string(
-			(unsigned long) m_owner->getID()) + string("Timestep_")
-			+ to_string((unsigned long) timestep) + string(".vtk");
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save Interfacialelements hull!");
