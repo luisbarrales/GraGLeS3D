@@ -227,45 +227,45 @@ void GrainHull::computeInterfacialElementMesh() {
 	 * Save for every triangle the IDs of the neighbor-triangles
 	 */
 
-//	vector<int>* NeighborList = new vector<int> [m_actualHull.size()];
-//
-//	for (int i = 0; i < m_actualHull.size(); i++) {
-//		for (int j = 0; j < i; j++) {
-//			if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
-//				NeighborList[i].push_back(j);
-//		}
-//	}
-//
-//	/*
-//	 * Calculate the normal vector of every triangle
-//	 */
-//
-//	m_normalVectors.clear();
-//	Vector3d normal_temp;
-//
-//	for (int i = 0; i < m_actualHull.size(); i++) {
-//		normal_temp
-//				= (m_actualHull[i].points[1] - m_actualHull[i].points[0]).cross(
-//						(m_actualHull[i].points[2] - m_actualHull[i].points[0]));
-//		normal_temp /= normal_temp.norm();
-//		m_normalVectors.push_back(normal_temp);
-//	}
-//
-//	/*
-//	 * Calculate the mean width of the grain
-//	 */
-//
-//	m_LD = 0;
-//	for (int i = 0; i < m_actualHull.size(); i++) {
-//		for (int j = 0; j < NeighborList[i].size(); j++) {
-//			m_LD += m_actualHull[i].calculateMeanWidthComponent(
-//					m_actualHull[(NeighborList[i])[j]], m_normalVectors[i],
-//					m_normalVectors[(NeighborList[i])[j]]);
-//		}
-//	}
-//	m_LD /= 2 * M_PI;
-//	if (m_LD < 0)
-//		m_LD *= -1;
+	vector<int>* NeighborList = new vector<int> [m_actualHull.size()];
+
+	for (int i = 0; i < m_actualHull.size(); i++) {
+		for (int j = 0; j < i; j++) {
+			if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
+				NeighborList[i].push_back(j);
+		}
+	}
+
+	/*
+	 * Calculate the normal vector of every triangle
+	 */
+
+	m_normalVectors.clear();
+	Vector3d normal_temp;
+
+	for (int i = 0; i < m_actualHull.size(); i++) {
+		normal_temp
+				= (m_actualHull[i].points[1] - m_actualHull[i].points[0]).cross(
+						(m_actualHull[i].points[2] - m_actualHull[i].points[0]));
+		normal_temp /= normal_temp.norm();
+		m_normalVectors.push_back(normal_temp);
+	}
+
+	/*
+	 * Calculate the mean width of the grain
+	 */
+
+	m_LD = 0;
+	for (int i = 0; i < m_actualHull.size(); i++) {
+		for (int j = 0; j < NeighborList[i].size(); j++) {
+			m_LD += m_actualHull[i].calculateMeanWidthComponent(
+					m_actualHull[(NeighborList[i])[j]], m_normalVectors[i],
+					m_normalVectors[(NeighborList[i])[j]]);
+		}
+	}
+	m_LD /= 2 * M_PI;
+	if (m_LD < 0)
+		m_LD *= -1;
 
 	/*
 	 * Calculate the length of the triple lines
@@ -293,10 +293,12 @@ void GrainHull::computeInterfacialElementMesh() {
 		vector<SPoint> ConvexHull;
 		scanner.generateCovnexHull(ConvexHull);
 		m_TripleLineLength = 0;
-		vector<SPoint>::iterator it;
-		for (it = ConvexHull.begin(); it != (--ConvexHull.end()); it++) {
-			vector<SPoint>::iterator it2 = it++;
+
+		for (vector<SPoint>::iterator it = ConvexHull.begin(); it != (--ConvexHull.end()); it++) {
+//			for (int it =0 ; it < ConvexHull.size()-1; it++) {
+			vector<SPoint>::iterator it2 = it +1;
 			m_TripleLineLength += (*it).DistanceTo(*(it2));
+//			m_TripleLineLength += ConvexHull[it].DistanceTo(ConvexHull[it+1]);
 		}
 				int timestep = m_owner->get_grainHandler()->get_loop();
 		if (((timestep - Settings::StartTime) % int(
