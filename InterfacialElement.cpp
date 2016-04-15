@@ -185,8 +185,12 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 			if(i==2) return;
 		}
 	}
-	if(i!= 2)
+	if(i!= 2){
 		cout << "tripleline has not found two adjacent junctions." << endl;
+		int time = m_owner->m_owner->get_grainHandler()->get_loop();
+		m_owner->plotContour(true,time);
+	}
+
 	return;
 }
 
