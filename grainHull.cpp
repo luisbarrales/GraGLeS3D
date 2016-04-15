@@ -113,6 +113,9 @@ void GrainHull::clearInterfacialElements() {
 	for (auto it : m_QuadruplePoints)
 	delete &(*it);
 	m_QuadruplePoints.clear();
+	for (auto it : m_HighOrderJunctions)
+	delete &(*it);
+	m_HighOrderJunctions.clear();
 }
 
 void GrainHull::computeGrainBoundaryElements() {
@@ -139,6 +142,8 @@ void GrainHull::computeGrainBoundaryElements() {
 			break;
 		}
 		default: {
+			HighOrderJunction* newHJ = new HighOrderJunction(i, this);
+			m_HighOrderJunctions.push_back(newHJ);
 			// high order junction is found
 			//TODO:
 			break;
@@ -175,6 +180,9 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			break;
 		}
 		default: {
+			HighOrderJunction* HJ = findHighOrderJunction(key);
+			Vector3d current = m_actualHull[i].computeBarycenter();
+			HJ->addBaryCenter(current);
 			//cout << "high order junction found" << endl;
 			break;
 		}
@@ -183,11 +191,16 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 	//m_actualHull.clear();
 }
 
+bool IsNeighbor(Triangle &T1, Triangle &T2);
+
+void calculateMeanWidthComponent(Triangle &T1, Triangle &T2, Vector3d normal1,
+		Vector3d normal2, double &meanWidth);
+
 void GrainHull::computeInterfacialElementMesh() {
 	//TODO:
-
+	//findPositionOfJunctions();
 	for (const auto it : m_TripleLines) {
-		it->findAdjacentQuadrupleJunctions(m_QuadruplePoints);
+		it->findAdjacentJunctions(m_QuadruplePoints, m_HighOrderJunctions);
 	}
 	for (const auto it : m_Grainboundary) {
 		it->findAdjacentTripleLines(m_TripleLines);
@@ -202,46 +215,117 @@ void GrainHull::computeInterfacialElementMesh() {
 	//			ProjectedPoints.push_back(projection);
 	//		}
 
-			//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
-			// find the center of mass of a QuadruplePoint
-			// attach the quadruplePoints to TripleLines
-			// interpolate through the set of points describing the TL
-			// attach these objects to the GrainBoundary
-			// optimize the search routine to find nearest Triangle
-			// extend the classes interfacial elements etc. to capture the analytic descriptions
-		//}
-		//GrahamScan scanner(ProjectedPoints);
-		//vector<SPoint> ConvexHull;
-		//scanner.generateCovnexHull(ConvexHull);
-		//double perimeter =0;
-		//vector<SPoint>::iterator it;
-		//for(it = ConvexHull.begin(); it !=(--ConvexHull.end()); it++){
-		//	perimeter += (*it).DistanceTo(*(++it));
-		//}
-
-		//int timestep = m_owner->get_grainHandler()->get_loop();
-		//if (((timestep - Settings::StartTime) % int(
-		//		Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
-		//		|| timestep == Settings::NumberOfTimesteps) {
-
-		//	string filename = string("ConvexHull_") + to_string(timestep)
-		//			+ string(".gnu");
-		//	FILE* output = fopen(filename.c_str(), "wt");
-		//	for (const auto it : ConvexHull) {
-		//		std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
-		//	}
-		//	fclose(output);
-
-		//	string filename1 = string("ProjectedPoints_") + to_string(
-		//			(unsigned long long) timestep) + string(".vtk");
-		//	FILE* output1 = fopen(filename1.c_str(), "wt");
-
-		//	for (const auto it : ProjectedPoints) {
-		//		fprintf(output, "%lf \t %lf \n", it.x, it.y);
-		//	}
-		//	fclose(output1);
-		//}
+	//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
+	// find the center of mass of a QuadruplePoint
+	// attach the quadruplePoints to TripleLines
+	// interpolate through the set of points describing the TL
+	// attach these objects to the GrainBoundary
+	// optimize the search routine to find nearest Triangle
+	// extend the classes interfacial elements etc. to capture the analytic descriptions
 	//}
+	//GrahamScan scanner(ProjectedPoints);
+	//vector<SPoint> ConvexHull;
+	//scanner.generateCovnexHull(ConvexHull);
+	//double perimeter =0;
+	//vector<SPoint>::iterator it;
+	//for(it = ConvexHull.begin(); it !=(--ConvexHull.end()); it++){
+	//	perimeter += (*it).DistanceTo(*(++it));
+	//}
+
+	//int timestep = m_owner->get_grainHandler()->get_loop();
+	//if (((timestep - Settings::StartTime) % int(
+	//		Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+	//		|| timestep == Settings::NumberOfTimesteps) {
+
+	//	string filename = string("ConvexHull_") + to_string(timestep)
+	//			+ string(".gnu");
+	//	FILE* output = fopen(filename.c_str(), "wt");
+	//	for (const auto it : ConvexHull) {
+	//		std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+	//	}
+	//	fclose(output);
+
+	//	string filename1 = string("ProjectedPoints_") + to_string(
+	//			(unsigned long long) timestep) + string(".vtk");
+	//	FILE* output1 = fopen(filename1.c_str(), "wt");
+
+	//	for (const auto it : ProjectedPoints) {
+	//		fprintf(output, "%lf \t %lf \n", it.x, it.y);
+	//	}
+	//	fclose(output1);
+	//}
+	//}
+	//for the purpose of analyzing the geometric objects of the surface of the grain have to be explicitely computed
+	// find the center of mass of a QuadruplePoint
+	// attach the quadruplePoints to TripleLines
+	// interpolate through the set of points describing the TL
+	// attach these objects to the GrainBoundary
+	// optimize the search routine to find nearest Triangle
+	// extend the classes interfacial elements etc. to capture the analytic descriptions
+
+	/*
+	 * LD hier
+	 * NeighborList local
+	 * computeNormal
+	 * nur LD speichern als Eigenschaft der GrainHull
+	 */
+
+	/*
+	 * Save for every triangle the IDs of the neighbor-triangles
+	 */
+
+	vector<int>* NeighborList = new vector<int> [m_actualHull.size()];
+
+	for (int i = 0; i < m_actualHull.size(); i++) {
+		for (int j = 0; j < i; j++) {
+			if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
+				NeighborList[i].push_back(j);
+		}
+	}
+
+	/*
+	 * Calculate the normal vector of every triangle
+	 */
+
+	m_normalVectors.clear();
+	Vector3d normal_temp;
+
+	for (int i = 0; i < m_actualHull.size(); i++) {
+		normal_temp
+				= (m_actualHull[i].points[1] - m_actualHull[i].points[0]).cross(
+						(m_actualHull[i].points[2] - m_actualHull[i].points[0]));
+		normal_temp /= normal_temp.norm();
+		m_normalVectors.push_back(normal_temp);
+	}
+
+	/*
+	 * Calculate the mean width of the grain
+	 */
+
+	m_LD = 0;
+	for (int i = 0; i < m_actualHull.size(); i++) {
+		for (int j = 0; j < NeighborList[i].size(); j++) {
+			m_LD += m_actualHull[i].calculateMeanWidthComponent(
+					m_actualHull[(NeighborList[i])[j]], m_normalVectors[i],
+					m_normalVectors[(NeighborList[i])[j]]);
+		}
+	}
+	m_LD /= 2 * M_PI;
+
+	if (m_LD < 0)
+		m_LD *= -1;
+
+	/*
+	 * Calculate the length of the triple lines
+	 */
+
+	m_TripleLineLength = 0;
+	for (vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter
+			!= m_TripleLines.end(); ++iter) {
+		vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
+		m_TripleLineLength += (vertices_temp[0]->get_Position()
+				- vertices_temp[1]->get_Position()).norm();
+	}
 }
 
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
@@ -271,12 +355,40 @@ QuadrupleJunction* GrainHull::findQuadrupleJunction(int key) {
 	return NULL;
 }
 
+HighOrderJunction* GrainHull::findHighOrderJunction(int key) {
+
+	for (const auto it : m_HighOrderJunctions) {
+		if (it->get_m_Key_NeighborList() == key) {
+			return &(*it);
+		}
+	}
+	return NULL;
+}
+
 GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	double minimalDistance = 10000000.0;
 	GBInfo weight;
 
 	//search in HighOrderJunctions
 	//TODO:
+	for (int j = 0; j < m_HighOrderJunctions.size(); j++) {
+		bool found = false;
+		for (int i = 0; i < m_HighOrderJunctions[j]->m_neighborIDs.size(); i++) {
+			if (m_HighOrderJunctions[j]->m_neighborIDs[i] == id)
+				found = true;
+		}
+		if (found) {
+			for (unsigned int i = 0; i
+					< m_HighOrderJunctions[j]->m_Triangles.size(); i++) {
+				double distance = pointToTriangleDistance(point,
+						m_HighOrderJunctions[j]->m_Triangles[i]);
+				if (distance < minimalDistance) {
+					minimalDistance = distance;
+					weight = m_HighOrderJunctions[j]->get_GBInfo();
+				}
+			}
+		}
+	}
 
 	//search in QuadrupleJunctions
 	for (int j = 0; j < m_QuadruplePoints.size(); j++) {

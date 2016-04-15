@@ -576,11 +576,14 @@ void grainhdl::save_texture() {
 			;
 			euler = grains[i]->getOrientationQuat()->Quaternion2EulerConst();
 			file << grains[i]->getID() << " "
-					<< grains[i]->getDirectNeighbourCount() << " "
-					<< grains[i]->intersectsBoundaryGrain() << " "
-					<< grains[i]->getVolume() << " " << 0 << " "
-					<< grains[i]->getSurface() << " " << grains[i]->getEnergy()
-					<< " " << euler[0] << " " << euler[1] << " " << euler[2]
+					<< grains[i]->getDirectNeighbourCount() << "\t"
+					<< grains[i]->intersectsBoundaryGrain() << "\t"
+					<< grains[i]->getVolume() << "\t" << 0 << "\t"
+					<< grains[i]->getSurface() << "\t" << grains[i]->getEnergy()
+					//TODO LD length of triple lines
+					<< "\t" << grains[i]->getMeanWidth()
+					<< "\t" << grains[i]->getTripleLineLength()
+					<< "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
 					<< "\n";
 
 		}

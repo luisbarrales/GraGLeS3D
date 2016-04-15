@@ -22,7 +22,7 @@
    <HAGB_Energy>0.324</HAGB_Energy>
    <!--unit: Js/m² -->
    <HAGB_Mobility>2.6e-13</HAGB_Mobility>
-   <!--unit: m⁴/Js -->
+   <!--unit: m^4/Js -->
    <DislocEnDensPerSqM>8.81e-10 </DislocEnDensPerSqM>
    <!--1/2 Gbb - material constant -->
    <Physical_Domain_Size>2.01e-4 </Physical_Domain_Size>   

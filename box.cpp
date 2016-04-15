@@ -880,7 +880,7 @@ void LSbox::boundaryCondition() {
 	int m = m_grainHandler->get_ngridpoints();
 	double distZMin, distZMax, distXMin, distXMax, distX;
 	double distYMin, distYMax, distY, distZ;
-	double dist;
+	double dist=0;
 	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
 		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
 			for (int j = m_inputDistance->getMinX(); j

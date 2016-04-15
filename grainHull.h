@@ -32,15 +32,20 @@ class grainhdl;
 class GrainHull {
 private:
 	vector<Triangle> m_actualHull;
+	vector<Vector3d> m_normalVectors;
 	vector<NeighborList> m_triangleNeighborLists;
 	vector<unsigned int> m_neighbors;
 	vector<GrainBoundary*> m_Grainboundary;
 	vector<TripleLine*> m_TripleLines;
 	vector<QuadrupleJunction*> m_QuadruplePoints;
+	vector<HighOrderJunction*> m_HighOrderJunctions;
+	double m_LD;
+	double m_TripleLineLength;
 public:
 	friend class GrainBoundary;
 	friend class TripleLine;
 	friend class QuadrupleJunction;
+	friend class HighOrderJunction;
 	LSbox* m_owner;
 	GrainHull(LSbox* owner);
 	~GrainHull();
@@ -54,6 +59,7 @@ public:
 		return m_neighbors.size();
 	}
 	void plotContour(bool absoluteCoordinates, int timestep);
+	HighOrderJunction* findHighOrderJunction(int key);
 	QuadrupleJunction* findQuadrupleJunction(int key);
 	TripleLine* findTripleLine(int key);
 	GrainBoundary* findGrainBoundary(int key);
@@ -65,6 +71,13 @@ public:
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
 
+
+	inline double getMeanWidth(){
+		return m_LD;
+	}
+	inline double getTripleLineLength(){
+		return m_TripleLineLength;
+	}
 };
 
 #endif //__GRAIN_HULL__

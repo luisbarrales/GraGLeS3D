@@ -46,8 +46,7 @@ double InterfacialElement::computeReadShockleyEnergy(double misori) {
 GrainBoundary::GrainBoundary(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
-	if (currentID
-			!= m_owner->m_triangleNeighborLists[key].neighbors[0]) {
+	if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[0]) {
 		m_neighborID = m_owner->m_triangleNeighborLists[key].neighbors[0];
 	} else
 		m_neighborID = m_owner->m_triangleNeighborLists[key].neighbors[1];
@@ -58,13 +57,15 @@ GrainBoundary::~GrainBoundary() {
 }
 
 void GrainBoundary::computeEnergy() {
-	LSbox* neighbor = m_owner->m_owner->get_grainHandler()->grains[m_neighborID];
+	LSbox* neighbor =
+			m_owner->m_owner->get_grainHandler()->grains[m_neighborID];
 	double misori = m_owner->m_owner->computeMisorientation(neighbor);
 	m_energy = computeReadShockleyEnergy(misori);
 }
 
 void GrainBoundary::computeMobility() {
-	LSbox* neighbor = m_owner->m_owner->get_grainHandler()->grains[m_neighborID];
+	LSbox* neighbor =
+			m_owner->m_owner->get_grainHandler()->grains[m_neighborID];
 	double misori = m_owner->m_owner->computeMisorientation(neighbor);
 	m_mobility = computeMobilityMisori(misori);
 }
@@ -73,10 +74,10 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
 	int j = 0;
-	for (int i=0; i < 3; i++) {
-		if (currentID
-				!= m_owner->m_triangleNeighborLists[key].neighbors[i]) {
-			m_neighborID[j] = m_owner->m_triangleNeighborLists[key].neighbors[i];
+	for (int i = 0; i < 3; i++) {
+		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
+			m_neighborID[j]
+					= m_owner->m_triangleNeighborLists[key].neighbors[i];
 			j++;
 		}
 	}
@@ -142,36 +143,89 @@ void TripleLine::computeMobility() {
 	/ averageMobility);
 }
 
-void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions){
-	int i= 0;
-	for(const auto it : Junctions)
-	{
-		if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID){
-				m_edges.push_back(&(*it)); i++;
-				if(i==1) return ;
-			}
+void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
+	int i = 0;
+for(const auto it : Junctions)
+{
+	if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID) {
+		m_edges.push_back(&(*it)); i++;
+		if(i==1) return;
 	}
 }
-void TripleLine::findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*> Junctions){
-	int i= 0;
-	for(const auto it : Junctions)
+}
+void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
+		vector<HighOrderJunction*> JunctionsH) {
+	int i = 0;
+	for(const auto it : JunctionsQ)
 	{
 		if (it->get_FirstNeighbor() == m_neighborID[0] || it->get_SecondNeighbor() == m_neighborID[0] || it->get_ThirdNeighbor() == m_neighborID[0])
-			if (it->get_FirstNeighbor() == m_neighborID[1] || it->get_SecondNeighbor() == m_neighborID[1] || it->get_ThirdNeighbor() == m_neighborID[1]){
-				m_vertices.push_back(&(*it)); i++;
-				if(i==2) return ;
-			}
+		if (it->get_FirstNeighbor() == m_neighborID[1] || it->get_SecondNeighbor() == m_neighborID[1] || it->get_ThirdNeighbor() == m_neighborID[1]) {
+			m_vertices.push_back(&(*it)); i++;
+			if(i==2) return;
+		}
 	}
+
+	for(const auto it : JunctionsH)
+	{
+		vector<int> neighborIDs = it->get_NeighborIDs();
+		bool found_0 = false;
+		bool found_1 = false;
+		for(int k=0; k< neighborIDs.size(); k++) {
+			if(neighborIDs[k]==m_neighborID[0]) {
+				found_0 = true;
+			}
+		}
+		for(int k=0; k<neighborIDs.size(); k++) {
+			if(neighborIDs[k]==m_neighborID[1]) {
+				found_1 = true;
+			}
+		}
+		if(found_0 && found_1) {
+			m_vertices.push_back(&(*it)); i++;
+			if(i==2) return;
+		}
+	}
+	if(i!= 2)
+		cout << "tripleline has not found two adjacent junctions." << endl;
+	return;
 }
 
+
+HighOrderJunction::HighOrderJunction(int key, GrainHull* owner) :
+	InterfacialElement(key, owner) {
+	int currentID = owner->m_owner->getID();
+	int j = 0;
+	j = m_owner->m_triangleNeighborLists[key].neighbors[0];
+	for (int i = 0; i
+			< m_owner->m_triangleNeighborLists[key].getNeighborsListCount(); i++) {
+		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
+			m_neighborIDs.push_back(
+					m_owner->m_triangleNeighborLists[key].neighbors[i]);
+			j++;
+		}
+	}
+	computeMobility();
+	computeEnergy();
+}
+
+HighOrderJunction::~HighOrderJunction() {
+}
+
+void HighOrderJunction::computeEnergy() {
+	m_energy = 1;
+
+}
+void HighOrderJunction::computeMobility() {
+	m_mobility = 1;
+}
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
 	int j = 0;
-	for (int i=0; i < 4; i++) {
-		if (currentID
-				!= m_owner->m_triangleNeighborLists[key].neighbors[i]) {
-			m_neighborID[j] = m_owner->m_triangleNeighborLists[key].neighbors[i];
+	for (int i = 0; i < 4; i++) {
+		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
+			m_neighborID[j]
+					= m_owner->m_triangleNeighborLists[key].neighbors[i];
 			j++;
 		}
 	}

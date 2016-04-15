@@ -2,7 +2,9 @@
 #define 	__TRINAGLE_H__
 
 #include "Eigen/Dense"
+#include <iostream>
 using namespace Eigen;
+using namespace std;
 
 struct Triangle
 {
@@ -27,6 +29,101 @@ struct Triangle
 		 outerUnitNormal[2]=R[1]*S[2]-R[2]*S[1];
 		//TODO:
 		return outerUnitNormal;
+	}
+	bool IsNeighbor(Triangle &T2){
+		int NNeighbors=0;
+		int t1[2];
+		int t2[2];
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				if(points[i] == T2.points[j]) {
+					t1[NNeighbors] = i;
+					t2[NNeighbors] = j;
+					NNeighbors++;
+				}
+			}
+		}
+		if(NNeighbors == 2){
+
+			/*
+	 		 * Check if the triangles have the correct orientation
+	 		 */
+
+			if((t1[1]-t1[0]+3)%3-(t2[1]-t2[0]+3)%3==0){
+				Vector3d temp;
+				temp = T2.points[t2[1]];
+				T2.points[t2[1]] = T2.points[t2[0]];
+				T2.points[t2[0]] = temp;
+			}
+			return true;
+		}
+		else
+			return false;
+	}
+
+	double calculateMeanWidthComponent(Triangle &T2, Vector3d normal1, Vector3d normal2){
+		double scalarProduct;
+		double beta, epsilon;
+
+		scalarProduct = normal1.transpose() * normal2;
+
+		/*
+		 * It is possible that through an numerical error the scalar product of two parallel vectors
+		 * becomes greater than one. In this case the value of the scalar product is set to one.
+		 */
+
+		if(scalarProduct>1){
+			scalarProduct = 1.;
+		}
+
+		beta = acos(scalarProduct);
+
+		/*
+		 * Find the points that are shared by both triangles
+		 */
+
+		int sharedPoints[2];
+		int temp=0;
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				if(points[i]==T2.points[j]){
+					sharedPoints[temp]=i;
+					temp++;
+				}
+			}
+		}
+
+		/*
+		 * Orient the shared line as it is oriented in triangle T1
+		 */
+		Vector3d sharedLine;
+		if((sharedPoints[1]-sharedPoints[0]+3)%3==1){
+			sharedLine=points[sharedPoints[1]]-points[sharedPoints[0]];
+		}
+		else
+		{
+			sharedLine=points[sharedPoints[0]]-points[sharedPoints[1]];
+		}
+
+		epsilon = sharedLine.norm();
+
+		/*
+		 * If the cross product of the two normal vectors is parallel to the shared line the angle is positive
+		 * if it is antiparallel the angle is negative this is accounted for in the next if-statement
+		 */
+
+		if((normal1.cross(normal2).transpose() * sharedLine) < 0)
+		{
+			beta*=-1;
+		}
+		if(beta != beta) {
+			cout << "beta" << endl;
+			cout << normal1.transpose() * normal2 << endl;
+		}
+		if(epsilon != epsilon) cout << "epsilon" << endl;
+		return beta*epsilon;
+
+
 	}
 };
 
