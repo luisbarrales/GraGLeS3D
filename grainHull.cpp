@@ -199,7 +199,8 @@ void GrainHull::computeInterfacialElementMesh() {
 	for (const auto it : m_HighOrderJunctions){
 		it->computePosition();
 	}
-	//findPositionOfJunctions();
+
+
 	for (const auto it : m_TripleLines) {
 		it->findAdjacentJunctions(m_QuadruplePoints, m_HighOrderJunctions);
 	}

@@ -187,6 +187,28 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 	}
 	if(i!= 2){
 		cout << "tripleline has not found two adjacent junctions." << endl;
+
+		ofstream str("tripleLine.vtk");
+		str << "# vtk DataFile Version 3.0" << endl;
+		str << "The normal vectors of the surface" << endl;
+		str << "ASCII" << endl;
+		str << "DATASET POLYDATA" << endl;
+		str << endl;
+		str << "POINTS " << m_Triangles.size()*3 << " float" << endl;
+		for(int j=0; j<m_Triangles.size(); j++){
+			str << m_Triangles[j].points[0].x() << " " << m_Triangles[j].points[0].y() <<
+					" " << m_Triangles[j].points[0].z() << endl;
+			str << m_Triangles[j].points[1].x() << " " << m_Triangles[j].points[1].y() <<
+					" " << m_Triangles[j].points[1].z() << endl;
+			str << m_Triangles[j].points[2].x() << " " << m_Triangles[j].points[2].y() <<
+					" " << m_Triangles[j].points[2].z() << endl;
+		}
+		str << "POLYGONS " << m_Triangles.size() << " " << m_Triangles.size()*4 << endl;
+
+		for(int j=0; j<m_Triangles.size(); j++){
+			str << "3\t" << 3*j << " " << 3*j+1 << " " << 3*j+2 << endl;
+		}
+		str.close();
 		int time = m_owner->m_owner->get_grainHandler()->get_loop();
 		m_owner->plotContour(true,time);
 	}
