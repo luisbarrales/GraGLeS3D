@@ -366,8 +366,6 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	double minimalDistance = 10000000.0;
 	GBInfo weight;
 
-	//search in HighOrderJunctions
-	//TODO:
 	for (int j = 0; j < m_HighOrderJunctions.size(); j++) {
 		bool found = false;
 		for (int i = 0; i < m_HighOrderJunctions[j]->m_neighborIDs.size();
@@ -426,8 +424,8 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 					i < m_TripleLines[j]->m_barycenterTriangles.size(); i++) {
 //				double distance = pointToTriangleDistance(point,
 //						m_TripleLines[j]->m_Triangles[i]);
-				double distance = (point
-						- m_TripleLines[j]->m_barycenterTriangles[i]).squaredNorm();
+				double distance =
+						(point - m_TripleLines[j]->m_barycenterTriangles[i]).squaredNorm();
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
 					weight = m_TripleLines[j]->get_GBInfo();
@@ -444,8 +442,8 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 					i < m_Grainboundary[j]->m_barycenterTriangles.size(); i++) {
 //				double distance = pointToTriangleDistance(point,
 //						m_Grainboundary[j]->m_Triangles[i]);
-				double distance = (point
-						- m_Grainboundary[j]->m_barycenterTriangles[i]).squaredNorm();
+				double distance =
+						(point - m_Grainboundary[j]->m_barycenterTriangles[i]).squaredNorm();
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
 					weight = m_Grainboundary[j]->get_GBInfo();

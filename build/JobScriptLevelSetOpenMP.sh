@@ -37,4 +37,4 @@
 
 ulimit -u unlimited
 ### Execute your application
-LevelSet_IMM parameters.xml
+LevelSet_IMM benchmark3D.xml

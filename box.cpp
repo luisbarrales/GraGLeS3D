@@ -40,7 +40,10 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_inputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_outputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_magneticEnergy = 0;
-
+//#ifdef USE_FFTW
+//	m_handle = NULL;
+//	m_b_handle = NULL;
+//#endif
 }
 //constructor for Voronoi initialization
 LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
@@ -52,6 +55,10 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 	double h = owner->get_h();
 	// determine size of grain
 	m_orientationQuat = new myQuaternion();
+//#ifdef USE_FFTW
+//	m_handle = NULL;
+//	m_b_handle = NULL;
+//#endif
 #pragma omp critical
 	{
 		if (Settings::UseTexture) {
@@ -118,6 +125,10 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	double h = owner->get_h();
 	// determine size of grain
 	m_orientationQuat = new myQuaternion();
+#ifdef USE_FFTW
+	m_handle = NULL;
+	m_b_handle = NULL;
+#endif
 #pragma omp critical
 	{
 		if (Settings::UseMagneticField) {
@@ -221,7 +232,10 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 	//m_grainBoundary.getRawBoundary() = vertices;
 	//	if (Settings::UseMagneticField)
 	//		calculateMagneticEnergy();
-
+#ifdef USE_FFTW
+	m_handle = NULL;
+	m_b_handle = NULL;
+#endif
 	int grid_blowup = m_grainHandler->get_grid_blowup();
 	double h = m_grainHandler->get_h();
 	// determine size of grain
@@ -639,7 +653,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 		const MKL_LONG PO = N*N*N;
 		const MKL_LONG SO = N*N*(N/2+1);
 		update_backward_plan = true;
-		DftiFreeDescriptor(&m_handle);
+		if(m_grainHandler->get_loop()!=0)
+			DftiFreeDescriptor(&m_handle);
 		DftiCreateDescriptor(&m_handle, precision, DFTI_REAL, 3, dimensions);
 		DftiSetValue(m_handle, DFTI_PLACEMENT, DFTI_NOT_INPLACE);
 		DftiSetValue(m_handle, DFTI_CONJUGATE_EVEN_STORAGE,DFTI_COMPLEX_COMPLEX);
@@ -687,7 +702,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 
 	}
 	if (update_backward_plan) {
-		DftiFreeDescriptor(&m_b_handle);
+		if(m_grainHandler->get_loop()!=0)
+			DftiFreeDescriptor(&m_b_handle);
 		MKL_LONG N = m_dimensions;
 		MKL_LONG dimensions[3] = {N,N,N};
 		MKL_LONG input_strides[4] = {0,(N/2+1),(N/2+1)*N,1};
