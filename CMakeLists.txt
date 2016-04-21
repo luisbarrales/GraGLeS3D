@@ -5,13 +5,13 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp IterativeGrainScheduler.cpp SquaresGrainScheduler.cpp)
+set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp IterativeGrainScheduler.cpp SquaresGrainScheduler.cpp grahamScan.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 
-#set(CMAKE_CXX_FLAGS "-g -O0 -Wall ")
-set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
+set(CMAKE_CXX_FLAGS "-g -O0 -Wall ")
+#set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 
@@ -48,7 +48,7 @@ link_directories(${Boost_LIBRARY_DIR} ${CMAKE_SOURCE_DIR})
 #find_package(MPI REQUIRED)
 
 ADD_DEFINITIONS("-std=c++0x")
-ADD_DEFINITIONS("-DUSE_MKL")
+ADD_DEFINITIONS("-DUSE_FFTW")
 
 
 

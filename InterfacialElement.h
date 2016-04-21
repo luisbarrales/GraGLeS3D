@@ -27,10 +27,10 @@ struct GBInfo {
 	GBInfo() {
 	}
 	GBInfo(double _mobility, double _energy) :
-			energy(_energy), mobility(_mobility) {
+		energy(_energy), mobility(_mobility) {
 	}
 	GBInfo(const GBInfo& other) :
-			mobility(other.mobility), energy(other.energy) {
+		mobility(other.mobility), energy(other.energy) {
 	}
 };
 
@@ -52,6 +52,8 @@ public:
 
 	virtual void computeEnergy()= 0;
 	virtual void computeMobility()= 0;
+	virtual Vector3d get_Position()=0;
+
 	void addBaryCenter(Vector3d current) {
 		m_barycenterTriangles.push_back(current);
 	}
@@ -71,7 +73,10 @@ public:
 		return m_mobility;
 	}
 };
+
 class HighOrderJunction: public InterfacialElement {
+	Vector3d m_position;
+	vector<int> m_neighborIDs;
 	//TODO:
 public:
 	friend class GrainHull;
@@ -79,6 +84,15 @@ public:
 	~HighOrderJunction();
 	void computeEnergy();
 	void computeMobility();
+	void computePosition();
+	inline vector<int> get_NeighborIDs() {
+		return m_neighborIDs;
+	}
+	;
+	inline Vector3d get_Position() {
+		return m_position;
+	}
+	;
 };
 
 class QuadrupleJunction: public InterfacialElement {
@@ -90,6 +104,7 @@ public:
 	~QuadrupleJunction();
 	void computeEnergy();
 	void computeMobility();
+	void computePosition();
 	inline int get_FirstNeighbor() {
 		return m_neighborID[0];
 	}
@@ -109,7 +124,7 @@ public:
 };
 
 class TripleLine: public InterfacialElement {
-	vector<QuadrupleJunction*> m_vertices;
+	vector<InterfacialElement*> m_vertices;
 	int m_neighborID[2];
 public:
 	friend class GrainHull;
@@ -118,17 +133,20 @@ public:
 	~TripleLine();
 	void computeEnergy();
 	void computeMobility();
-	void findAdjacentQuadrupleJunctions(vector<QuadrupleJunction*>);
+	void findAdjacentJunctions(vector<QuadrupleJunction*> ,
+			vector<HighOrderJunction*> );
 	inline int get_FirstNeighbor() {
 		return m_neighborID[0];
 	}
 	inline int get_SecondNeighbor() {
 		return m_neighborID[1];
 	}
-	inline vector<QuadrupleJunction*> get_vertices() {
+	inline vector<InterfacialElement*> get_vertices() {
 		return m_vertices;
 	}
-
+	inline Vector3d get_Position() {
+		return Vector3d(-1,-1,-1);;
+	}
 };
 
 class GrainBoundary: public InterfacialElement {
@@ -141,9 +159,12 @@ public:
 	~GrainBoundary();
 	void computeEnergy();
 	void computeMobility();
-	void findAdjacentTripleLines(vector<TripleLine*>);
+	void findAdjacentTripleLines(vector<TripleLine*> );
 	inline vector<TripleLine*> get_edges() {
 		return m_edges;
+	}
+	inline Vector3d get_Position() {
+		return Vector3d(-1,-1,-1);
 	}
 };
 

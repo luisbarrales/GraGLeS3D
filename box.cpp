@@ -31,9 +31,9 @@
 #define PERIODIC(x, f) (((x)+f)%f)
 
 LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
-		m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(
-				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
-				0), m_surface(0), m_explicitHull(this) {
+	m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(true),
+			m_intersectsBoundaryGrain(false), m_volume(0), m_energy(0),
+			m_surface(0), m_explicitHull(this) {
 	m_orientationQuat = new myQuaternion();
 	double euler[3] = { phi1, PHI, phi2 };
 	m_orientationQuat->euler2Quaternion(euler);
@@ -42,11 +42,11 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_magneticEnergy = 0;
 
 }
-
+//constructor for Voronoi initialization
 LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
-		m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(
-				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
-				0), m_surface(0), m_explicitHull(this) {
+	m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(true),
+			m_intersectsBoundaryGrain(false), m_volume(0), m_energy(0),
+			m_surface(0), m_explicitHull(this) {
 	int grid_blowup = owner->get_grid_blowup();
 	m_magneticEnergy = 0;
 	double h = owner->get_h();
@@ -61,6 +61,7 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 			m_orientationQuat->euler2Quaternion(newOri);
 		} else
 			m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
+
 	}
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
@@ -109,9 +110,9 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 
 LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 		DimensionalBuffer<int>& IDField, grainhdl* owner) :
-		m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(
-				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
-				0), m_surface(0), m_explicitHull(this) {
+	m_ID(id), m_exists(true), m_grainHandler(owner), m_isMotionRegular(true),
+			m_intersectsBoundaryGrain(false), m_volume(0), m_energy(0),
+			m_surface(0), m_explicitHull(this) {
 	int grid_blowup = owner->get_grid_blowup();
 	m_magneticEnergy = 0;
 	double h = owner->get_h();
@@ -119,13 +120,36 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	m_orientationQuat = new myQuaternion();
 #pragma omp critical
 	{
-		if (Settings::UseTexture) {
-			double newOri[3];
-			(*(m_grainHandler->mymath)).newOrientationFromReference(
-					m_grainHandler->bunge, m_grainHandler->deviation, newOri);
-			m_orientationQuat->euler2Quaternion(newOri);
-		} else
-			m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
+		if (Settings::UseMagneticField) {
+			double number;
+			number = rnd();
+			if (number <= 0.5) {
+				double ori1[3] = { 0 * (PI / 180), 35 * (PI / 180), 0 * (PI
+						/ 180) };
+				double newOri[3];
+				(*(m_grainHandler->mymath)).newOrientationFromReference(ori1,
+						10 * (PI / 180), newOri);
+				m_orientationQuat->euler2Quaternion(newOri);
+
+			} else {
+				double ori2[3] = { 180 * (PI / 180), 35 * (PI / 180), 0 * (PI
+						/ 180) };
+				double newOri[3];
+				(*(m_grainHandler->mymath)).newOrientationFromReference(ori2,
+						10* (PI / 180), newOri);
+				m_orientationQuat->euler2Quaternion(newOri);
+			}
+
+		} else {
+			if (Settings::UseTexture) {
+				double newOri[3];
+				(*(m_grainHandler->mymath)).newOrientationFromReference(
+						m_grainHandler->bunge, m_grainHandler->deviation,
+						newOri);
+				m_orientationQuat->euler2Quaternion(newOri);
+			} else
+				m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
+		}
 	}
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
@@ -188,9 +212,9 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 
 LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		grainhdl* owner) :
-		m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitHull(this), m_isMotionRegular(
-				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
-				0), m_surface(0) {
+	m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitHull(this),
+			m_isMotionRegular(true), m_intersectsBoundaryGrain(false),
+			m_volume(0), m_energy(0), m_surface(0) {
 	m_orientationQuat = new myQuaternion(ori.get_q0(), ori.get_q1(),
 			ori.get_q2(), ori.get_q3());
 	//m_grainBoundary.getRawBoundary() = vertices;
@@ -279,11 +303,11 @@ void LSbox::calculateMagneticEnergy() {
 	double cAxis[3] = { //Rotated ND in order to represent the unit vector with c orientation
 			0.0, 0.0, 0.0 };
 
-	double rotMatrix[9] = { cos(p1) * cos(p2) - sin(p1) * sin(p2) * cos(t), sin(
-			p1) * cos(p2) + cos(p1) * sin(p2) * cos(t), sin(p2) * sin(t), -cos(
-			p1) * sin(p2) - sin(p1) * cos(p2) * cos(t), -sin(p1) * sin(p2)
-			+ cos(p1) * cos(p2) * cos(t), cos(p2) * sin(t), sin(p1) * sin(t),
-			-cos(p1) * sin(t), cos(t) };
+	double rotMatrix[9] = { cos(p1) * cos(p2) - sin(p1) * sin(p2) * cos(t),
+			sin(p1) * cos(p2) + cos(p1) * sin(p2) * cos(t), sin(p2) * sin(t),
+			-cos(p1) * sin(p2) - sin(p1) * cos(p2) * cos(t), -sin(p1) * sin(p2)
+					+ cos(p1) * cos(p2) * cos(t), cos(p2) * sin(t), sin(p1)
+					* sin(t), -cos(p1) * sin(t), cos(t) };
 
 	double trans[3][3];
 
@@ -326,14 +350,12 @@ void LSbox::calculateMagneticEnergy() {
 void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
 	int min = m_grainHandler->get_grid_blowup();
 	int max = m_grainHandler->get_ngridpoints() - min - 1;
-	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
-			k++) {
-		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
-				i++) {
-			for (int j = m_inputDistance->getMinX();
-					j < m_inputDistance->getMaxX(); j++) {
-				if (i < min || i > max || j < min || j > max || k < min
-						|| k > max)
+	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
+		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
+			for (int j = m_inputDistance->getMinX(); j
+					< m_inputDistance->getMaxX(); j++) {
+				if (i < min || i > max || j < min || j > max || k < min || k
+						> max)
 					m_inputDistance->setValueAt(i, j, k,
 							-m_grainHandler->get_h());
 				else if (m_ID == m_grainHandler->IDField->getValueAt(i, j, k))
@@ -348,7 +370,7 @@ void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
 	executeRedistancing();
 }
 
-// Convolution und Helperfunctions 
+// Convolution und Helperfunctions
 /**************************************/
 /**************************************/
 
@@ -438,26 +460,25 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//									- exp(-actualGrainRadius / a)
 						//											* (1 - yInterceptBottom);
 						//						}
-						GBInfo localGB =
-								m_explicitHull.projectPointToGrainBoundary(
-										point, grain.grainID);
+						GBInfo localGB(1., 1.); /*
+						 m_explicitHull.projectPointToGrainBoundary(
+						 point, grain.grainID); */
 
 						m_outputDistance->setValueAt(
 								i,
 								j,
 								k,
-								val
-										+ (m_outputDistance->getValueAt(i, j, k)
-												- val) * localGB.energy
-												* localGB.mobility
-												* radiuscorrection);
+								val + (m_outputDistance->getValueAt(i, j, k)
+										- val) * localGB.energy
+										* localGB.mobility * radiuscorrection);
 						if (Settings::UseMagneticField) {
-							double f_magneticEnergy =
-									(m_magneticEnergy
-											- m_grainHandler->getGrainByID(
-													grain.grainID)->get_magneticEnergy())
-											* localGB.mobility
-											* m_grainHandler->get_dt();
+							double
+									f_magneticEnergy =
+											(m_magneticEnergy
+													- m_grainHandler->getGrainByID(
+															grain.grainID)->get_magneticEnergy())
+													* localGB.mobility
+													* m_grainHandler->get_dt();
 
 							m_outputDistance->setValueAt(
 									i,
@@ -563,8 +584,8 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
-								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
-								/ n_nsq * PI * PI * PI) / n_nsq;
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+								/ n_nsq * PI * PI) / n_nsq;
 						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
 								* k)][0] * G;
 						fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
@@ -646,8 +667,8 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
-								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
-								/ n_nsq * PI * PI * PI) / n_nsq;
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+								/ n_nsq * PI * PI) / n_nsq;
 						fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
 						fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
 					}
@@ -707,23 +728,20 @@ void LSbox::executeSetComparison() {
 	m_newZMin = m_outputDistance->getMaxZ();
 	m_newZMax = m_outputDistance->getMinZ();
 
-	for (int k = m_outputDistance->getMinZ(); k < m_outputDistance->getMaxZ();
-			k++) {
-		for (int i = m_outputDistance->getMinY();
-				i < m_outputDistance->getMaxY(); i++) {
-			for (int j = m_outputDistance->getMinX();
-					j < m_outputDistance->getMaxX(); j++) {
+	for (int k = m_outputDistance->getMinZ(); k < m_outputDistance->getMaxZ(); k++) {
+		for (int i = m_outputDistance->getMinY(); i
+				< m_outputDistance->getMaxY(); i++) {
+			for (int j = m_outputDistance->getMinX(); j
+					< m_outputDistance->getMaxX(); j++) {
 
-				if (abs(m_inputDistance->getValueAt(i, j, k))
-						< 0.7 * m_grainHandler->delta) {
+				if (abs(m_inputDistance->getValueAt(i, j, k)) < 0.7
+						* m_grainHandler->delta) {
 					m_outputDistance->setValueAt(
 							i,
 							j,
 							k,
-							0.5
-									* (m_inputDistance->getValueAt(i, j, k)
-											- m_outputDistance->getValueAt(i, j,
-													k)));
+							0.5 * (m_inputDistance->getValueAt(i, j, k)
+									- m_outputDistance->getValueAt(i, j, k)));
 				} else
 					m_outputDistance->setValueAt(i, j, k,
 							m_inputDistance->getValueAt(i, j, k));
@@ -771,8 +789,7 @@ void LSbox::executeComparison() {
 	m_outputDistance->clearValues(-1.0);
 	m_secondOrderNeighbours = m_comparisonList;
 
-	for (unsigned int neighs = 0; neighs < m_secondOrderNeighbours.size();
-			neighs++) {
+	for (unsigned int neighs = 0; neighs < m_secondOrderNeighbours.size(); neighs++) {
 		LSbox* neighbor = m_grainHandler->getGrainByID(
 				m_secondOrderNeighbours[neighs]);
 		int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
@@ -813,8 +830,8 @@ void LSbox::executeComparison() {
 					double dist = neighbor->getDistanceFromInputBuff(i, j, k);
 					if (dist > m_outputDistance->getValueAt(i, j, k)) {
 						m_outputDistance->setValueAt(i, j, k, dist);
-						m_IDLocal.getValueAt(i, j, k).grainID =
-								neighbor->getID();
+						m_IDLocal.getValueAt(i, j, k).grainID
+								= neighbor->getID();
 					}
 				}
 			}
@@ -863,13 +880,11 @@ void LSbox::boundaryCondition() {
 	int m = m_grainHandler->get_ngridpoints();
 	double distZMin, distZMax, distXMin, distXMax, distX;
 	double distYMin, distYMax, distY, distZ;
-	double dist;
-	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
-			k++) {
-		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
-				i++) {
-			for (int j = m_inputDistance->getMinX();
-					j < m_inputDistance->getMaxX(); j++) {
+	double dist=0;
+	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
+		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
+			for (int j = m_inputDistance->getMinX(); j
+					< m_inputDistance->getMaxX(); j++) {
 				distXMin = -(j - grid_blowup - 1);
 				distYMin = -(i - grid_blowup - 1);
 				distZMin = -(k - grid_blowup - 1);
@@ -895,8 +910,8 @@ void LSbox::boundaryCondition() {
 				// the point is outside in one of the 8 corners:
 				if (distX > 0 && distY > 0 && distZ > 0)
 					dist = sqrt(
-							(double) distX * distX + distY * distY
-									+ distZ * distZ);
+							(double) distX * distX + distY * distY + distZ
+									* distZ);
 
 				// the point is inside the domain - > value is maximum of the negative distances:
 				else if (distX < 0 && distY < 0 && distZ < 0) {
@@ -955,8 +970,8 @@ void LSbox::computeSecondOrderNeighbours() {
 		LSbox* currentNeighbor = m_grainHandler->getGrainByID(
 				m_secondOrderNeighbours[i]);
 
-		for (unsigned int j = 0;
-				j < currentNeighbor->m_secondOrderNeighbours.size(); j++) {
+		for (unsigned int j = 0; j
+				< currentNeighbor->m_secondOrderNeighbours.size(); j++) {
 			LSbox* hisNeighbor = m_grainHandler->getGrainByID(
 					currentNeighbor->m_secondOrderNeighbours[j]);
 			if (hisNeighbor->grainExists() == true)
@@ -1082,8 +1097,7 @@ void LSbox::executeRedistancing() {
 	// first to updates layer by layer to take advantage of the order of point in memory - there are aligned layer by layer.
 	for (int k = intersec_zmin; k < intersec_zmax - 1; k++) {
 		for (int i = intersec_ymin; i < m_outputDistance->getMaxY(); i++) {
-			for (int j = intersec_xmin; j < m_outputDistance->getMaxX() - 1;
-					j++) {
+			for (int j = intersec_xmin; j < m_outputDistance->getMaxX() - 1; j++) {
 				// x-direction forward
 				if (j < intersec_xmax - 1 && i < intersec_ymax) {
 					if (m_inputDistance->getValueAt(i, j, k)
@@ -1093,53 +1107,42 @@ void LSbox::executeRedistancing() {
 								- m_inputDistance->getValueAt(i, j, k)) / h;
 						distToZero = -m_inputDistance->getValueAt(i, j, k)
 								/ i_slope;
-						if (abs(m_outputDistance->getValueAt(i, j, k))
-								> abs(distToZero))
+						if (abs(m_outputDistance->getValueAt(i, j, k)) > abs(
+								distToZero))
 							m_outputDistance->setValueAt(i, j, k,
 									-distToZero * sgn(i_slope));
 					}
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ (sgn(
-											m_inputDistance->getValueAt(i,
-													j + 1, k)) * h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j + 1, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_inputDistance->getValueAt(i, j + 1, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j + 1, k)))
 						m_outputDistance->setValueAt(i, j + 1, k, candidate);
 				} else {
-					candidate = m_outputDistance->getValueAt(i, j, k)
-							+ (sgn(m_outputDistance->getValueAt(i, j + 1, k))
-									* h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j + 1, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_outputDistance->getValueAt(i, j + 1, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j + 1, k)))
 						m_outputDistance->setValueAt(i, j + 1, k, candidate);
 				}
 			}
 		}
 
 		for (int i = intersec_ymin; i < m_outputDistance->getMaxY(); i++) {
-			for (int j = intersec_xmax - 1; j > m_outputDistance->getMinX();
-					j--) {
+			for (int j = intersec_xmax - 1; j > m_outputDistance->getMinX(); j--) {
 				// x-direction outputDistanceward
 				//check for sign change
 				if (j > intersec_xmin && i < intersec_ymax) {
 					// calculate new distance candidate and assign if appropriate
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ (sgn(
-											m_inputDistance->getValueAt(i,
-													j - 1, k)) * h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j - 1, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_inputDistance->getValueAt(i, j - 1, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j - 1, k)))
 						m_outputDistance->setValueAt(i, j - 1, k, candidate);
 				} else {
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ sgn(
-											m_outputDistance->getValueAt(i,
-													j - 1, k)) * h;
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j - 1, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + sgn(
+							m_outputDistance->getValueAt(i, j - 1, k)) * h;
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j - 1, k)))
 						m_outputDistance->setValueAt(i, j - 1, k, candidate);
 				}
 			}
@@ -1147,8 +1150,7 @@ void LSbox::executeRedistancing() {
 
 		// y-direction forward
 		for (int j = intersec_xmin; j < m_outputDistance->getMaxX(); j++) {
-			for (int i = intersec_ymin; i < m_outputDistance->getMaxY() - 1;
-					i++) {
+			for (int i = intersec_ymin; i < m_outputDistance->getMaxY() - 1; i++) {
 				if (j < intersec_xmax && i < intersec_ymax - 1) {
 					if (m_inputDistance->getValueAt(i, j, k)
 							* m_inputDistance->getValueAt(i + 1, j, k) <= 0.0) {
@@ -1157,50 +1159,41 @@ void LSbox::executeRedistancing() {
 								- m_inputDistance->getValueAt(i, j, k)) / h;
 						distToZero = -m_inputDistance->getValueAt(i, j, k)
 								/ i_slope;
-						if (abs(m_outputDistance->getValueAt(i, j, k))
-								> abs(distToZero))
+						if (abs(m_outputDistance->getValueAt(i, j, k)) > abs(
+								distToZero))
 							m_outputDistance->setValueAt(i, j, k,
 									-distToZero * sgn(i_slope));
 					}
 					// calculate new distance candidate and assign if appropriate
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ (sgn(
-											m_inputDistance->getValueAt(i + 1,
-													j, k)) * h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i + 1, j, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_inputDistance->getValueAt(i + 1, j, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i + 1, j, k)))
 						m_outputDistance->setValueAt(i + 1, j, k, candidate);
 				} else {
-					candidate = m_outputDistance->getValueAt(i, j, k)
-							+ (sgn(m_outputDistance->getValueAt(i + 1, j, k))
-									* h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i + 1, j, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_outputDistance->getValueAt(i + 1, j, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i + 1, j, k)))
 						m_outputDistance->setValueAt(i + 1, j, k, candidate);
 				}
 			}
 		}
 
 		for (int j = intersec_xmin; j < m_outputDistance->getMaxX(); j++) {
-			for (int i = intersec_ymax - 1; i > m_outputDistance->getMinY();
-					i--) {
+			for (int i = intersec_ymax - 1; i > m_outputDistance->getMinY(); i--) {
 				if (j < intersec_xmax && i > intersec_ymin) {
 					// calculate new distance candidate and assign if appropriate
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ (sgn(
-											m_inputDistance->getValueAt(i - 1,
-													j, k)) * h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i - 1, j, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_inputDistance->getValueAt(i - 1, j, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i - 1, j, k)))
 						m_outputDistance->setValueAt(i - 1, j, k, candidate);
 				} else {
-					candidate = m_outputDistance->getValueAt(i, j, k)
-							+ (sgn(m_outputDistance->getValueAt(i - 1, j, k))
-									* h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i - 1, j, k)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_outputDistance->getValueAt(i - 1, j, k)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i - 1, j, k)))
 						m_outputDistance->setValueAt(i - 1, j, k, candidate);
 				}
 			}
@@ -1214,8 +1207,8 @@ void LSbox::executeRedistancing() {
 		for (int i = intersec_ymin; i < m_outputDistance->getMaxY(); i++) {
 			for (int j = intersec_xmin; j < m_outputDistance->getMaxX(); j++) {
 				// x-direction forward
-				if (k < intersec_zmax - 1 && i < intersec_ymax
-						&& j < intersec_xmax) {
+				if (k < intersec_zmax - 1 && i < intersec_ymax && j
+						< intersec_xmax) {
 					if (m_inputDistance->getValueAt(i, j, k)
 							* m_inputDistance->getValueAt(i, j, k + 1) <= 0.0) {
 						// interpolate
@@ -1223,25 +1216,21 @@ void LSbox::executeRedistancing() {
 								- m_inputDistance->getValueAt(i, j, k)) / h;
 						distToZero = -m_inputDistance->getValueAt(i, j, k)
 								/ i_slope;
-						if (abs(m_outputDistance->getValueAt(i, j, k))
-								> abs(distToZero))
+						if (abs(m_outputDistance->getValueAt(i, j, k)) > abs(
+								distToZero))
 							m_outputDistance->setValueAt(i, j, k,
 									-distToZero * sgn(i_slope));
 					}
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ (sgn(
-											m_inputDistance->getValueAt(i, j,
-													k + 1)) * h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j, k + 1)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_inputDistance->getValueAt(i, j, k + 1)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j, k + 1)))
 						m_outputDistance->setValueAt(i, j, k + 1, candidate);
 				} else {
-					candidate = m_outputDistance->getValueAt(i, j, k)
-							+ (sgn(m_outputDistance->getValueAt(i, j, k + 1))
-									* h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j, k + 1)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_outputDistance->getValueAt(i, j, k + 1)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j, k + 1)))
 						m_outputDistance->setValueAt(i, j, k + 1, candidate);
 				}
 			}
@@ -1252,8 +1241,7 @@ void LSbox::executeRedistancing() {
 		for (int i = intersec_ymin; i < m_outputDistance->getMaxY(); i++) {
 			for (int j = intersec_xmin; j < m_outputDistance->getMaxX(); j++) {
 				// x-direction forward
-				if (k > intersec_zmin && i < intersec_ymax
-						&& j < intersec_xmax) {
+				if (k > intersec_zmin && i < intersec_ymax && j < intersec_xmax) {
 					if (m_inputDistance->getValueAt(i, j, k)
 							* m_inputDistance->getValueAt(i, j, k - 1) <= 0.0) {
 						// interpolate
@@ -1261,25 +1249,21 @@ void LSbox::executeRedistancing() {
 								- m_inputDistance->getValueAt(i, j, k)) / h;
 						distToZero = -m_inputDistance->getValueAt(i, j, k)
 								/ i_slope;
-						if (abs(m_outputDistance->getValueAt(i, j, k))
-								> abs(distToZero))
+						if (abs(m_outputDistance->getValueAt(i, j, k)) > abs(
+								distToZero))
 							m_outputDistance->setValueAt(i, j, k,
 									-distToZero * sgn(i_slope));
 					}
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ (sgn(
-											m_inputDistance->getValueAt(i, j,
-													k - 1)) * h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j, k - 1)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_inputDistance->getValueAt(i, j, k - 1)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j, k - 1)))
 						m_outputDistance->setValueAt(i, j, k - 1, candidate);
 				} else {
-					candidate = m_outputDistance->getValueAt(i, j, k)
-							+ (sgn(m_outputDistance->getValueAt(i, j, k - 1))
-									* h);
-					if (abs(candidate)
-							< abs(m_outputDistance->getValueAt(i, j, k - 1)))
+					candidate = m_outputDistance->getValueAt(i, j, k) + (sgn(
+							m_outputDistance->getValueAt(i, j, k - 1)) * h);
+					if (abs(candidate) < abs(
+							m_outputDistance->getValueAt(i, j, k - 1)))
 						m_outputDistance->setValueAt(i, j, k - 1, candidate);
 				}
 			}
@@ -1287,8 +1271,7 @@ void LSbox::executeRedistancing() {
 	}
 
 	// for all layers the redist is done - compare into the depth to do
-	m_outputDistance->clampValues(-m_grainHandler->delta,
-			m_grainHandler->delta);
+	m_outputDistance->clampValues(-m_grainHandler->delta, m_grainHandler->delta);
 
 	m_inputDistance->resize(m_outputDistance->getMinX(),
 			m_outputDistance->getMinY(), m_outputDistance->getMinZ(),
@@ -1321,12 +1304,10 @@ void LSbox::resizeGrid(int newSize) {
 			m_newYMax, m_newZMax);
 	m_inputDistance->resizeToCube(ngridpointsNew);
 
-	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
-			k++) {
-		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
-				i++) {
-			for (int j = m_inputDistance->getMinX();
-					j < m_inputDistance->getMaxX(); j++) {
+	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
+		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
+			for (int j = m_inputDistance->getMinX(); j
+					< m_inputDistance->getMaxX(); j++) {
 				pointx = j * (hn / h);
 				pointy = i * (hn / h);
 				pointz = k * (hn / h);
@@ -1338,50 +1319,37 @@ void LSbox::resizeGrid(int newSize) {
 				zu = int(pointz);
 				zo = int(pointz + 1);
 
-				if (xr > m_outputDistance->getMaxX() - 2
-						|| yo > m_outputDistance->getMaxY() - 2
-						|| yu < m_outputDistance->getMinY()
-						|| xl < m_outputDistance->getMinX()
-						|| zu < m_outputDistance->getMinZ()
-						|| zo > m_outputDistance->getMaxZ() - 2) {
-					m_inputDistance->setValueAt(i, j, k,
-							-m_grainHandler->delta);
+				if (xr > m_outputDistance->getMaxX() - 2 || yo
+						> m_outputDistance->getMaxY() - 2 || yu
+						< m_outputDistance->getMinY() || xl
+						< m_outputDistance->getMinX() || zu
+						< m_outputDistance->getMinZ() || zo
+						> m_outputDistance->getMaxZ() - 2) {
+					m_inputDistance->setValueAt(i, j, k, -m_grainHandler->delta);
 					continue;
 				}
 
 				double ro, ru, newDistVal_zu, newDistVal_zo;
 
 				//bilinear interpolation in the plane zu:
-				ro = 1 / (xr - xl)
-						* ((xr - pointx)
-								* m_outputDistance->getValueAt(yo, xl, zu)
-								+ (pointx - xl)
-										* m_outputDistance->getValueAt(yo, xr,
-												zu));
-				ru = 1 / (xr - xl)
-						* ((xr - pointx)
-								* m_outputDistance->getValueAt(yu, xl, zu)
-								+ (pointx - xl)
-										* m_outputDistance->getValueAt(yu, xr,
-												zu));
-				newDistVal_zu = 1 / (yo - yu)
-						* ((yo - pointy) * ru + (pointy - yu) * ro);
+				ro = 1 / (xr - xl) * ((xr - pointx)
+						* m_outputDistance->getValueAt(yo, xl, zu) + (pointx
+						- xl) * m_outputDistance->getValueAt(yo, xr, zu));
+				ru = 1 / (xr - xl) * ((xr - pointx)
+						* m_outputDistance->getValueAt(yu, xl, zu) + (pointx
+						- xl) * m_outputDistance->getValueAt(yu, xr, zu));
+				newDistVal_zu = 1 / (yo - yu) * ((yo - pointy) * ru + (pointy
+						- yu) * ro);
 
 				//bilinear interpolation in the plane zo:
-				ro = 1 / (xr - xl)
-						* ((xr - pointx)
-								* m_outputDistance->getValueAt(yo, xl, zo)
-								+ (pointx - xl)
-										* m_outputDistance->getValueAt(yo, xr,
-												zo));
-				ru = 1 / (xr - xl)
-						* ((xr - pointx)
-								* m_outputDistance->getValueAt(yu, xl, zo)
-								+ (pointx - xl)
-										* m_outputDistance->getValueAt(yu, xr,
-												zo));
-				newDistVal_zo = 1 / (yo - yu)
-						* ((yo - pointy) * ru + (pointy - yu) * ro);
+				ro = 1 / (xr - xl) * ((xr - pointx)
+						* m_outputDistance->getValueAt(yo, xl, zo) + (pointx
+						- xl) * m_outputDistance->getValueAt(yo, xr, zo));
+				ru = 1 / (xr - xl) * ((xr - pointx)
+						* m_outputDistance->getValueAt(yu, xl, zo) + (pointx
+						- xl) * m_outputDistance->getValueAt(yu, xr, zo));
+				newDistVal_zo = 1 / (yo - yu) * ((yo - pointy) * ru + (pointy
+						- yu) * ro);
 
 				double trilinearInterpolation = (zo - pointz) * newDistVal_zu
 						+ (pointz - zu) * newDistVal_zo;
@@ -1434,8 +1402,7 @@ double LSbox::getWeight(int i, int j, bool minimal) {
 	return -1;
 }
 
-void LSbox::calculateCentroid(SPoint& centroid,
-		vector<GrainJunction> junctions) {
+void LSbox::calculateCentroid(SPoint& centroid, vector<GrainJunction> junctions) {
 
 	int nVertices = junctions.size();
 	SPoint cent;
@@ -1562,11 +1529,11 @@ void LSbox::outputMemoryUsage(ofstream& output) {
 }
 
 vector<int> LSbox::getDirectNeighbourIDs() {
-	return vector<int>();
+	return vector<int> ();
 }
 
 vector<double> LSbox::getGBLengths() {
-	return vector<double>();
+	return vector<double> ();
 }
 
 void LSbox::computeDirectNeighbours(
@@ -1597,10 +1564,10 @@ void LSbox::plotBoxContour(bool absoluteCoordinates) {
 
 void LSbox::plotBoxVolumetric(string identifier,
 		E_BUFFER_SELECTION bufferSelection) {
-	string filename = string("GrainVolume_")
-			+ to_string((unsigned long long) m_ID) + string("Timestep_")
-			+ to_string((unsigned long long) m_grainHandler->loop) + identifier
-			+ string(".vtk");
+	string filename = string("GrainVolume_") + to_string(
+			(unsigned long long) m_ID) + string("Timestep_") + to_string(
+			(unsigned long long) m_grainHandler->loop) + identifier + string(
+			".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save box hull!");
@@ -1617,15 +1584,15 @@ void LSbox::plotBoxVolumetric(string identifier,
 		throw runtime_error(
 				string(
 						"Invalid buffer selection in plotBoxVolumetric for grain")
-						+ to_string((unsigned long long) m_ID)
-						+ string(" at timestep ")
-						+ to_string((unsigned long long) m_grainHandler->loop));
+						+ to_string((unsigned long long) m_ID) + string(
+						" at timestep ") + to_string(
+						(unsigned long long) m_grainHandler->loop));
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-			"vtk output\n"
-			"ASCII\n"
-			"DATASET STRUCTURED_GRID");
+		"vtk output\n"
+		"ASCII\n"
+		"DATASET STRUCTURED_GRID");
 	int totalPoints = (distance->getMaxX() - distance->getMinX())
 			* (distance->getMaxY() - distance->getMinY())
 			* (distance->getMaxZ() - distance->getMinZ());
@@ -1650,19 +1617,18 @@ void LSbox::plotBoxVolumetric(string identifier,
 }
 
 void LSbox::plotBoxIDLocal() {
-	string filename = string("GrainIDLocal_")
-			+ to_string((unsigned long long) m_ID) + string("Timestep_")
-			+ to_string((unsigned long long) m_grainHandler->loop)
-			+ string(".vtk");
+	string filename = string("GrainIDLocal_") + to_string(
+			(unsigned long long) m_ID) + string("Timestep_") + to_string(
+			(unsigned long long) m_grainHandler->loop) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save box hull!");
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-			"vtk output\n"
-			"ASCII\n"
-			"DATASET STRUCTURED_GRID");
+		"vtk output\n"
+		"ASCII\n"
+		"DATASET STRUCTURED_GRID");
 	int totalPoints = (m_IDLocal.getMaxX() - m_IDLocal.getMinX())
 			* (m_IDLocal.getMaxY() - m_IDLocal.getMinY())
 			* (m_IDLocal.getMaxZ() - m_IDLocal.getMinZ());
