@@ -1048,7 +1048,7 @@ void LSbox::extractContour() {
 	//m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
 	computeSurfaceArea();
-	//computeSurfaceElements();
+	computeSurfaceElements();
 }
 
 void LSbox::updateFirstOrderNeigbors() {
@@ -1066,7 +1066,7 @@ void LSbox::computeSurfaceArea() {
 void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
-	m_explicitHull.computeInterfacialElementMesh();
+//	m_explicitHull.computeInterfacialElementMesh();
 }
 
 void LSbox::computeVolumeAndEnergy() {

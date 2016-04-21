@@ -364,7 +364,7 @@ HighOrderJunction* GrainHull::findHighOrderJunction(int key) {
 
 GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	double minimalDistance = 10000000.0;
-	GBInfo weight;
+	GBInfo weight(1,1);
 
 	for (int j = 0; j < m_HighOrderJunctions.size(); j++) {
 		bool found = false;
