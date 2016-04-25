@@ -223,43 +223,55 @@ void GrainHull::computeInterfacialElementMesh() {
 	 */
 
 	/*
-	 * Save for every triangle the IDs of the neighbor-triangles
-	 */
-
-	vector<int>* NeighborList = new vector<int> [m_actualHull.size()];
-
-	for (int i = 0; i < m_actualHull.size(); i++) {
-		for (int j = 0; j < i; j++) {
-			if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
-				NeighborList[i].push_back(j);
-		}
-	}
-
-	/*
 	 * Calculate the normal vector of every triangle
 	 */
 
-	m_normalVectors.clear();
+	//m_normalVectors.clear();
+	m_normalVectors.resize(m_actualHull.size());
 	Vector3d normal_temp;
 
-	for (int i = 0; i < m_actualHull.size(); i++) {
-		normal_temp =
-				(m_actualHull[i].points[1] - m_actualHull[i].points[0]).cross(
+	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+		normal_temp
+				= (m_actualHull[i].points[1] - m_actualHull[i].points[0]).cross(
 						(m_actualHull[i].points[2] - m_actualHull[i].points[0]));
-		normal_temp /= normal_temp.norm();
-		m_normalVectors.push_back(normal_temp);
+		if (normal_temp.norm() != 0)
+			normal_temp.normalize();
+		else {
+			//			cout << "vector has length 0" << endl;
+			//			cout << normal_temp.transpose() << endl;
+			//			cout << (m_actualHull[i].points[1] - m_actualHull[i].points[0]).transpose() << endl;
+			//			cout << (m_actualHull[i].points[2] - m_actualHull[i].points[0]).transpose() << endl;
+		}
+		m_normalVectors[i] = normal_temp;
 	}
+	/*
+	 * Save for every triangle the IDs of the neighbor-triangles
+	 */
 
+	vector<int> NeighborList[m_actualHull.size()];
+
+	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+		if (m_normalVectors[i].norm() == 0)
+			continue;
+		for (int j = 0; j < i; j++) {
+			if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
+				if (m_normalVectors[j].norm() != 0)
+					NeighborList[i].push_back(j);
+		}
+	}
 	/*
 	 * Calculate the mean width of the grain
 	 */
 
 	m_LD = 0;
-	for (int i = 0; i < m_actualHull.size(); i++) {
-		for (int j = 0; j < NeighborList[i].size(); j++) {
+	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+		vector<int>* neighbor = &NeighborList[i];
+//		if(neighbor->size()!=3)
+//			cout << "Triangle has less or more than 3 neighbors " << neighbor->size() << endl;
+		for (unsigned int j = 0; j < neighbor->size(); j++) {
 			m_LD += m_actualHull[i].calculateMeanWidthComponent(
-					m_actualHull[(NeighborList[i])[j]], m_normalVectors[i],
-					m_normalVectors[(NeighborList[i])[j]]);
+					m_actualHull[(*neighbor)[j]], m_normalVectors[i],
+					m_normalVectors[(*neighbor)[j]]);
 		}
 	}
 	m_LD /= 2 * M_PI;
@@ -322,9 +334,31 @@ void GrainHull::computeInterfacialElementMesh() {
 			}
 			fclose(output1);
 		}
-	}
+//		int timestep = m_owner->get_grainHandler()->get_loop();
+//		if (((timestep - Settings::StartTime) % int(
+//				Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+//				|| timestep == Settings::NumberOfTimesteps) {
+//
+//			string filename = string("ConvexHull_") + to_string(timestep)
+//					+ string(".gnu");
+//			FILE* output = fopen(filename.c_str(), "wt");
+//			for (const auto it : ConvexHull) {
+//				std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+//			}
+//			fclose(output);
+//
+//			string filename1 = string("ProjectedPoints_") + to_string(
+//					(unsigned long long) timestep) + string(".gnu");
+//			FILE* output1 = fopen(filename1.c_str(), "wt");
+//
+//			for (const auto it : ProjectedPoints) {
+//				fprintf(output, "%lf \t %lf \n", it.x, it.y);
+//			}
+//			fclose(output1);
+//		}
+//	}
 }
-
+}
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
 	for (const auto it : m_Grainboundary) {
 		if (it->get_m_Key_NeighborList() == key) {
@@ -721,6 +755,7 @@ void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
 
 	}
 }
+
 /*		fprintf(output, "\n\nTRIPLELINES %lu\n", m_TripleLines.size());
  for(const auto it : m_TripleLines)
  {

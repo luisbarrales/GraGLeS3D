@@ -10,8 +10,8 @@ set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 
-#set(CMAKE_CXX_FLAGS "-g -O3 -Wall ")
-set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
+set(CMAKE_CXX_FLAGS "-g -O3 -Wall ")
+#set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 
@@ -48,7 +48,7 @@ link_directories(${Boost_LIBRARY_DIR} ${CMAKE_SOURCE_DIR})
 #find_package(MPI REQUIRED)
 
 ADD_DEFINITIONS("-std=c++0x")
-ADD_DEFINITIONS("-DUSE_MKL")
+ADD_DEFINITIONS("-DUSE_FFTW")
 
 
 

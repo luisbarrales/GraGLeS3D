@@ -4,9 +4,10 @@
    <NumberOfParticles>100</NumberOfParticles>
 <NumberOfPointsPerGrain> 10 </NumberOfPointsPerGrain> 
  <AnalysisTimestep> 1</AnalysisTimestep>
-   <PlotInterval>10</PlotInterval>
+   <PlotInterval>1</PlotInterval>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps> 2000 </NumberOfTimesteps>
+   <NumberOfTimesteps> 20 </NumberOfTimesteps>
    <BreakupNumber> 1 </BreakupNumber>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>
@@ -19,6 +20,7 @@
 	(   4	    E_READ_VOXELIZED_MICROSTRUCTURE,    )
    -->
    <ReadFromFilename>points2D.txt</ReadFromFilename>
+   <AdditionalFilename>BimodalTitaniumInitialODF.txt</AdditionalFilename>
    <HAGB_Energy>0.324</HAGB_Energy>
    <!--unit: Js/m² -->
    <HAGB_Mobility>2.6e-13</HAGB_Mobility>
