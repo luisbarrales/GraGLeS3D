@@ -37,4 +37,8 @@
 
 ulimit -c unlimited
 ### Execute your application
+<<<<<<< HEAD
 LevelSet_IMM 3DVoxelizedParameters.xml
+=======
+LevelSet_IMM benchmark3D.xml
+>>>>>>> 339f0e2448ec18dbac8c7d9d6e01d239058f350e
