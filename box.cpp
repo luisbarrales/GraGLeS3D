@@ -121,25 +121,14 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 #pragma omp critical
 	{
 		if (Settings::UseMagneticField) {
-			double number;
+/*			double number;
 			number = rnd();
-			if (number <= 0.5) {
-				double ori1[3] = { 0 * (PI / 180), 35 * (PI / 180), 0 * (PI
-						/ 180) };
-				double newOri[3];
-				(*(m_grainHandler->mymath)).newOrientationFromReference(ori1,
-						10 * (PI / 180), newOri);
-				m_orientationQuat->euler2Quaternion(newOri);
-
-			} else {
-				double ori2[3] = { 180 * (PI / 180), 35 * (PI / 180), 0 * (PI
-						/ 180) };
-				double newOri[3];
-				(*(m_grainHandler->mymath)).newOrientationFromReference(ori2,
-						10* (PI / 180), newOri);
-				m_orientationQuat->euler2Quaternion(newOri);
-			}
-
+			int i;
+		do{
+			i++;
+			}while(number>vol);
+		m_orientationQuat=myOrientationSpace[i];
+*/
 		} else {
 			if (Settings::UseTexture) {
 				double newOri[3];

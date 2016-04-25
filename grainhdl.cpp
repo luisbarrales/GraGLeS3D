@@ -82,7 +82,7 @@ void grainhdl::initializeSimulation() {
 		break;
 	}
 	case E_GAUSSIAN: {
-		dt = 1. / double(realDomainSize * realDomainSize * realDomainSize);
+		dt = 50. / double(realDomainSize * realDomainSize * realDomainSize);
 		break;
 	}
 	default: {
@@ -114,6 +114,8 @@ void grainhdl::initializeSimulation() {
 			deviation = 0;
 		}
 		ST = NULL;
+		if (Settings::UseMagneticField)
+			readOriFile();
 		VOROMicrostructure();
 		break;
 	}
@@ -138,6 +140,36 @@ void grainhdl::initializeSimulation() {
 			<< endl;
 
 	cout << endl << "******* start simulation: *******" << endl << endl;
+}
+
+void grainhdl::readOriFile() {
+	FILE * OriFromFile;
+	OriFromFile = fopen(Settings::AdditionalFilename.c_str(), "r");
+	int id, N = 0;
+	char c;
+	// count number of orientations
+	do {
+		c = fgetc(OriFromFile);
+		if (c == '\n')
+			N++;
+	} while (c != 'EOF');
+	N--;
+	rewind(OriFromFile);
+	// read over header
+	do {
+		c = fgetc(OriFromFile);
+
+	} while (c != '\n');
+
+	double vol, euler[3];
+	myOrientationSpace.resize(N);
+	myOrientationSpaceVolumeFracs.resize(N);
+	for (int i; i < N; i++) {
+		fscanf(OriFromFile, "%lf \t %lf \t %lf \t %lf\n", &euler[0], &euler[1],
+				&euler[2], &vol);
+		myOrientationSpace[i].euler2Quaternion(euler);
+		myOrientationSpaceVolumeFracs[i] = vol;
+	}
 }
 
 void grainhdl::read_HeaderCPG() {
@@ -575,16 +607,16 @@ void grainhdl::save_texture() {
 			total_energy += grains[i]->getEnergy() * 0.5;
 			;
 			euler = grains[i]->getOrientationQuat()->Quaternion2EulerConst();
-			file << grains[i]->getID() << " "
+			file << grains[i]->getID() << "\t"
 					<< grains[i]->getDirectNeighbourCount() << "\t"
 					<< grains[i]->intersectsBoundaryGrain() << "\t"
 					<< grains[i]->getVolume() << "\t" << 0 << "\t"
-					<< grains[i]->getSurface() << "\t" << grains[i]->getEnergy()
-					//TODO LD length of triple lines
-					<< "\t" << grains[i]->getMeanWidth()
-					<< "\t" << grains[i]->getTripleLineLength()
-					<< "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
-					<< "\n";
+					<< grains[i]->getSurface() << "\t"
+					<< grains[i]->getEnergy()
+			//TODO LD length of triple lines
+					<< "\t" << grains[i]->getMeanWidth() << "\t"
+					<< grains[i]->getTripleLineLength() << "\t" << euler[0]
+					<< "\t" << euler[1] << "\t" << euler[2] << "\n";
 
 		}
 	}

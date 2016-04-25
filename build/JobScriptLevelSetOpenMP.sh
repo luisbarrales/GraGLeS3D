@@ -18,23 +18,23 @@
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [ hour :] minute ,
 ### that means for 80 minutes you could also use this : 1:20
-#BSUB -W 1:20
+#BSUB -W 3:20
 
 ### Specify your mail address
-#BSUB -u miessen@imm.rwth-aachen.de
+#BSUB -u fatim-zahra.mouhib@rwth-aachen.de
 
 ### Send a mail when job is done
 #BSUB -N
 
 #### compute nodes
 
-#BSUB -n 128
+#BSUB -n 3
 
 ### for shared memory jobs (OpenMP)
-#BSUB -a "bcs openmp"
+#BSUB -a "openmp"
 
 ### Change to the work directory
 
-ulimit -u unlimited
+ulimit -c unlimited
 ### Execute your application
-LevelSet_IMM parameters.xml
+LevelSet_IMM 3DVoxelizedParameters.xml
