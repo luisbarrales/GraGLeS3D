@@ -125,6 +125,7 @@ public:
 	void save_id();
 	void plot_contour();
 	void gridCoarsement();
+	void updateGridAndTimeVariables(double newGridSize) ;
 
 	void saveAllContourLines();
 	void saveNetworkState();
