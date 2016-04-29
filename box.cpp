@@ -468,7 +468,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//											* (1 - yInterceptBottom);
 						//						}
 
-						GBInfo localGB(1,1);
+						GBInfo localGB(1, 1);
 //						GBInfo localGB =
 //								m_explicitHull.projectPointToGrainBoundary(
 //										point, grain.grainID);
@@ -502,6 +502,12 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 	}
 	resizeIDLocalToDistanceBuffer();
 	m_IDLocal.clear();
+}
+
+void LSbox::setIDLocal(int ID) {
+	IDChunkMinimal SetThisID;
+	SetThisID.grainID = ID;
+	m_IDLocal.clearValues(SetThisID);
 }
 
 double LSbox::getGBEnergyTimesGBMobility(int i, int j) {
@@ -1032,10 +1038,11 @@ void LSbox::extractContour() {
 	if (!m_exists) {
 		return;
 	}
-
-	m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
-			m_newYMax, m_newZMax);
-	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	if (Settings::DecoupleGrains != 1) {
+		m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
+				m_newYMax, m_newZMax);
+		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	}
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
 	//m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();

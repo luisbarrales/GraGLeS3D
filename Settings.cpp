@@ -55,6 +55,7 @@ bool Settings::ExecuteInParallel = false;
 bool Settings::GridCoarsement = false;
 //! Enables the generation and capture of a wider spectrum of analysing data
 bool Settings::UniqueGBEnergies = false;
+bool Settings::DecoupleGrains = false;
 double Settings::ConstantSectorRadius = 0.0;
 double Settings::InterpolatingSectorRadius = 0.0;
 unsigned long Settings::NeighbourTracking = 0;
@@ -230,6 +231,10 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("GrainScheduler")->value());
 		if (GrainScheduler >= E_DEFAULT_SCHEDULER)
 			GrainScheduler = E_DEFAULT_SCHEDULER;
+	}
+	if (0 != rootNode->first_node("DecoupleGrains")) {
+		DecoupleGrains = (bool) std::stoul(
+				rootNode->first_node("DecoupleGrains")->value());
 	}
 	file.close();
 	if (UseMagneticField == 1)

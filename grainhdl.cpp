@@ -642,18 +642,21 @@ void grainhdl::run_sim() {
 		gettimeofday(&time, NULL);
 		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
-		gettimeofday(&time, NULL);
-		timer = time.tv_sec + time.tv_usec / 1000000.0;
-		comparison_box();
-		gettimeofday(&time, NULL);
-		comparison_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+		if (Settings::DecoupleGrains != 1) {
+			gettimeofday(&time, NULL);
+			timer = time.tv_sec + time.tv_usec / 1000000.0;
+			comparison_box();
+			gettimeofday(&time, NULL);
+			comparison_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
-		gettimeofday(&time, NULL);
-		timer = time.tv_sec + time.tv_usec / 1000000.0;
-		switchDistancebuffer();
-		gettimeofday(&time, NULL);
-		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
-
+			gettimeofday(&time, NULL);
+			timer = time.tv_sec + time.tv_usec / 1000000.0;
+			switchDistancebuffer();
+			gettimeofday(&time, NULL);
+			parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+		} else {
+			tweakIDLocal();
+		}
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		level_set();
@@ -803,6 +806,22 @@ void grainhdl::find_neighbors() {
 
 void grainhdl::saveSpecialContourEnergies(int id) {
 }
+
+void grainhdl::tweakIDLocal() {
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+for	(auto id : workload) {
+		if (id <= Settings::NumberOfParticles) {
+			if (grains[id] == NULL)
+			continue;
+			grains[id]->setIDLocal(boundary->getID());
+		}
+	}
+}
+}
+
 
 void grainhdl::saveNetworkState() {
 #pragma omp parallel

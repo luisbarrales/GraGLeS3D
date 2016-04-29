@@ -87,6 +87,7 @@ public:
 	static bool ExecuteInParallel;
 	static bool GridCoarsement;
 	static bool UniqueGBEnergies;
+	static bool DecoupleGrains;
 	static double GridCoarsementGradient;
 	static unsigned long MaximumNumberOfThreads;
 	static E_CONVOLUTION_MODE ConvolutionMode;

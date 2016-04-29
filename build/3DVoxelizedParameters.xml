@@ -38,7 +38,7 @@
    <UseTexture> 1 </UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 0 </GridCoarsement>
+   <GridCoarsement>0</GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
    <ConvolutionMode> 2 </ConvolutionMode>   
    <!-- USAGE:
@@ -55,5 +55,10 @@
       <!-- USAGE:
 	           0       E_ITERATIVE
         1       E_SQUARES
+   -->
+      <DecoupleGrains>0</DecoupleGrains>
+   	<!-- USAGE:
+			0	  DEFAULT
+   		1   skips comparison and let grains shring isolated
    -->
 </Parameters>
