@@ -683,8 +683,10 @@ void grainhdl::run_sim() {
 										Settings::AnalysisTimestep
 												* Settings::PlotInterval))
 								== 0) {
-//				it->plotBoxInterfacialElements();
-							//							it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
+							//	it->plotBoxInterfacialElements();
+							//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
+							if (it->getID() == 3)
+								it->plotBoxContour();
 						}
 					}
 			}
@@ -812,16 +814,15 @@ void grainhdl::tweakIDLocal() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles) {
-			if (grains[id] == NULL)
-			continue;
-			grains[id]->setIDLocal(boundary->getID());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles) {
+				if (grains[id] == NULL)
+					continue;
+				grains[id]->setIDLocal(boundary->getID());
+			}
 		}
 	}
 }
-}
-
 
 void grainhdl::saveNetworkState() {
 #pragma omp parallel

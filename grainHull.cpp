@@ -225,7 +225,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	/*
 	 * Calculate the normal vector of every triangle
 	 */
-
+	if (m_owner->getID() == 3) {
 	//m_normalVectors.clear();
 	m_normalVectors.resize(m_actualHull.size());
 	Vector3d normal_temp;
@@ -289,7 +289,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	//		m_TripleLineLength += (vertices_temp[0]->get_Position()
 	//				- vertices_temp[1]->get_Position()).norm();
 	//	}
-	if (m_owner->getID() == 3) {
+
 		vector<SPoint> ProjectedPoints;
 		for (const auto it2 : m_TripleLines) {
 			for (const auto itBary : it2->m_barycenterTriangles) {
