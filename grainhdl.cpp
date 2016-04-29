@@ -131,7 +131,7 @@ void grainhdl::readOriFile() {
 		c = fgetc(OriFromFile);
 		if (c == '\n')
 			N++;
-	} while (c != 'EOF');
+	} while (c != EOF);
 	N--;
 	rewind(OriFromFile);
 	// read over header
@@ -681,9 +681,7 @@ void grainhdl::run_sim() {
 												* Settings::PlotInterval))
 								== 0) {
 //				it->plotBoxInterfacialElements();
-							if (loop > 25)
-								it->plotBoxContour();
-//							it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
+							//							it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 						}
 					}
 			}
@@ -1081,9 +1079,8 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 void grainhdl::gridCoarsement() {
 	int newSize = pow(currentNrGrains, 1 / 3.0)
 			* Settings::NumberOfPointsPerGrain;
-	if (newSize >= realDomainSize) {
+	if (newSize >= realDomainSize || Settings::GridCoarsement == 0) {
 		switchDistancebuffer();
-
 	} else {
 		updateGridAndTimeVariables(newSize);
 		cout << "coarsing the current grid in Timestep: " << loop << endl;

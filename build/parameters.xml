@@ -37,7 +37,7 @@
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement>1</GridCoarsement>
+   <GridCoarsement>0</GridCoarsement>
    <GridCoarsementGradient>0.99</GridCoarsementGradient> 
    <ConvolutionMode>2</ConvolutionMode>   
    <!-- USAGE:

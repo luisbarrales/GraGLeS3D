@@ -468,10 +468,10 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//											* (1 - yInterceptBottom);
 						//						}
 
-//							GBInfo localGB(1,1);
-						GBInfo localGB =
-								m_explicitHull.projectPointToGrainBoundary(
-										point, grain.grainID);
+						GBInfo localGB(1,1);
+//						GBInfo localGB =
+//								m_explicitHull.projectPointToGrainBoundary(
+//										point, grain.grainID);
 
 						m_outputDistance->setValueAt(
 								i,
