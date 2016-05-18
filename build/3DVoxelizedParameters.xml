@@ -3,11 +3,11 @@
 	 <StartTime> 0 </StartTime>
    <NumberOfParticles>3 </NumberOfParticles> 
    <NumberOfPointsPerGrain> 15 </NumberOfPointsPerGrain>
-   <AnalysisTimestep> 20 </AnalysisTimestep>
-   <NumberOfTimesteps> 400 </NumberOfTimesteps>
-   <PlotInterval>1</PlotInterval>
+   <AnalysisTimestep>1</AnalysisTimestep>
+   <NumberOfTimesteps> 10000 </NumberOfTimesteps>
+   <PlotInterval>10</PlotInterval>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
-   <BreakupNumber> 1 </BreakupNumber>
+   <BreakupNumber>3</BreakupNumber>
    <DiscreteSamplingRate> 25 </DiscreteSamplingRate>
    <DomainBorderSize> 7 </DomainBorderSize>   
    <MicrostructureGenMode> 4 </MicrostructureGenMode>
@@ -22,23 +22,23 @@
    <ReadFromFilename>CPG.SyntheticStructure.1000.bin</ReadFromFilename>
    <AdditionalFilename>CPGPointPattern.Logfile.1000.uds</AdditionalFilename>
    <ReadFromFilename>points2D.txt</ReadFromFilename>
-   <HAGB_Energy>0.324</HAGB_Energy>
+   <HAGB_Energy>0.6</HAGB_Energy>
    <!--unit: Js/m² -->
    <HAGB_Mobility>2.6e-13</HAGB_Mobility>
    <!--unit: m⁴/Js -->
    <DislocEnDensPerSqM>8.81e-10 </DislocEnDensPerSqM>
    <!--1/2 Gbb - material constant -->
-   <Physical_Domain_Size>2.01e-4 </Physical_Domain_Size>   
+   <Physical_Domain_Size>1.66e-4 </Physical_Domain_Size>   
    <!--unit: meter -->
    <TriplePointDrag> 1 </TriplePointDrag>
    <UseMobilityFactor> 0 </UseMobilityFactor>
-   <UseMagneticField>0</UseMagneticField>
-   <MagneticParams> MagneticField.xml </MagneticParams>
+   <UseMagneticField>1</UseMagneticField>
+   <MagneticParams>MagneticField.xml</MagneticParams>
    <DisableConvolutionCorrection> 0 </DisableConvolutionCorrection>
    <UseTexture> 1 </UseTexture>
-   <ExecuteInParallel> 1 </ExecuteInParallel>
+   <ExecuteInParallel>1</ExecuteInParallel>
    <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
-   <GridCoarsement> 1 </GridCoarsement>
+   <GridCoarsement>0</GridCoarsement>
    <GridCoarsementGradient> 0.95 </GridCoarsementGradient> 
    <ConvolutionMode> 2 </ConvolutionMode>   
    <!-- USAGE:
@@ -55,5 +55,10 @@
       <!-- USAGE:
 	           0       E_ITERATIVE
         1       E_SQUARES
+   -->
+      <DecoupleGrains>0</DecoupleGrains>
+   	<!-- USAGE:
+			0	  DEFAULT
+   		1   skips comparison and let grains shring isolated
    -->
 </Parameters>

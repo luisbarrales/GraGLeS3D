@@ -142,7 +142,7 @@ public:
 
 	void resizeIDLocalToDistanceBuffer();
 	void recalculateIDLocal();
-
+	void setIDLocal(int ID);
 	//Debug printing functions
 	void plotBoxInterfacialElements(bool absoluteCoordinates = false);
 	void plotBoxContour(bool absoluteCoordinates = false);
@@ -190,6 +190,8 @@ public:
 	inline double getVolume() const {return m_volume;}
 	inline double getEnergy() const {return m_energy;}
 	inline double getSurface() const { return m_surface; }
+	inline double getMeanWidth() {return m_explicitHull.getMeanWidth();}
+	inline double getTripleLineLength() {return m_explicitHull.getTripleLineLength() ;}
 	inline unsigned int  getID() const { return m_ID; }
 	inline int getMinX() const {return m_outputDistance->getMinX();}
 	inline int getMaxX() const {return m_outputDistance->getMaxX();}

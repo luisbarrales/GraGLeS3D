@@ -85,7 +85,8 @@ public:
 	double deviation;
 	double BoundaryGrainTube;
 	double Realtime;
-
+	vector<myQuaternion> myOrientationSpace;
+	vector<double> myOrientationSpaceVolumeFracs;
 	vector<LSbox*> grains;
 	LSbox* boundary;
 
@@ -94,6 +95,7 @@ public:
 
 	void initializeSimulation();
 	void read_HeaderCPG();
+	void readOriFile();
 
 	void VOROMicrostructure();
 	void readMicrostructureFromVertex();
@@ -125,6 +127,8 @@ public:
 	void save_id();
 	void plot_contour();
 	void gridCoarsement();
+	void updateGridAndTimeVariables(double newGridSize) ;
+	void tweakIDLocal();
 
 	void saveAllContourLines();
 	void saveNetworkState();

@@ -40,7 +40,6 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_inputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_outputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_magneticEnergy = 0;
-
 }
 
 LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
@@ -61,6 +60,7 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 			m_orientationQuat->euler2Quaternion(newOri);
 		} else
 			m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
+
 	}
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
@@ -119,13 +119,47 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	m_orientationQuat = new myQuaternion();
 #pragma omp critical
 	{
-		if (Settings::UseTexture) {
-			double newOri[3];
-			(*(m_grainHandler->mymath)).newOrientationFromReference(
-					m_grainHandler->bunge, m_grainHandler->deviation, newOri);
-			m_orientationQuat->euler2Quaternion(newOri);
-		} else
-			m_orientationQuat->randomOriShoemakeQuat(m_grainHandler->mymath);
+		if(Settings::PseudoPeriodic){
+			m_orientationQuat = new myQuaternion();
+			(*m_orientationQuat)  = m_grainHandler->myOrientationSpace[m_ID %(Settings::NumberOfParticles)];
+		}
+		else if (Settings::UseMagneticField) {
+			double number;
+			number = rnd();
+
+			int i;
+//			do {
+//				i++;
+//			} while (number > vol);
+//			m_orientationQuat = myOrientationSpace[i];
+
+			if (number <= 0.5) {
+				double ori1[3] = { 0 * (PI / 180), 35 * (PI / 180), 0
+						* (PI / 180) };
+				double newOri[3];
+				(*(m_grainHandler->mymath)).newOrientationFromReference(ori1,
+						10 * (PI / 180), newOri);
+				m_orientationQuat->euler2Quaternion(newOri);
+
+			} else {
+				double ori2[3] = { 180 * (PI / 180), 35 * (PI / 180), 0
+						* (PI / 180) };
+				double newOri[3];
+				(*(m_grainHandler->mymath)).newOrientationFromReference(ori2,
+						10 * (PI / 180), newOri);
+				m_orientationQuat->euler2Quaternion(newOri);
+			}
+		} else {
+			if (Settings::UseTexture) {
+				double newOri[3];
+				(*(m_grainHandler->mymath)).newOrientationFromReference(
+						m_grainHandler->bunge, m_grainHandler->deviation,
+						newOri);
+				m_orientationQuat->euler2Quaternion(newOri);
+			} else
+				m_orientationQuat->randomOriShoemakeQuat(
+						m_grainHandler->mymath);
+		}
 	}
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
@@ -196,7 +230,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 	//m_grainBoundary.getRawBoundary() = vertices;
 	//	if (Settings::UseMagneticField)
 	//		calculateMagneticEnergy();
-
 	int grid_blowup = m_grainHandler->get_grid_blowup();
 	double h = m_grainHandler->get_h();
 	// determine size of grain
@@ -348,7 +381,7 @@ void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
 	executeRedistancing();
 }
 
-// Convolution und Helperfunctions 
+// Convolution und Helperfunctions
 /**************************************/
 /**************************************/
 
@@ -438,9 +471,11 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//									- exp(-actualGrainRadius / a)
 						//											* (1 - yInterceptBottom);
 						//						}
-						GBInfo localGB(1.,1.); /*
-								m_explicitHull.projectPointToGrainBoundary(
-										point, grain.grainID); */
+
+						GBInfo localGB(1, 1);
+//						GBInfo localGB =
+//								m_explicitHull.projectPointToGrainBoundary(
+//										point, grain.grainID);
 
 						m_outputDistance->setValueAt(
 								i,
@@ -471,6 +506,12 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 	}
 	resizeIDLocalToDistanceBuffer();
 	m_IDLocal.clear();
+}
+
+void LSbox::setIDLocal(int ID) {
+	IDChunkMinimal SetThisID;
+	SetThisID.grainID = ID;
+	m_IDLocal.clearValues(SetThisID);
 }
 
 double LSbox::getGBEnergyTimesGBMobility(int i, int j) {
@@ -563,8 +604,8 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
-								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * dt * nsq
-								/ n_nsq * PI * PI * PI) / n_nsq;
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+								/ n_nsq * PI * PI) / n_nsq;
 						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
 								* k)][0] * G;
 						fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
@@ -614,6 +655,7 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 		const MKL_LONG PO = N*N*N;
 		const MKL_LONG SO = N*N*(N/2+1);
 		update_backward_plan = true;
+		if(m_grainHandler->get_loop()!=0)
 		DftiFreeDescriptor(&m_handle);
 		DftiCreateDescriptor(&m_handle, precision, DFTI_REAL, 3, dimensions);
 		DftiSetValue(m_handle, DFTI_PLACEMENT, DFTI_NOT_INPLACE);
@@ -646,8 +688,13 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
+<<<<<<< HEAD
 								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * PI * PI * PI * dt * nsq
 								/ n_nsq ) / n_nsq;
+=======
+								-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+								/ n_nsq * PI * PI) / n_nsq;
+>>>>>>> bacb4fe658afa4f11ecce8b05c1f6de7659dc2a2
 						fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
 						fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
 					}
@@ -662,6 +709,7 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 
 	}
 	if (update_backward_plan) {
+		if(m_grainHandler->get_loop()!=0)
 		DftiFreeDescriptor(&m_b_handle);
 		MKL_LONG N = m_dimensions;
 		MKL_LONG dimensions[3] = {N,N,N};
@@ -863,7 +911,7 @@ void LSbox::boundaryCondition() {
 	int m = m_grainHandler->get_ngridpoints();
 	double distZMin, distZMax, distXMin, distXMax, distX;
 	double distYMin, distYMax, distY, distZ;
-	double dist;
+	double dist = 0;
 	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
 			k++) {
 		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
@@ -999,10 +1047,11 @@ void LSbox::extractContour() {
 	if (!m_exists) {
 		return;
 	}
-
-	m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
-			m_newYMax, m_newZMax);
-	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	if (Settings::DecoupleGrains != 1) {
+		m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
+				m_newYMax, m_newZMax);
+		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
+	}
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
 	//m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
@@ -1025,7 +1074,7 @@ void LSbox::computeSurfaceArea() {
 void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
-	m_explicitHull.computeInterfacialElementMesh();
+//	m_explicitHull.computeInterfacialElementMesh();
 }
 
 void LSbox::computeVolumeAndEnergy() {
@@ -1333,17 +1382,17 @@ void LSbox::resizeGrid(int newSize) {
 
 				xl = int(pointx);
 				xr = int(pointx + 1);
-				yo = int(pointy + 1);
 				yu = int(pointy);
+				yo = int(pointy + 1);
 				zu = int(pointz);
 				zo = int(pointz + 1);
 
 				if (xr > m_outputDistance->getMaxX() - 2
 						|| yo > m_outputDistance->getMaxY() - 2
+						|| zo > m_outputDistance->getMaxZ() - 2
 						|| yu < m_outputDistance->getMinY()
 						|| xl < m_outputDistance->getMinX()
-						|| zu < m_outputDistance->getMinZ()
-						|| zo > m_outputDistance->getMaxZ() - 2) {
+						|| zu < m_outputDistance->getMinZ()) {
 					m_inputDistance->setValueAt(i, j, k,
 							-m_grainHandler->delta);
 					continue;

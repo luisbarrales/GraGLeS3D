@@ -62,43 +62,25 @@ void grainhdl::initializeSimulation() {
 	if (Settings::MicrostructureGenMode == E_READ_VOXELIZED_MICROSTRUCTURE) {
 		read_HeaderCPG();
 	} else {
+		if (Settings::PseudoPeriodic)
+			Settings::NumberOfParticles = 27 * Settings::NumberOfParticles;
 		ngrains = Settings::NumberOfParticles;
 		currentNrGrains = ngrains;
-		realDomainSize = pow(Settings::NumberOfParticles, 1 / 3.0)
-				* Settings::NumberOfPointsPerGrain; // half open container of VORO++
+		realDomainSize = (pow((double) Settings::NumberOfParticles, 1. / 3.0)
+				* Settings::NumberOfPointsPerGrain); // half open container of VORO++
+		if (Settings::PseudoPeriodic)
 	}
 
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
 	fill(discreteEnergyDistribution.begin(), discreteEnergyDistribution.end(),
 			0);
 
-	switch (Settings::ConvolutionMode) {
-	case E_LAPLACE: {
-		dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
-		break;
-	}
-	case E_LAPLACE_RITCHARDSON: {
-		dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
-		break;
-	}
-	case E_GAUSSIAN: {
-		dt = 1. / double(realDomainSize * realDomainSize * realDomainSize);
-		break;
-	}
-	default: {
-		throw std::runtime_error("Unknown convolution mode!");
-	}
-	}
-	h = 1.0 / double(realDomainSize);
+	updateGridAndTimeVariables(realDomainSize);
 
 	//Recalculate the setting parameters for the sector radiuses
-	Settings::ConstantSectorRadius *= h;
-	Settings::InterpolatingSectorRadius *= h;
+	//	Settings::ConstantSectorRadius *= h;
+	//	Settings::InterpolatingSectorRadius *= h;
 
-	delta = Settings::DomainBorderSize * 1 / double(realDomainSize);
-	grid_blowup = Settings::DomainBorderSize;
-	BoundaryGrainTube = grid_blowup;
-	ngridpoints = realDomainSize + (2 * grid_blowup);
 	boundary = new LSbox(0, 0, 0, 0, this);
 	// 	(*boundary).plot_box(false,2,"no.gnu");
 	//!grains.resize(Settings::NumberOfParticles + 1);
@@ -114,6 +96,8 @@ void grainhdl::initializeSimulation() {
 			deviation = 0;
 		}
 		ST = NULL;
+		if (Settings::UseMagneticField)
+			readOriFile();
 		VOROMicrostructure();
 		break;
 	}
@@ -125,8 +109,8 @@ void grainhdl::initializeSimulation() {
 	default: {
 		throw std::runtime_error("Unknown microstructure generation mode!");
 	}
-	}
 
+	}
 	// 	construct_boundary();
 	//program options:
 	cout << endl << "******* PROGRAM OPTIONS: *******" << endl << endl;
@@ -138,6 +122,36 @@ void grainhdl::initializeSimulation() {
 			<< endl;
 
 	cout << endl << "******* start simulation: *******" << endl << endl;
+}
+
+void grainhdl::readOriFile() {
+	FILE * OriFromFile;
+	OriFromFile = fopen(Settings::AdditionalFilename.c_str(), "r");
+	int id, N = 0;
+	char c;
+	// count number of orientations
+	do {
+		c = fgetc(OriFromFile);
+		if (c == '\n')
+			N++;
+	} while (c != EOF);
+	N--;
+	rewind(OriFromFile);
+	// read over header
+	do {
+		c = fgetc(OriFromFile);
+
+	} while (c != '\n');
+
+	double vol, euler[3];
+	myOrientationSpace.resize(N);
+	myOrientationSpaceVolumeFracs.resize(N);
+	for (int i; i < N; i++) {
+		fscanf(OriFromFile, "%lf \t %lf \t %lf \t %lf\n", &euler[0], &euler[1],
+				&euler[2], &vol);
+		myOrientationSpace[i].euler2Quaternion(euler);
+		myOrientationSpaceVolumeFracs[i] = vol;
+	}
 }
 
 void grainhdl::read_HeaderCPG() {
@@ -222,34 +236,32 @@ void grainhdl::VOROMicrostructure() {
 			randbedingung, 2);
 	c_loop_all vl(con);
 
-	/**********************************************************/
-	// Randomly add particles into the container
-//	for (int i = 0; i < ngrains; i++) {
-//		double x = rnd();
-//		double y = rnd();
-//		double z = rnd();
-//		con.put(i, x, y, z);
-//	}
-	/**********************************************************/
-	// pseudo periodic system
-	for (int id = 0; id < ngrains; id++) {
-		double x = rnd();
-		double y = rnd();
-		double z = rnd();
-		int region=0;
-		for (i = 0; i < 3; i++) {
-			for (j = 0; j < 3; j++) {
-				for (k = 0; k < 3; k++) {
-					con.put(id+(region*ngrains), x*i, y*j, z*k);
-					region++;
+	if (Settings::PseudoPeriodic) {
+		for (int id = 0; id < ngrains; id++) {
+			double x = rnd();
+			double y = rnd();
+			double z = rnd();
+			int region = 0;
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					for (int k = 0; k < 3; k++) {
+						con.put(id + (region * ngrains), x * i, y * j, z * k);
+						region++;
+					}
 				}
 			}
 		}
+		/**********************************************************/
+	} else {
+		//Randomly add particles into the container
+		for (int i = 0; i < ngrains; i++) {
+			double x = rnd();
+			double y = rnd();
+			double z = rnd();
+			con.put(i, x, y, z);
+		}
+		/**********************************************************/
 	}
-	ngrains = 27*ngrains;
-	Settings::NumberOfParticles = 27*Settings::NumberOfParticles;
-	/**********************************************************/
-
 	vector < vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
 	if (vl.start()) {
@@ -451,7 +463,6 @@ void grainhdl::read_voxelized_microstructure() {
 	//	}
 	//	fclose(voxelized_data);
 
-
 	buildBoxVectors(ID, vertices, Quaternionen);
 
 	delete[] ID;
@@ -478,11 +489,11 @@ void grainhdl::createConvolutionPlans() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload)
-	{
-		if(id <= Settings::NumberOfParticles)
-		if(grains[id] != NULL)
-		grains[id]->preallocateMemory(m_ThreadMemPool[omp_get_thread_num()]);
+for	(auto id : workload) {
+		if (id <= Settings::NumberOfParticles)
+		if (grains[id] != NULL)
+		grains[id]->preallocateMemory(
+				m_ThreadMemPool[omp_get_thread_num()]);
 	}
 }
 #ifdef USE_FFTW
@@ -510,9 +521,8 @@ void grainhdl::convolution(double& planOverhead) {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload)
-	{
-		if(id <= Settings::NumberOfParticles)
+for	(auto id : workload) {
+		if (id <= Settings::NumberOfParticles)
 		if (grains[id] != NULL)
 		grains[id]->executeConvolution(
 				m_ThreadMemPool[omp_get_thread_num()]);
@@ -592,13 +602,15 @@ void grainhdl::save_texture() {
 			total_energy += grains[i]->getEnergy() * 0.5;
 			;
 			euler = grains[i]->getOrientationQuat()->Quaternion2EulerConst();
-			file << grains[i]->getID() << " "
-					<< grains[i]->getDirectNeighbourCount() << " "
-					<< grains[i]->intersectsBoundaryGrain() << " "
-					<< grains[i]->getVolume() << " " << 0 << " "
-					<< grains[i]->getSurface() << " " << grains[i]->getEnergy()
-					<< " " << euler[0] << " " << euler[1] << " " << euler[2]
-					<< "\n";
+			file << grains[i]->getID() << "\t"
+					<< grains[i]->getDirectNeighbourCount() << "\t"
+					<< grains[i]->intersectsBoundaryGrain() << "\t"
+					<< grains[i]->getVolume() << "\t" << 0 << "\t"
+					<< grains[i]->getSurface() << "\t"
+					<< grains[i]->getEnergy() << "\t"
+					<< grains[i]->getMeanWidth() << "\t"
+					<< grains[i]->getTripleLineLength() << "\t" << euler[0]
+					<< "\t" << euler[1] << "\t" << euler[2] << "\n";
 
 		}
 	}
@@ -648,18 +660,21 @@ void grainhdl::run_sim() {
 		gettimeofday(&time, NULL);
 		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
-		gettimeofday(&time, NULL);
-		timer = time.tv_sec + time.tv_usec / 1000000.0;
-		comparison_box();
-		gettimeofday(&time, NULL);
-		comparison_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+		if (Settings::DecoupleGrains != 1) {
+			gettimeofday(&time, NULL);
+			timer = time.tv_sec + time.tv_usec / 1000000.0;
+			comparison_box();
+			gettimeofday(&time, NULL);
+			comparison_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
-		gettimeofday(&time, NULL);
-		timer = time.tv_sec + time.tv_usec / 1000000.0;
-		switchDistancebuffer();
-		gettimeofday(&time, NULL);
-		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
-
+			gettimeofday(&time, NULL);
+			timer = time.tv_sec + time.tv_usec / 1000000.0;
+			switchDistancebuffer();
+			gettimeofday(&time, NULL);
+			parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+		} else {
+			tweakIDLocal();
+		}
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		level_set();
@@ -678,38 +693,58 @@ void grainhdl::run_sim() {
 			saveNetworkState();
 			save_texture();
 			save_sim();
-for		(const auto & it : grains)
-		{	if (it!= NULL)
-			if(it->getID()!=0) {
-				it->plotBoxInterfacialElements();
-				it->plotBoxContour();
-				//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
+
+			for (const auto & it : grains) {
+				if (it != NULL)
+				if (it->getID() != 0) {
+					if (((loop - Settings::StartTime)
+									% int(
+											Settings::AnalysisTimestep
+											* Settings::PlotInterval))
+							== 0) {
+						//	it->plotBoxInterfacialElements();
+						//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
+						if (it->getID() == 3)
+						it->plotBoxContour();
+					}
+				}
+			}
+			Realtime += (dt * (Settings::Physical_Domain_Size
+					* Settings::Physical_Domain_Size) / (/*TimeSlope
+			 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
+			if (currentNrGrains < Settings::BreakupNumber) {
+				cout
+						<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
+						<< "Remaining Grains: " << currentNrGrains
+						<< ". Break and save." << endl;
+				break;
 			}
 		}
-	}
-	Realtime += (dt * (Settings::Physical_Domain_Size
-					* Settings::Physical_Domain_Size) / (/*TimeSlope
-					 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
-	if (currentNrGrains < Settings::BreakupNumber) {
-		cout << "Network has coarsed to less than specified by Settings::BreakupNumber. "
-		<< "Remaining Grains: " << currentNrGrains
-		<< ". Break and save." << endl;
-		break;
-	}
-}
-// 	utils::CreateMakeGif();
 
-cout << "Simulation complete." << endl;
-cout << "Simulation Time: " << Realtime << endl;
-cout << "Detailed timings: " << endl;
-cout << "Convolution time: " << convo_time << endl;
-cout << "     Of which plan overhead is: " << plan_overhead << endl;
-cout << "Comparison time: " << comparison_time << endl;
-cout << "Redistancing time: " << redistancing_time << endl;
-cout << "Levelset time: " << levelset_time << endl;
-cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
-cout << "Sum parallel regions: " << convo_time + comparison_time
-+ levelset_time + parallelRest + redistancing_time << endl;
+		Realtime += (dt * (Settings::Physical_Domain_Size
+				* Settings::Physical_Domain_Size) / (/*TimeSlope
+		 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
+		if (currentNrGrains < Settings::BreakupNumber) {
+			cout
+					<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
+					<< "Remaining Grains: " << currentNrGrains
+					<< ". Break and save." << endl;
+			break;
+		}
+	}
+	// 	utils::CreateMakeGif();
+
+	cout << "Simulation complete." << endl;
+	cout << "Simulation Time: " << Realtime << endl;
+	cout << "Detailed timings: " << endl;
+	cout << "Convolution time: " << convo_time << endl;
+	cout << "     Of which plan overhead is: " << plan_overhead << endl;
+	cout << "Comparison time: " << comparison_time << endl;
+	cout << "Redistancing time: " << redistancing_time << endl;
+	cout << "Levelset time: " << levelset_time << endl;
+	cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
+	cout << "Sum parallel regions: " << convo_time + comparison_time
+			+ levelset_time + parallelRest + redistancing_time << endl;
 }
 
 void grainhdl::countGrains() {
@@ -800,6 +835,21 @@ for	(auto id : workload) {
 void grainhdl::saveSpecialContourEnergies(int id) {
 }
 
+void grainhdl::tweakIDLocal() {
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+for	(auto id : workload) {
+		if (id <= Settings::NumberOfParticles) {
+			if (grains[id] == NULL)
+			continue;
+			grains[id]->setIDLocal(boundary->getID());
+		}
+	}
+}
+}
+
 void grainhdl::saveNetworkState() {
 #pragma omp parallel
 	{
@@ -861,10 +911,10 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
 #pragma omp critical
 				{
 					exceptionHappened = true;
-					error_message += string("Grain ") + to_string(
-							(unsigned long long) id) + string(
-							" failed at timestep ") + to_string(
-							(unsigned long long) loop)
+					error_message += string("Grain ")
+					+ to_string((unsigned long long) id)
+					+ string(" failed at timestep ")
+					+ to_string((unsigned long long) loop)
 					+ " in its constructor! Reason : " + e.what()
 					+ string("\n");
 				}
@@ -896,10 +946,10 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
 #pragma omp critical
 				{
 					exceptionHappened = true;
-					error_message += string("Grain ") + to_string(
-							(unsigned long long) id) + string(
-							" failed at timestep ") + to_string(
-							(unsigned long long) loop)
+					error_message += string("Grain ")
+					+ to_string((unsigned long long) id)
+					+ string(" failed at timestep ")
+					+ to_string((unsigned long long) loop)
 					+ " in its constructor! Reason : " + e.what()
 					+ string("\n");
 				}
@@ -1046,12 +1096,39 @@ void grainhdl::initNUMABindings() {
 	}
 }
 
+void grainhdl::updateGridAndTimeVariables(double newGridSize) {
+	realDomainSize = newGridSize;
+	switch (Settings::ConvolutionMode) {
+	case E_LAPLACE: {
+		dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
+		break;
+	}
+	case E_LAPLACE_RITCHARDSON: {
+		dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
+		break;
+	}
+	case E_GAUSSIAN: {
+		dt = 50. / double(realDomainSize * realDomainSize * realDomainSize);
+		break;
+	}
+	default: {
+		throw std::runtime_error("Unknown convolution mode!");
+	}
+	}
+	grid_blowup = Settings::DomainBorderSize;
+	delta = Settings::DomainBorderSize * 1 / double(realDomainSize);
+	ngridpoints = realDomainSize + 2 * grid_blowup;
+	h = 1.0 / realDomainSize;
+
+}
+
 void grainhdl::gridCoarsement() {
-	if ((double) currentNrGrains / (double) ngrains
-			< Settings::GridCoarsementGradient && loop != 0
-			&& Settings::GridCoarsement) {
-		int newSize = pow(currentNrGrains, 1 / 3.0)
-				* Settings::NumberOfPointsPerGrain;
+	int newSize = pow(currentNrGrains, 1 / 3.0)
+			* Settings::NumberOfPointsPerGrain;
+	if (newSize >= realDomainSize || Settings::GridCoarsement == 0) {
+		switchDistancebuffer();
+	} else {
+		updateGridAndTimeVariables(newSize);
 		cout << "coarsing the current grid in Timestep: " << loop << endl;
 		cout << "newSize :" << newSize << endl << endl;
 #pragma omp parallel
@@ -1066,34 +1143,13 @@ for		(auto id : workload) {
 		}
 
 	}
-
-	realDomainSize = newSize;
-	delta = Settings::DomainBorderSize * 1 / double(realDomainSize);
-	ngridpoints = realDomainSize + 2 * grid_blowup;
-	h = 1.0 / realDomainSize;
 	//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
-	switch (Settings::ConvolutionMode) {
-		case E_LAPLACE: {
-			dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
-			break;
-		}
-		case E_LAPLACE_RITCHARDSON: {
-			dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
-			break;
-		}
-		case E_GAUSSIAN: {
-			dt = 1. / double(realDomainSize * realDomainSize * realDomainSize);
-			break;
-		}
-		default: {
-			throw std::runtime_error("Unknown convolution mode!");
-		}
-	}
+
 	ngrains = currentNrGrains;
 #pragma omp parallel
 	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
+		vector<unsigned int>& workload =
+		m_grainScheduler->getThreadWorkload(omp_get_thread_num());
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
 			if (grains[id] == NULL)
@@ -1103,8 +1159,8 @@ for		(auto id : workload) {
 	}
 #pragma omp parallel
 	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
+		vector<unsigned int>& workload =
+		m_grainScheduler->getThreadWorkload(omp_get_thread_num());
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
 			if (grains[id] == NULL)
@@ -1113,7 +1169,5 @@ for		(auto id : workload) {
 		}
 	}
 
-} else {
-	switchDistancebuffer();
 }
 }

@@ -87,6 +87,7 @@ public:
 	static bool ExecuteInParallel;
 	static bool GridCoarsement;
 	static bool UniqueGBEnergies;
+	static bool DecoupleGrains;
 	static double GridCoarsementGradient;
 	static unsigned long MaximumNumberOfThreads;
 	static E_CONVOLUTION_MODE ConvolutionMode;
@@ -94,7 +95,7 @@ public:
 	static double InterpolatingSectorRadius;
 	static unsigned long NeighbourTracking;
 	static unsigned long DislocationEnergy;
-
+	static bool PseudoPeriodic;
 	static bool UseMagneticField;
 	static std::string MagneticParams;
 	static double VacuumPermeability;
