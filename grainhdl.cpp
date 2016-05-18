@@ -224,13 +224,30 @@ void grainhdl::VOROMicrostructure() {
 
 	/**********************************************************/
 	// Randomly add particles into the container
-	for (int i = 0; i < ngrains; i++) {
+//	for (int i = 0; i < ngrains; i++) {
+//		double x = rnd();
+//		double y = rnd();
+//		double z = rnd();
+//		con.put(i, x, y, z);
+//	}
+	/**********************************************************/
+	// pseudo periodic system
+	for (int id = 0; id < ngrains; id++) {
 		double x = rnd();
 		double y = rnd();
 		double z = rnd();
-		con.put(i, x, y, z);
+		int region=0;
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < 3; j++) {
+				for (k = 0; k < 3; k++) {
+					con.put(id+(region*ngrains), x*i, y*j, z*k);
+					region++;
+				}
+			}
+		}
 	}
-
+	ngrains = 27*ngrains;
+	Settings::NumberOfParticles = 27*Settings::NumberOfParticles;
 	/**********************************************************/
 
 	vector < vector<Vector3d> > initialHulls;
@@ -246,7 +263,7 @@ void grainhdl::VOROMicrostructure() {
 			c.vertices(cur_x, cur_y, cur_z, cellCoordinates);
 			for (unsigned int i = 0; i < cellCoordinates.size() / 3; i++) {
 				initialHulls.at(box_id).push_back(
-						Vector3d(cellCoordinates.at(3 * i +1 ),
+						Vector3d(cellCoordinates.at(3 * i + 1),
 								cellCoordinates.at(3 * i),
 								cellCoordinates.at(3 * i + 2)));
 			}
@@ -402,7 +419,8 @@ void grainhdl::read_voxelized_microstructure() {
 
 	voxelized_data = fopen(Settings::ReadFromFilename.c_str(), "rb");
 	if (voxelized_data == NULL) {
-		cout << "Could not read from specified file: Settings::ReadFromFilename !";
+		cout
+				<< "Could not read from specified file: Settings::ReadFromFilename !";
 		exit(2);
 	}
 
@@ -665,13 +683,13 @@ for		(const auto & it : grains)
 			if(it->getID()!=0) {
 				it->plotBoxInterfacialElements();
 				it->plotBoxContour();
-			//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
+				//	it->plotBoxVolumetric("end",E_OUTPUT_DISTANCE);
 			}
 		}
 	}
 	Realtime += (dt * (Settings::Physical_Domain_Size
 					* Settings::Physical_Domain_Size) / (/*TimeSlope
-					* */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
+					 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
 	if (currentNrGrains < Settings::BreakupNumber) {
 		cout << "Network has coarsed to less than specified by Settings::BreakupNumber. "
 		<< "Remaining Grains: " << currentNrGrains
