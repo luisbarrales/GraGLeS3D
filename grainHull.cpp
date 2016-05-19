@@ -191,7 +191,6 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 		}
 		}
 	}
-
 	//m_actualHull.clear();
 }
 
@@ -205,7 +204,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	}
 	//TODO:
 	//merge junction with infinitesimal distance:
-	mergeJunction();
+//	mergeJunction();
 
 	// check for infinitisimal short Triplelines, which could cause stability problmes in computation
 
