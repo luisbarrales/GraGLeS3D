@@ -131,15 +131,13 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 					% (Settings::NumberOfParticles)];
 		} else if (Settings::UseMagneticField) {
 			double number;
-			int i = 0;
+			int i=0;
 			do {
 				number = rnd();
-				m_orientationQuat = new myQuaternion();
+				m_orientationQuat= new myQuaternion();
 				*m_orientationQuat = m_grainHandler->myOrientationSpace[i];
 				i++;
-			} while (number
-					>= ((m_grainHandler->myOrientationSpaceVolumeFracs[i])));
-
+			} while (number>=((m_grainHandler->myOrientationSpaceVolumeFracs[i])));
 		} else {
 			if (Settings::UseTexture) {
 				double newOri[3];
@@ -591,7 +589,7 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
-								-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+								-(i2 * i2 + j2 * j2 + k2 * k2) *(2/PI)* 4.0 * dt * nsq
 								/ n_nsq * PI * PI) / n_nsq;
 						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
 								* k)][0] * G;
@@ -675,6 +673,7 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
+<<<<<<< HEAD
 								<<<<<<< HEAD
 								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * PI * PI * PI * dt * nsq
 								/ n_nsq ) / n_nsq;
@@ -682,6 +681,10 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 						-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
 						/ n_nsq * PI * PI) / n_nsq;
 						>>>>>>> bacb4fe658afa4f11ecce8b05c1f6de7659dc2a2
+=======
+								-(i2 * i2 + j2 * j2 + k2 * k2) *(2/PI)* 4.0 * dt * nsq
+								/ n_nsq * PI * PI) / n_nsq;
+>>>>>>> ea4e9d0318dccd8282bfc82a5b216f00fee1bf5b
 						fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
 						fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
 					}
@@ -1034,7 +1037,7 @@ void LSbox::extractContour() {
 		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	}
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
-	//m_explicitHull.plotContour(true, m_grainHandler->get_loop());
+	m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();
@@ -1055,7 +1058,7 @@ void LSbox::computeSurfaceArea() {
 void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
-	//	m_explicitHull.computeInterfacialElementMesh();
+	m_explicitHull.computeInterfacialElementMesh();
 }
 
 void LSbox::computeVolumeAndEnergy() {
