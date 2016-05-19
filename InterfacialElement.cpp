@@ -233,13 +233,27 @@ HighOrderJunction::HighOrderJunction(QuadrupleJunction* A,
 
 	bool neighbor = false;
 	for (int i = 0; i < 3; i++) {
-if	(m_neighborIDs[i] == B->get_FirstNeighbor())
-	neighbor = true,
-}
-if (neighbor == true )
-m_neighborIDs.push_back(B->get_FirstNeighbor());
-computeMobility();
-computeEnergy();
+		if (m_neighborIDs[i] == B->get_FirstNeighbor())
+			neighbor = true;
+	}
+	if (neighbor == true)
+		m_neighborIDs.push_back(B->get_FirstNeighbor());
+	neighbor = false;
+	for (int i = 0; i < 3; i++) {
+		if (m_neighborIDs[i] == B->get_SecondNeighbor())
+			neighbor = true;
+	}
+	if (neighbor == true)
+		m_neighborIDs.push_back(B->get_SecondNeighbor());
+	neighbor = false;
+	for (int i = 0; i < 3; i++) {
+		if (m_neighborIDs[i] == B->get_ThirdNeighbor())
+			neighbor = true;
+	}
+	if (neighbor == true)
+		m_neighborIDs.push_back(B->get_ThirdNeighbor());
+	computeMobility();
+	computeEnergy();
 }
 
 HighOrderJunction::HighOrderJunction(int key, GrainHull* owner) :
@@ -271,8 +285,13 @@ void HighOrderJunction::computeMobility() {
 }
 
 void HighOrderJunction::mergeWith(QuadrupleJunction* B) {
+
+	computeMobility();
+	computeEnergy();
 }
 void HighOrderJunction::mergeWith(HighOrderJunction* B) {
+	computeMobility();
+	computeEnergy();
 }
 
 void HighOrderJunction::computePosition() {
