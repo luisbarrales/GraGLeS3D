@@ -74,6 +74,7 @@ public:
 	}
 };
 
+
 class HighOrderJunction: public InterfacialElement {
 	Vector3d m_position;
 	vector<int> m_neighborIDs;
@@ -81,10 +82,13 @@ class HighOrderJunction: public InterfacialElement {
 public:
 	friend class GrainHull;
 	HighOrderJunction(int key, GrainHull *owner);
+	HighOrderJunction(QuadrupleJunction* A, QuadrupleJunction* B, GrainHull *owner);
 	~HighOrderJunction();
 	void computeEnergy();
 	void computeMobility();
 	void computePosition();
+	void mergeWith(QuadrupleJunction* B);
+	void mergeWith(HighOrderJunction* B);
 	inline vector<int> get_NeighborIDs() {
 		return m_neighborIDs;
 	}

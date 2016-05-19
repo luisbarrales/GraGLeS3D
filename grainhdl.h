@@ -50,6 +50,7 @@ protected:
 	int ngrains;
 	double dt;
 	double h;
+	double TimeSlope;
 
 	int realDomainSize;
 	int ngridpoints;

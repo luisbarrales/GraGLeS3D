@@ -185,6 +185,7 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 			if(i==2) return;
 		}
 	}
+	//if(m_owner->getID() == 1){
 	if(i!= 2){
 		cout << "tripleline has not found two adjacent junctions." << endl;
 
@@ -215,6 +216,18 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 
 	return;
 }
+//}
+
+HighOrderJunction::HighOrderJunction(QuadrupleJunction* A, QuadrupleJunction* B, GrainHull *owner):
+	InterfacialElement(A->m_Key, owner) {
+	int currentID = owner->m_owner->getID();
+	m_neighborIDs.push_back(A->m_neighborID[0]);
+	m_neighborIDs.push_back(A->m_neighborID[1]);
+	m_neighborIDs.push_back(A->m_neighborID[2]);
+}
+
+
+
 
 
 HighOrderJunction::HighOrderJunction(int key, GrainHull* owner) :
@@ -247,6 +260,11 @@ void HighOrderJunction::computeMobility() {
 
 void HighOrderJunction::computePosition(){
 	m_position = Vector3d(0,0,0);
+	if(m_barycenterTriangles.size() <= 0){
+		cout << "high order junction has no triangles" << endl;
+		char c;
+		cin >> c;
+	}
 	for(int i=0; i<m_barycenterTriangles.size(); i++){
 		m_position += m_barycenterTriangles[i];
 	}
@@ -285,6 +303,11 @@ void QuadrupleJunction::computeMobility() {
 
 void QuadrupleJunction::computePosition(){
 	m_position = Vector3d(0,0,0);
+	if(m_barycenterTriangles.size() <= 0){
+		cout << "quadruple junction has no triangles" << endl;
+		char c;
+		cin >> c;
+	}
 	for(int i=0; i<m_barycenterTriangles.size(); i++){
 		m_position += m_barycenterTriangles[i];
 	}

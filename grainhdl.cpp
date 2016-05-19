@@ -131,7 +131,7 @@ void grainhdl::readOriFile() {
 		c = fgetc(OriFromFile);
 		if (c == '\n')
 			N++;
-	} while (c != EOF);
+	} while (c != 'eof');
 	N--;
 	rewind(OriFromFile);
 	// read over header
@@ -143,7 +143,7 @@ void grainhdl::readOriFile() {
 	double vol, euler[3];
 	myOrientationSpace.resize(N);
 	myOrientationSpaceVolumeFracs.resize(N);
-	for (int i; i < N; i++) {
+	for (int i=0; i < N; i++) {
 		fscanf(OriFromFile, "%lf \t %lf \t %lf \t %lf\n", &euler[0], &euler[1],
 				&euler[2], &vol);
 		myOrientationSpace[i].euler2Quaternion(euler);
@@ -235,11 +235,59 @@ void grainhdl::VOROMicrostructure() {
 
 	/**********************************************************/
 	// Randomly add particles into the container
+	double x,y,z;
 	for (int i = 0; i < ngrains; i++) {
-		double x = rnd();
-		double y = rnd();
-		double z = rnd();
-		con.put(i, x, y, z);
+		//double x = rnd();
+		//double y = rnd();
+		//double z = rnd();
+	if(i==0){
+		x = 0.5;
+	    y = 0.5;
+		z = 0.5;
+	}
+	else if(i==1){
+		x = 0.25;
+	    y = 0.25;
+		z = 0.25;
+		}
+	else if(i==2){
+		x = 0.75;
+	    y = 0.25;
+		z = 0.25;
+		}
+	else if(i==3){
+		 x = 0.25;
+	     y = 0.75;
+		 z = 0.25;
+		}
+	else if(i==4){
+		 x = 0.75;
+	     y = 0.75;
+		 z = 0.25;
+		}
+	else if(i==5){
+		 x = 0.25;
+	     y = 0.25;
+		 z = 0.75;
+		}
+	else if(i==6){
+		 x = 0.25;
+	     y = 0.75;
+		 z = 0.75;
+		}
+	else if(i==7){
+		 x = 0.75;
+	     y = 0.25;
+		 z = 0.75;
+		}
+	else if(i==8){
+		 x = 0.75;
+	     y = 0.75;
+		 z = 0.75;
+	}
+
+	//}
+	con.put(i, x, y, z);
 	}
 
 	/**********************************************************/
@@ -294,6 +342,8 @@ void grainhdl::VOROMicrostructure() {
 	}
 
 	buildBoxVectors(initialHulls);
+	 con.draw_particles("VoronoyP.gnu");
+	 con.draw_cells_gnuplot("VoronoyC.gnu");
 }
 
 void grainhdl::readMicrostructure() {
@@ -693,8 +743,8 @@ void grainhdl::run_sim() {
 		}
 		Realtime += (dt
 				* (Settings::Physical_Domain_Size
-						* Settings::Physical_Domain_Size) / (/*TimeSlope
-		 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
+						* Settings::Physical_Domain_Size) / ( TimeSlope
+		 *Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
 		if (currentNrGrains < Settings::BreakupNumber) {
 			cout
 					<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
@@ -1082,7 +1132,8 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 		break;
 	}
 	case E_GAUSSIAN: {
-		dt = 50. / double(realDomainSize * realDomainSize * realDomainSize);
+		dt = PI / 2 *50. / double(realDomainSize * realDomainSize * realDomainSize);
+		TimeSlope= 1/1.2;
 		break;
 	}
 	default: {
