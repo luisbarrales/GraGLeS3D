@@ -134,7 +134,7 @@ void grainhdl::readOriFile() {
 		c = fgetc(OriFromFile);
 		if (c == '\n')
 			N++;
-	} while (c != EOF);
+	} while (c != 'eof');
 	N--;
 	rewind(OriFromFile);
 	// read over header
