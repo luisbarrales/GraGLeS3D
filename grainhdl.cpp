@@ -67,8 +67,6 @@ void grainhdl::initializeSimulation() {
 		ngrains = Settings::NumberOfParticles;
 		currentNrGrains = ngrains;
 		realDomainSize = (pow((double) Settings::NumberOfParticles, 1. / 3.0)
-				* Settings::NumberOfPointsPerGrain); // half open container of VORO++
-		if (Settings::PseudoPeriodic)
 	}
 
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);

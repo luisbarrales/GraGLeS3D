@@ -40,6 +40,8 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_inputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_outputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_magneticEnergy = 0;
+	if (Settings::UseMagneticField)
+		calculateMagneticEnergy();
 }
 
 LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
@@ -48,6 +50,8 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 			m_surface(0), m_explicitHull(this) {
 	int grid_blowup = owner->get_grid_blowup();
 	m_magneticEnergy = 0;
+	if (Settings::UseMagneticField)
+		calculateMagneticEnergy();
 	double h = owner->get_h();
 	// determine size of grain
 	m_orientationQuat = new myQuaternion();
@@ -114,6 +118,8 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 			m_surface(0), m_explicitHull(this) {
 	int grid_blowup = owner->get_grid_blowup();
 	m_magneticEnergy = 0;
+	if (Settings::UseMagneticField)
+		calculateMagneticEnergy();
 	double h = owner->get_h();
 	// determine size of grain
 	m_orientationQuat = new myQuaternion();
@@ -212,8 +218,8 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 	m_orientationQuat = new myQuaternion(ori.get_q0(), ori.get_q1(),
 			ori.get_q2(), ori.get_q3());
 	//m_grainBoundary.getRawBoundary() = vertices;
-	//	if (Settings::UseMagneticField)
-	//		calculateMagneticEnergy();
+	if (Settings::UseMagneticField)
+		calculateMagneticEnergy();
 	int grid_blowup = m_grainHandler->get_grid_blowup();
 	double h = m_grainHandler->get_h();
 	// determine size of grain
