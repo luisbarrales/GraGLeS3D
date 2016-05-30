@@ -275,9 +275,9 @@ void grainhdl::VOROMicrostructure() {
 					z = double((k - grid_blowup) * h);
 
 					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-							|| i >= ngridpoints - grid_blowup
-							|| j >= ngridpoints - grid_blowup
-							|| k >= ngridpoints - grid_blowup) {
+							|| i >= ngridpoints - 1 - grid_blowup
+							|| j >= ngridpoints - 1 - grid_blowup
+							|| k >= ngridpoints - 1 - grid_blowup) {
 						IDField->setValueAt(i, j, k, 0);
 					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
 							cell_id)) {
@@ -424,9 +424,9 @@ void grainhdl::read_voxelized_microstructure() {
 		for (int i = 0; i < ngridpoints; i++) {
 			for (int j = 0; j < ngridpoints; j++) {
 				if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-						|| i >= ngridpoints - grid_blowup
-						|| j >= ngridpoints - grid_blowup
-						|| k >= ngridpoints - grid_blowup)
+						|| i >= ngridpoints - 1 - grid_blowup
+						|| j >= ngridpoints - 1 - grid_blowup
+						|| k >= ngridpoints - 1 - grid_blowup)
 					IDField->setValueAt(i, j, k, 0);
 				else {
 					int box_id;
@@ -681,7 +681,7 @@ void grainhdl::run_sim() {
 												* Settings::PlotInterval))
 								== 0) {
 //				it->plotBoxInterfacialElements();
-							if (loop > 25)
+							if (loop > 100)
 								it->plotBoxContour();
 //							it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 						}
@@ -1072,8 +1072,8 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	}
 	grid_blowup = Settings::DomainBorderSize;
-	delta = Settings::DomainBorderSize * 1 / double(realDomainSize);
-	ngridpoints = realDomainSize + 2 * grid_blowup;
+	delta = Settings::DomainBorderSize / double(realDomainSize);
+	ngridpoints = realDomainSize + 1 + 2 * grid_blowup;
 	h = 1.0 / realDomainSize;
 
 }
@@ -1085,6 +1085,7 @@ void grainhdl::gridCoarsement() {
 		switchDistancebuffer();
 
 	} else {
+		double h_old = h;	
 		updateGridAndTimeVariables(newSize);
 		cout << "coarsing the current grid in Timestep: " << loop << endl;
 		cout << "newSize :" << newSize << endl << endl;
@@ -1096,7 +1097,11 @@ void grainhdl::gridCoarsement() {
 				if (id <= Settings::NumberOfParticles)
 					if (grains[id] == NULL)
 						continue;
-				grains[id]->resizeGrid(newSize);
+				grains[id]->plotBoxVolumetric("Pre_Coarsement_Output",E_OUTPUT_DISTANCE,h_old);
+				
+				grains[id]->resizeGrid(newSize,h_old);
+
+				grains[id]->plotBoxVolumetric("Post_Coarsement_Input",E_INPUT_DISTANCE,h);
 			}
 
 		}

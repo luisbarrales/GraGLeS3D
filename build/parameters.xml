@@ -4,7 +4,7 @@
    <NumberOfParticles>100</NumberOfParticles>
 <NumberOfPointsPerGrain> 10 </NumberOfPointsPerGrain> 
  <AnalysisTimestep> 1</AnalysisTimestep>
-   <PlotInterval>1</PlotInterval>
+   <PlotInterval>100</PlotInterval>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps> 2000 </NumberOfTimesteps>
    <NumberOfTimesteps> 20 </NumberOfTimesteps>
@@ -36,7 +36,7 @@
    <DisableConvolutionCorrection>0</DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
-   <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
+   <MaximumNumberOfThreads> 32 </MaximumNumberOfThreads>
    <GridCoarsement>1</GridCoarsement>
    <GridCoarsementGradient>0.99</GridCoarsementGradient> 
    <ConvolutionMode>2</ConvolutionMode>   
