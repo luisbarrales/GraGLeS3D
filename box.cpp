@@ -463,6 +463,14 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//								m_explicitHull.projectPointToGrainBoundary(
 						//										point, grain.grainID);
 
+//<<<<<<< HEAD
+//						m_outputDistance->setValueAt(i, j, k,
+//								val
+//										+ (m_outputDistance->getValueAt(i, j, k)
+//												- val) * localGB.energy
+//												* localGB.mobility
+//												* radiuscorrection);
+//=======
 						m_outputDistance->setValueAt(
 								i,
 								j,
@@ -470,6 +478,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 								val + (m_outputDistance->getValueAt(i, j, k)
 										- val) * localGB.energy
 										* localGB.mobility * radiuscorrection);
+//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						if (Settings::UseMagneticField) {
 							double
 									f_magneticEnergy =
@@ -479,10 +488,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 													* localGB.mobility
 													* m_grainHandler->get_dt();
 
-							m_outputDistance->setValueAt(
-									i,
-									j,
-									k,
+							m_outputDistance->setValueAt(i, j, k,
 									(m_outputDistance->getValueAt(i, j, k)
 											- f_magneticEnergy));
 						}
@@ -673,18 +679,18 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 					for (int j = 0; j < n2; j++) {
 						j2 = min(j, n - j);
 						G = exp(
-<<<<<<< HEAD
-								<<<<<<< HEAD
-								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * PI * PI * PI * dt * nsq
-								/ n_nsq ) / n_nsq;
-						=======
-						-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
-						/ n_nsq * PI * PI) / n_nsq;
-						>>>>>>> bacb4fe658afa4f11ecce8b05c1f6de7659dc2a2
-=======
+//<<<<<<< HEAD
+//								<<<<<<< HEAD
+//								-(i2 * i2 + j2 * j2 + k2 * k2) * 8.0 * PI * PI * PI * dt * nsq
+//								/ n_nsq ) / n_nsq;
+//						=======
+//						-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+//						/ n_nsq * PI * PI) / n_nsq;
+//						>>>>>>> bacb4fe658afa4f11ecce8b05c1f6de7659dc2a2
+//=======
 								-(i2 * i2 + j2 * j2 + k2 * k2) *(2/PI)* 4.0 * dt * nsq
 								/ n_nsq * PI * PI) / n_nsq;
->>>>>>> ea4e9d0318dccd8282bfc82a5b216f00fee1bf5b
+//>>>>>>> ea4e9d0318dccd8282bfc82a5b216f00fee1bf5b
 						fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
 						fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
 					}
@@ -751,6 +757,15 @@ void LSbox::executeSetComparison() {
 			for (int j = m_outputDistance->getMinX(); j
 					< m_outputDistance->getMaxX(); j++) {
 
+//<<<<<<< HEAD
+//				if (abs(m_inputDistance->getValueAt(i, j, k))
+//						< 0.7 * m_grainHandler->delta) {
+//					m_outputDistance->setValueAt(i, j, k,
+//							0.5
+//									* (m_inputDistance->getValueAt(i, j, k)
+//											- m_outputDistance->getValueAt(i, j,
+//													k)));
+//=======
 				if (abs(m_inputDistance->getValueAt(i, j, k)) < 0.7
 						* m_grainHandler->delta) {
 					m_outputDistance->setValueAt(
@@ -759,6 +774,7 @@ void LSbox::executeSetComparison() {
 							k,
 							0.5 * (m_inputDistance->getValueAt(i, j, k)
 									- m_outputDistance->getValueAt(i, j, k)));
+//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 				} else
 					m_outputDistance->setValueAt(i, j, k,
 							m_inputDistance->getValueAt(i, j, k));
@@ -898,6 +914,20 @@ void LSbox::boundaryCondition() {
 	double distZMin, distZMax, distXMin, distXMax, distX;
 	double distYMin, distYMax, distY, distZ;
 	double dist = 0;
+//<<<<<<< HEAD
+//	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
+//			k++) {
+//		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
+//				i++) {
+//			for (int j = m_inputDistance->getMinX();
+//					j < m_inputDistance->getMaxX(); j++) {
+//				distXMin = -(j - grid_blowup);
+//				distYMin = -(i - grid_blowup);
+//				distZMin = -(k - grid_blowup);
+//				distXMax = (j - (m - 1 - grid_blowup));
+//				distYMax = (i - (m - 1 - grid_blowup));
+//				distZMax = (k - (m - 1 - grid_blowup));
+//=======
 	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
 		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
 			for (int j = m_inputDistance->getMinX(); j
@@ -908,6 +938,7 @@ void LSbox::boundaryCondition() {
 				distXMax = (j - (m - grid_blowup));
 				distYMax = (i - (m - grid_blowup));
 				distZMax = (k - (m - grid_blowup));
+//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 
 				if (abs(distXMin) < abs(distXMax))
 					distX = distXMin;
@@ -1157,10 +1188,18 @@ void LSbox::executeRedistancing() {
 							m_outputDistance->getValueAt(i, j - 1, k)))
 						m_outputDistance->setValueAt(i, j - 1, k, candidate);
 				} else {
+//<<<<<<< HEAD
+//					candidate = m_outputDistance->getValueAt(i, j, k)
+//							+ sgn(m_outputDistance->getValueAt(i, j - 1, k))
+//									* h;
+//					if (abs(candidate)
+//							< abs(m_outputDistance->getValueAt(i, j - 1, k)))
+//=======
 					candidate = m_outputDistance->getValueAt(i, j, k) + sgn(
 							m_outputDistance->getValueAt(i, j - 1, k)) * h;
 					if (abs(candidate) < abs(
 							m_outputDistance->getValueAt(i, j - 1, k)))
+//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						m_outputDistance->setValueAt(i, j - 1, k, candidate);
 				}
 			}
@@ -1304,83 +1343,108 @@ void LSbox::executeRedistancing() {
 /**************************************/
 // plot the box and all its properties
 /**************************************/
-void LSbox::resizeGrid(int newSize) {
-	int ngridpointsNew = newSize + 2 * m_grainHandler->get_grid_blowup();
-	double h = m_grainHandler->get_h();
-	double hn = 1.0 / (double) newSize;
+void LSbox::resizeGrid(int newSize, double h) {
+	int ngridpointsNew = m_grainHandler->get_ngridpoints();
+	double hn = m_grainHandler->get_h();
+	int grid_blowup = m_grainHandler->get_grid_blowup();
 
-	m_newXMin = m_outputDistance->getMinX() * (h / hn) + 0.5;
-	m_newXMax = m_outputDistance->getMaxX() * (h / hn) + 0.5;
-	m_newYMin = m_outputDistance->getMinY() * (h / hn) + 0.5;
-	m_newYMax = m_outputDistance->getMaxY() * (h / hn) + 0.5;
-	m_newZMin = m_outputDistance->getMinZ() * (h / hn) + 0.5;
-	m_newZMax = m_outputDistance->getMaxZ() * (h / hn) + 0.5;
+	m_newXMin = (m_outputDistance->getMinX() - grid_blowup) * (h / hn) + 0.5
+			+ grid_blowup;
+	m_newXMax = (m_outputDistance->getMaxX() - grid_blowup) * (h / hn) + 0.5
+			+ grid_blowup;
+	m_newYMin = (m_outputDistance->getMinY() - grid_blowup) * (h / hn) + 0.5
+			+ grid_blowup;
+	m_newYMax = (m_outputDistance->getMaxY() - grid_blowup) * (h / hn) + 0.5
+			+ grid_blowup;
+	m_newZMin = (m_outputDistance->getMinZ() - grid_blowup) * (h / hn) + 0.5
+			+ grid_blowup;
+	m_newZMax = (m_outputDistance->getMaxZ() - grid_blowup) * (h / hn) + 0.5
+			+ grid_blowup;
+
 	double xl, xr, yo, yu, zu, zo;
 
 	double pointx, pointy, pointz;
+//	m_inputDistance->clearValues(-1.0);
 	m_inputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
 			m_newYMax, m_newZMax);
 	m_inputDistance->resizeToCube(ngridpointsNew);
 
-	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
-		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
-			for (int j = m_inputDistance->getMinX(); j
-					< m_inputDistance->getMaxX(); j++) {
-				pointx = j * (hn / h);
-				pointy = i * (hn / h);
-				pointz = k * (hn / h);
+	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
+			k++) {
+		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
+				i++) {
+			for (int j = m_inputDistance->getMinX();
+					j < m_inputDistance->getMaxX(); j++) {
+				pointx = (j - grid_blowup) * (hn / h);
+				pointy = (i - grid_blowup) * (hn / h);
+				pointz = (k - grid_blowup) * (hn / h);
 
-				xl = int(pointx);
-				xr = int(pointx + 1);
-				yu = int(pointy);
-				yo = int(pointy + 1);
-				zu = int(pointz);
-				zo = int(pointz + 1);
+				xl = floor(pointx);
+				xr = floor(pointx + 1);
+				yu = floor(pointy);
+				yo = floor(pointy + 1);
+				zu = floor(pointz);
+				zo = floor(pointz + 1);
 
-				if (xr > m_outputDistance->getMaxX() - 2 || yo
-						> m_outputDistance->getMaxY() - 2 || zo
-						> m_outputDistance->getMaxZ() - 2 || yu
-						< m_outputDistance->getMinY() || xl
-						< m_outputDistance->getMinX() || zu
-						< m_outputDistance->getMinZ()) {
-					m_inputDistance->setValueAt(i, j, k, -m_grainHandler->delta);
+				if (xr + grid_blowup > m_outputDistance->getMaxX() - 2
+						|| yo + grid_blowup > m_outputDistance->getMaxY() - 2
+						|| zo + grid_blowup > m_outputDistance->getMaxZ() - 2
+						|| yu + grid_blowup < m_outputDistance->getMinY()
+						|| xl + grid_blowup < m_outputDistance->getMinX()
+						|| zu + grid_blowup < m_outputDistance->getMinZ()) {
+					m_inputDistance->setValueAt(i, j, k,
+							-m_grainHandler->delta);
 					continue;
 				}
 
 				double ro, ru, newDistVal_zu, newDistVal_zo;
+				double trilinearInterpolation;
 
 				//bilinear interpolation in the plane zu:
-				ro = 1 / (xr - xl) * ((xr - pointx)
-						* m_outputDistance->getValueAt(yo, xl, zu) + (pointx
-						- xl) * m_outputDistance->getValueAt(yo, xr, zu));
-				ru = 1 / (xr - xl) * ((xr - pointx)
-						* m_outputDistance->getValueAt(yu, xl, zu) + (pointx
-						- xl) * m_outputDistance->getValueAt(yu, xr, zu));
-				newDistVal_zu = 1 / (yo - yu) * ((yo - pointy) * ru + (pointy
-						- yu) * ro);
+				ro = (xr - pointx)
+						* m_outputDistance->getValueAt(yo + grid_blowup,
+								xl + grid_blowup, zu + grid_blowup)
+						+ (pointx - xl)
+								* m_outputDistance->getValueAt(yo + grid_blowup,
+										xr + grid_blowup, zu + grid_blowup);
+				ru = (xr - pointx)
+						* m_outputDistance->getValueAt(yu + grid_blowup,
+								xl + grid_blowup, zu + grid_blowup)
+						+ (pointx - xl)
+								* m_outputDistance->getValueAt(yu + grid_blowup,
+										xr + grid_blowup, zu + grid_blowup);
+				newDistVal_zu = (yo - pointy) * ru + (pointy - yu) * ro;
 
 				//bilinear interpolation in the plane zo:
-				ro = 1 / (xr - xl) * ((xr - pointx)
-						* m_outputDistance->getValueAt(yo, xl, zo) + (pointx
-						- xl) * m_outputDistance->getValueAt(yo, xr, zo));
-				ru = 1 / (xr - xl) * ((xr - pointx)
-						* m_outputDistance->getValueAt(yu, xl, zo) + (pointx
-						- xl) * m_outputDistance->getValueAt(yu, xr, zo));
-				newDistVal_zo = 1 / (yo - yu) * ((yo - pointy) * ru + (pointy
-						- yu) * ro);
+				ro = (xr - pointx)
+						* m_outputDistance->getValueAt(yo + grid_blowup,
+								xl + grid_blowup, zo + grid_blowup)
+						+ (pointx - xl)
+								* m_outputDistance->getValueAt(yo + grid_blowup,
+										xr + grid_blowup, zo + grid_blowup);
+				ru = (xr - pointx)
+						* m_outputDistance->getValueAt(yu + grid_blowup,
+								xl + grid_blowup, zo + grid_blowup)
+						+ (pointx - xl)
+								* m_outputDistance->getValueAt(yu + grid_blowup,
+										xr + grid_blowup, zo + grid_blowup);
+				newDistVal_zo = (yo - pointy) * ru + (pointy - yu) * ro;
 
-				double trilinearInterpolation = (zo - pointz) * newDistVal_zu
+				trilinearInterpolation = (zo - pointz) * newDistVal_zu
 						+ (pointz - zu) * newDistVal_zo;
 
 				m_inputDistance->setValueAt(i, j, k, trilinearInterpolation);
 
 			}
 		}
-
-		m_outputDistance->resize(m_newXMin, m_newYMin, m_newZMin, m_newXMax,
-				m_newYMax, m_newZMax);
-		m_outputDistance->resizeToCube(ngridpointsNew);
 	}
+//		m_outputDistance->clearValues(-1.0);
+	m_outputDistance->resize(m_inputDistance->getMinX(),
+			m_inputDistance->getMinY(), m_inputDistance->getMinZ(),
+			m_inputDistance->getMaxX(), m_inputDistance->getMaxY(),
+			m_inputDistance->getMaxZ());
+	//m_outputDistance->resizeToCube(ngridpointsNew);
+
 }
 
 void LSbox::recalculateIDLocal() {
@@ -1581,11 +1645,12 @@ void LSbox::plotBoxContour(bool absoluteCoordinates) {
 }
 
 void LSbox::plotBoxVolumetric(string identifier,
-		E_BUFFER_SELECTION bufferSelection) {
-	string filename = string("GrainVolume_") + to_string(
-			(unsigned long long) m_ID) + string("Timestep_") + to_string(
-			(unsigned long long) m_grainHandler->loop) + identifier + string(
-			".vtk");
+		E_BUFFER_SELECTION bufferSelection, double h) {
+	string filename = string("GrainVolume_")
+			+ to_string((unsigned long long) m_ID) + string("Timestep_")
+			+ to_string((unsigned long long) m_grainHandler->loop) + identifier
+			+ string(".vtk");
+
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save box hull!");
@@ -1618,11 +1683,19 @@ void LSbox::plotBoxVolumetric(string identifier,
 			distance->getMaxX() - distance->getMinX(),
 			distance->getMaxY() - distance->getMinY(),
 			distance->getMaxZ() - distance->getMinZ());
-	fprintf(output, "POINTS %d int\n", totalPoints);
+	fprintf(output, "POINTS %d float\n", totalPoints);
+	double ii, jj, kk;
 	for (int i = distance->getMinY(); i < distance->getMaxY(); i++)
 		for (int j = distance->getMinX(); j < distance->getMaxX(); j++)
-			for (int k = distance->getMinZ(); k < distance->getMaxZ(); k++)
-				fprintf(output, "%d %d %d\n", j, i, k);
+			for (int k = distance->getMinZ(); k < distance->getMaxZ(); k++) {
+				//ii = ((double)(i-m_grainHandler->get_grid_blowup())-(double)(distance->getMaxY()+distance->getMinY())/2.)*h;
+				//jj = ((double)(j-m_grainHandler->get_grid_blowup())-(double)(distance->getMaxX()+distance->getMinX())/2.)*h;
+				//kk = ((double)(k-m_grainHandler->get_grid_blowup())-(double)(distance->getMaxZ()+distance->getMinZ())/2.)*h;
+				ii = (i - m_grainHandler->get_grid_blowup()) * h;
+				jj = (j - m_grainHandler->get_grid_blowup()) * h;
+				kk = (k - m_grainHandler->get_grid_blowup()) * h;
+				fprintf(output, "%f %f %f\n", jj, ii, kk);
+			}
 
 	fprintf(output, "\nPOINT_DATA %d\n", totalPoints);
 	fprintf(output, "FIELD FieldData 1\n");
@@ -1630,7 +1703,7 @@ void LSbox::plotBoxVolumetric(string identifier,
 	for (int i = distance->getMinY(); i < distance->getMaxY(); i++)
 		for (int j = distance->getMinX(); j < distance->getMaxX(); j++)
 			for (int k = distance->getMinZ(); k < distance->getMaxZ(); k++)
-				fprintf(output, "%f\n", distance->getValueAt(i, j, k));
+				fprintf(output, "%f\n", (distance->getValueAt(i, j, k)));
 	fclose(output);
 }
 

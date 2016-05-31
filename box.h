@@ -146,12 +146,12 @@ public:
 	//Debug printing functions
 	void plotBoxInterfacialElements(bool absoluteCoordinates = false);
 	void plotBoxContour(bool absoluteCoordinates = false);
-	void plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection);
+	void plotBoxVolumetric(string identifier, E_BUFFER_SELECTION bufferSelection, double h);
 	void plotBoxIDLocal();
 
 	double computeMisorientation(LSbox* grain_2);
 	double computeMisorientation(unsigned int grainID);
-	void resizeGrid(int newSize);
+	void resizeGrid(int newSize, double h_old);
 	
 	void initConvoMemory(ExpandingVector<char>& memory_dump);
 	void createConvolutionPlans(ExpandingVector<char>& memory_dump);

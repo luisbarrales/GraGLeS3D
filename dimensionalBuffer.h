@@ -102,6 +102,10 @@ public:
 			   column >= m_xMin && column < m_xMax &&
 			   depth >= m_zMin && depth < m_zMax;
 	}
+
+	void clearValues(){
+		m_values.clear();
+	}
 	/*!
 	* \brief This method resizes the dimensions.
 	*

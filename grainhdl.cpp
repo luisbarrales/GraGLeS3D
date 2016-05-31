@@ -337,9 +337,15 @@ void grainhdl::VOROMicrostructure() {
 					z = double((k - grid_blowup) * h);
 
 					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
+//<<<<<<< HEAD
+//							|| i >= ngridpoints - 1 - grid_blowup
+//							|| j >= ngridpoints - 1 - grid_blowup
+//							|| k >= ngridpoints - 1 - grid_blowup) {
+//=======
 							|| i >= ngridpoints - grid_blowup || j
 							>= ngridpoints - grid_blowup || k >= ngridpoints
 							- grid_blowup) {
+//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						IDField->setValueAt(i, j, k, 0);
 					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
 							cell_id)) {
@@ -487,9 +493,16 @@ void grainhdl::read_voxelized_microstructure() {
 	for (int k = 0; k < ngridpoints; k++) {
 		for (int i = 0; i < ngridpoints; i++) {
 			for (int j = 0; j < ngridpoints; j++) {
+//<<<<<<< HEAD
+//				if (i < grid_blowup || j < grid_blowup || k < grid_blowup
+//						|| i >= ngridpoints - 1 - grid_blowup
+//						|| j >= ngridpoints - 1 - grid_blowup
+//						|| k >= ngridpoints - 1 - grid_blowup)
+//=======
 				if (i < grid_blowup || j < grid_blowup || k < grid_blowup || i
 						>= ngridpoints - grid_blowup || j >= ngridpoints
 						- grid_blowup || k >= ngridpoints - grid_blowup)
+//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 					IDField->setValueAt(i, j, k, 0);
 				else {
 					int box_id;
@@ -1164,8 +1177,8 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	}
 	grid_blowup = Settings::DomainBorderSize;
-	delta = Settings::DomainBorderSize * 1 / double(realDomainSize);
-	ngridpoints = realDomainSize + 2 * grid_blowup;
+	delta = Settings::DomainBorderSize / double(realDomainSize);
+	ngridpoints = realDomainSize + 1 + 2 * grid_blowup;
 	h = 1.0 / realDomainSize;
 
 }
@@ -1176,6 +1189,7 @@ void grainhdl::gridCoarsement() {
 	if (newSize >= realDomainSize || Settings::GridCoarsement == 0) {
 		switchDistancebuffer();
 	} else {
+		double h_old = h;	
 		updateGridAndTimeVariables(newSize);
 		cout << "coarsing the current grid in Timestep: " << loop << endl;
 		cout << "newSize :" << newSize << endl << endl;
@@ -1183,12 +1197,14 @@ void grainhdl::gridCoarsement() {
 		{
 			vector<unsigned int>& workload =
 					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-for		(auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-			if (grains[id] == NULL)
-			continue;
-			grains[id]->resizeGrid(newSize);
-		}
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
+				
+				grains[id]->resizeGrid(newSize,h_old);
+
+			}
 
 	}
 	//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
