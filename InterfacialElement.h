@@ -36,6 +36,7 @@ struct GBInfo {
 
 class InterfacialElement {
 protected:
+	vector<int> m_neighborIDs;
 	vector<Triangle> m_Triangles;
 	vector<Vector3d> m_barycenterTriangles;
 	vector<Vector3d> m_UnitNormalTriangles;
@@ -72,27 +73,37 @@ public:
 	inline double get_mobility() {
 		return m_mobility;
 	}
+	inline vector<Triangle>* get_Triangles() {
+		return &m_Triangles;
+	}
+	inline vector<Vector3d>* get_barycenterTriangles() {
+		return &m_barycenterTriangles;
+	}
+	inline vector<Vector3d>* get_UnitNormalTriangles() {
+		return &m_UnitNormalTriangles;
+	}
+	inline vector<int> get_NeighborIDs() {
+		return m_neighborIDs;
+	}
+
 };
+
 class QuadrupleJunction;
 
 class HighOrderJunction: public InterfacialElement {
+private:
 	Vector3d m_position;
-	vector<int> m_neighborIDs;
 	//TODO:
 public:
 	friend class GrainHull;
 	HighOrderJunction(int key, GrainHull *owner);
-	HighOrderJunction(QuadrupleJunction* A, QuadrupleJunction* B, GrainHull *owner);
+	HighOrderJunction(QuadrupleJunction* A, QuadrupleJunction* B,
+			GrainHull *owner);
 	~HighOrderJunction();
 	void computeEnergy();
 	void computeMobility();
 	void computePosition();
-	void mergeWith(QuadrupleJunction* B);
-	void mergeWith(HighOrderJunction* B);
-	inline vector<int> get_NeighborIDs() {
-		return m_neighborIDs;
-	}
-	;
+	void mergeWith(InterfacialElement* B);
 	inline Vector3d get_Position() {
 		return m_position;
 	}
@@ -100,8 +111,8 @@ public:
 };
 
 class QuadrupleJunction: public InterfacialElement {
+private:
 	Vector3d m_position;
-	int m_neighborID[3];
 public:
 	friend class GrainHull;
 	QuadrupleJunction(int key, GrainHull *owner);
@@ -110,15 +121,15 @@ public:
 	void computeMobility();
 	void computePosition();
 	inline int get_FirstNeighbor() {
-		return m_neighborID[0];
+		return m_neighborIDs[0];
 	}
 	;
 	inline int get_SecondNeighbor() {
-		return m_neighborID[1];
+		return m_neighborIDs[1];
 	}
 	;
 	inline int get_ThirdNeighbor() {
-		return m_neighborID[2];
+		return m_neighborIDs[2];
 	}
 	;
 	inline Vector3d get_Position() {
@@ -128,8 +139,8 @@ public:
 };
 
 class TripleLine: public InterfacialElement {
+private:
 	vector<InterfacialElement*> m_vertices;
-	int m_neighborID[2];
 public:
 	friend class GrainHull;
 	TripleLine(int key, GrainHull *owner);
@@ -140,22 +151,22 @@ public:
 	void findAdjacentJunctions(vector<QuadrupleJunction*> ,
 			vector<HighOrderJunction*> );
 	inline int get_FirstNeighbor() {
-		return m_neighborID[0];
+		return m_neighborIDs[0];
 	}
 	inline int get_SecondNeighbor() {
-		return m_neighborID[1];
+		return m_neighborIDs[1];
 	}
 	inline vector<InterfacialElement*> get_vertices() {
 		return m_vertices;
 	}
 	inline Vector3d get_Position() {
-		return Vector3d(-1,-1,-1);;
+		return Vector3d(-1, -1, -1);;
 	}
 };
 
 class GrainBoundary: public InterfacialElement {
+private:
 	vector<TripleLine*> m_edges; // saves the indexes of edges in clockwise order
-	int m_neighborID;
 	Vector3d inclination;
 public:
 	friend class GrainHull;
@@ -168,7 +179,7 @@ public:
 		return m_edges;
 	}
 	inline Vector3d get_Position() {
-		return Vector3d(-1,-1,-1);
+		return Vector3d(-1, -1, -1);
 	}
 };
 

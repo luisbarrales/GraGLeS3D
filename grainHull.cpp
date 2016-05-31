@@ -119,9 +119,6 @@ void GrainHull::clearInterfacialElements() {
 }
 
 void GrainHull::computeGrainBoundaryElements() {
-	if (m_owner->getID() == 1)
-		int k;
-
 	clearInterfacialElements();
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
 		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
@@ -204,7 +201,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	}
 	//TODO:
 	//merge junction with infinitesimal distance:
-//	mergeJunction();
+	mergeJunction();
 
 	// check for infinitisimal short Triplelines, which could cause stability problmes in computation
 
@@ -297,8 +294,8 @@ void GrainHull::computeInterfacialElementMesh() {
 		for (vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter
 				!= m_TripleLines.end(); ++iter) {
 			vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
-//			if (vertices_temp[0] = NULL || vertices_temp[0] = NULL)
-//				continue;
+			//			if (vertices_temp[0] = NULL || vertices_temp[0] = NULL)
+			//				continue;
 			m_TripleLineLength += (vertices_temp[0]->get_Position()
 					- vertices_temp[1]->get_Position()).norm();
 		}
@@ -378,8 +375,8 @@ void GrainHull::computeInterfacialElementMesh() {
 
 void GrainHull::mergeJunction() {
 	double h = m_owner->get_grainHandler()->get_h();
-	for (int i = 0; i <= m_QuadruplePoints.size(); i++) {
-		for (int j = i + 1; j <= m_QuadruplePoints.size(); j++) {
+	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
+		for (int j = i + 1; j < m_QuadruplePoints.size(); j++) {
 			if ((m_QuadruplePoints[i]->get_Position()
 					- m_QuadruplePoints[j]->get_Position()).norm() < 3 * h) {
 				//create new high order junction / delete old
@@ -388,28 +385,28 @@ void GrainHull::mergeJunction() {
 				m_HighOrderJunctions.push_back(newHJ);
 				delete m_QuadruplePoints[i];
 				delete m_QuadruplePoints[j];
-				m_QuadruplePoints.erase (m_QuadruplePoints.begin()+i);
-				m_QuadruplePoints.erase (m_QuadruplePoints.begin()+j-1);
+				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
+				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + j - 1);
 			}
 		}
-		for (int k = 0; k <= m_HighOrderJunctions.size(); k++) {
+		for (int k = 0; k < m_HighOrderJunctions.size(); k++) {
 			if ((m_QuadruplePoints[i]->get_Position()
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 3 * h) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[k]->mergeWith(m_QuadruplePoints[i]);
 				delete m_QuadruplePoints[i];
-				m_QuadruplePoints.erase (m_QuadruplePoints.begin()+i);
+				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
 			}
 		}
 	}
-	for (int i = 0; i <= m_HighOrderJunctions.size(); i++) {
-		for (int k = i + 1; k <= m_HighOrderJunctions.size(); k++) {
+	for (int i = 0; i < m_HighOrderJunctions.size(); i++) {
+		for (int k = i + 1; k < m_HighOrderJunctions.size(); k++) {
 			if ((m_QuadruplePoints[i]->get_Position()
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 3 * h) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[k]->mergeWith((m_HighOrderJunctions[i]));
 				delete m_HighOrderJunctions[i];
-				m_HighOrderJunctions.erase (m_HighOrderJunctions.begin()+i);
+				m_HighOrderJunctions.erase(m_HighOrderJunctions.begin() + i);
 			}
 		}
 	}
@@ -484,9 +481,9 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 
 	//search in QuadrupleJunctions
 	for (int j = 0; j < m_QuadruplePoints.size(); j++) {
-		if (m_QuadruplePoints[j]->m_neighborID[0] == id
-				|| m_QuadruplePoints[j]->m_neighborID[1] == id
-				|| m_QuadruplePoints[j]->m_neighborID[2] == id) {
+		if (m_QuadruplePoints[j]->m_neighborIDs[0] == id
+				|| m_QuadruplePoints[j]->m_neighborIDs[1] == id
+				|| m_QuadruplePoints[j]->m_neighborIDs[2] == id) {
 			//			for (unsigned int i = 0;
 			//					i < m_QuadruplePoints[j]->m_Triangles.size(); i++) {
 			for (unsigned int i = 0; i
@@ -506,8 +503,8 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	}
 	//search in TripleJunctions
 	for (int j = 0; j < m_TripleLines.size(); j++) {
-		if (m_TripleLines[j]->m_neighborID[0] == id
-				|| m_TripleLines[j]->m_neighborID[1] == id) {
+		if (m_TripleLines[j]->m_neighborIDs[0] == id
+				|| m_TripleLines[j]->m_neighborIDs[1] == id) {
 			//			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size();
 			//					i++) {
 			for (unsigned int i = 0; i
@@ -527,7 +524,7 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	}
 	//search in GrainBoundaries:
 	for (int j = 0; j < m_Grainboundary.size(); j++) {
-		if (m_Grainboundary[j]->m_neighborID == id) {
+		if (m_Grainboundary[j]->m_neighborIDs[0] == id) {
 			//			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size();
 			//					i++) {
 			for (unsigned int i = 0; i

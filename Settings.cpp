@@ -239,7 +239,7 @@ void Settings::initializeParameters(string filename) {
 	}
 	if (0 != rootNode->first_node("PseudoPeriodic")) {
 		PseudoPeriodic = (bool) std::stoul(
-				rootNode->first_node("PseudiPeriodic")->value());
+				rootNode->first_node("PseudoPeriodic")->value());
 	}
 	file.close();
 	if (UseMagneticField == 1)

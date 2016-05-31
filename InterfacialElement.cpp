@@ -48,9 +48,9 @@ GrainBoundary::GrainBoundary(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
 	if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[0]) {
-		m_neighborID = m_owner->m_triangleNeighborLists[key].neighbors[0];
+		m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[0]);
 	} else
-		m_neighborID = m_owner->m_triangleNeighborLists[key].neighbors[1];
+		m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[1]);
 	computeMobility();
 	computeEnergy();
 }
@@ -59,14 +59,14 @@ GrainBoundary::~GrainBoundary() {
 
 void GrainBoundary::computeEnergy() {
 	LSbox* neighbor =
-			m_owner->m_owner->get_grainHandler()->grains[m_neighborID];
+			m_owner->m_owner->get_grainHandler()->grains[m_neighborIDs[0]];
 	double misori = m_owner->m_owner->computeMisorientation(neighbor);
 	m_energy = computeReadShockleyEnergy(misori);
 }
 
 void GrainBoundary::computeMobility() {
 	LSbox* neighbor =
-			m_owner->m_owner->get_grainHandler()->grains[m_neighborID];
+			m_owner->m_owner->get_grainHandler()->grains[m_neighborIDs[0]];
 	double misori = m_owner->m_owner->computeMisorientation(neighbor);
 	m_mobility = computeMobilityMisori(misori);
 }
@@ -77,8 +77,7 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 	int j = 0;
 	for (int i = 0; i < 3; i++) {
 		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
-			m_neighborID[j]
-					= m_owner->m_triangleNeighborLists[key].neighbors[i];
+			m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[i]);
 			j++;
 		}
 	}
@@ -87,8 +86,8 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 }
 TripleLine::TripleLine(int neighbor1, int neighbor2, GrainHull* owner) :
 	InterfacialElement(-1, owner) {
-	m_neighborID[0] = neighbor1;
-	m_neighborID[1] = neighbor2;
+	m_neighborIDs.push_back(neighbor1);
+	m_neighborIDs.push_back(neighbor2);
 	computeMobility();
 	computeEnergy();
 }
@@ -102,8 +101,8 @@ void TripleLine::computeEnergy() {
 	double theta_mis;
 	LSbox* me = m_owner->m_owner;
 	grainhdl* handler = m_owner->m_owner->get_grainHandler();
-	LSbox* neighborGrains[2] = { handler->getGrainByID(m_neighborID[0]),
-			handler->getGrainByID(m_neighborID[1]) };
+	LSbox* neighborGrains[2] = { handler->getGrainByID(m_neighborIDs[0]),
+			handler->getGrainByID(m_neighborIDs[1]) };
 	theta_mis = me->computeMisorientation(neighborGrains[0]);
 	gamma[0] = computeReadShockleyEnergy(theta_mis);
 
@@ -127,8 +126,8 @@ void TripleLine::computeMobility() {
 	double theta_mis;
 	LSbox* me = m_owner->m_owner;
 	grainhdl* handler = m_owner->m_owner->get_grainHandler();
-	LSbox* neighborGrains[2] = { handler->getGrainByID(m_neighborID[0]),
-			handler->getGrainByID(m_neighborID[1]) };
+	LSbox* neighborGrains[2] = { handler->getGrainByID(m_neighborIDs[0]),
+			handler->getGrainByID(m_neighborIDs[1]) };
 	theta_mis = me->computeMisorientation(neighborGrains[0]);
 	averageMobility += computeMobilityMisori(theta_mis);
 	theta_mis = neighborGrains[0]->computeMisorientation(neighborGrains[1]);
@@ -148,7 +147,7 @@ void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
 	int i = 0;
 for(const auto it : Junctions)
 {
-	if (it->get_FirstNeighbor() == m_neighborID || it->get_SecondNeighbor() == m_neighborID) {
+	if (it->get_FirstNeighbor() == m_neighborIDs[0] || it->get_SecondNeighbor() == m_neighborIDs[0]) {
 		m_edges.push_back(&(*it)); i++;
 		if(i==1) return;
 	}
@@ -159,8 +158,8 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 	int i = 0;
 	for(const auto it : JunctionsQ)
 	{
-		if (it->get_FirstNeighbor() == m_neighborID[0] || it->get_SecondNeighbor() == m_neighborID[0] || it->get_ThirdNeighbor() == m_neighborID[0])
-		if (it->get_FirstNeighbor() == m_neighborID[1] || it->get_SecondNeighbor() == m_neighborID[1] || it->get_ThirdNeighbor() == m_neighborID[1]) {
+		if (it->get_FirstNeighbor() == m_neighborIDs[0] || it->get_SecondNeighbor() == m_neighborIDs[0] || it->get_ThirdNeighbor() == m_neighborIDs[0])
+		if (it->get_FirstNeighbor() == m_neighborIDs[1] || it->get_SecondNeighbor() == m_neighborIDs[1] || it->get_ThirdNeighbor() == m_neighborIDs[1]) {
 			m_vertices.push_back(&(*it)); i++;
 			if(i==2) return;
 		}
@@ -171,12 +170,12 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		bool found_0 = false;
 		bool found_1 = false;
 		for(int k=0; k< neighborIDs.size(); k++) {
-			if(neighborIDs[k]==m_neighborID[0]) {
+			if(neighborIDs[k]==m_neighborIDs[0]) {
 				found_0 = true;
 			}
 		}
 		for(int k=0; k<neighborIDs.size(); k++) {
-			if(neighborIDs[k]==m_neighborID[1]) {
+			if(neighborIDs[k]==m_neighborIDs[1]) {
 				found_1 = true;
 			}
 		}
@@ -284,12 +283,26 @@ void HighOrderJunction::computeMobility() {
 	m_mobility = 1;
 }
 
-void HighOrderJunction::mergeWith(QuadrupleJunction* B) {
+void HighOrderJunction::mergeWith(InterfacialElement* B) {
+	m_Triangles.insert(m_Triangles.end(), B->get_Triangles()->begin(),
+			B->get_Triangles()->end());
+	m_barycenterTriangles.insert(m_barycenterTriangles.end(),
+			B->get_barycenterTriangles()->begin(),
+			B->get_barycenterTriangles()->end());
+	m_UnitNormalTriangles.insert(m_UnitNormalTriangles.end(),
+			B->get_UnitNormalTriangles()->begin(),
+			B->get_UnitNormalTriangles()->end());
 
-	computeMobility();
-	computeEnergy();
-}
-void HighOrderJunction::mergeWith(HighOrderJunction* B) {
+	//merge Neighbor IDs
+	for (auto it: B->get_NeighborIDs()) {
+		bool found = false;
+		for (auto it2 : m_neighborIDs) {
+			if(it2 == it)
+				found =true;
+		}
+		m_neighborIDs.push_back(it);
+	}
+	computePosition();
 	computeMobility();
 	computeEnergy();
 }
@@ -312,8 +325,7 @@ QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
 	int j = 0;
 	for (int i = 0; i < 4; i++) {
 		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
-			m_neighborID[j]
-					= m_owner->m_triangleNeighborLists[key].neighbors[i];
+			m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[i]);
 			j++;
 		}
 	}
@@ -326,9 +338,9 @@ QuadrupleJunction::~QuadrupleJunction() {
 
 void QuadrupleJunction::computeEnergy() {
 	//compute average weight for all possible Triplets
-	TripleLine T1(m_neighborID[0], m_neighborID[1], m_owner);
-	TripleLine T2(m_neighborID[1], m_neighborID[2], m_owner);
-	TripleLine T3(m_neighborID[0], m_neighborID[2], m_owner);
+	TripleLine T1(m_neighborIDs[0], m_neighborIDs[1], m_owner);
+	TripleLine T2(m_neighborIDs[1], m_neighborIDs[2], m_owner);
+	TripleLine T3(m_neighborIDs[0], m_neighborIDs[2], m_owner);
 	m_energy = (T1.get_energy() + T2.get_energy() + T3.get_energy()) / 3;
 }
 
