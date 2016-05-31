@@ -50,6 +50,7 @@ protected:
 	int ngrains;
 	double dt;
 	double h;
+	double TimeSlope;
 
 	int realDomainSize;
 	int ngridpoints;
@@ -128,6 +129,7 @@ public:
 	void plot_contour();
 	void gridCoarsement();
 	void updateGridAndTimeVariables(double newGridSize) ;
+	void tweakIDLocal();
 
 	void saveAllContourLines();
 	void saveNetworkState();

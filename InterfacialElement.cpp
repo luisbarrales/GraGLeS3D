@@ -185,7 +185,8 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 			if(i==2) return;
 		}
 	}
-	if(i!= 2){
+	//if(m_owner->getID() == 1){
+	if (i != 2) {
 		cout << "tripleline has not found two adjacent junctions." << endl;
 
 		ofstream str("tripleLine.vtk");
@@ -194,28 +195,66 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		str << "ASCII" << endl;
 		str << "DATASET POLYDATA" << endl;
 		str << endl;
-		str << "POINTS " << m_Triangles.size()*3 << " float" << endl;
-		for(int j=0; j<m_Triangles.size(); j++){
-			str << m_Triangles[j].points[0].x() << " " << m_Triangles[j].points[0].y() <<
-					" " << m_Triangles[j].points[0].z() << endl;
-			str << m_Triangles[j].points[1].x() << " " << m_Triangles[j].points[1].y() <<
-					" " << m_Triangles[j].points[1].z() << endl;
-			str << m_Triangles[j].points[2].x() << " " << m_Triangles[j].points[2].y() <<
-					" " << m_Triangles[j].points[2].z() << endl;
+		str << "POINTS " << m_Triangles.size() * 3 << " float" << endl;
+		for (int j = 0; j < m_Triangles.size(); j++) {
+			str << m_Triangles[j].points[0].x() << " "
+					<< m_Triangles[j].points[0].y() << " "
+					<< m_Triangles[j].points[0].z() << endl;
+			str << m_Triangles[j].points[1].x() << " "
+					<< m_Triangles[j].points[1].y() << " "
+					<< m_Triangles[j].points[1].z() << endl;
+			str << m_Triangles[j].points[2].x() << " "
+					<< m_Triangles[j].points[2].y() << " "
+					<< m_Triangles[j].points[2].z() << endl;
 		}
-		str << "POLYGONS " << m_Triangles.size() << " " << m_Triangles.size()*4 << endl;
+		str << "POLYGONS " << m_Triangles.size() << " " << m_Triangles.size()
+				* 4 << endl;
 
-		for(int j=0; j<m_Triangles.size(); j++){
-			str << "3 " << 3*j << " " << 3*j+1 << " " << 3*j+2 << endl;
+		for (int j = 0; j < m_Triangles.size(); j++) {
+			str << "3 " << 3 * j << " " << 3 * j + 1 << " " << 3 * j + 2
+					<< endl;
 		}
 		str.close();
 		int time = m_owner->m_owner->get_grainHandler()->get_loop();
-//		m_owner->plotContour(true,time);
+		//		m_owner->plotContour(true,time);
 	}
 
 	return;
 }
+//}
 
+HighOrderJunction::HighOrderJunction(QuadrupleJunction* A,
+		QuadrupleJunction* B, GrainHull *owner) :
+	InterfacialElement(A->get_m_Key_NeighborList(), owner) {
+	int currentID = owner->m_owner->getID();
+	m_neighborIDs.push_back(A->get_FirstNeighbor());
+	m_neighborIDs.push_back(A->get_SecondNeighbor());
+	m_neighborIDs.push_back(A->get_ThirdNeighbor());
+
+	bool neighbor = false;
+	for (int i = 0; i < 3; i++) {
+		if (m_neighborIDs[i] == B->get_FirstNeighbor())
+			neighbor = true;
+	}
+	if (neighbor == true)
+		m_neighborIDs.push_back(B->get_FirstNeighbor());
+	neighbor = false;
+	for (int i = 0; i < 3; i++) {
+		if (m_neighborIDs[i] == B->get_SecondNeighbor())
+			neighbor = true;
+	}
+	if (neighbor == true)
+		m_neighborIDs.push_back(B->get_SecondNeighbor());
+	neighbor = false;
+	for (int i = 0; i < 3; i++) {
+		if (m_neighborIDs[i] == B->get_ThirdNeighbor())
+			neighbor = true;
+	}
+	if (neighbor == true)
+		m_neighborIDs.push_back(B->get_ThirdNeighbor());
+	computeMobility();
+	computeEnergy();
+}
 
 HighOrderJunction::HighOrderJunction(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
@@ -245,12 +284,27 @@ void HighOrderJunction::computeMobility() {
 	m_mobility = 1;
 }
 
-void HighOrderJunction::computePosition(){
-	m_position = Vector3d(0,0,0);
-	for(int i=0; i<m_barycenterTriangles.size(); i++){
+void HighOrderJunction::mergeWith(QuadrupleJunction* B) {
+
+	computeMobility();
+	computeEnergy();
+}
+void HighOrderJunction::mergeWith(HighOrderJunction* B) {
+	computeMobility();
+	computeEnergy();
+}
+
+void HighOrderJunction::computePosition() {
+	m_position = Vector3d(0, 0, 0);
+	if (m_barycenterTriangles.size() <= 0) {
+		cout << "high order junction has no triangles" << endl;
+		char c;
+		cin >> c;
+	}
+	for (int i = 0; i < m_barycenterTriangles.size(); i++) {
 		m_position += m_barycenterTriangles[i];
 	}
-	m_position/= (double)m_barycenterTriangles.size();
+	m_position /= (double) m_barycenterTriangles.size();
 }
 QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
 	InterfacialElement(key, owner) {
@@ -283,11 +337,16 @@ void QuadrupleJunction::computeMobility() {
 	m_mobility = 1;
 }
 
-void QuadrupleJunction::computePosition(){
-	m_position = Vector3d(0,0,0);
-	for(int i=0; i<m_barycenterTriangles.size(); i++){
+void QuadrupleJunction::computePosition() {
+	m_position = Vector3d(0, 0, 0);
+	if (m_barycenterTriangles.size() <= 0) {
+		cout << "quadruple junction has no triangles" << endl;
+		char c;
+		cin >> c;
+	}
+	for (int i = 0; i < m_barycenterTriangles.size(); i++) {
 		m_position += m_barycenterTriangles[i];
 	}
-	m_position/= (double)m_barycenterTriangles.size();
+	m_position /= (double) m_barycenterTriangles.size();
 }
 

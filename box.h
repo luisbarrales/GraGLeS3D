@@ -142,7 +142,7 @@ public:
 
 	void resizeIDLocalToDistanceBuffer();
 	void recalculateIDLocal();
-
+	void setIDLocal(int ID);
 	//Debug printing functions
 	void plotBoxInterfacialElements(bool absoluteCoordinates = false);
 	void plotBoxContour(bool absoluteCoordinates = false);

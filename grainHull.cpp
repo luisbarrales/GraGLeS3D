@@ -29,7 +29,7 @@
 using namespace std;
 
 GrainHull::GrainHull(LSbox* owner) :
-		m_owner(owner) {
+	m_owner(owner) {
 }
 GrainHull::~GrainHull() {
 }
@@ -65,8 +65,8 @@ double GrainHull::computeSurfaceArea() {
 }
 
 const NeighborList& GrainHull::getNeighborList(const Triangle& triangle) {
-	if (triangle.additionalData < 0
-			|| triangle.additionalData >= m_triangleNeighborLists.size()) {
+	if (triangle.additionalData < 0 || triangle.additionalData
+			>= m_triangleNeighborLists.size()) {
 		throw runtime_error(
 				"Invalid additional data in triangle. Neighbor List unavailable!");
 	}
@@ -105,20 +105,23 @@ const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 
 void GrainHull::clearInterfacialElements() {
 	for (auto it : m_Grainboundary)
-		delete &(*it);
+	delete &(*it);
 	m_Grainboundary.clear();
 	for (auto it : m_TripleLines)
-		delete &(*it);
+	delete &(*it);
 	m_TripleLines.clear();
 	for (auto it : m_QuadruplePoints)
-		delete &(*it);
+	delete &(*it);
 	m_QuadruplePoints.clear();
 	for (auto it : m_HighOrderJunctions)
-		delete &(*it);
+	delete &(*it);
 	m_HighOrderJunctions.clear();
 }
 
 void GrainHull::computeGrainBoundaryElements() {
+	if (m_owner->getID() == 1)
+		int k;
+
 	clearInterfacialElements();
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
 		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
@@ -192,15 +195,22 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 }
 
 void GrainHull::computeInterfacialElementMesh() {
-	//TODO:
+
 	for (const auto it : m_QuadruplePoints) {
 		it->computePosition();
 	}
 	for (const auto it : m_HighOrderJunctions) {
 		it->computePosition();
 	}
+	//TODO:
+	//merge junction with infinitesimal distance:
+//	mergeJunction();
+
+	// check for infinitisimal short Triplelines, which could cause stability problmes in computation
 
 	for (const auto it : m_TripleLines) {
+		//TODO:
+		//is it possible to merge Triplelines with less than 1 vertice?
 		it->findAdjacentJunctions(m_QuadruplePoints, m_HighOrderJunctions);
 	}
 	for (const auto it : m_Grainboundary) {
@@ -225,139 +235,184 @@ void GrainHull::computeInterfacialElementMesh() {
 	/*
 	 * Calculate the normal vector of every triangle
 	 */
+	if (m_owner->getID() == 1) {
 
-	//m_normalVectors.clear();
-	m_normalVectors.resize(m_actualHull.size());
-	Vector3d normal_temp;
+		//m_normalVectors.clear();
+		m_normalVectors.resize(m_actualHull.size());
+		Vector3d normal_temp;
 
-	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-		normal_temp
-				= (m_actualHull[i].points[1] - m_actualHull[i].points[0]).cross(
-						(m_actualHull[i].points[2] - m_actualHull[i].points[0]));
-		if (normal_temp.norm() != 0)
-			normal_temp.normalize();
-		else {
-			//			cout << "vector has length 0" << endl;
-			//			cout << normal_temp.transpose() << endl;
-			//			cout << (m_actualHull[i].points[1] - m_actualHull[i].points[0]).transpose() << endl;
-			//			cout << (m_actualHull[i].points[2] - m_actualHull[i].points[0]).transpose() << endl;
+		for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+			normal_temp = (m_actualHull[i].points[1]
+					- m_actualHull[i].points[0]).cross(
+					(m_actualHull[i].points[2] - m_actualHull[i].points[0]));
+			if (normal_temp.norm() != 0)
+				normal_temp.normalize();
+			else {
+				//			cout << "vector has length 0" << endl;
+				//			cout << normal_temp.transpose() << endl;
+				//			cout << (m_actualHull[i].points[1] - m_actualHull[i].points[0]).transpose() << endl;
+				//			cout << (m_actualHull[i].points[2] - m_actualHull[i].points[0]).transpose() << endl;
+			}
+			m_normalVectors[i] = normal_temp;
 		}
-		m_normalVectors[i] = normal_temp;
-	}
-	/*
-	 * Save for every triangle the IDs of the neighbor-triangles
-	 */
+		/*
+		 * Save for every triangle the IDs of the neighbor-triangles
+		 */
 
-	vector<int> NeighborList[m_actualHull.size()];
+		vector<int> NeighborList[m_actualHull.size()];
 
-	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-		if (m_normalVectors[i].norm() == 0)
-			continue;
-		for (int j = 0; j < i; j++) {
-			if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
-				if (m_normalVectors[j].norm() != 0)
-					NeighborList[i].push_back(j);
-		}
-	}
-	/*
-	 * Calculate the mean width of the grain
-	 */
-
-	m_LD = 0;
-	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-		vector<int>* neighbor = &NeighborList[i];
-//		if(neighbor->size()!=3)
-//			cout << "Triangle has less or more than 3 neighbors " << neighbor->size() << endl;
-		for (unsigned int j = 0; j < neighbor->size(); j++) {
-			m_LD += m_actualHull[i].calculateMeanWidthComponent(
-					m_actualHull[(*neighbor)[j]], m_normalVectors[i],
-					m_normalVectors[(*neighbor)[j]]);
-		}
-	}
-	m_LD /= 2 * M_PI;
-	if (m_LD < 0)
-		m_LD *= -1;
-
-	/*
-	 * Calculate the length of the triple lines
-	 */
-
-	//	m_TripleLineLength = 0;
-	//	for (vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter
-	//			!= m_TripleLines.end(); ++iter) {
-	//		vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
-	//		m_TripleLineLength += (vertices_temp[0]->get_Position()
-	//				- vertices_temp[1]->get_Position()).norm();
-	//	}
-	if (m_owner->getID() == 3) {
-		vector<SPoint> ProjectedPoints;
-		for (const auto it2 : m_TripleLines) {
-			for (const auto itBary : it2->m_barycenterTriangles) {
-				SPoint newPoint((itBary)[0], (itBary)[2], (itBary)[1]);
-				SPoint projection = newPoint.projectPointToPlane(
-						SPoint(0, 0, 0.5), SPoint(1, 0, 0), SPoint(0, 1, 0));
-				ProjectedPoints.push_back(projection);
+		for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+			if (m_normalVectors[i].norm() == 0)
+				continue;
+			for (int j = 0; j < i; j++) {
+				if (m_actualHull[i].IsNeighbor(m_actualHull[j]))
+					if (m_normalVectors[j].norm() != 0)
+						NeighborList[i].push_back(j);
 			}
 		}
-		GrahamScan scanner(ProjectedPoints);
-		vector<SPoint> ConvexHull;
-		scanner.generateCovnexHull(ConvexHull);
+		/*
+		 * Calculate the mean width of the grain
+		 */
+
+		m_LD = 0;
+		for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+			vector<int>* neighbor = &NeighborList[i];
+			//		if(neighbor->size()!=3)
+			//			cout << "Triangle has less or more than 3 neighbors " << neighbor->size() << endl;
+			for (unsigned int j = 0; j < neighbor->size(); j++) {
+				m_LD += m_actualHull[i].calculateMeanWidthComponent(
+						m_actualHull[(*neighbor)[j]], m_normalVectors[i],
+						m_normalVectors[(*neighbor)[j]]);
+			}
+		}
+		m_LD /= 2 * M_PI;
+		if (m_LD < 0)
+			m_LD *= -1;
+
+		/*
+		 * Calculate the length of the triple lines
+		 */
+		double old_length = m_TripleLineLength;
 		m_TripleLineLength = 0;
-
-		for (vector<SPoint>::iterator it = ConvexHull.begin();
-				it != (--ConvexHull.end()); it++) {
-//			for (int it =0 ; it < ConvexHull.size()-1; it++) {
-			vector<SPoint>::iterator it2 = it + 1;
-			m_TripleLineLength += (*it).DistanceTo(*(it2));
-//			m_TripleLineLength += ConvexHull[it].DistanceTo(ConvexHull[it+1]);
+		for (vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter
+				!= m_TripleLines.end(); ++iter) {
+			vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
+//			if (vertices_temp[0] = NULL || vertices_temp[0] = NULL)
+//				continue;
+			m_TripleLineLength += (vertices_temp[0]->get_Position()
+					- vertices_temp[1]->get_Position()).norm();
 		}
-		unsigned long long timestep =
-				(unsigned long long) m_owner->get_grainHandler()->get_loop();
-		if (((timestep - Settings::StartTime)
-				% int(Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
-				|| timestep == Settings::NumberOfTimesteps) {
 
-			string filename = string("ConvexHull_") + to_string(timestep)
-					+ string(".gnu");
-			FILE* output = fopen(filename.c_str(), "wt");
-			for (const auto it : ConvexHull) {
-				std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
-			}
-			fclose(output);
+		/*	if(Settings::DecoupleGrains==0){
 
-			string filename1 = string("ProjectedPoints_")
-					+ to_string((unsigned long long) timestep) + string(".gnu");
-			FILE* output1 = fopen(filename1.c_str(), "wt");
+		 vector<SPoint> ProjectedPoints;
+		 for (const auto it2 : m_TripleLines) {
+		 for (const auto itBary : it2->m_barycenterTriangles) {
+		 SPoint newPoint((itBary)[0], (itBary)[2], (itBary)[1]);
+		 SPoint projection = newPoint.projectPointToPlane(
+		 SPoint(0, 0, 0.5), SPoint(1, 0, 0), SPoint(0, 1, 0));
+		 ProjectedPoints.push_back(projection);
+		 }
+		 }
+		 GrahamScan scanner(ProjectedPoints);
+		 vector<SPoint> ConvexHull;
+		 scanner.generateCovnexHull(ConvexHull);
+		 m_TripleLineLength = 0;
 
-			for (const auto it : ProjectedPoints) {
-				fprintf(output, "%lf \t %lf \n", it.x, it.y);
-			}
-			fclose(output1);
-		}
-//		int timestep = m_owner->get_grainHandler()->get_loop();
-//		if (((timestep - Settings::StartTime) % int(
-//				Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
-//				|| timestep == Settings::NumberOfTimesteps) {
-//
-//			string filename = string("ConvexHull_") + to_string(timestep)
-//					+ string(".gnu");
-//			FILE* output = fopen(filename.c_str(), "wt");
-//			for (const auto it : ConvexHull) {
-//				std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
-//			}
-//			fclose(output);
-//
-//			string filename1 = string("ProjectedPoints_") + to_string(
-//					(unsigned long long) timestep) + string(".gnu");
-//			FILE* output1 = fopen(filename1.c_str(), "wt");
-//
-//			for (const auto it : ProjectedPoints) {
-//				fprintf(output, "%lf \t %lf \n", it.x, it.y);
-//			}
-//			fclose(output1);
-//		}
-//	}
+		 for (vector<SPoint>::iterator it = ConvexHull.begin();
+		 it != (--ConvexHull.end()); it++) {
+		 //			for (int it =0 ; it < ConvexHull.size()-1; it++) {
+		 vector<SPoint>::iterator it2 = it + 1;
+		 m_TripleLineLength += (*it).DistanceTo(*(it2));
+		 //			m_TripleLineLength += ConvexHull[it].DistanceTo(ConvexHull[it+1]);
+		 }
+		 unsigned long long timestep =
+		 (unsigned long long) m_owner->get_grainHandler()->get_loop();
+		 if (((timestep - Settings::StartTime)
+		 % int(Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+		 || timestep == Settings::NumberOfTimesteps) {
+
+		 string filename = string("ConvexHull_") + to_string(timestep)
+		 + string(".gnu");
+		 FILE* output = fopen(filename.c_str(), "wt");
+		 for (const auto it : ConvexHull) {
+		 std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+		 }
+		 fclose(output);
+
+		 string filename1 = string("ProjectedPoints_")
+		 + to_string((unsigned long long) timestep) + string(".gnu");
+		 FILE* output1 = fopen(filename1.c_str(), "wt");
+
+		 for (const auto it : ProjectedPoints) {
+		 fprintf(output, "%lf \t %lf \n", it.x, it.y);
+		 }
+		 fclose(output1);
+		 }*/
+
+		//		int timestep = m_owner->get_grainHandler()->get_loop();
+		//		if (((timestep - Settings::StartTime) % int(
+		//				Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+		//				|| timestep == Settings::NumberOfTimesteps) {
+		//
+		//			string filename = string("ConvexHull_") + to_string(timestep)
+		//					+ string(".gnu");
+		//			FILE* output = fopen(filename.c_str(), "wt");
+		//			for (const auto it : ConvexHull) {
+		//				std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+		//			}
+		//			fclose(output);
+		//
+		//			string filename1 = string("ProjectedPoints_") + to_string(
+		//					(unsigned long long) timestep) + string(".gnu");
+		//			FILE* output1 = fopen(filename1.c_str(), "wt");
+		//
+		//			for (const auto it : ProjectedPoints) {
+		//				fprintf(output, "%lf \t %lf \n", it.x, it.y);
+		//			}
+		//			fclose(output1);
+		//		}
+
+	}
 }
+
+void GrainHull::mergeJunction() {
+	double h = m_owner->get_grainHandler()->get_h();
+	for (int i = 0; i <= m_QuadruplePoints.size(); i++) {
+		for (int j = i + 1; j <= m_QuadruplePoints.size(); j++) {
+			if ((m_QuadruplePoints[i]->get_Position()
+					- m_QuadruplePoints[j]->get_Position()).norm() < 3 * h) {
+				//create new high order junction / delete old
+				HighOrderJunction* newHJ = new HighOrderJunction(
+						m_QuadruplePoints[i], m_QuadruplePoints[j], this);
+				m_HighOrderJunctions.push_back(newHJ);
+				delete m_QuadruplePoints[i];
+				delete m_QuadruplePoints[j];
+				m_QuadruplePoints.erase (m_QuadruplePoints.begin()+i);
+				m_QuadruplePoints.erase (m_QuadruplePoints.begin()+j-1);
+			}
+		}
+		for (int k = 0; k <= m_HighOrderJunctions.size(); k++) {
+			if ((m_QuadruplePoints[i]->get_Position()
+					- m_HighOrderJunctions[k]->get_Position()).norm() < 3 * h) {
+				// add Quadruple Junction to existing high order junction
+				m_HighOrderJunctions[k]->mergeWith(m_QuadruplePoints[i]);
+				delete m_QuadruplePoints[i];
+				m_QuadruplePoints.erase (m_QuadruplePoints.begin()+i);
+			}
+		}
+	}
+	for (int i = 0; i <= m_HighOrderJunctions.size(); i++) {
+		for (int k = i + 1; k <= m_HighOrderJunctions.size(); k++) {
+			if ((m_QuadruplePoints[i]->get_Position()
+					- m_HighOrderJunctions[k]->get_Position()).norm() < 3 * h) {
+				// add Quadruple Junction to existing high order junction
+				m_HighOrderJunctions[k]->mergeWith((m_HighOrderJunctions[i]));
+				delete m_HighOrderJunctions[i];
+				m_HighOrderJunctions.erase (m_HighOrderJunctions.begin()+i);
+			}
+		}
+	}
 }
 GrainBoundary* GrainHull::findGrainBoundary(int key) {
 	for (const auto it : m_Grainboundary) {
@@ -376,6 +431,7 @@ TripleLine* GrainHull::findTripleLine(int key) {
 	}
 	return NULL;
 }
+
 QuadrupleJunction* GrainHull::findQuadrupleJunction(int key) {
 
 	for (const auto it : m_QuadruplePoints) {
@@ -402,23 +458,22 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 
 	for (int j = 0; j < m_HighOrderJunctions.size(); j++) {
 		bool found = false;
-		for (int i = 0; i < m_HighOrderJunctions[j]->m_neighborIDs.size();
-				i++) {
+		for (int i = 0; i < m_HighOrderJunctions[j]->m_neighborIDs.size(); i++) {
 			if (m_HighOrderJunctions[j]->m_neighborIDs[i] == id)
 				found = true;
 		}
 		if (found) {
-//			for (unsigned int i = 0; i
-//					< m_HighOrderJunctions[j]->m_Triangles.size(); i++) {
-			for (unsigned int i = 0;
-					i < m_HighOrderJunctions[j]->m_barycenterTriangles.size();
-					i++) {
-//				double distance = pointToTriangleDistance(point,
-//						m_HighOrderJunctions[j]->m_Triangles[i]);
+			//			for (unsigned int i = 0; i
+			//					< m_HighOrderJunctions[j]->m_Triangles.size(); i++) {
+			for (unsigned int i = 0; i
+					< m_HighOrderJunctions[j]->m_barycenterTriangles.size(); i++) {
+				//				double distance = pointToTriangleDistance(point,
+				//						m_HighOrderJunctions[j]->m_Triangles[i]);
 
-				double distance =
-						(point
-								- m_HighOrderJunctions[j]->m_barycenterTriangles[i]).squaredNorm();
+				double
+						distance =
+								(point
+										- m_HighOrderJunctions[j]->m_barycenterTriangles[i]).squaredNorm();
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
 					weight = m_HighOrderJunctions[j]->get_GBInfo();
@@ -432,15 +487,16 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 		if (m_QuadruplePoints[j]->m_neighborID[0] == id
 				|| m_QuadruplePoints[j]->m_neighborID[1] == id
 				|| m_QuadruplePoints[j]->m_neighborID[2] == id) {
-//			for (unsigned int i = 0;
-//					i < m_QuadruplePoints[j]->m_Triangles.size(); i++) {
-			for (unsigned int i = 0;
-					i < m_QuadruplePoints[j]->m_barycenterTriangles.size();
-					i++) {
-//				double distance = pointToTriangleDistance(point,
-//						m_QuadruplePoints[j]->m_Triangles[i]);
-				double distance =
-						(point - m_QuadruplePoints[j]->m_barycenterTriangles[i]).squaredNorm();
+			//			for (unsigned int i = 0;
+			//					i < m_QuadruplePoints[j]->m_Triangles.size(); i++) {
+			for (unsigned int i = 0; i
+					< m_QuadruplePoints[j]->m_barycenterTriangles.size(); i++) {
+				//				double distance = pointToTriangleDistance(point,
+				//						m_QuadruplePoints[j]->m_Triangles[i]);
+				double
+						distance =
+								(point
+										- m_QuadruplePoints[j]->m_barycenterTriangles[i]).squaredNorm();
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
 					weight = m_QuadruplePoints[j]->get_GBInfo();
@@ -452,14 +508,16 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	for (int j = 0; j < m_TripleLines.size(); j++) {
 		if (m_TripleLines[j]->m_neighborID[0] == id
 				|| m_TripleLines[j]->m_neighborID[1] == id) {
-//			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size();
-//					i++) {
-			for (unsigned int i = 0;
-					i < m_TripleLines[j]->m_barycenterTriangles.size(); i++) {
-//				double distance = pointToTriangleDistance(point,
-//						m_TripleLines[j]->m_Triangles[i]);
-				double distance =
-						(point - m_TripleLines[j]->m_barycenterTriangles[i]).squaredNorm();
+			//			for (unsigned int i = 0; i < m_TripleLines[j]->m_Triangles.size();
+			//					i++) {
+			for (unsigned int i = 0; i
+					< m_TripleLines[j]->m_barycenterTriangles.size(); i++) {
+				//				double distance = pointToTriangleDistance(point,
+				//						m_TripleLines[j]->m_Triangles[i]);
+				double
+						distance =
+								(point
+										- m_TripleLines[j]->m_barycenterTriangles[i]).squaredNorm();
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
 					weight = m_TripleLines[j]->get_GBInfo();
@@ -470,14 +528,16 @@ GBInfo GrainHull::projectPointToGrainBoundary(Vector3d& point, int id) {
 	//search in GrainBoundaries:
 	for (int j = 0; j < m_Grainboundary.size(); j++) {
 		if (m_Grainboundary[j]->m_neighborID == id) {
-//			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size();
-//					i++) {
-			for (unsigned int i = 0;
-					i < m_Grainboundary[j]->m_barycenterTriangles.size(); i++) {
-//				double distance = pointToTriangleDistance(point,
-//						m_Grainboundary[j]->m_Triangles[i]);
-				double distance =
-						(point - m_Grainboundary[j]->m_barycenterTriangles[i]).squaredNorm();
+			//			for (unsigned int i = 0; i < m_Grainboundary[j]->m_Triangles.size();
+			//					i++) {
+			for (unsigned int i = 0; i
+					< m_Grainboundary[j]->m_barycenterTriangles.size(); i++) {
+				//				double distance = pointToTriangleDistance(point,
+				//						m_Grainboundary[j]->m_Triangles[i]);
+				double
+						distance =
+								(point
+										- m_Grainboundary[j]->m_barycenterTriangles[i]).squaredNorm();
 				if (distance < minimalDistance) {
 					minimalDistance = distance;
 					weight = m_Grainboundary[j]->get_GBInfo();
@@ -538,14 +598,8 @@ double pointToTriangleDistance(Vector3d& point, Triangle& triangle) {
 
 struct vectorComparator {
 	bool operator()(const Vector3d& a, const Vector3d& b) const {
-		return a[0] < b[0] ?
-				true :
-				(a[0] > b[0] ?
-						false :
-						(a[1] < b[1] ?
-								true :
-								(a[1] > b[1] ?
-										false : (a[2] < b[2] ? true : false))));
+		return a[0] < b[0] ? true : (a[0] > b[0] ? false : (a[1] < b[1] ? true
+				: (a[1] > b[1] ? false : (a[2] < b[2] ? true : false))));
 	}
 };
 
@@ -631,19 +685,18 @@ struct vectorComparator {
 //}
 
 void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
-	string filename = string("GrainHull_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
+	string filename = string("GrainHull_") + to_string(
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save box hull!");
 	}
 
 	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-			"vtk output\n"
-			"ASCII\n"
-			"DATASET POLYDATA\n");
+		"vtk output\n"
+		"ASCII\n"
+		"DATASET POLYDATA\n");
 
 	int counter = 0;
 	map<Vector3d, int, vectorComparator> mymap;
@@ -652,21 +705,20 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 		if (mymap.find(m_actualHull[i].points[0]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[0], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[0], counter));
 			counter++;
 		}
 		if (mymap.find(m_actualHull[i].points[1]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[1], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[1], counter));
 			counter++;
 		}
 		if (mymap.find(m_actualHull[i].points[2]) == mymap.end()) {
 			mymap.insert(
-					pair<Vector3d, int>(m_actualHull[i].points[2], counter));
+					pair<Vector3d, int> (m_actualHull[i].points[2], counter));
 			counter++;
 		}
-	}
-	for (const auto &myPair : mymap) {
+	}for (const auto &myPair : mymap) {
 		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
 	}
 
@@ -700,7 +752,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 					|| point == m_actualHull[i].points[2]) {
 				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
 				int interactingGrains =
-						m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+				m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
 				key = m_actualHull[i].additionalData;
 				//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
 				//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
@@ -713,13 +765,11 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	}
 	fclose(output);
 }
-void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
-		int timestep) {
+void GrainHull::plotInterfacialElements(bool absoluteCoordinates, int timestep) {
 	int ID = 0;
-	string filename = string("InterfacialElements_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
+	string filename = string("InterfacialElements_") + to_string(
+			(unsigned long long) m_owner->getID()) + string("Timestep_")
+			+ to_string((unsigned long long) timestep) + string(".vtk");
 	FILE* output = fopen(filename.c_str(), "wt");
 	if (output == NULL) {
 		throw runtime_error("Unable to save Interfacialelements hull!");
@@ -727,33 +777,33 @@ void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
 
 	fprintf(output, "\n\nGRAINBOUNDARY %lu\n", m_Grainboundary.size());
 
-	for (const auto it : m_Grainboundary) {
-		fprintf(output, "\n\nGRAINBOUNDARY \n");
-		for (const auto it2 : it->m_barycenterTriangles) {
-			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it2[0], it2[1],
-					it2[2], ID);
+for (const auto it : m_Grainboundary) {
+	fprintf(output, "\n\nGRAINBOUNDARY \n");
+	for (const auto it2 : it->m_barycenterTriangles) {
+		fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it2[0], it2[1],
+				it2[2], ID);
+	}
+	ID++;
+	fprintf(output, "\n\nEDGES %lu\n", it->m_edges.size());
+	for (const auto it3 : it->m_edges) {
+		fprintf(output, "\n\nEDGES \n");
+		for (const auto it4 : it3->m_barycenterTriangles) {
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it4[0], it4[1],
+					it4[2], ID);
 		}
 		ID++;
-		fprintf(output, "\n\nEDGES %lu\n", it->m_edges.size());
-		for (const auto it3 : it->m_edges) {
-			fprintf(output, "\n\nEDGES \n");
-			for (const auto it4 : it3->m_barycenterTriangles) {
-				fprintf(output, "%lf \t %lf \t %lf \t %d \n ", it4[0], it4[1],
-						it4[2], ID);
-			}
+
+		for (const auto it5 : it3->m_vertices) {
+			fprintf(output, "\n\nVERTICES \n");
+			Vector3d point = it5->get_Position();
+			fprintf(output, "%lf \t %lf \t %lf \t %d \n ", point[0],
+					point[1], point[2], ID);
 			ID++;
-
-			for (const auto it5 : it3->m_vertices) {
-				fprintf(output, "\n\nVERTICES \n");
-				Vector3d point = it5->get_Position();
-				fprintf(output, "%lf \t %lf \t %lf \t %d \n ", point[0],
-						point[1], point[2], ID);
-				ID++;
-			}
-
 		}
 
 	}
+
+}
 }
 
 /*		fprintf(output, "\n\nTRIPLELINES %lu\n", m_TripleLines.size());

@@ -67,6 +67,7 @@ public:
 	void clearInterfacialElements();
 	void computeGrainBoundaryElements();
 	void subDivideTrianglesToInterfacialElements();
+	void mergeJunction();
 	void computeInterfacialElementMesh();
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
