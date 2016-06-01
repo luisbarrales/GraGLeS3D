@@ -294,8 +294,8 @@ void GrainHull::computeInterfacialElementMesh() {
 		for (vector<TripleLine*>::iterator iter = m_TripleLines.begin(); iter
 				!= m_TripleLines.end(); ++iter) {
 			vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
-			//			if (vertices_temp[0] = NULL || vertices_temp[0] = NULL)
-			//				continue;
+			if (vertices_temp[0] == NULL || vertices_temp[1] == NULL)
+				continue;
 			m_TripleLineLength += (vertices_temp[0]->get_Position()
 					- vertices_temp[1]->get_Position()).norm();
 		}
