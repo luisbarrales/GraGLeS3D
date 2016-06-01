@@ -915,30 +915,30 @@ void LSbox::boundaryCondition() {
 	double distYMin, distYMax, distY, distZ;
 	double dist = 0;
 //<<<<<<< HEAD
-//	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
-//			k++) {
-//		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
-//				i++) {
-//			for (int j = m_inputDistance->getMinX();
-//					j < m_inputDistance->getMaxX(); j++) {
-//				distXMin = -(j - grid_blowup);
-//				distYMin = -(i - grid_blowup);
-//				distZMin = -(k - grid_blowup);
-//				distXMax = (j - (m - 1 - grid_blowup));
-//				distYMax = (i - (m - 1 - grid_blowup));
-//				distZMax = (k - (m - 1 - grid_blowup));
-//=======
-	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
-		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
-			for (int j = m_inputDistance->getMinX(); j
-					< m_inputDistance->getMaxX(); j++) {
-				distXMin = -(j - grid_blowup - 1);
-				distYMin = -(i - grid_blowup - 1);
-				distZMin = -(k - grid_blowup - 1);
-				distXMax = (j - (m - grid_blowup));
-				distYMax = (i - (m - grid_blowup));
-				distZMax = (k - (m - grid_blowup));
-//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
+	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
+			k++) {
+		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
+				i++) {
+			for (int j = m_inputDistance->getMinX();
+					j < m_inputDistance->getMaxX(); j++) {
+				distXMin = -(j - grid_blowup);
+				distYMin = -(i - grid_blowup);
+				distZMin = -(k - grid_blowup);
+				distXMax = (j - (m - 1 - grid_blowup));
+				distYMax = (i - (m - 1 - grid_blowup));
+				distZMax = (k - (m - 1 - grid_blowup));
+////=======
+//	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ(); k++) {
+//		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
+//			for (int j = m_inputDistance->getMinX(); j
+//					< m_inputDistance->getMaxX(); j++) {
+//				distXMin = -(j - grid_blowup - 1);
+//				distYMin = -(i - grid_blowup - 1);
+//				distZMin = -(k - grid_blowup - 1);
+//				distXMax = (j - (m - grid_blowup));
+//				distYMax = (i - (m - grid_blowup));
+//				distZMax = (k - (m - grid_blowup));
+////>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 
 				if (abs(distXMin) < abs(distXMax))
 					distX = distXMin;

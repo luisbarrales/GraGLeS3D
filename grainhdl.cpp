@@ -226,7 +226,7 @@ void grainhdl::VOROMicrostructure() {
 
 	grains.resize(Settings::NumberOfParticles + 1);
 
-	bool randbedingung = false; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
+	bool randbedingung = true; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
 	if (randbedingung == false)
 		realDomainSize -= 1;
 
@@ -252,59 +252,60 @@ void grainhdl::VOROMicrostructure() {
 		}
 		/**********************************************************/
 	} else {
-		//Randomly add particles into the container
+		//		//Randomly add particles into the container
+		//		for (int i = 0; i < ngrains; i++) {
+		//			double x = rnd();
+		//			double y = rnd();
+		//			double z = rnd();
+		//			con.put(i, x, y, z);
+		//		}
+		//		/**********************************************************/
+		//
+		//	}
+		double x, y, z;
 		for (int i = 0; i < ngrains; i++) {
-			double x = rnd();
-			double y = rnd();
-			double z = rnd();
+			//double x = rnd();
+			//double y = rnd();
+			//double z = rnd();
+			if (i == 0) {
+				x = 0.5;
+				y = 0.5;
+				z = 0.5;
+			} else if (i == 1) {
+				x = 0.25;
+				y = 0.25;
+				z = 0.25;
+			} else if (i == 2) {
+				x = 0.75;
+				y = 0.25;
+				z = 0.25;
+			} else if (i == 3) {
+				x = 0.25;
+				y = 0.75;
+				z = 0.25;
+			} else if (i == 4) {
+				x = 0.75;
+				y = 0.75;
+				z = 0.25;
+			} else if (i == 5) {
+				x = 0.25;
+				y = 0.25;
+				z = 0.75;
+			} else if (i == 6) {
+				x = 0.25;
+				y = 0.75;
+				z = 0.75;
+			} else if (i == 7) {
+				x = 0.75;
+				y = 0.25;
+				z = 0.75;
+			} else if (i == 8) {
+				x = 0.75;
+				y = 0.75;
+				z = 0.75;
+			}
 			con.put(i, x, y, z);
 		}
-		/**********************************************************/
-
-	}
-	double x, y, z;
-	for (int i = 0; i < ngrains; i++) {
-		//double x = rnd();
-		//double y = rnd();
-		//double z = rnd();
-		if (i == 0) {
-			x = 0.5;
-			y = 0.5;
-			z = 0.5;
-		} else if (i == 1) {
-			x = 0.25;
-			y = 0.25;
-			z = 0.25;
-		} else if (i == 2) {
-			x = 0.75;
-			y = 0.25;
-			z = 0.25;
-		} else if (i == 3) {
-			x = 0.25;
-			y = 0.75;
-			z = 0.25;
-		} else if (i == 4) {
-			x = 0.75;
-			y = 0.75;
-			z = 0.25;
-		} else if (i == 5) {
-			x = 0.25;
-			y = 0.25;
-			z = 0.75;
-		} else if (i == 6) {
-			x = 0.25;
-			y = 0.75;
-			z = 0.75;
-		} else if (i == 7) {
-			x = 0.75;
-			y = 0.25;
-			z = 0.75;
-		} else if (i == 8) {
-			x = 0.75;
-			y = 0.75;
-			z = 0.75;
-		}
-		con.put(i, x, y, z);
 	}
 	vector < vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
@@ -337,15 +338,15 @@ void grainhdl::VOROMicrostructure() {
 					z = double((k - grid_blowup) * h);
 
 					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-//<<<<<<< HEAD
-//							|| i >= ngridpoints - 1 - grid_blowup
-//							|| j >= ngridpoints - 1 - grid_blowup
-//							|| k >= ngridpoints - 1 - grid_blowup) {
-//=======
+					//<<<<<<< HEAD
+							//							|| i >= ngridpoints - 1 - grid_blowup
+							//							|| j >= ngridpoints - 1 - grid_blowup
+							//							|| k >= ngridpoints - 1 - grid_blowup) {
+							//=======
 							|| i >= ngridpoints - grid_blowup || j
 							>= ngridpoints - grid_blowup || k >= ngridpoints
 							- grid_blowup) {
-//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
+						//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						IDField->setValueAt(i, j, k, 0);
 					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
 							cell_id)) {
@@ -493,16 +494,16 @@ void grainhdl::read_voxelized_microstructure() {
 	for (int k = 0; k < ngridpoints; k++) {
 		for (int i = 0; i < ngridpoints; i++) {
 			for (int j = 0; j < ngridpoints; j++) {
-//<<<<<<< HEAD
-//				if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-//						|| i >= ngridpoints - 1 - grid_blowup
-//						|| j >= ngridpoints - 1 - grid_blowup
-//						|| k >= ngridpoints - 1 - grid_blowup)
-//=======
+				//<<<<<<< HEAD
+				//				if (i < grid_blowup || j < grid_blowup || k < grid_blowup
+				//						|| i >= ngridpoints - 1 - grid_blowup
+				//						|| j >= ngridpoints - 1 - grid_blowup
+				//						|| k >= ngridpoints - 1 - grid_blowup)
+				//=======
 				if (i < grid_blowup || j < grid_blowup || k < grid_blowup || i
 						>= ngridpoints - grid_blowup || j >= ngridpoints
 						- grid_blowup || k >= ngridpoints - grid_blowup)
-//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
+					//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 					IDField->setValueAt(i, j, k, 0);
 				else {
 					int box_id;
@@ -1189,7 +1190,7 @@ void grainhdl::gridCoarsement() {
 	if (newSize >= realDomainSize || Settings::GridCoarsement == 0) {
 		switchDistancebuffer();
 	} else {
-		double h_old = h;	
+		double h_old = h;
 		updateGridAndTimeVariables(newSize);
 		cout << "coarsing the current grid in Timestep: " << loop << endl;
 		cout << "newSize :" << newSize << endl << endl;
@@ -1197,14 +1198,14 @@ void grainhdl::gridCoarsement() {
 		{
 			vector<unsigned int>& workload =
 					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-			for (auto id : workload) {
-				if (id <= Settings::NumberOfParticles)
-					if (grains[id] == NULL)
-						continue;
-				
-				grains[id]->resizeGrid(newSize,h_old);
+for		(auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+			if (grains[id] == NULL)
+			continue;
 
-			}
+			grains[id]->resizeGrid(newSize,h_old);
+
+		}
 
 	}
 	//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8

@@ -76,6 +76,9 @@ public:
 	inline vector<Triangle>* get_Triangles() {
 		return &m_Triangles;
 	}
+	inline Triangle get_Triangles(int i) {
+		return m_Triangles[i];
+	}
 	inline vector<Vector3d>* get_barycenterTriangles() {
 		return &m_barycenterTriangles;
 	}

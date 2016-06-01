@@ -74,11 +74,9 @@ void GrainBoundary::computeMobility() {
 TripleLine::TripleLine(int key, GrainHull *owner) :
 	InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
-	int j = 0;
 	for (int i = 0; i < 3; i++) {
 		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
 			m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[i]);
-			j++;
 		}
 	}
 	computeMobility();
@@ -186,9 +184,10 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 	}
 	//if(m_owner->getID() == 1){
 	if (i != 2) {
-		cout << "tripleline has not found two adjacent junctions." << endl;
-
-		ofstream str("tripleLine.vtk");
+		cout << "Tripleline has not found two adjacent junctions. Grain ID:"<< m_owner->m_owner->getID() << endl;
+		string filename = string("Defect_Tripleline_") + to_string(
+					(unsigned long long) m_Key_NeighborList) + string(".vtk");
+		ofstream str(filename.c_str());
 		str << "# vtk DataFile Version 3.0" << endl;
 		str << "The normal vectors of the surface" << endl;
 		str << "ASCII" << endl;
@@ -214,8 +213,41 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 					<< endl;
 		}
 		str.close();
-		int time = m_owner->m_owner->get_grainHandler()->get_loop();
+		//int time = m_owner->m_owner->get_grainHandler()->get_loop();
 		//		m_owner->plotContour(true,time);
+		cout << m_owner->m_TripleLines.size() << endl;
+		for(auto it : m_owner->m_TripleLines){
+			if(it->get_m_Key_NeighborList() ==0)
+				cout << it->get_m_Key_NeighborList() << " || " << it->get_NeighborIDs()[0] << " || " << it->get_NeighborIDs()[1] << " || " << it->get_NeighborIDs()[2] << " || " << endl;
+			string filename = string("Tripleline_") + to_string(
+								(unsigned long long) it->get_m_Key_NeighborList()) + string(".vtk");
+					ofstream str(filename.c_str());
+					str << "# vtk DataFile Version 3.0" << endl;
+					str << "The normal vectors of the surface" << endl;
+					str << "ASCII" << endl;
+					str << "DATASET POLYDATA" << endl;
+					str << endl;
+					str << "POINTS " << it->get_Triangles()->size() * 3 << " float" << endl;
+					for (int j = 0; j < it->get_Triangles()->size(); j++) {
+						str << it->get_Triangles(j).points[0].x() << " "
+								<< it->get_Triangles(j).points[0].y() << " "
+								<< it->get_Triangles(j).points[0].z() << endl;
+						str << it->get_Triangles(j).points[1].x() << " "
+								<< it->get_Triangles(j).points[1].y() << " "
+								<< it->get_Triangles(j).points[1].z() << endl;
+						str << it->get_Triangles(j).points[2].x() << " "
+								<< it->get_Triangles(j).points[2].y() << " "
+								<< it->get_Triangles(j).points[2].z() << endl;
+					}
+					str << "POLYGONS " << it->get_Triangles()->size() << " " << it->get_Triangles()->size()
+							* 4 << endl;
+
+					for (int j = 0; j < it->get_Triangles()->size(); j++) {
+						str << "3 " << 3 * j << " " << 3 * j + 1 << " " << 3 * j + 2
+								<< endl;
+					}
+					str.close();
+		}
 	}
 
 	return;
@@ -229,6 +261,27 @@ HighOrderJunction::HighOrderJunction(QuadrupleJunction* A,
 	m_neighborIDs.push_back(A->get_FirstNeighbor());
 	m_neighborIDs.push_back(A->get_SecondNeighbor());
 	m_neighborIDs.push_back(A->get_ThirdNeighbor());
+	m_Triangles.reserve( A->get_Triangles()->size() + B->get_Triangles()->size() );
+	m_Triangles.insert(m_Triangles.end(), A->get_Triangles()->begin(),
+			A->get_Triangles()->end());
+	m_barycenterTriangles.reserve( A->get_barycenterTriangles()->size() + B->get_barycenterTriangles()->size() );
+	m_barycenterTriangles.insert(m_barycenterTriangles.end(),
+			A->get_barycenterTriangles()->begin(),
+			A->get_barycenterTriangles()->end());
+
+	m_UnitNormalTriangles.reserve( A->get_UnitNormalTriangles()->size() + B->get_UnitNormalTriangles()->size() );
+	m_UnitNormalTriangles.insert(m_UnitNormalTriangles.end(),
+			A->get_UnitNormalTriangles()->begin(),
+			A->get_UnitNormalTriangles()->end());
+	m_Triangles.insert(m_Triangles.end(), B->get_Triangles()->begin(),
+			B->get_Triangles()->end());
+	m_barycenterTriangles.insert(m_barycenterTriangles.end(),
+			B->get_barycenterTriangles()->begin(),
+			B->get_barycenterTriangles()->end());
+	m_UnitNormalTriangles.insert(m_UnitNormalTriangles.end(),
+			B->get_UnitNormalTriangles()->begin(),
+			B->get_UnitNormalTriangles()->end());
+
 
 	bool neighbor = false;
 	for (int i = 0; i < 3; i++) {
@@ -251,6 +304,8 @@ HighOrderJunction::HighOrderJunction(QuadrupleJunction* A,
 	}
 	if (neighbor == true)
 		m_neighborIDs.push_back(B->get_ThirdNeighbor());
+
+	computePosition();
 	computeMobility();
 	computeEnergy();
 }

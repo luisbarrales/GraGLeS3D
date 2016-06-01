@@ -399,7 +399,7 @@ void GrainHull::mergeJunction() {
 			}
 		}
 	}
-	for (int i = 0; i < m_HighOrderJunctions.size(); i++) {
+	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 		for (int k = i + 1; k < m_HighOrderJunctions.size(); k++) {
 			if ((m_QuadruplePoints[i]->get_Position()
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 3 * h) {
