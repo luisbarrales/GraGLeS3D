@@ -769,16 +769,6 @@ void grainhdl::run_sim() {
 					}
 				}
 			}
-			Realtime += (dt * (Settings::Physical_Domain_Size
-					* Settings::Physical_Domain_Size) / (/*TimeSlope
-			 * */Settings::HAGB_Energy * Settings::HAGB_Mobility)); // correction ok?
-			if (currentNrGrains < Settings::BreakupNumber) {
-				cout
-						<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
-						<< "Remaining Grains: " << currentNrGrains
-						<< ". Break and save." << endl;
-				break;
-			}
 		}
 		Realtime += (dt * (Settings::Physical_Domain_Size
 				* Settings::Physical_Domain_Size) / (TimeSlope
