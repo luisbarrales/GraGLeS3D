@@ -386,7 +386,7 @@ void grainhdl::read_voxelized_microstructure() {
 	char c;
 	string name;
 	char buffer[100];
-	int I_D;
+	int ID_offset;
 	int DX, DY, DZ;
 	int NX, NY, NZ;
 
@@ -398,7 +398,7 @@ void grainhdl::read_voxelized_microstructure() {
 			continue;
 		}
 		if (i == 2) {
-			fscanf(compressedGrainInfo, "%s \t %i\n", buffer, &I_D);
+			fscanf(compressedGrainInfo, "%s \t %i\n", buffer, &ID_offset);
 			//cout << buffer << "\t" << I_D << endl;
 		}
 		if (i == 3) {
@@ -463,7 +463,7 @@ void grainhdl::read_voxelized_microstructure() {
 			ID[nn] = -1;
 			continue;
 		}
-		ID[nn] = id;
+		ID[nn] = id - (ID_offset - 1);
 		Quaternionen[nn].euler2Quaternion(bunge);
 		vertices[nn].push_back(Vector3d(xmin, ymin, zmin));
 		vertices[nn].push_back(Vector3d(xmin, ymax, zmin));
@@ -508,6 +508,7 @@ void grainhdl::read_voxelized_microstructure() {
 				else {
 					int box_id;
 					fread(&box_id, sizeof(int), 1, voxelized_data);
+					box_id = box_id - (ID_offset - 1);
 					IDField->setValueAt(i, j, k, box_id);
 				}
 
@@ -754,47 +755,47 @@ void grainhdl::run_sim() {
 			save_texture();
 			save_sim();
 
-			for (const auto & it : grains) {
-				if (it != NULL)
-				if (it->getID() != 0) {
-					if (((loop - Settings::StartTime)
-									% int(
-											Settings::AnalysisTimestep
-											* Settings::PlotInterval))
-							== 0) {
-						//	it->plotBoxInterfacialElements();
-						//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
-						if (it->getID() == 3)
-						it->plotBoxContour();
-					}
+for		(const auto & it : grains) {
+			if (it != NULL)
+			if (it->getID() != 0) {
+				if (((loop - Settings::StartTime)
+								% int(
+										Settings::AnalysisTimestep
+										* Settings::PlotInterval))
+						== 0) {
+					//	it->plotBoxInterfacialElements();
+					//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
+					if (it->getID() == 3)
+					it->plotBoxContour();
 				}
 			}
 		}
-		Realtime += (dt * (Settings::Physical_Domain_Size
-				* Settings::Physical_Domain_Size) / (TimeSlope
-				* Settings::HAGB_Energy * Settings::HAGB_Mobility));
-
-		if (currentNrGrains < Settings::BreakupNumber) {
-			cout
-					<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
-					<< "Remaining Grains: " << currentNrGrains
-					<< ". Break and save." << endl;
-			break;
-		}
 	}
-	// 	utils::CreateMakeGif();
+	Realtime += (dt * (Settings::Physical_Domain_Size
+					* Settings::Physical_Domain_Size) / (TimeSlope
+					* Settings::HAGB_Energy * Settings::HAGB_Mobility));
 
-	cout << "Simulation complete." << endl;
-	cout << "Simulation Time: " << Realtime << endl;
-	cout << "Detailed timings: " << endl;
-	cout << "Convolution time: " << convo_time << endl;
-	cout << "     Of which plan overhead is: " << plan_overhead << endl;
-	cout << "Comparison time: " << comparison_time << endl;
-	cout << "Redistancing time: " << redistancing_time << endl;
-	cout << "Levelset time: " << levelset_time << endl;
-	cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
-	cout << "Sum parallel regions: " << convo_time + comparison_time
-			+ levelset_time + parallelRest + redistancing_time << endl;
+	if (currentNrGrains < Settings::BreakupNumber) {
+		cout
+		<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
+		<< "Remaining Grains: " << currentNrGrains
+		<< ". Break and save." << endl;
+		break;
+	}
+}
+// 	utils::CreateMakeGif();
+
+cout << "Simulation complete." << endl;
+cout << "Simulation Time: " << Realtime << endl;
+cout << "Detailed timings: " << endl;
+cout << "Convolution time: " << convo_time << endl;
+cout << "     Of which plan overhead is: " << plan_overhead << endl;
+cout << "Comparison time: " << comparison_time << endl;
+cout << "Redistancing time: " << redistancing_time << endl;
+cout << "Levelset time: " << levelset_time << endl;
+cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
+cout << "Sum parallel regions: " << convo_time + comparison_time
++ levelset_time + parallelRest + redistancing_time << endl;
 }
 
 void grainhdl::countGrains() {
@@ -1150,16 +1151,15 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	realDomainSize = newGridSize;
 	switch (Settings::ConvolutionMode) {
 	case E_LAPLACE: {
-		dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
+		dt = 0.8 / double(realDomainSize * realDomainSize);
 		break;
 	}
 	case E_LAPLACE_RITCHARDSON: {
-		dt = 0.8 / double(realDomainSize * realDomainSize * realDomainSize);
+		dt = 0.8 / double(realDomainSize * realDomainSize);
 		break;
 	}
 	case E_GAUSSIAN: {
-		dt = PI / 2 * 50. / double(
-				realDomainSize * realDomainSize * realDomainSize);
+		dt = 2. / double(realDomainSize * realDomainSize);
 		TimeSlope = 1 / 1.2;
 		break;
 	}
