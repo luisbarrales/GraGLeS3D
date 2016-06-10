@@ -463,17 +463,8 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//						}
 
 						GBInfo localGB(1, 1);
-						localGB = m_explicitHull.projectPointToGrainBoundary(
-								point, grain.grainID);
-
-						//<<<<<<< HEAD
-						//						m_outputDistance->setValueAt(i, j, k,
-						//								val
-						//										+ (m_outputDistance->getValueAt(i, j, k)
-						//												- val) * localGB.energy
-						//												* localGB.mobility
-						//												* radiuscorrection);
-						//=======
+//						localGB = m_explicitHull.projectPointToGrainBoundary(
+//								point, grain.grainID);
 						m_outputDistance->setValueAt(
 								i,
 								j,
@@ -483,7 +474,6 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 												- val) * localGB.energy
 												* localGB.mobility
 												* radiuscorrection);
-						//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						if (Settings::UseMagneticField) {
 							double f_magneticEnergy =
 									(m_magneticEnergy
