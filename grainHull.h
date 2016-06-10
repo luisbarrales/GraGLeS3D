@@ -65,8 +65,11 @@ public:
 	GrainBoundary* findGrainBoundary(int key);
 	//new:
 	void clearInterfacialElements();
+	void computeJunctionPosition();
+	void correctJunctionPositionWithNeighborInformation();
 	void computeGrainBoundaryElements();
 	void subDivideTrianglesToInterfacialElements();
+	Vector3d findClosestJunctionTo(Vector3d myposition);
 	void mergeJunction();
 	void computeInterfacialElementMesh();
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);

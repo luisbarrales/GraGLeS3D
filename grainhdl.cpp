@@ -252,16 +252,16 @@ void grainhdl::VOROMicrostructure() {
 		}
 		/**********************************************************/
 	} else {
-		//		//Randomly add particles into the container
-		//		for (int i = 0; i < ngrains; i++) {
-		//			double x = rnd();
-		//			double y = rnd();
-		//			double z = rnd();
-		//			con.put(i, x, y, z);
-		//		}
-		//		/**********************************************************/
-		//
-		//	}
+				//Randomly add particles into the container
+//		for (int i = 0; i < ngrains; i++) {
+//			double x = rnd();
+//			double y = rnd();
+//			double z = rnd();
+//			con.put(i, x, y, z);
+//		}
+		/**********************************************************/
+
+
 		double x, y, z;
 		for (int i = 0; i < ngrains; i++) {
 			//double x = rnd();
@@ -765,8 +765,8 @@ for		(const auto & it : grains) {
 						== 0) {
 					//	it->plotBoxInterfacialElements();
 					//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
-					if (it->getID() == 3)
-					it->plotBoxContour();
+//					if (it->getID() == 3)
+//					it->plotBoxContour();
 				}
 			}
 		}

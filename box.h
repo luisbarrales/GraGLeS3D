@@ -138,6 +138,7 @@ public:
 	//map<int, double>& getDiscreteEnergyDistribution() { }
     bool checkIntersection(LSbox* box2);
     void preallocateMemory(ExpandingVector<char>& memory_dump);
+    Vector3d findClosestJunctionTo(Vector3d myposition);
       
 
 	void resizeIDLocalToDistanceBuffer();

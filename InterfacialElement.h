@@ -27,10 +27,10 @@ struct GBInfo {
 	GBInfo() {
 	}
 	GBInfo(double _mobility, double _energy) :
-		energy(_energy), mobility(_mobility) {
+			energy(_energy), mobility(_mobility) {
 	}
 	GBInfo(const GBInfo& other) :
-		mobility(other.mobility), energy(other.energy) {
+			mobility(other.mobility), energy(other.energy) {
 	}
 };
 
@@ -54,6 +54,7 @@ public:
 	virtual void computeEnergy()= 0;
 	virtual void computeMobility()= 0;
 	virtual Vector3d get_Position()=0;
+	virtual void set_Position(Vector3d newposition)=0;
 
 	void addBaryCenter(Vector3d current) {
 		m_barycenterTriangles.push_back(current);
@@ -110,7 +111,9 @@ public:
 	inline Vector3d get_Position() {
 		return m_position;
 	}
-	;
+	inline void set_Position(Vector3d newposition) {
+		m_position = newposition;
+	}
 };
 
 class QuadrupleJunction: public InterfacialElement {
@@ -139,6 +142,9 @@ public:
 		return m_position;
 	}
 	;
+	inline void set_Position(Vector3d newposition) {
+		m_position = newposition;
+	}
 };
 
 class TripleLine: public InterfacialElement {
@@ -151,8 +157,8 @@ public:
 	~TripleLine();
 	void computeEnergy();
 	void computeMobility();
-	void findAdjacentJunctions(vector<QuadrupleJunction*> ,
-			vector<HighOrderJunction*> );
+	void findAdjacentJunctions(vector<QuadrupleJunction*>,
+			vector<HighOrderJunction*>);
 	inline int get_FirstNeighbor() {
 		return m_neighborIDs[0];
 	}
@@ -164,6 +170,9 @@ public:
 	}
 	inline Vector3d get_Position() {
 		return Vector3d(-1, -1, -1);;
+	}
+	inline void set_Position(Vector3d newposition) {
+
 	}
 };
 
@@ -177,12 +186,15 @@ public:
 	~GrainBoundary();
 	void computeEnergy();
 	void computeMobility();
-	void findAdjacentTripleLines(vector<TripleLine*> );
+	void findAdjacentTripleLines(vector<TripleLine*>);
 	inline vector<TripleLine*> get_edges() {
 		return m_edges;
 	}
 	inline Vector3d get_Position() {
 		return Vector3d(-1, -1, -1);
+	}
+	inline void set_Position(Vector3d newposition) {
+
 	}
 };
 
