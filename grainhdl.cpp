@@ -635,6 +635,17 @@ void grainhdl::level_set() {
 				grains[id]->extractContour();
 		}
 	}
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->computeInterfacialElementMesh();
+		}
+	}
 }
 
 void grainhdl::redistancing() {
@@ -765,7 +776,7 @@ void grainhdl::run_sim() {
 										Settings::AnalysisTimestep
 												* Settings::PlotInterval))
 								== 0) {
-							//	it->plotBoxInterfacialElements();
+//						it->plotBoxInterfacialElements();
 							//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 //					if (it->getID() == 3)
 //					it->plotBoxContour();
@@ -1168,7 +1179,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	case E_GAUSSIAN: {
 		dt = 2. / double(realDomainSize * realDomainSize);
-		TimeSlope = 1 / 1.2;
+		TimeSlope = 1 / 1.23;
 		break;
 	}
 	default: {
@@ -1220,17 +1231,6 @@ void grainhdl::gridCoarsement() {
 				grains[id]->recalculateIDLocal();
 			}
 		}
-#pragma omp parallel
-		{
-			vector<unsigned int>& workload =
-					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-			for (auto id : workload) {
-				if (id <= Settings::NumberOfParticles)
-					if (grains[id] == NULL)
-						continue;
-				grains[id]->extractContour();
-			}
-		}
-
+		level_set();
 	}
 }
