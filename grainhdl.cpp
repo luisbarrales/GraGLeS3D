@@ -631,6 +631,12 @@ for	(auto id : workload) {
 		} else
 		grains[id]->extractContour();
 	}
+for	(auto id : workload) {
+	if (id <= Settings::NumberOfParticles)
+	if (grains[id] == NULL)
+	continue;
+	grains[id]->computeInterfacialElementMesh();
+}
 }
 }
 
@@ -763,7 +769,7 @@ for		(const auto & it : grains) {
 										Settings::AnalysisTimestep
 										* Settings::PlotInterval))
 						== 0) {
-					//	it->plotBoxInterfacialElements();
+//						it->plotBoxInterfacialElements();
 					//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 //					if (it->getID() == 3)
 //					it->plotBoxContour();
@@ -1221,6 +1227,17 @@ for		(auto id : workload) {
 			if (grains[id] == NULL)
 			continue;
 			grains[id]->extractContour();
+		}
+	}
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload =
+		m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+			if (grains[id] == NULL)
+			continue;
+			grains[id]->computeInterfacialElementMesh();
 		}
 	}
 

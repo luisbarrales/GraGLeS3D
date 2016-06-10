@@ -1072,7 +1072,7 @@ void LSbox::extractContour() {
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();
-	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
+//	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
 }
 
 void LSbox::updateFirstOrderNeigbors() {
@@ -1091,13 +1091,25 @@ void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
 	m_explicitHull.computeJunctionPosition();
+}
+
+void LSbox::computeInterfacialElementMesh(){
+	/*
+	 * Correct the positions of the junctions
+	 */
 	m_explicitHull.correctJunctionPositionWithNeighborInformation();
+
 	m_explicitHull.computeInterfacialElementMesh();
+
+	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
 }
 
 Vector3d LSbox::findClosestJunctionTo(Vector3d myposition) {
 	Vector3d neighborJunction;
-	m_explicitHull.findClosestJunctionTo(myposition);
+	cout << "LSBOX" << endl;
+	cout << m_explicitHull.get_numberOfQuadruplePoints() << endl;
+	cout << m_explicitHull.get_numberOfHighOrderJunctions() << endl;
+	neighborJunction = m_explicitHull.findClosestJunctionTo(myposition);
 	return neighborJunction;
 }
 

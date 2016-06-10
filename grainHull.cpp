@@ -202,26 +202,65 @@ void GrainHull::computeJunctionPosition() {
 }
 
 Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
+	double distanceH = 1000000000;
+	double distanceQ = 1000000000;
+	double distanceTo;
+	int posQuadruple;
+	int posHigherOrder;
 
+
+	for(int i=0; i<m_QuadruplePoints.size(); i++){
+		distanceTo = (m_QuadruplePoints[i]->get_Position()-myposition).squaredNorm();
+		if(distanceTo<distanceQ){
+			distanceQ=distanceTo;
+			posQuadruple = i;
+		}
+	}
+
+	cout << m_QuadruplePoints.size() << endl;
+	cout << m_HighOrderJunctions.size() << endl;
+
+	for(int i=0; i<m_HighOrderJunctions.size(); i++){
+		distanceTo = (m_HighOrderJunctions[i]->get_Position()-myposition).squaredNorm();
+		if(distanceTo<distanceH){
+			distanceH=distanceTo;
+			posHigherOrder = i;
+		}
+	}
+
+	if(distanceH>distanceQ){
+		return m_QuadruplePoints[posQuadruple]->get_Position();
+	}
+	else{
+		return m_HighOrderJunctions[posHigherOrder]->get_Position();
+	}
 }
 
 void GrainHull::correctJunctionPositionWithNeighborInformation() {
 	for (const auto it : m_QuadruplePoints) {
+		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
-		for (int i = 0; i < it->get_NeighborIDs().size(); i++) {
-			correspondingJunctions +=
-					m_owner->get_grainHandler()->getGrainByID(i)->findClosestJunctionTo(
-							it->get_Position());
+		for (int i = 0; i < neighbors.size(); i++) {
+			cout << neighbors[i] << endl;
+			if(neighbors[i] != 0){
+				correspondingJunctions +=
+						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
+								it->get_Position());
+			}
 		}
 		correspondingJunctions /= (double) (it->get_NeighborIDs().size() + 1);
 		it->set_Position(correspondingJunctions);
 	}
 	for (const auto it : m_HighOrderJunctions) {
+		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
-		for (int i = 0; i < it->get_NeighborIDs().size(); i++) {
-			correspondingJunctions +=
-					m_owner->get_grainHandler()->getGrainByID(i)->findClosestJunctionTo(
-							it->get_Position());
+		for (int i = 0; i < neighbors.size(); i++) {
+			cout << neighbors[i] << endl;
+			if(neighbors[i] != 0){
+				correspondingJunctions +=
+						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
+								it->get_Position());
+			}
 		}
 		correspondingJunctions /= (double) (it->get_NeighborIDs().size() + 1);
 		it->set_Position(correspondingJunctions);

@@ -75,6 +75,12 @@ public:
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
 
+	inline int get_numberOfQuadruplePoints(){
+		return m_QuadruplePoints.size();
+	}
+	inline int get_numberOfHighOrderJunctions(){
+		return m_HighOrderJunctions.size();
+	}
 
 	inline double getMeanWidth(){
 		return m_LD;
