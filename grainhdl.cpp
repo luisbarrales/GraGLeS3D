@@ -46,7 +46,7 @@ using namespace Eigen;
 using namespace voro;
 
 grainhdl::grainhdl() :
-	m_ThreadPoolCount(0) {
+		m_ThreadPoolCount(0) {
 }
 grainhdl::~grainhdl() {
 	delete mymath;
@@ -231,8 +231,11 @@ void grainhdl::VOROMicrostructure() {
 		realDomainSize -= 1;
 
 	voronoicell_neighbor c;
+	int blocks = pow(Settings::NumberOfParticles / 8, 1 / 3) + 1;
+	if (blocks < 1)
+		blocks = 1;
 	container con(0, 1, 0, 1, 0, 1, 5, 5, 5, randbedingung, randbedingung,
-			randbedingung, 2);
+			randbedingung, 8);
 	c_loop_all vl(con);
 
 	if (Settings::PseudoPeriodic) {
@@ -252,7 +255,7 @@ void grainhdl::VOROMicrostructure() {
 		}
 		/**********************************************************/
 	} else {
-				//Randomly add particles into the container
+		//Randomly add particles into the container
 //		for (int i = 0; i < ngrains; i++) {
 //			double x = rnd();
 //			double y = rnd();
@@ -260,7 +263,6 @@ void grainhdl::VOROMicrostructure() {
 //			con.put(i, x, y, z);
 //		}
 		/**********************************************************/
-
 
 		double x, y, z;
 		for (int i = 0; i < ngrains; i++) {
@@ -307,7 +309,7 @@ void grainhdl::VOROMicrostructure() {
 			con.put(i, x, y, z);
 		}
 	}
-	vector < vector<Vector3d> > initialHulls;
+	vector<vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
 	if (vl.start()) {
 		initialHulls.resize(ngrains + 1);
@@ -326,8 +328,8 @@ void grainhdl::VOROMicrostructure() {
 			}
 		} while (vl.inc());
 
-		IDField = new DimensionalBuffer<int> (0, 0, 0, ngridpoints,
-				ngridpoints, ngridpoints);
+		IDField = new DimensionalBuffer<int>(0, 0, 0, ngridpoints, ngridpoints,
+				ngridpoints);
 		double x, y, z, rx, ry, rz;
 		int cell_id;
 		for (int k = 0; k < ngridpoints; k++) {
@@ -339,13 +341,13 @@ void grainhdl::VOROMicrostructure() {
 
 					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
 					//<<<<<<< HEAD
-							//							|| i >= ngridpoints - 1 - grid_blowup
-							//							|| j >= ngridpoints - 1 - grid_blowup
-							//							|| k >= ngridpoints - 1 - grid_blowup) {
-							//=======
-							|| i >= ngridpoints - grid_blowup || j
-							>= ngridpoints - grid_blowup || k >= ngridpoints
-							- grid_blowup) {
+					//							|| i >= ngridpoints - 1 - grid_blowup
+					//							|| j >= ngridpoints - 1 - grid_blowup
+					//							|| k >= ngridpoints - 1 - grid_blowup) {
+					//=======
+							|| i >= ngridpoints - grid_blowup
+							|| j >= ngridpoints - grid_blowup
+							|| k >= ngridpoints - grid_blowup) {
 						//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						IDField->setValueAt(i, j, k, 0);
 					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
@@ -362,7 +364,7 @@ void grainhdl::VOROMicrostructure() {
 		throw runtime_error("Voronoy container error at start() method!");
 	}
 
-	buildBoxVectors( initialHulls);
+	buildBoxVectors(initialHulls);
 	con.draw_particles("VoronoyP.gnu");
 	con.draw_cells_gnuplot("VoronoyC.gnu");
 }
@@ -440,7 +442,7 @@ void grainhdl::read_voxelized_microstructure() {
 	int nvertices = 8;
 	int xmin, xmax, ymin, ymax, zmin, zmax;
 	int *counts;
-	vector < vector < Vector3d >> vertices;
+	vector<vector<Vector3d>> vertices;
 	vertices.resize(ngrains + 1);
 	myQuaternion* Quaternionen = new myQuaternion[ngrains + 1];
 	ID = new int[ngrains + 1];
@@ -489,7 +491,7 @@ void grainhdl::read_voxelized_microstructure() {
 		exit(2);
 	}
 
-	IDField = new DimensionalBuffer<int> (0, 0, 0, ngridpoints, ngridpoints,
+	IDField = new DimensionalBuffer<int>(0, 0, 0, ngridpoints, ngridpoints,
 			ngridpoints);
 	for (int k = 0; k < ngridpoints; k++) {
 		for (int i = 0; i < ngridpoints; i++) {
@@ -500,9 +502,10 @@ void grainhdl::read_voxelized_microstructure() {
 				//						|| j >= ngridpoints - 1 - grid_blowup
 				//						|| k >= ngridpoints - 1 - grid_blowup)
 				//=======
-				if (i < grid_blowup || j < grid_blowup || k < grid_blowup || i
-						>= ngridpoints - grid_blowup || j >= ngridpoints
-						- grid_blowup || k >= ngridpoints - grid_blowup)
+				if (i < grid_blowup || j < grid_blowup || k < grid_blowup
+						|| i >= ngridpoints - grid_blowup
+						|| j >= ngridpoints - grid_blowup
+						|| k >= ngridpoints - grid_blowup)
 					//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 					IDField->setValueAt(i, j, k, 0);
 				else {
@@ -538,33 +541,33 @@ void grainhdl::distanceInitialisation() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] != NULL)
-		grains[id]->calculateDistanceFunction(*IDField);
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] != NULL)
+					grains[id]->calculateDistanceFunction(*IDField);
+		}
 	}
-}
 }
 void grainhdl::createConvolutionPlans() {
 #pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] != NULL)
-		grains[id]->preallocateMemory(
-				m_ThreadMemPool[omp_get_thread_num()]);
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] != NULL)
+					grains[id]->preallocateMemory(
+							m_ThreadMemPool[omp_get_thread_num()]);
+		}
 	}
-}
 #ifdef USE_FFTW
-for(unsigned int i=0; i<Settings::MaximumNumberOfThreads; i++)
-{
-	vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(i);
-	for(auto & id : workload)
-	if(grains[id] != NULL)
-	grains[id]->createConvolutionPlans(m_ThreadMemPool[i]);
-}
+	for(unsigned int i=0; i<Settings::MaximumNumberOfThreads; i++)
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(i);
+		for(auto & id : workload)
+		if(grains[id] != NULL)
+		grains[id]->createConvolutionPlans(m_ThreadMemPool[i]);
+	}
 #endif
 }
 
@@ -582,23 +585,23 @@ void grainhdl::convolution(double& planOverhead) {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] != NULL)
-		grains[id]->executeConvolution(
-				m_ThreadMemPool[omp_get_thread_num()]);
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] != NULL)
+					grains[id]->executeConvolution(
+							m_ThreadMemPool[omp_get_thread_num()]);
+		}
 	}
-}
 #ifdef USE_FFTW
-gettimeofday(&time, NULL);
-timer = time.tv_sec + time.tv_usec / 1000000.0;
-for (unsigned int i = 1; i < grains.size(); i++) {
-	if (grains[i] != NULL)
-	grains[i]->cleanupConvolution();
-}
-gettimeofday(&time, NULL);
+	gettimeofday(&time, NULL);
+	timer = time.tv_sec + time.tv_usec / 1000000.0;
+	for (unsigned int i = 1; i < grains.size(); i++) {
+		if (grains[i] != NULL)
+		grains[i]->cleanupConvolution();
+	}
+	gettimeofday(&time, NULL);
 #endif
-planOverhead += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+	planOverhead += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 }
 
 void grainhdl::comparison_box() {
@@ -606,14 +609,14 @@ void grainhdl::comparison_box() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] != NULL) {
-			grains[id]->executeComparison();
-			grains[id]->executeSetComparison();
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] != NULL) {
+					grains[id]->executeComparison();
+					grains[id]->executeSetComparison();
+				}
 		}
 	}
-}
 }
 
 void grainhdl::level_set() {
@@ -621,17 +624,17 @@ void grainhdl::level_set() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
-		if (grains[id]->grainExists() == false) {
-			delete grains[id];
-			grains[id] = NULL;
-		} else
-		grains[id]->extractContour();
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			if (grains[id]->grainExists() == false) {
+				delete grains[id];
+				grains[id] = NULL;
+			} else
+				grains[id]->extractContour();
+		}
 	}
-}
 }
 
 void grainhdl::redistancing() {
@@ -640,13 +643,13 @@ void grainhdl::redistancing() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
-		grains[id]->executeRedistancing();
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->executeRedistancing();
+		}
 	}
-}
 }
 
 void grainhdl::save_texture() {
@@ -667,9 +670,8 @@ void grainhdl::save_texture() {
 					<< grains[i]->getDirectNeighbourCount() << "\t"
 					<< grains[i]->intersectsBoundaryGrain() << "\t"
 					<< grains[i]->getVolume() << "\t" << 0 << "\t"
-					<< grains[i]->getSurface() << "\t"
-					<< grains[i]->getEnergy() << "\t"
-					<< grains[i]->getMeanWidth() << "\t"
+					<< grains[i]->getSurface() << "\t" << grains[i]->getEnergy()
+					<< "\t" << grains[i]->getMeanWidth() << "\t"
 					<< grains[i]->getTripleLineLength() << "\t" << euler[0]
 					<< "\t" << euler[1] << "\t" << euler[2] << "\n";
 
@@ -700,8 +702,8 @@ void grainhdl::run_sim() {
 	distanceInitialisation();
 	Realtime = 0;
 	find_neighbors();
-	for (loop = Settings::StartTime; loop <= Settings::StartTime
-			+ Settings::NumberOfTimesteps; loop++) {
+	for (loop = Settings::StartTime;
+			loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++) {
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		gridCoarsement();
@@ -755,47 +757,52 @@ void grainhdl::run_sim() {
 			save_texture();
 			save_sim();
 
-for		(const auto & it : grains) {
-			if (it != NULL)
-			if (it->getID() != 0) {
-				if (((loop - Settings::StartTime)
+			for (const auto & it : grains) {
+				if (it != NULL)
+					if (it->getID() != 0) {
+						if (((loop - Settings::StartTime)
 								% int(
 										Settings::AnalysisTimestep
-										* Settings::PlotInterval))
-						== 0) {
-					//	it->plotBoxInterfacialElements();
-					//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
+												* Settings::PlotInterval))
+								== 0) {
+							//	it->plotBoxInterfacialElements();
+							//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 //					if (it->getID() == 3)
 //					it->plotBoxContour();
-				}
+						}
+					}
 			}
 		}
-	}
-	Realtime += (dt * (Settings::Physical_Domain_Size
-					* Settings::Physical_Domain_Size) / (TimeSlope
-					* Settings::HAGB_Energy * Settings::HAGB_Mobility));
+		Realtime +=
+				(dt
+						* (Settings::Physical_Domain_Size
+								* Settings::Physical_Domain_Size)
+						/ (TimeSlope * Settings::HAGB_Energy
+								* Settings::HAGB_Mobility));
 
-	if (currentNrGrains < Settings::BreakupNumber) {
-		cout
-		<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
-		<< "Remaining Grains: " << currentNrGrains
-		<< ". Break and save." << endl;
-		break;
+		if (currentNrGrains < Settings::BreakupNumber) {
+			cout
+					<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
+					<< "Remaining Grains: " << currentNrGrains
+					<< ". Break and save." << endl;
+			break;
+		}
 	}
-}
 // 	utils::CreateMakeGif();
 
-cout << "Simulation complete." << endl;
-cout << "Simulation Time: " << Realtime << endl;
-cout << "Detailed timings: " << endl;
-cout << "Convolution time: " << convo_time << endl;
-cout << "     Of which plan overhead is: " << plan_overhead << endl;
-cout << "Comparison time: " << comparison_time << endl;
-cout << "Redistancing time: " << redistancing_time << endl;
-cout << "Levelset time: " << levelset_time << endl;
-cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
-cout << "Sum parallel regions: " << convo_time + comparison_time
-+ levelset_time + parallelRest + redistancing_time << endl;
+	cout << "Simulation complete." << endl;
+	cout << "Simulation Time: " << Realtime << endl;
+	cout << "Detailed timings: " << endl;
+	cout << "Convolution time: " << convo_time << endl;
+	cout << "     Of which plan overhead is: " << plan_overhead << endl;
+	cout << "Comparison time: " << comparison_time << endl;
+	cout << "Redistancing time: " << redistancing_time << endl;
+	cout << "Levelset time: " << levelset_time << endl;
+	cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
+	cout
+			<< "Sum parallel regions: "
+			<< convo_time + comparison_time + levelset_time + parallelRest
+					+ redistancing_time << endl;
 }
 
 void grainhdl::countGrains() {
@@ -814,14 +821,15 @@ void grainhdl::createParamsForSim(const char* param_filename,
 	xml_document<> doc_tree;
 
 	xml_node<>* declaration = doc_tree.allocate_node(node_declaration);
-	declaration->append_attribute(doc_tree.allocate_attribute("version", "1.0"));
+	declaration->append_attribute(
+			doc_tree.allocate_attribute("version", "1.0"));
 	declaration->append_attribute(
 			doc_tree.allocate_attribute("encoding", "utf-8"));
 	doc_tree.append_node(declaration);
 
 	doc_tree.append_node(
-			Settings::generateXMLParametersNode(&doc_tree,
-					vertex_dump_filename, loop, currentNrGrains));
+			Settings::generateXMLParametersNode(&doc_tree, vertex_dump_filename,
+					loop, currentNrGrains));
 	ofstream output;
 	output.open(param_filename);
 	output << doc_tree;
@@ -847,13 +855,13 @@ void grainhdl::updateSecondOrderNeighbors() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
-		grains[id]->computeSecondOrderNeighbours();
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->computeSecondOrderNeighbours();
+		}
 	}
-}
 }
 
 void grainhdl::find_neighbors() {
@@ -874,13 +882,13 @@ void grainhdl::find_neighbors() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
-		grains[id]->computeDirectNeighbours(tree);
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->computeDirectNeighbours(tree);
+		}
 	}
-}
 }
 
 void grainhdl::saveSpecialContourEnergies(int id) {
@@ -891,14 +899,14 @@ void grainhdl::tweakIDLocal() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles) {
-			if (grains[id] == NULL)
-			continue;
-			grains[id]->setIDLocal(boundary->getID());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles) {
+				if (grains[id] == NULL)
+					continue;
+				grains[id]->setIDLocal(boundary->getID());
+			}
 		}
 	}
-}
 }
 
 void grainhdl::saveNetworkState() {
@@ -906,12 +914,12 @@ void grainhdl::saveNetworkState() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+		}
 	}
-}
 }
 
 void grainhdl::save_id() {
@@ -929,13 +937,13 @@ void grainhdl::switchDistancebuffer() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
-		grains[id]->switchInNOut();
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->switchInNOut();
+		}
 	}
-}
 }
 
 void grainhdl::clear_mem() {
@@ -955,21 +963,21 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
 				omp_get_thread_num());
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
-			try {
-				LSbox* grain = new LSbox(id, hulls[id], *IDField, this);
-				grains[id] = grain;
-			} catch (exception& e) {
+				try {
+					LSbox* grain = new LSbox(id, hulls[id], *IDField, this);
+					grains[id] = grain;
+				} catch (exception& e) {
 #pragma omp critical
-				{
-					exceptionHappened = true;
-					error_message += string("Grain ")
-					+ to_string((unsigned long long) id)
-					+ string(" failed at timestep ")
-					+ to_string((unsigned long long) loop)
-					+ " in its constructor! Reason : " + e.what()
-					+ string("\n");
+					{
+						exceptionHappened = true;
+						error_message += string("Grain ")
+								+ to_string((unsigned long long) id)
+								+ string(" failed at timestep ")
+								+ to_string((unsigned long long) loop)
+								+ " in its constructor! Reason : " + e.what()
+								+ string("\n");
+					}
 				}
-			}
 		}
 
 		if (exceptionHappened) {
@@ -989,22 +997,22 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
 				omp_get_thread_num());
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
-			try {
-				LSbox* grain = new LSbox(ID[id], hulls[id],
-						Quaternionen[id], this);
-				grains[id] = grain;
-			} catch (exception& e) {
+				try {
+					LSbox* grain = new LSbox(ID[id], hulls[id],
+							Quaternionen[id], this);
+					grains[id] = grain;
+				} catch (exception& e) {
 #pragma omp critical
-				{
-					exceptionHappened = true;
-					error_message += string("Grain ")
-					+ to_string((unsigned long long) id)
-					+ string(" failed at timestep ")
-					+ to_string((unsigned long long) loop)
-					+ " in its constructor! Reason : " + e.what()
-					+ string("\n");
+					{
+						exceptionHappened = true;
+						error_message += string("Grain ")
+								+ to_string((unsigned long long) id)
+								+ string(" failed at timestep ")
+								+ to_string((unsigned long long) loop)
+								+ " in its constructor! Reason : " + e.what()
+								+ string("\n");
+					}
 				}
-			}
 		}
 
 		if (exceptionHappened) {
@@ -1114,8 +1122,8 @@ void grainhdl::initNUMABindings() {
 			int cpuCounter = 0;
 			for (unsigned int i = 0; i < cpus->size; i++) {
 
-				if (numa_bitmask_isbitset(cpus, i) && numa_bitmask_isbitset(
-						numa_all_cpus_ptr, i)) {
+				if (numa_bitmask_isbitset(cpus, i)
+						&& numa_bitmask_isbitset(numa_all_cpus_ptr, i)) {
 					node.numa_cpus[cpuCounter] = i;
 					cpuCounter++;
 				}
@@ -1188,41 +1196,41 @@ void grainhdl::gridCoarsement() {
 		{
 			vector<unsigned int>& workload =
 					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-for		(auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-			if (grains[id] == NULL)
-			continue;
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
 
-			grains[id]->resizeGrid(newSize,h_old);
+				grains[id]->resizeGrid(newSize, h_old);
+
+			}
 
 		}
+		//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
 
-	}
-	//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
-
-	ngrains = currentNrGrains;
+		ngrains = currentNrGrains;
 #pragma omp parallel
-	{
-		vector<unsigned int>& workload =
-		m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-			if (grains[id] == NULL)
-			continue;
-			grains[id]->recalculateIDLocal();
+		{
+			vector<unsigned int>& workload =
+					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
+				grains[id]->recalculateIDLocal();
+			}
 		}
-	}
 #pragma omp parallel
-	{
-		vector<unsigned int>& workload =
-		m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-			if (grains[id] == NULL)
-			continue;
-			grains[id]->extractContour();
+		{
+			vector<unsigned int>& workload =
+					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
+				grains[id]->extractContour();
+			}
 		}
-	}
 
-}
+	}
 }
