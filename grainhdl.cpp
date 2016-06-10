@@ -643,7 +643,7 @@ void grainhdl::level_set() {
 			if (id <= Settings::NumberOfParticles)
 				if (grains[id] == NULL)
 					continue;
-			grains[id]->computeInterfacialElementMesh();
+//			grains[id]->computeInterfacialElementMesh();
 		}
 	}
 }
