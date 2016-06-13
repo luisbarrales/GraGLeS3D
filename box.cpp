@@ -1087,16 +1087,16 @@ void LSbox::computeInterfacialElementMesh(){
 	/*
 	 * Correct the positions of the junctions
 	 */
-	m_explicitHull.correctJunctionPositionWithNeighborInformation();
+//	m_explicitHull.correctJunctionPositionWithNeighborInformation();
 	m_explicitHull.computeInterfacialElementMesh();
-	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
+//	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
 }
 
 Vector3d LSbox::findClosestJunctionTo(Vector3d myposition) {
 	Vector3d neighborJunction;
-	cout << "LSBOX" << endl;
-	cout << m_explicitHull.get_numberOfQuadruplePoints() << endl;
-	cout << m_explicitHull.get_numberOfHighOrderJunctions() << endl;
+//	cout << "LSBOX" << endl;
+//	cout << m_explicitHull.get_numberOfQuadruplePoints() << endl;
+//	cout << m_explicitHull.get_numberOfHighOrderJunctions() << endl;
 	neighborJunction = m_explicitHull.findClosestJunctionTo(myposition);
 	return neighborJunction;
 }

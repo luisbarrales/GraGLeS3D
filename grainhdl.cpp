@@ -67,7 +67,7 @@ void grainhdl::initializeSimulation() {
 		ngrains = Settings::NumberOfParticles;
 		currentNrGrains = ngrains;
 		realDomainSize = (pow((double) Settings::NumberOfParticles, 1. / 3.0)
-				* Settings::NumberOfPointsPerGrain);
+				* Settings::NumberOfPointsPerGrain) +1;
 	}
 
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
@@ -226,7 +226,7 @@ void grainhdl::VOROMicrostructure() {
 
 	grains.resize(Settings::NumberOfParticles + 1);
 
-	bool randbedingung = true; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
+	bool randbedingung = false; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
 	if (randbedingung == false)
 		realDomainSize -= 1;
 
@@ -269,42 +269,62 @@ void grainhdl::VOROMicrostructure() {
 			//double x = rnd();
 			//double y = rnd();
 			//double z = rnd();
+//			if (i == 0) {
+//				x = 0.5;
+//				y = 0.5;
+//				z = 0.5;
+//			} else if (i == 1) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 2) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 3) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 4) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 5) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 6) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.75;
+//			} else if (i == 7) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 8) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.75;
 			if (i == 0) {
 				x = 0.5;
 				y = 0.5;
 				z = 0.5;
 			} else if (i == 1) {
-				x = 0.25;
-				y = 0.25;
-				z = 0.25;
+				x = 0.5;
+				y = 0.5;
+				z = 0.0;
 			} else if (i == 2) {
-				x = 0.75;
-				y = 0.25;
-				z = 0.25;
+				x = 0.5;
+				y = 0.9713;
+				z = 0.6669;
 			} else if (i == 3) {
-				x = 0.25;
-				y = 0.75;
-				z = 0.25;
+				x = 0.319;
+				y = 0.3427;
+				z = 0.6669;
 			} else if (i == 4) {
-				x = 0.75;
-				y = 0.75;
-				z = 0.25;
-			} else if (i == 5) {
-				x = 0.25;
-				y = 0.25;
-				z = 0.75;
-			} else if (i == 6) {
-				x = 0.25;
-				y = 0.75;
-				z = 0.75;
-			} else if (i == 7) {
-				x = 0.75;
-				y = 0.25;
-				z = 0.75;
-			} else if (i == 8) {
-				x = 0.75;
-				y = 0.75;
-				z = 0.75;
+				x = 0.6928;
+				y = 0.1337;
+				z = 0.6669;
 			}
 			con.put(i, x, y, z);
 		}
@@ -643,7 +663,7 @@ void grainhdl::level_set() {
 			if (id <= Settings::NumberOfParticles)
 				if (grains[id] == NULL)
 					continue;
-//			grains[id]->computeInterfacialElementMesh();
+			grains[id]->computeInterfacialElementMesh();
 		}
 	}
 }
@@ -1179,7 +1199,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	case E_GAUSSIAN: {
 		dt = 2. / double(realDomainSize * realDomainSize);
-		TimeSlope = 1 / 1.23;
+		TimeSlope = 1;// / 1.23;
 		break;
 	}
 	default: {
@@ -1188,7 +1208,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	grid_blowup = Settings::DomainBorderSize;
 	delta = Settings::DomainBorderSize / double(realDomainSize);
-	ngridpoints = realDomainSize + 1 + 2 * grid_blowup;
+	ngridpoints = realDomainSize  + 2 * grid_blowup;
 	h = 1.0 / realDomainSize;
 
 }

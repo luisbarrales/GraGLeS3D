@@ -241,7 +241,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
 		for (int i = 0; i < neighbors.size(); i++) {
-			cout << neighbors[i] << endl;
+//			cout << neighbors[i] << endl;
 			if(neighbors[i] != 0){
 				correspondingJunctions +=
 						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
@@ -255,7 +255,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
 		for (int i = 0; i < neighbors.size(); i++) {
-			cout << neighbors[i] << endl;
+//			cout << neighbors[i] << endl;
 			if(neighbors[i] != 0){
 				correspondingJunctions +=
 						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
@@ -299,7 +299,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	/*
 	 * Calculate the normal vector of every triangle
 	 */
-	if (m_owner->getID() == 10) {
+	if (m_owner->getID() == 3) {
 
 		//m_normalVectors.clear();
 		m_normalVectors.resize(m_actualHull.size());
@@ -356,7 +356,7 @@ void GrainHull::computeInterfacialElementMesh() {
 
 		/*
 		 * Calculate the length of the triple lines
-		 */
+
 		double old_length = m_TripleLineLength;
 		m_TripleLineLength = 0;
 		for (vector<TripleLine*>::iterator iter = m_TripleLines.begin();
@@ -366,9 +366,9 @@ void GrainHull::computeInterfacialElementMesh() {
 				continue;
 			m_TripleLineLength += (vertices_temp[0]->get_Position()
 					- vertices_temp[1]->get_Position()).norm();
-		}
+		}*/
 
-		/*	if(Settings::DecoupleGrains==0){
+			if(Settings::DecoupleGrains==0){
 
 		 vector<SPoint> ProjectedPoints;
 		 for (const auto it2 : m_TripleLines) {
@@ -391,7 +391,7 @@ void GrainHull::computeInterfacialElementMesh() {
 		 m_TripleLineLength += (*it).DistanceTo(*(it2));
 		 //			m_TripleLineLength += ConvexHull[it].DistanceTo(ConvexHull[it+1]);
 		 }
-		 unsigned long long timestep =
+		 /*unsigned long long timestep =
 		 (unsigned long long) m_owner->get_grainHandler()->get_loop();
 		 if (((timestep - Settings::StartTime)
 		 % int(Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
@@ -439,7 +439,7 @@ void GrainHull::computeInterfacialElementMesh() {
 		//		}
 	}
 }
-
+}
 void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 		for (int j = i + 1; j < m_QuadruplePoints.size(); j++) {
