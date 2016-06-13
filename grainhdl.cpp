@@ -703,8 +703,13 @@ void grainhdl::save_texture() {
 					<< grains[i]->getVolume() << "\t" << 0 << "\t"
 					<< grains[i]->getSurface() << "\t" << grains[i]->getEnergy()
 					<< "\t" << grains[i]->getMeanWidth() << "\t"
-					<< grains[i]->getTripleLineLength() << "\t" << euler[0]
-					<< "\t" << euler[1] << "\t" << euler[2] << "\n";
+					<< grains[i]->getTripleLineLength() << "\t"
+					if (Settings::UseMagneticField)
+					file << grains[i]->get_magneticEnergy();
+					else
+					file << grains[i]->get_SEE();
+					file << "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
+					<< "\n";
 
 		}
 	}
