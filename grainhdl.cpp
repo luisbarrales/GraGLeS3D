@@ -67,7 +67,7 @@ void grainhdl::initializeSimulation() {
 		ngrains = Settings::NumberOfParticles;
 		currentNrGrains = ngrains;
 		realDomainSize = (pow((double) Settings::NumberOfParticles, 1. / 3.0)
-				* Settings::NumberOfPointsPerGrain);
+				* Settings::NumberOfPointsPerGrain) + 1;
 	}
 
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
@@ -222,19 +222,25 @@ void grainhdl::read_HeaderCPG() {
 
 void grainhdl::VOROMicrostructure() {
 
+	timeval time;
+	double timer, voro_time;
+	gettimeofday(&time, NULL);
+	timer = time.tv_sec + time.tv_usec / 1000000.0;
+
 	stringstream filename, plotfiles;
 
 	grains.resize(Settings::NumberOfParticles + 1);
 
-	bool randbedingung = true; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
+	bool randbedingung = false; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
 	if (randbedingung == false)
 		realDomainSize -= 1;
 
 	voronoicell_neighbor c;
-	int blocks = pow(Settings::NumberOfParticles / 8, 1 / 3) + 1;
+	int blocks = (int)(pow((Settings::NumberOfParticles / 8), (1 / 3.)) + 1);
+	cout <<"blocks: " << blocks << endl;
 	if (blocks < 1)
 		blocks = 1;
-	container con(0, 1, 0, 1, 0, 1, 5, 5, 5, randbedingung, randbedingung,
+	container con(0, 1, 0, 1, 0, 1, blocks, blocks, blocks, randbedingung, randbedingung,
 			randbedingung, 8);
 	c_loop_all vl(con);
 
@@ -255,59 +261,59 @@ void grainhdl::VOROMicrostructure() {
 		}
 		/**********************************************************/
 	} else {
-		//Randomly add particles into the container
-//		for (int i = 0; i < ngrains; i++) {
-//			double x = rnd();
-//			double y = rnd();
-//			double z = rnd();
-//			con.put(i, x, y, z);
-//		}
-		/**********************************************************/
-
-		double x, y, z;
+//		Randomly add particles into the container
 		for (int i = 0; i < ngrains; i++) {
-			//double x = rnd();
-			//double y = rnd();
-			//double z = rnd();
-			if (i == 0) {
-				x = 0.5;
-				y = 0.5;
-				z = 0.5;
-			} else if (i == 1) {
-				x = 0.25;
-				y = 0.25;
-				z = 0.25;
-			} else if (i == 2) {
-				x = 0.75;
-				y = 0.25;
-				z = 0.25;
-			} else if (i == 3) {
-				x = 0.25;
-				y = 0.75;
-				z = 0.25;
-			} else if (i == 4) {
-				x = 0.75;
-				y = 0.75;
-				z = 0.25;
-			} else if (i == 5) {
-				x = 0.25;
-				y = 0.25;
-				z = 0.75;
-			} else if (i == 6) {
-				x = 0.25;
-				y = 0.75;
-				z = 0.75;
-			} else if (i == 7) {
-				x = 0.75;
-				y = 0.25;
-				z = 0.75;
-			} else if (i == 8) {
-				x = 0.75;
-				y = 0.75;
-				z = 0.75;
-			}
+			double x = rnd();
+			double y = rnd();
+			double z = rnd();
 			con.put(i, x, y, z);
 		}
+		/**********************************************************/
+
+//		double x, y, z;
+//		for (int i = 0; i < ngrains; i++) {
+//			//double x = rnd();
+//			//double y = rnd();
+//			//double z = rnd();
+//			if (i == 0) {
+//				x = 0.5;
+//				y = 0.5;
+//				z = 0.5;
+//			} else if (i == 1) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 2) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 3) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 4) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 5) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 6) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.75;
+//			} else if (i == 7) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 8) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.75;
+//			}
+//			con.put(i, x, y, z);
+//		}
 	}
 	vector<vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
@@ -363,6 +369,9 @@ void grainhdl::VOROMicrostructure() {
 	} else {
 		throw runtime_error("Voronoy container error at start() method!");
 	}
+	gettimeofday(&time, NULL);
+	voro_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+	cout << "Voronoi construction time: " << voro_time << endl;
 
 	buildBoxVectors(initialHulls);
 	con.draw_particles("VoronoyP.gnu");
@@ -1188,7 +1197,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	grid_blowup = Settings::DomainBorderSize;
 	delta = Settings::DomainBorderSize / double(realDomainSize);
-	ngridpoints = realDomainSize + 1 + 2 * grid_blowup;
+	ngridpoints = realDomainSize + 2 * grid_blowup;
 	h = 1.0 / realDomainSize;
 
 }

@@ -217,8 +217,8 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 		}
 	}
 
-	cout << m_QuadruplePoints.size() << endl;
-	cout << m_HighOrderJunctions.size() << endl;
+//	cout << m_QuadruplePoints.size() << endl;
+//	cout << m_HighOrderJunctions.size() << endl;
 
 	for(int i=0; i<m_HighOrderJunctions.size(); i++){
 		distanceTo = (m_HighOrderJunctions[i]->get_Position()-myposition).squaredNorm();
@@ -241,7 +241,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
 		for (int i = 0; i < neighbors.size(); i++) {
-			cout << neighbors[i] << endl;
+//			cout << neighbors[i] << endl;
 			if(neighbors[i] != 0){
 				correspondingJunctions +=
 						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
@@ -255,7 +255,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
 		for (int i = 0; i < neighbors.size(); i++) {
-			cout << neighbors[i] << endl;
+//			cout << neighbors[i] << endl;
 			if(neighbors[i] != 0){
 				correspondingJunctions +=
 						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
