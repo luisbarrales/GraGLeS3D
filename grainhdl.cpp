@@ -703,7 +703,7 @@ void grainhdl::save_texture() {
 					<< grains[i]->getVolume() << "\t" << 0 << "\t"
 					<< grains[i]->getSurface() << "\t" << grains[i]->getEnergy()
 					<< "\t" << grains[i]->getMeanWidth() << "\t"
-					<< grains[i]->getTripleLineLength() << "\t"
+					<< grains[i]->getTripleLineLength() << "\t";
 					if (Settings::UseMagneticField)
 					file << grains[i]->get_magneticEnergy();
 					else
@@ -1204,7 +1204,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	case E_GAUSSIAN: {
 		dt = 2. / double(realDomainSize * realDomainSize);
-		TimeSlope = 1;// / 1.23;
+		TimeSlope = 1 / 1.23;
 		break;
 	}
 	default: {

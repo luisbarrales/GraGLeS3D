@@ -209,5 +209,8 @@ public:
 	inline double get_magneticEnergy() {
 		return m_magneticEnergy;
 	}
+	inline double get_SEE() {
+	return m_StoredElasticEnergy;
+}
 };
 #endif
