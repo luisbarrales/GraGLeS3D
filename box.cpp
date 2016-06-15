@@ -463,8 +463,8 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						//						}
 
 						GBInfo localGB(1, 1);
-						localGB = m_explicitHull.projectPointToGrainBoundary(
-								point, grain.grainID);
+//						localGB = m_explicitHull.projectPointToGrainBoundary(
+//								point, grain.grainID);
 						m_outputDistance->setValueAt(
 								i,
 								j,
@@ -1070,7 +1070,7 @@ void LSbox::computeSurfaceArea() {
 void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
-//	m_explicitHull.computeJunctionPosition();
+	m_explicitHull.computeJunctionPosition();
 }
 
 void LSbox::computeInterfacialElementMesh() {

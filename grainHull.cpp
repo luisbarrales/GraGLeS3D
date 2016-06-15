@@ -857,6 +857,14 @@ void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
 		throw runtime_error("Unable to save Interfacialelements hull!");
 	}
 
+	for (const auto it : m_QuadruplePoints) {
+		for (const auto it2 : it->m_barycenterTriangles) {
+			fprintf(output, "%lf \t %lf \t %lf \n ", it2[0], it2[1], it2[2]);
+		}
+		Vector3d position = it->get_Position();
+		fprintf(output, "Position of Junction: %lf \t %lf \t %lf \n \n",
+				position[0], position[1], position[2]);
+	}
 	for (const auto it : m_HighOrderJunctions) {
 		for (const auto it2 : it->m_barycenterTriangles) {
 			fprintf(output, "%lf \t %lf \t %lf \n ", it2[0], it2[1], it2[2]);
