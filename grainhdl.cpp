@@ -236,12 +236,12 @@ void grainhdl::VOROMicrostructure() {
 		realDomainSize -= 1;
 
 	voronoicell_neighbor c;
-	int blocks = (int)(pow((Settings::NumberOfParticles / 8), (1 / 3.)) + 1);
-	cout <<"blocks: " << blocks << endl;
+	int blocks = (int) (pow((Settings::NumberOfParticles / 8), (1 / 3.)) + 1);
+	cout << "blocks: " << blocks << endl;
 	if (blocks < 1)
 		blocks = 1;
-	container con(0, 1, 0, 1, 0, 1, blocks, blocks, blocks, randbedingung, randbedingung,
-			randbedingung, 8);
+	container con(0, 1, 0, 1, 0, 1, blocks, blocks, blocks, randbedingung,
+			randbedingung, randbedingung, 8);
 	c_loop_all vl(con);
 
 	if (Settings::PseudoPeriodic) {
@@ -1240,6 +1240,16 @@ void grainhdl::gridCoarsement() {
 				grains[id]->recalculateIDLocal();
 			}
 		}
-		level_set();
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload =
+					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
+				grains[id]->extractContour();
+			}
+		}
 	}
 }
