@@ -222,6 +222,11 @@ void grainhdl::read_HeaderCPG() {
 
 void grainhdl::VOROMicrostructure() {
 
+	timeval time;
+	double timer, voro_time;
+	gettimeofday(&time, NULL);
+	timer = time.tv_sec + time.tv_usec / 1000000.0;
+
 	stringstream filename, plotfiles;
 
 	grains.resize(Settings::NumberOfParticles + 1);
@@ -231,11 +236,12 @@ void grainhdl::VOROMicrostructure() {
 		realDomainSize -= 1;
 
 	voronoicell_neighbor c;
-	int blocks = pow(Settings::NumberOfParticles / 8, 1 / 3) + 1;
+	int blocks = (int) (pow((Settings::NumberOfParticles / 8), (1 / 3.)) + 1);
+	cout << "blocks: " << blocks << endl;
 	if (blocks < 1)
 		blocks = 1;
-	container con(0, 1, 0, 1, 0, 1, 5, 5, 5, randbedingung, randbedingung,
-			randbedingung, 8);
+	container con(0, 1, 0, 1, 0, 1, blocks, blocks, blocks, randbedingung,
+			randbedingung, randbedingung, 8);
 	c_loop_all vl(con);
 
 	if (Settings::PseudoPeriodic) {
@@ -326,7 +332,6 @@ void grainhdl::VOROMicrostructure() {
 				y = 0.1337;
 				z = 0.6669;
 			}
-			con.put(i, x, y, z);
 		}
 	}
 	vector<vector<Vector3d> > initialHulls;
@@ -383,6 +388,9 @@ void grainhdl::VOROMicrostructure() {
 	} else {
 		throw runtime_error("Voronoy container error at start() method!");
 	}
+	gettimeofday(&time, NULL);
+	voro_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
+	cout << "Voronoi construction time: " << voro_time << endl;
 
 	buildBoxVectors(initialHulls);
 	con.draw_particles("VoronoyP.gnu");
@@ -1258,6 +1266,16 @@ for		(auto id : workload) {
 			grains[id]->recalculateIDLocal();
 		}
 	}
-	level_set();
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload =
+		m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+			if (grains[id] == NULL)
+			continue;
+			grains[id]->extractContour();
+		}
+	}
 }
 }

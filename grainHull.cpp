@@ -217,8 +217,8 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 		}
 	}
 
-	cout << m_QuadruplePoints.size() << endl;
-	cout << m_HighOrderJunctions.size() << endl;
+//	cout << m_QuadruplePoints.size() << endl;
+//	cout << m_HighOrderJunctions.size() << endl;
 
 	for(int i=0; i<m_HighOrderJunctions.size(); i++){
 		distanceTo = (m_HighOrderJunctions[i]->get_Position()-myposition).squaredNorm();

@@ -27,14 +27,14 @@
    <!--1/2 Gbb - material constant -->
    <Physical_Domain_Size>2.01e-4 </Physical_Domain_Size>   
    <!--unit: meter -->
-   <TriplePointDrag> 1 </TriplePointDrag>
-   <UseMobilityFactor> 1 </UseMobilityFactor>
+   <TriplePointDrag>1</TriplePointDrag>
+   <UseMobilityFactor>1</UseMobilityFactor>
    <UseMagneticField>0</UseMagneticField>
-   <MagneticParams> MagneticField.xml </MagneticParams>
-   <DisableConvolutionCorrection> 0 </DisableConvolutionCorrection>
+   <MagneticParams>MagneticField.xml</MagneticParams>
+   <DisableConvolutionCorrection>0</DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
-   <MaximumNumberOfThreads> 8 </MaximumNumberOfThreads>
+   <MaximumNumberOfThreads>8</MaximumNumberOfThreads>
    <GridCoarsement>1</GridCoarsement>
    <GridCoarsementGradient>0.95</GridCoarsementGradient> 
    <ConvolutionMode>2</ConvolutionMode>   

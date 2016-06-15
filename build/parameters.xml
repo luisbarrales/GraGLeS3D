@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
    <StartTime>0</StartTime>
+<<<<<<< HEAD
    <NumberOfParticles>5</NumberOfParticles>
    <NumberOfPointsPerGrain>30</NumberOfPointsPerGrain> 
+=======
+   <NumberOfParticles>10</NumberOfParticles>
+   <NumberOfPointsPerGrain>10</NumberOfPointsPerGrain> 
+>>>>>>> 61acaca4bf1c94facdbefa2aeb71666332556a1e
    <AnalysisTimestep>1</AnalysisTimestep>
    <PlotInterval>4</PlotInterval>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps>50000</NumberOfTimesteps>
+<<<<<<< HEAD
    <BreakupNumber>5</BreakupNumber>
+=======
+   <BreakupNumber>2</BreakupNumber>
+>>>>>>> 61acaca4bf1c94facdbefa2aeb71666332556a1e
    <DiscreteSamplingRate>25</DiscreteSamplingRate>
    <DomainBorderSize>7</DomainBorderSize>
    <MicrostructureGenMode>1</MicrostructureGenMode>

@@ -6,7 +6,7 @@
 "NX"		101
 "NY"		101
 "NZ"		101
-"NPoints"		 3 
+"NPoints"	3 
 
 
 || Points || *(iiiifffiiiiiii) || ID, x, y,z, bunge1, bunge2, bunge3, xmin, xmax, ymin, ymax, zmin, zmax, cnt
