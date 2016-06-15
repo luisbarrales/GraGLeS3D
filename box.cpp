@@ -1058,7 +1058,7 @@ void LSbox::extractContour() {
 		m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	}
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
-//	m_explicitHull.plotContour(true, m_grainHandler->get_loop());
+	m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();
@@ -1088,7 +1088,7 @@ void LSbox::computeInterfacialElementMesh(){
 	 * Correct the positions of the junctions
 	 */
 //	m_explicitHull.correctJunctionPositionWithNeighborInformation();
-	m_explicitHull.computeInterfacialElementMesh();
+//	m_explicitHull.computeInterfacialElementMesh();
 //	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
 }
 
