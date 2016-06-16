@@ -71,6 +71,7 @@ public:
 	void subDivideTrianglesToInterfacialElements();
 	Vector3d findClosestJunctionTo(Vector3d myposition);
 	void mergeJunction();
+	void switchBufferPositions();
 	void computeInterfacialElementMesh();
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);

@@ -158,7 +158,9 @@ public:
 	void createConvolutionPlans(ExpandingVector<char>& memory_dump);
 	void executeConvolution(ExpandingVector<char>& mem_pool);
 
+	void correctJunctionPositionWithNeighborInformation();
 	void computeInterfacialElementMesh();
+	void switchBufferPositions();
 
 
 #ifdef USE_FFTW
