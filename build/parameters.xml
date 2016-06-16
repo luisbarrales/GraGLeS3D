@@ -7,7 +7,7 @@
    <PlotInterval>1</PlotInterval>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps>50000</NumberOfTimesteps>
-   <BreakupNumber>2</BreakupNumber>
+   <BreakupNumber>5</BreakupNumber>
    <DiscreteSamplingRate>25</DiscreteSamplingRate>
    <DomainBorderSize>7</DomainBorderSize>
    <MicrostructureGenMode>1</MicrostructureGenMode>
