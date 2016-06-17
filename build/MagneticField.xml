@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-
    <VacuumPermeability> 12.566e-7 </VacuumPermeability> 
    <MagneticVector_x> 0.0 </MagneticVector_x>
    <MagneticVector_y> 0.848048096 </MagneticVector_y>
