@@ -261,7 +261,7 @@ void grainhdl::VOROMicrostructure() {
 		}
 		/**********************************************************/
 	} else {
-//		Randomly add particles into the container
+		//Randomly add particles into the container
 		for (int i = 0; i < ngrains; i++) {
 			double x = rnd();
 			double y = rnd();
@@ -269,48 +269,50 @@ void grainhdl::VOROMicrostructure() {
 			con.put(i, x, y, z);
 		}
 		/**********************************************************/
+		/*
+		 * Double pyramid
+		 */
 
-//		double x, y, z;
-//		for (int i = 0; i < ngrains; i++) {
-		//double x = rnd();
-		//double y = rnd();
-		//double z = rnd();
-		//			if (i == 0) {
-		//				x = 0.5;
-		//				y = 0.5;
-		//				z = 0.5;
-		//			} else if (i == 1) {
-		//				x = 0.25;
-		//				y = 0.25;
-		//				z = 0.25;
-		//			} else if (i == 2) {
-		//				x = 0.75;
-		//				y = 0.25;
-		//				z = 0.25;
-		//			} else if (i == 3) {
-		//				x = 0.25;
-		//				y = 0.75;
-		//				z = 0.25;
-		//			} else if (i == 4) {
-		//				x = 0.75;
-		//				y = 0.75;
-		//				z = 0.25;
-		//			} else if (i == 5) {
-		//				x = 0.25;
-		//				y = 0.25;
-		//				z = 0.75;
-		//			} else if (i == 6) {
-		//				x = 0.25;
-		//				y = 0.75;
-		//				z = 0.75;
-		//			} else if (i == 7) {
-		//				x = 0.75;
-		//				y = 0.25;
-		//				z = 0.75;
-		//			} else if (i == 8) {
-		//				x = 0.75;
-		//				y = 0.75;
-		//				z = 0.75;
+//			if (i == 0) {
+//				x = 0.5;
+//				y = 0.5;
+//				z = 0.5;
+//			} else if (i == 1) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 2) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 3) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 4) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 5) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 6) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.75;
+//			} else if (i == 7) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 8) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.75;
+//			}
+		/*
+		 * Tetraeder
+		 */
 //			if (i == 0) {
 //				x = 0.5;
 //				y = 0.5;
@@ -332,6 +334,7 @@ void grainhdl::VOROMicrostructure() {
 //				y = 0.1337;
 //				z = 0.6669;
 //			}
+//			con.put(i, x, y, z);
 //		}
 	}
 	vector<vector<Vector3d> > initialHulls;
@@ -373,7 +376,6 @@ void grainhdl::VOROMicrostructure() {
 							|| i >= ngridpoints - grid_blowup
 							|| j >= ngridpoints - grid_blowup
 							|| k >= ngridpoints - grid_blowup) {
-						//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 						IDField->setValueAt(i, j, k, 0);
 					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
 							cell_id)) {
@@ -663,7 +665,29 @@ void grainhdl::level_set() {
 				grains[id]->extractContour();
 		}
 	}
-#pragma omp parallel
+#pragma omp critical
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->correctJunctionPositionWithNeighborInformation();
+		}
+	}
+#pragma omp critical
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->switchBufferPositions();
+		}
+	}
+#pragma omp critical
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
@@ -749,6 +773,7 @@ void grainhdl::run_sim() {
 	distanceInitialisation();
 	Realtime = 0;
 	find_neighbors();
+
 	for (loop = Settings::StartTime;
 			loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++) {
 		gettimeofday(&time, NULL);
@@ -803,7 +828,6 @@ void grainhdl::run_sim() {
 			saveNetworkState();
 			save_texture();
 			save_sim();
-
 			for (const auto & it : grains) {
 				if (it != NULL)
 					if (it->getID() != 0) {
@@ -815,7 +839,7 @@ void grainhdl::run_sim() {
 							//						it->plotBoxInterfacialElements();
 							//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 							//					if (it->getID() == 3)
-							//					it->plotBoxContour();
+//							it->plotBoxContour();
 						}
 					}
 			}
@@ -834,9 +858,8 @@ void grainhdl::run_sim() {
 					<< ". Break and save." << endl;
 			break;
 		}
+		// 	utils::CreateMakeGif();
 	}
-// 	utils::CreateMakeGif();
-
 	cout << "Simulation complete." << endl;
 	cout << "Simulation Time: " << Realtime << endl;
 	cout << "Detailed timings: " << endl;

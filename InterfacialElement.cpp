@@ -188,8 +188,8 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 	//if(m_owner->getID() == 1){
 	if (i != 2) {
 		m_vertices.push_back(NULL);
-		cout << "Tripleline has not found two adjacent junctions. Grain ID:"
-				<< m_owner->m_owner->getID() << endl;
+		//cout << "Tripleline has not found two adjacent junctions. Grain ID:"
+		//		<< m_owner->m_owner->getID() << endl;
 		//		string filename = string("Grain_") + to_string(
 		//				(unsigned long long) m_owner->m_owner->getID()) + string(
 		//				"Defect_Tripleline_key_") + to_string(

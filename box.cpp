@@ -1052,7 +1052,7 @@ void LSbox::extractContour() {
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();
-//	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
+	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
 }
 
 void LSbox::updateFirstOrderNeigbors() {
@@ -1073,13 +1073,17 @@ void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeJunctionPosition();
 }
 
+void LSbox::correctJunctionPositionWithNeighborInformation(){
+	m_explicitHull.correctJunctionPositionWithNeighborInformation();
+}
+
 void LSbox::computeInterfacialElementMesh() {
-	/*
-	 * Correct the positions of the junctions
-	 */
-//	m_explicitHull.correctJunctionPositionWithNeighborInformation();
-//	m_explicitHull.computeInterfacialElementMesh();
+	m_explicitHull.computeInterfacialElementMesh();
 //	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
+}
+
+void LSbox::switchBufferPositions(){
+	m_explicitHull.switchBufferPositions();
 }
 
 Vector3d LSbox::findClosestJunctionTo(Vector3d myposition) {

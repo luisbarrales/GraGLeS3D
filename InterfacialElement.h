@@ -55,6 +55,8 @@ public:
 	virtual void computeMobility()= 0;
 	virtual Vector3d get_Position()=0;
 	virtual void set_Position(Vector3d newposition)=0;
+	virtual void set_BufferPosition(Vector3d newposition)=0;
+	virtual void switch_BufferPosition()=0;
 
 	void addBaryCenter(Vector3d current) {
 		m_barycenterTriangles.push_back(current);
@@ -97,6 +99,7 @@ class QuadrupleJunction;
 class HighOrderJunction: public InterfacialElement {
 private:
 	Vector3d m_position;
+	Vector3d m_bufferPosition;
 	//TODO:
 public:
 	friend class GrainHull;
@@ -114,11 +117,18 @@ public:
 	inline void set_Position(Vector3d newposition) {
 		m_position = newposition;
 	}
+	inline void set_BufferPosition(Vector3d newposition){
+		m_bufferPosition = newposition;
+	}
+	inline void switch_BufferPosition(){
+		m_position = m_bufferPosition;
+	}
 };
 
 class QuadrupleJunction: public InterfacialElement {
 private:
 	Vector3d m_position;
+	Vector3d m_bufferPosition;
 public:
 	friend class GrainHull;
 	QuadrupleJunction(int key, GrainHull *owner);
@@ -144,6 +154,12 @@ public:
 	;
 	inline void set_Position(Vector3d newposition) {
 		m_position = newposition;
+	}
+	inline void set_BufferPosition(Vector3d newposition){
+			m_bufferPosition = newposition;
+	}
+	inline void switch_BufferPosition(){
+		m_position = m_bufferPosition;
 	}
 };
 
@@ -174,6 +190,12 @@ public:
 	inline void set_Position(Vector3d newposition) {
 
 	}
+	inline void set_BufferPosition(Vector3d newposition) {
+
+	}
+	inline void switch_BufferPosition(){
+
+	}
 };
 
 class GrainBoundary: public InterfacialElement {
@@ -194,6 +216,12 @@ public:
 		return Vector3d(-1, -1, -1);
 	}
 	inline void set_Position(Vector3d newposition) {
+
+	}
+	inline void set_BufferPosition(Vector3d newposition) {
+
+	}
+	inline void switch_BufferPosition(){
 
 	}
 };

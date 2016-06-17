@@ -25,6 +25,7 @@
 #include "spoint.h"
 #include "grahamScan.h"
 #include "grainhdl.h"
+#include <fstream>
 
 using namespace std;
 
@@ -217,9 +218,6 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 		}
 	}
 
-//	cout << m_QuadruplePoints.size() << endl;
-//	cout << m_HighOrderJunctions.size() << endl;
-
 	for(int i=0; i<m_HighOrderJunctions.size(); i++){
 		distanceTo = (m_HighOrderJunctions[i]->get_Position()-myposition).squaredNorm();
 		if(distanceTo<distanceH){
@@ -227,7 +225,6 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 			posHigherOrder = i;
 		}
 	}
-
 	if(distanceH>distanceQ){
 		return m_QuadruplePoints[posQuadruple]->get_Position();
 	}
@@ -237,35 +234,136 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 }
 
 void GrainHull::correctJunctionPositionWithNeighborInformation() {
+	/*
+	 * some debugging
+	 */
+
+	vector<double> distances;
+
+	string filenamePos;
+	filenamePos = "Position_";
+	filenamePos += to_string(m_owner->getID());
+	filenamePos += "Timestep_";
+	filenamePos += to_string(m_owner->get_grainHandler()->get_loop());
+	ofstream CorrectingPositions;
+	CorrectingPositions.open(filenamePos.c_str());
+
+	CorrectingPositions << "xcoord ycoord zcoord scalar" << endl;
+
+	/*
+	 * end of debugging
+	 */
+
 	for (const auto it : m_QuadruplePoints) {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
+
 		for (int i = 0; i < neighbors.size(); i++) {
-//			cout << neighbors[i] << endl;
 			if(neighbors[i] != 0){
+
+				/*
+				 * some debugging
+				 */
+				Vector3d posClosestJunction;
+				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
+						it->get_Position());
+				distances.push_back((posClosestJunction-it->get_Position()).norm());
+
+				if(m_owner->getID()==1)
+					if(distances.back() > 7){
+						CorrectingPositions << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
+								" "<< (it->get_Position())(2) << " " << distances.back() << endl;
+						CorrectingPositions << posClosestJunction(0) << " " << posClosestJunction(1) <<
+								" "<< posClosestJunction(2) << " " << distances.back() << endl;
+
+						cout << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
+								" "<< (it->get_Position())(2) << " " << distances.back() << endl;
+						cout << posClosestJunction(0) << " " << posClosestJunction(1) <<
+								" "<< posClosestJunction(2) << " " << distances.back() << endl;
+					}
+				/*
+				 * end of debugging
+				 */
 				correspondingJunctions +=
 						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
 								it->get_Position());
 			}
 		}
 		correspondingJunctions /= (double) (it->get_NeighborIDs().size() + 1);
-		it->set_Position(correspondingJunctions);
+		it->set_BufferPosition(correspondingJunctions);
 	}
 	for (const auto it : m_HighOrderJunctions) {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
+
 		for (int i = 0; i < neighbors.size(); i++) {
-//			cout << neighbors[i] << endl;
 			if(neighbors[i] != 0){
+				/*
+				 * some debugging
+				 */
+				Vector3d posClosestJunction;
+				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
+						it->get_Position());
+				distances.push_back((posClosestJunction-it->get_Position()).norm());
+
+				if(m_owner->getID()==1)
+					if(distances.back() > 7){
+						CorrectingPositions << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
+								" "<< (it->get_Position())(2) << " "  << distances.back() << endl;
+						CorrectingPositions << posClosestJunction(0) << " " << posClosestJunction(1) <<
+								" "<< posClosestJunction(2) <<  " "  << distances.back() << endl;
+
+						cout << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
+								" "<< (it->get_Position())(2) << " "  << distances.back() << endl;
+						cout << posClosestJunction(0) << " " << posClosestJunction(1) <<
+								" "<< posClosestJunction(2) <<  " "  << distances.back() << endl;
+					}
+
+				/*
+				 * end of debugging
+				 */
+
 				correspondingJunctions +=
 						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
 								it->get_Position());
 			}
 		}
 		correspondingJunctions /= (double) (it->get_NeighborIDs().size() + 1);
-		it->set_Position(correspondingJunctions);
+		it->set_BufferPosition(correspondingJunctions);
 	}
 
+	/*
+	 * some debugging
+	 */
+
+	if(m_owner->getID()==1)
+		CorrectingPositions.close();
+
+	if(m_owner->getID()==1){
+		string filename;
+		filename = "DistanceHistogram_Grain_";
+		filename += to_string(m_owner->getID());
+		filename += "Timestep_";
+		filename += to_string(m_owner->get_grainHandler()->get_loop());
+		ofstream DistanceHistogram;
+		DistanceHistogram.open(filename.c_str());
+		for(int i=0; i<distances.size(); i++){
+			DistanceHistogram << distances[i] << endl;
+		}
+		DistanceHistogram.close();
+	}
+	/*
+	 * end of debugging
+	 */
+
+}
+
+void GrainHull::switchBufferPositions(){
+
+	for (const auto it : m_QuadruplePoints)
+		it->switch_BufferPosition();
+	for (const auto it : m_HighOrderJunctions)
+		it->switch_BufferPosition();
 }
 
 void GrainHull::computeInterfacialElementMesh() {

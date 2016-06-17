@@ -160,7 +160,9 @@ public:
 	void createConvolutionPlans(ExpandingVector<char>& memory_dump);
 	void executeConvolution(ExpandingVector<char>& mem_pool);
 
+	void correctJunctionPositionWithNeighborInformation();
 	void computeInterfacialElementMesh();
+	void switchBufferPositions();
 
 #ifdef USE_FFTW
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
