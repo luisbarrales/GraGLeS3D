@@ -209,26 +209,26 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 	int posQuadruple;
 	int posHigherOrder;
 
-
-	for(int i=0; i<m_QuadruplePoints.size(); i++){
-		distanceTo = (m_QuadruplePoints[i]->get_Position()-myposition).squaredNorm();
-		if(distanceTo<distanceQ){
-			distanceQ=distanceTo;
+	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
+		distanceTo =
+				(m_QuadruplePoints[i]->get_Position() - myposition).squaredNorm();
+		if (distanceTo < distanceQ) {
+			distanceQ = distanceTo;
 			posQuadruple = i;
 		}
 	}
 
-	for(int i=0; i<m_HighOrderJunctions.size(); i++){
-		distanceTo = (m_HighOrderJunctions[i]->get_Position()-myposition).squaredNorm();
-		if(distanceTo<distanceH){
-			distanceH=distanceTo;
+	for (int i = 0; i < m_HighOrderJunctions.size(); i++) {
+		distanceTo =
+				(m_HighOrderJunctions[i]->get_Position() - myposition).squaredNorm();
+		if (distanceTo < distanceH) {
+			distanceH = distanceTo;
 			posHigherOrder = i;
 		}
 	}
-	if(distanceH>distanceQ){
+	if (distanceH > distanceQ) {
 		return m_QuadruplePoints[posQuadruple]->get_Position();
-	}
-	else{
+	} else {
 		return m_HighOrderJunctions[posHigherOrder]->get_Position();
 	}
 }
@@ -246,9 +246,9 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 	filenamePos += "Timestep_";
 	filenamePos += to_string(m_owner->get_grainHandler()->get_loop());
 	ofstream CorrectingPositions;
-	CorrectingPositions.open(filenamePos.c_str());
-
-	CorrectingPositions << "xcoord ycoord zcoord scalar" << endl;
+//	CorrectingPositions.open(filenamePos.c_str());
+//
+//	CorrectingPositions << "xcoord ycoord zcoord scalar" << endl;
 
 	/*
 	 * end of debugging
@@ -259,27 +259,37 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		Vector3d correspondingJunctions(it->get_Position());
 
 		for (int i = 0; i < neighbors.size(); i++) {
-			if(neighbors[i] != 0){
+			if (neighbors[i] != 0) {
 
 				/*
 				 * some debugging
 				 */
 				Vector3d posClosestJunction;
-				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
+				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(
+						neighbors[i])->findClosestJunctionTo(
 						it->get_Position());
-				distances.push_back((posClosestJunction-it->get_Position()).norm());
+				distances.push_back(
+						(posClosestJunction - it->get_Position()).norm());
 
-				if(m_owner->getID()==1)
-					if(distances.back() > 7){
-						CorrectingPositions << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
-								" "<< (it->get_Position())(2) << " " << distances.back() << endl;
-						CorrectingPositions << posClosestJunction(0) << " " << posClosestJunction(1) <<
-								" "<< posClosestJunction(2) << " " << distances.back() << endl;
+				if (m_owner->getID() == 1)
+					if (distances.back() > 7) {
+						CorrectingPositions << (it->get_Position())(0) << " "
+								<< (it->get_Position())(1) << " "
+								<< (it->get_Position())(2) << " "
+								<< distances.back() << endl;
+						CorrectingPositions << posClosestJunction(0) << " "
+								<< posClosestJunction(1) << " "
+								<< posClosestJunction(2) << " "
+								<< distances.back() << endl;
 
-						cout << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
-								" "<< (it->get_Position())(2) << " " << distances.back() << endl;
-						cout << posClosestJunction(0) << " " << posClosestJunction(1) <<
-								" "<< posClosestJunction(2) << " " << distances.back() << endl;
+						cout << (it->get_Position())(0) << " "
+								<< (it->get_Position())(1) << " "
+								<< (it->get_Position())(2) << " "
+								<< distances.back() << endl;
+						cout << posClosestJunction(0) << " "
+								<< posClosestJunction(1) << " "
+								<< posClosestJunction(2) << " "
+								<< distances.back() << endl;
 					}
 				/*
 				 * end of debugging
@@ -297,26 +307,36 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		Vector3d correspondingJunctions(it->get_Position());
 
 		for (int i = 0; i < neighbors.size(); i++) {
-			if(neighbors[i] != 0){
+			if (neighbors[i] != 0) {
 				/*
 				 * some debugging
 				 */
 				Vector3d posClosestJunction;
-				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
+				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(
+						neighbors[i])->findClosestJunctionTo(
 						it->get_Position());
-				distances.push_back((posClosestJunction-it->get_Position()).norm());
+				distances.push_back(
+						(posClosestJunction - it->get_Position()).norm());
 
-				if(m_owner->getID()==1)
-					if(distances.back() > 7){
-						CorrectingPositions << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
-								" "<< (it->get_Position())(2) << " "  << distances.back() << endl;
-						CorrectingPositions << posClosestJunction(0) << " " << posClosestJunction(1) <<
-								" "<< posClosestJunction(2) <<  " "  << distances.back() << endl;
+				if (m_owner->getID() == 1)
+					if (distances.back() > 7) {
+						CorrectingPositions << (it->get_Position())(0) << " "
+								<< (it->get_Position())(1) << " "
+								<< (it->get_Position())(2) << " "
+								<< distances.back() << endl;
+						CorrectingPositions << posClosestJunction(0) << " "
+								<< posClosestJunction(1) << " "
+								<< posClosestJunction(2) << " "
+								<< distances.back() << endl;
 
-						cout << (it->get_Position())(0) << " " << (it->get_Position())(1) <<
-								" "<< (it->get_Position())(2) << " "  << distances.back() << endl;
-						cout << posClosestJunction(0) << " " << posClosestJunction(1) <<
-								" "<< posClosestJunction(2) <<  " "  << distances.back() << endl;
+						cout << (it->get_Position())(0) << " "
+								<< (it->get_Position())(1) << " "
+								<< (it->get_Position())(2) << " "
+								<< distances.back() << endl;
+						cout << posClosestJunction(0) << " "
+								<< posClosestJunction(1) << " "
+								<< posClosestJunction(2) << " "
+								<< distances.back() << endl;
 					}
 
 				/*
@@ -336,29 +356,29 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 	 * some debugging
 	 */
 
-	if(m_owner->getID()==1)
-		CorrectingPositions.close();
+//	if (m_owner->getID() == 1)
+//		CorrectingPositions.close();
 
-	if(m_owner->getID()==1){
-		string filename;
-		filename = "DistanceHistogram_Grain_";
-		filename += to_string(m_owner->getID());
-		filename += "Timestep_";
-		filename += to_string(m_owner->get_grainHandler()->get_loop());
-		ofstream DistanceHistogram;
-		DistanceHistogram.open(filename.c_str());
-		for(int i=0; i<distances.size(); i++){
-			DistanceHistogram << distances[i] << endl;
-		}
-		DistanceHistogram.close();
-	}
+//	if (m_owner->getID() == 1) {
+//		string filename;
+//		filename = "DistanceHistogram_Grain_";
+//		filename += to_string(m_owner->getID());
+//		filename += "Timestep_";
+//		filename += to_string(m_owner->get_grainHandler()->get_loop());
+//		ofstream DistanceHistogram;
+//		DistanceHistogram.open(filename.c_str());
+//		for (int i = 0; i < distances.size(); i++) {
+////			DistanceHistogram << distances[i] << endl;
+//		}
+//		DistanceHistogram.close();
+//	}
 	/*
 	 * end of debugging
 	 */
 
 }
 
-void GrainHull::switchBufferPositions(){
+void GrainHull::switchBufferPositions() {
 
 	for (const auto it : m_QuadruplePoints)
 		it->switch_BufferPosition();
@@ -397,7 +417,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	/*
 	 * Calculate the normal vector of every triangle
 	 */
-	if (m_owner->getID() == 3) {
+	if (m_owner->getID() == 1) {
 
 		//m_normalVectors.clear();
 		m_normalVectors.resize(m_actualHull.size());
@@ -452,8 +472,7 @@ void GrainHull::computeInterfacialElementMesh() {
 		if (m_LD < 0)
 			m_LD *= -1;
 
-		/*
-		 * Calculate the length of the triple lines
+		/* Calculate the length of the triple lines*/
 
 		double old_length = m_TripleLineLength;
 		m_TripleLineLength = 0;
@@ -464,79 +483,79 @@ void GrainHull::computeInterfacialElementMesh() {
 				continue;
 			m_TripleLineLength += (vertices_temp[0]->get_Position()
 					- vertices_temp[1]->get_Position()).norm();
-		}*/
+		}
+//		if (Settings::DecoupleGrains == 0) {
+//
+//			vector<SPoint> ProjectedPoints;
+//			for (const auto it2 : m_TripleLines) {
+//				for (const auto itBary : it2->m_barycenterTriangles) {
+//					SPoint newPoint((itBary)[0], (itBary)[2], (itBary)[1]);
+//					SPoint projection = newPoint.projectPointToPlane(
+//							SPoint(0, 0, 0.5), SPoint(1, 0, 0),
+//							SPoint(0, 1, 0));
+//					ProjectedPoints.push_back(projection);
+//				}
+//			}
+//			GrahamScan scanner(ProjectedPoints);
+//			vector<SPoint> ConvexHull;
+//			scanner.generateCovnexHull(ConvexHull);
+//			m_TripleLineLength = 0;
+//
+//			for (vector<SPoint>::iterator it = ConvexHull.begin();
+//					it != (--ConvexHull.end()); it++) {
+//				//			for (int it =0 ; it < ConvexHull.size()-1; it++) {
+//				vector<SPoint>::iterator it2 = it + 1;
+//				m_TripleLineLength += (*it).DistanceTo(*(it2));
+//				//			m_TripleLineLength += ConvexHull[it].DistanceTo(ConvexHull[it+1]);
+//			}
+			/*unsigned long long timestep =
+			 (unsigned long long) m_owner->get_grainHandler()->get_loop();
+			 if (((timestep - Settings::StartTime)
+			 % int(Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+			 || timestep == Settings::NumberOfTimesteps) {
 
-			if(Settings::DecoupleGrains==0){
+			 string filename = string("ConvexHull_") + to_string(timestep)
+			 + string(".gnu");
+			 FILE* output = fopen(filename.c_str(), "wt");
+			 for (const auto it : ConvexHull) {
+			 std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+			 }
+			 fclose(output);
 
-		 vector<SPoint> ProjectedPoints;
-		 for (const auto it2 : m_TripleLines) {
-		 for (const auto itBary : it2->m_barycenterTriangles) {
-		 SPoint newPoint((itBary)[0], (itBary)[2], (itBary)[1]);
-		 SPoint projection = newPoint.projectPointToPlane(
-		 SPoint(0, 0, 0.5), SPoint(1, 0, 0), SPoint(0, 1, 0));
-		 ProjectedPoints.push_back(projection);
-		 }
-		 }
-		 GrahamScan scanner(ProjectedPoints);
-		 vector<SPoint> ConvexHull;
-		 scanner.generateCovnexHull(ConvexHull);
-		 m_TripleLineLength = 0;
+			 string filename1 = string("ProjectedPoints_")
+			 + to_string((unsigned long long) timestep) + string(".gnu");
+			 FILE* output1 = fopen(filename1.c_str(), "wt");
 
-		 for (vector<SPoint>::iterator it = ConvexHull.begin();
-		 it != (--ConvexHull.end()); it++) {
-		 //			for (int it =0 ; it < ConvexHull.size()-1; it++) {
-		 vector<SPoint>::iterator it2 = it + 1;
-		 m_TripleLineLength += (*it).DistanceTo(*(it2));
-		 //			m_TripleLineLength += ConvexHull[it].DistanceTo(ConvexHull[it+1]);
-		 }
-		 /*unsigned long long timestep =
-		 (unsigned long long) m_owner->get_grainHandler()->get_loop();
-		 if (((timestep - Settings::StartTime)
-		 % int(Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
-		 || timestep == Settings::NumberOfTimesteps) {
+			 for (const auto it : ProjectedPoints) {
+			 fprintf(output, "%lf \t %lf \n", it.x, it.y);
+			 }
+			 fclose(output1);
+			 }*/
 
-		 string filename = string("ConvexHull_") + to_string(timestep)
-		 + string(".gnu");
-		 FILE* output = fopen(filename.c_str(), "wt");
-		 for (const auto it : ConvexHull) {
-		 std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
-		 }
-		 fclose(output);
-
-		 string filename1 = string("ProjectedPoints_")
-		 + to_string((unsigned long long) timestep) + string(".gnu");
-		 FILE* output1 = fopen(filename1.c_str(), "wt");
-
-		 for (const auto it : ProjectedPoints) {
-		 fprintf(output, "%lf \t %lf \n", it.x, it.y);
-		 }
-		 fclose(output1);
-		 }*/
-
-		//		int timestep = m_owner->get_grainHandler()->get_loop();
-		//		if (((timestep - Settings::StartTime) % int(
-		//				Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
-		//				|| timestep == Settings::NumberOfTimesteps) {
-		//
-		//			string filename = string("ConvexHull_") + to_string(timestep)
-		//					+ string(".gnu");
-		//			FILE* output = fopen(filename.c_str(), "wt");
-		//			for (const auto it : ConvexHull) {
-		//				std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
-		//			}
-		//			fclose(output);
-		//
-		//			string filename1 = string("ProjectedPoints_") + to_string(
-		//					(unsigned long long) timestep) + string(".gnu");
-		//			FILE* output1 = fopen(filename1.c_str(), "wt");
-		//
-		//			for (const auto it : ProjectedPoints) {
-		//				fprintf(output, "%lf \t %lf \n", it.x, it.y);
-		//			}
-		//			fclose(output1);
-		//		}
+			//		int timestep = m_owner->get_grainHandler()->get_loop();
+			//		if (((timestep - Settings::StartTime) % int(
+			//				Settings::AnalysisTimestep * Settings::PlotInterval)) == 0
+			//				|| timestep == Settings::NumberOfTimesteps) {
+			//
+			//			string filename = string("ConvexHull_") + to_string(timestep)
+			//					+ string(".gnu");
+			//			FILE* output = fopen(filename.c_str(), "wt");
+			//			for (const auto it : ConvexHull) {
+			//				std::fprintf(output, "%lf \t %lf  \n", it.x, it.y);
+			//			}
+			//			fclose(output);
+			//
+			//			string filename1 = string("ProjectedPoints_") + to_string(
+			//					(unsigned long long) timestep) + string(".gnu");
+			//			FILE* output1 = fopen(filename1.c_str(), "wt");
+			//
+			//			for (const auto it : ProjectedPoints) {
+			//				fprintf(output, "%lf \t %lf \n", it.x, it.y);
+			//			}
+			//			fclose(output1);
+			//		}
+//		}
 	}
-}
 }
 void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {

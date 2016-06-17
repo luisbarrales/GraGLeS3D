@@ -262,54 +262,53 @@ void grainhdl::VOROMicrostructure() {
 		/**********************************************************/
 	} else {
 		//Randomly add particles into the container
+		double x,y,z;
 		for (int i = 0; i < ngrains; i++) {
-			double x = rnd();
-			double y = rnd();
-			double z = rnd();
-			con.put(i, x, y, z);
-		}
+//			x = rnd();
+//			y = rnd();
+//			z = rnd();
 		/**********************************************************/
 		/*
 		 * Double pyramid
 		 */
 
-//			if (i == 0) {
-//				x = 0.5;
-//				y = 0.5;
-//				z = 0.5;
-//			} else if (i == 1) {
-//				x = 0.25;
-//				y = 0.25;
-//				z = 0.25;
-//			} else if (i == 2) {
-//				x = 0.75;
-//				y = 0.25;
-//				z = 0.25;
-//			} else if (i == 3) {
-//				x = 0.25;
-//				y = 0.75;
-//				z = 0.25;
-//			} else if (i == 4) {
-//				x = 0.75;
-//				y = 0.75;
-//				z = 0.25;
-//			} else if (i == 5) {
-//				x = 0.25;
-//				y = 0.25;
-//				z = 0.75;
-//			} else if (i == 6) {
-//				x = 0.25;
-//				y = 0.75;
-//				z = 0.75;
-//			} else if (i == 7) {
-//				x = 0.75;
-//				y = 0.25;
-//				z = 0.75;
-//			} else if (i == 8) {
-//				x = 0.75;
-//				y = 0.75;
-//				z = 0.75;
-//			}
+			if (i == 0) {
+				x = 0.5;
+				y = 0.5;
+				z = 0.5;
+			} else if (i == 1) {
+				x = 0.25;
+				y = 0.25;
+				z = 0.25;
+			} else if (i == 2) {
+				x = 0.75;
+				y = 0.25;
+				z = 0.25;
+			} else if (i == 3) {
+				x = 0.25;
+				y = 0.75;
+				z = 0.25;
+			} else if (i == 4) {
+				x = 0.75;
+				y = 0.75;
+				z = 0.25;
+			} else if (i == 5) {
+				x = 0.25;
+				y = 0.25;
+				z = 0.75;
+			} else if (i == 6) {
+				x = 0.25;
+				y = 0.75;
+				z = 0.75;
+			} else if (i == 7) {
+				x = 0.75;
+				y = 0.25;
+				z = 0.75;
+			} else if (i == 8) {
+				x = 0.75;
+				y = 0.75;
+				z = 0.75;
+			}
 		/*
 		 * Tetraeder
 		 */
@@ -334,8 +333,8 @@ void grainhdl::VOROMicrostructure() {
 //				y = 0.1337;
 //				z = 0.6669;
 //			}
-//			con.put(i, x, y, z);
-//		}
+			con.put(i, x, y, z);
+		}
 	}
 	vector<vector<Vector3d> > initialHulls;
 	vector<double> cellCoordinates;
