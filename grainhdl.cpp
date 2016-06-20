@@ -128,14 +128,12 @@ void grainhdl::readOriFile() {
 	OriFromFile = fopen(Settings::AdditionalFilename.c_str(), "r");
 	int id, N = 0;
 	char c;
-	int result;
 	// count number of orientations
 	do {
 		c = fgetc(OriFromFile);
 		if (c == '\n')
 			N++;
-		result = scanf("%c", &c);
-	} while (result != EOF);
+	} while (c != EOF);
 	N--;
 	rewind(OriFromFile);
 	// read over header

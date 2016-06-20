@@ -49,7 +49,7 @@
 	0 	Energies defined by ReadShockley Model
 	1	Energies set to 1			
    -->
-   <GrainScheduler>1</GrainScheduler>
+   <GrainScheduler>0</GrainScheduler>
    <!-- USAGE:
     	0   	E_ITERATIVE
    	1   	E_SQUARES

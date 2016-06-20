@@ -417,7 +417,7 @@ void GrainHull::computeInterfacialElementMesh() {
 	/*
 	 * Calculate the normal vector of every triangle
 	 */
-	if (m_owner->getID() == 1) {
+	if (m_owner->getID() == -1) {
 
 		//m_normalVectors.clear();
 		m_normalVectors.resize(m_actualHull.size());

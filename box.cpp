@@ -118,8 +118,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 				0), m_surface(0), m_explicitHull(this) {
 	int grid_blowup = owner->get_grid_blowup();
 	m_magneticEnergy = 0;
-	if (Settings::UseMagneticField)
-		calculateMagneticEnergy();
 	double h = owner->get_h();
 	// determine size of grain
 	m_orientationQuat = new myQuaternion();
@@ -151,6 +149,8 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 						m_grainHandler->mymath);
 		}
 	}
+	if (Settings::UseMagneticField)
+		calculateMagneticEnergy();
 	int xmax = 0;
 	int xmin = m_grainHandler->get_ngridpoints();
 	int ymax = 0;
@@ -465,10 +465,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 						GBInfo localGB(1, 1);
 //						localGB = m_explicitHull.projectPointToGrainBoundary(
 //								point, grain.grainID);
-						m_outputDistance->setValueAt(
-								i,
-								j,
-								k,
+						m_outputDistance->setValueAt(i, j, k,
 								val
 										+ (m_outputDistance->getValueAt(i, j, k)
 												- val) * localGB.energy
@@ -482,10 +479,7 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 											* localGB.mobility
 											* m_grainHandler->get_dt();
 
-							m_outputDistance->setValueAt(
-									i,
-									j,
-									k,
+							m_outputDistance->setValueAt(i, j, k,
 									(m_outputDistance->getValueAt(i, j, k)
 											- f_magneticEnergy));
 						}
@@ -745,10 +739,7 @@ void LSbox::executeSetComparison() {
 					j < m_outputDistance->getMaxX(); j++) {
 				if (abs(m_inputDistance->getValueAt(i, j, k))
 						< 0.7 * m_grainHandler->delta) {
-					m_outputDistance->setValueAt(
-							i,
-							j,
-							k,
+					m_outputDistance->setValueAt(i, j, k,
 							0.5
 									* (m_inputDistance->getValueAt(i, j, k)
 											- m_outputDistance->getValueAt(i, j,
@@ -1073,7 +1064,7 @@ void LSbox::computeSurfaceElements() {
 	m_explicitHull.computeJunctionPosition();
 }
 
-void LSbox::correctJunctionPositionWithNeighborInformation(){
+void LSbox::correctJunctionPositionWithNeighborInformation() {
 	m_explicitHull.correctJunctionPositionWithNeighborInformation();
 }
 
@@ -1082,7 +1073,7 @@ void LSbox::computeInterfacialElementMesh() {
 //	m_explicitHull.plotInterfacialElements(true, m_grainHandler->get_loop());
 }
 
-void LSbox::switchBufferPositions(){
+void LSbox::switchBufferPositions() {
 	m_explicitHull.switchBufferPositions();
 }
 
@@ -1207,11 +1198,9 @@ void LSbox::executeRedistancing() {
 					//					if (abs(candidate)
 					//							< abs(m_outputDistance->getValueAt(i, j - 1, k)))
 					//=======
-					candidate =
-							m_outputDistance->getValueAt(i, j, k)
-									+ sgn(
-											m_outputDistance->getValueAt(i,
-													j - 1, k)) * h;
+					candidate = m_outputDistance->getValueAt(i, j, k)
+							+ sgn(m_outputDistance->getValueAt(i, j - 1, k))
+									* h;
 					if (abs(candidate)
 							< abs(m_outputDistance->getValueAt(i, j - 1, k)))
 						//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
