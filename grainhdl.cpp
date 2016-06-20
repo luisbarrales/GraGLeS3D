@@ -128,12 +128,14 @@ void grainhdl::readOriFile() {
 	OriFromFile = fopen(Settings::AdditionalFilename.c_str(), "r");
 	int id, N = 0;
 	char c;
+	int result;
 	// count number of orientations
 	do {
 		c = fgetc(OriFromFile);
 		if (c == '\n')
 			N++;
-	} while (c != 'eof');
+		result = scanf("%c", &c);
+	} while (result != EOF);
 	N--;
 	rewind(OriFromFile);
 	// read over header
@@ -264,51 +266,51 @@ void grainhdl::VOROMicrostructure() {
 		//Randomly add particles into the container
 		double x,y,z;
 		for (int i = 0; i < ngrains; i++) {
-//			x = rnd();
-//			y = rnd();
-//			z = rnd();
+			x = rnd();
+			y = rnd();
+			z = rnd();
 		/**********************************************************/
 		/*
 		 * Double pyramid
 		 */
-
-			if (i == 0) {
-				x = 0.5;
-				y = 0.5;
-				z = 0.5;
-			} else if (i == 1) {
-				x = 0.25;
-				y = 0.25;
-				z = 0.25;
-			} else if (i == 2) {
-				x = 0.75;
-				y = 0.25;
-				z = 0.25;
-			} else if (i == 3) {
-				x = 0.25;
-				y = 0.75;
-				z = 0.25;
-			} else if (i == 4) {
-				x = 0.75;
-				y = 0.75;
-				z = 0.25;
-			} else if (i == 5) {
-				x = 0.25;
-				y = 0.25;
-				z = 0.75;
-			} else if (i == 6) {
-				x = 0.25;
-				y = 0.75;
-				z = 0.75;
-			} else if (i == 7) {
-				x = 0.75;
-				y = 0.25;
-				z = 0.75;
-			} else if (i == 8) {
-				x = 0.75;
-				y = 0.75;
-				z = 0.75;
-			}
+//
+//			if (i == 0) {
+//				x = 0.5;
+//				y = 0.5;
+//				z = 0.5;
+//			} else if (i == 1) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 2) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.25;
+//			} else if (i == 3) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 4) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.25;
+//			} else if (i == 5) {
+//				x = 0.25;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 6) {
+//				x = 0.25;
+//				y = 0.75;
+//				z = 0.75;
+//			} else if (i == 7) {
+//				x = 0.75;
+//				y = 0.25;
+//				z = 0.75;
+//			} else if (i == 8) {
+//				x = 0.75;
+//				y = 0.75;
+//				z = 0.75;
+//			}
 		/*
 		 * Tetraeder
 		 */
@@ -1237,7 +1239,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	case E_GAUSSIAN: {
 		dt = 0.8 / double(realDomainSize * realDomainSize);
-		TimeSlope = 1 / 1.183;
+		TimeSlope = 1 / 1.21;
 		break;
 	}
 	default: {
