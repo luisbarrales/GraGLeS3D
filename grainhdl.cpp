@@ -394,8 +394,8 @@ void grainhdl::VOROMicrostructure() {
 	cout << "Voronoi construction time: " << voro_time << endl;
 
 	buildBoxVectors(initialHulls);
-	con.draw_particles("VoronoyP.gnu");
-	con.draw_cells_gnuplot("VoronoyC.gnu");
+//	con.draw_particles("VoronoyP.gnu");
+//	con.draw_cells_gnuplot("VoronoyC.gnu");
 }
 
 void grainhdl::readMicrostructure() {
@@ -1236,8 +1236,8 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 		break;
 	}
 	case E_GAUSSIAN: {
-		dt = 0.8 / double(realDomainSize * realDomainSize);
-		TimeSlope = 1 / 1.21;
+		dt = 0.2 / double(realDomainSize * realDomainSize);
+		TimeSlope = 1 / 1.25;
 		break;
 	}
 	default: {
