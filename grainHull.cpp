@@ -397,10 +397,10 @@ void GrainHull::computeInterfacialElementMesh() {
 	for (const auto it : m_Grainboundary) {
 		it->findAdjacentTripleLines(m_TripleLines);
 	}
-
-	meanWidth();
-	computeTriplelineLength();
-
+	if (m_owner->get_grainHandler()->get_loop() == 50 || m_owner->get_grainHandler()->get_loop() == 100) {
+		meanWidth();
+		computeTriplelineLength();
+	}
 }
 void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {

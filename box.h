@@ -135,6 +135,9 @@ public:
 	int getDirectNeighbourCount() {
 		return m_neighborCount;
 	}
+	bool IsNeighbor(int candidate) {
+		return m_explicitHull.IsNeighbor(candidate);
+	}
 	vector<int> getDirectNeighbourIDs();
 	vector<double> getGBLengths();
 	//map<int, double>& getDiscreteEnergyDistribution() { }
@@ -251,13 +254,13 @@ public:
 		return m_StoredElasticEnergy;
 	}
 	inline double get_NumberOfTriplelines() {
-			return m_explicitHull.getNumberOfTripleLines();
-		}
+		return m_explicitHull.getNumberOfTripleLines();
+	}
 	inline double get_NumberOfQuadruplePoints() {
-				return m_explicitHull.getNumberOfQuadruplePoints();
-			}
+		return m_explicitHull.getNumberOfQuadruplePoints();
+	}
 	inline double get_NumberOfHighOrderJunctions() {
-				return m_explicitHull.getNumberOfHighOrderJunctions();
-			}
+		return m_explicitHull.getNumberOfHighOrderJunctions();
+	}
 };
 #endif

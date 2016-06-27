@@ -77,7 +77,7 @@ public:
 	void computeTriplelineLength();
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
-
+	bool IsNeighbor(int candidate);
 	inline int get_numberOfQuadruplePoints() {
 		return m_QuadruplePoints.size();
 	}

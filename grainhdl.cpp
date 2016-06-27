@@ -1251,7 +1251,6 @@ void grainhdl::find_correctTimestepSize() {
 		m_dt_Correction = 1.0;
 	dt *= m_dt_Correction;
 }
-}
 
 void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 realDomainSize = newGridSize;
@@ -1277,7 +1276,7 @@ grid_blowup = Settings::DomainBorderSize;
 delta = Settings::DomainBorderSize / double(realDomainSize);
 ngridpoints = realDomainSize + 2 * grid_blowup;
 h = 1.0 / realDomainSize;
-find_correctTimestepSize();
+//find_correctTimestepSize();
 }
 
 void grainhdl::gridCoarsement() {
