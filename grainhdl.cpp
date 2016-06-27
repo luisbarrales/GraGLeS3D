@@ -731,9 +731,8 @@ void grainhdl::save_texture() {
 			file << grains[i]->getID() << "\t"
 					<< grains[i]->getDirectNeighbourCount() << "\t"
 					<< grains[i]->intersectsBoundaryGrain() << "\t"
-					<< grains[i]->getVolume()  << "\t"
-					<< grains[i]->getSurface() << "\t"
-					<< grains[i]->getEnergy()  << "\t"
+					<< grains[i]->getVolume() << "\t" << grains[i]->getSurface()
+					<< "\t" << grains[i]->getEnergy() << "\t"
 					<< grains[i]->getMeanWidth() << "\t"
 					<< grains[i]->getTripleLineLength() << "\t"
 					<< grains[i]->get_NumberOfTriplelines() << "\t"
@@ -1225,83 +1224,112 @@ void grainhdl::initNUMABindings() {
 	}
 }
 
-void grainhdl::updateGridAndTimeVariables(double newGridSize) {
-	realDomainSize = newGridSize;
-	switch (Settings::ConvolutionMode) {
-	case E_LAPLACE: {
-		dt = 0.8 / double(realDomainSize * realDomainSize);
-		break;
-	}
-	case E_LAPLACE_RITCHARDSON: {
-		dt = 0.8 / double(realDomainSize * realDomainSize);
-		break;
-	}
-	case E_GAUSSIAN: {
-		dt = 0.2 / double(realDomainSize * realDomainSize);
-		TimeSlope = 1 / 1.25;
-		break;
-	}
-	default: {
-		throw std::runtime_error("Unknown convolution mode!");
-	}
-	}
-	grid_blowup = Settings::DomainBorderSize;
-	delta = Settings::DomainBorderSize / double(realDomainSize);
-	ngridpoints = realDomainSize + 2 * grid_blowup;
-	h = 1.0 / realDomainSize;
+void grainhdl::find_correctTimestepSize() {
+	double my_max = 0;
+	double my_min = 1000000;
+	if (Settings::UseMagneticField) {
+		for (int i = 1; i < ngrains; i++) {
+			if (grains[i]->get_magneticEnergy() < my_min)
+				my_min = grains[i]->get_magneticEnergy();
+			if (grains[i]->get_magneticEnergy() > my_max)
+				my_max = grains[i]->get_magneticEnergy();
+		}
+	} else if (Settings::UseStoredElasticEnergy) {
+		for (int i = 1; i < ngrains; i++) {
+			if (grains[i]->get_SEE() < my_min)
+				my_min = grains[i]->get_SEE();
+			if (grains[i]->get_SEE() > my_max)
+				my_max = grains[i]->get_SEE();
+		}
+	} else
+		return;
+	if (ngrains == 1)
+		my_min = 0.0;
+	double Energy_deltaMAX = (my_max - my_min);
+	double m_dt_Correction = 0.5 / (double) realDomainSize / Energy_deltaMAX / dt;
+	if (m_dt_Correction > 1.0)
+		m_dt_Correction = 1.0;
+	dt *= m_dt_Correction;
+}
+}
 
+void grainhdl::updateGridAndTimeVariables(double newGridSize) {
+realDomainSize = newGridSize;
+switch (Settings::ConvolutionMode) {
+case E_LAPLACE: {
+	dt = 0.8 / double(realDomainSize * realDomainSize);
+	break;
+}
+case E_LAPLACE_RITCHARDSON: {
+	dt = 0.8 / double(realDomainSize * realDomainSize);
+	break;
+}
+case E_GAUSSIAN: {
+	dt = 0.2 / double(realDomainSize * realDomainSize);
+	TimeSlope = 1 / 1.25;
+	break;
+}
+default: {
+	throw std::runtime_error("Unknown convolution mode!");
+}
+}
+grid_blowup = Settings::DomainBorderSize;
+delta = Settings::DomainBorderSize / double(realDomainSize);
+ngridpoints = realDomainSize + 2 * grid_blowup;
+h = 1.0 / realDomainSize;
+find_correctTimestepSize();
 }
 
 void grainhdl::gridCoarsement() {
-	int newSize = pow(currentNrGrains, (1 / 3.0))
-			* Settings::NumberOfPointsPerGrain;
-	if ((double) currentNrGrains / (double) ngrains
-			< Settings::GridCoarsementGradient && loop != 0
-			&& Settings::GridCoarsement) {
-		double h_old = h;
-		updateGridAndTimeVariables(newSize);
-		cout << "coarsing the current grid in Timestep: " << loop << endl;
-		cout << "newSize :" << newSize << endl << endl;
+int newSize = pow(currentNrGrains, (1 / 3.0))
+		* Settings::NumberOfPointsPerGrain;
+if ((double) currentNrGrains / (double) ngrains
+		< Settings::GridCoarsementGradient && loop != 0
+		&& Settings::GridCoarsement) {
+	double h_old = h;
+	updateGridAndTimeVariables(newSize);
+	cout << "coarsing the current grid in Timestep: " << loop << endl;
+	cout << "newSize :" << newSize << endl << endl;
 #pragma omp parallel
-		{
-			vector<unsigned int>& workload =
-					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-			for (auto id : workload) {
-				if (id <= Settings::NumberOfParticles)
-					if (grains[id] == NULL)
-						continue;
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
 
-				grains[id]->resizeGrid(newSize, h_old);
-
-			}
+			grains[id]->resizeGrid(newSize, h_old);
 
 		}
-		//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
 
-		ngrains = currentNrGrains;
-#pragma omp parallel
-		{
-			vector<unsigned int>& workload =
-					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-			for (auto id : workload) {
-				if (id <= Settings::NumberOfParticles)
-					if (grains[id] == NULL)
-						continue;
-				grains[id]->recalculateIDLocal();
-			}
-		}
-#pragma omp parallel
-		{
-			vector<unsigned int>& workload =
-					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
-			for (auto id : workload) {
-				if (id <= Settings::NumberOfParticles)
-					if (grains[id] == NULL)
-						continue;
-				grains[id]->extractContour();
-			}
-		}
-	} else {
-		switchDistancebuffer();
 	}
+	//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
+
+	ngrains = currentNrGrains;
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->recalculateIDLocal();
+		}
+	}
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->extractContour();
+		}
+	}
+} else {
+	switchDistancebuffer();
+}
 }

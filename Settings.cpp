@@ -60,7 +60,7 @@ bool Settings::DecoupleGrains = false;
 double Settings::ConstantSectorRadius = 0.0;
 double Settings::InterpolatingSectorRadius = 0.0;
 unsigned long Settings::NeighbourTracking = 0;
-unsigned long Settings::DislocationEnergy = 0;
+bool Settings::UseStoredElasticEnergy = false;
 
 bool Settings::UseMagneticField = false;
 string Settings::MagneticParams;
@@ -223,8 +223,8 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("NeighbourTracking")->value());
 	}
 
-	if (0 != rootNode->first_node("DislocationEnergy")) {
-		DislocationEnergy = std::stoul(
+	if (0 != rootNode->first_node("UseStoredElasticEnergy")) {
+		UseStoredElasticEnergy = (bool) std::stoul(
 				rootNode->first_node("DislocationEnergy")->value());
 	}
 	if (0 != rootNode->first_node("GrainScheduler")) {
@@ -351,7 +351,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(ConstantSectorRadius);
 	PUSH_PARAM(InterpolatingSectorRadius);
 	PUSH_PARAM(NeighbourTracking);
-	PUSH_PARAM(DislocationEnergy);
+	PUSH_PARAM(UseStoredElasticEnergy);
 	PUSH_PARAM(GrainScheduler);
 	return params;
 }

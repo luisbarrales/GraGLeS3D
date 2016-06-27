@@ -129,6 +129,7 @@ public:
 	void plot_contour();
 	void gridCoarsement();
 	void updateGridAndTimeVariables(double newGridSize) ;
+	void find_correctTimestepSize();
 	void tweakIDLocal();
 
 	void saveAllContourLines();
