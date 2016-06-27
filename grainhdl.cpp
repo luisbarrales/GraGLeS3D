@@ -262,15 +262,15 @@ void grainhdl::VOROMicrostructure() {
 		/**********************************************************/
 	} else {
 		//Randomly add particles into the container
-		double x,y,z;
+		double x, y, z;
 		for (int i = 0; i < ngrains; i++) {
 			x = rnd();
 			y = rnd();
 			z = rnd();
-		/**********************************************************/
-		/*
-		 * Double pyramid
-		 */
+			/**********************************************************/
+			/*
+			 * Double pyramid
+			 */
 //
 //			if (i == 0) {
 //				x = 0.5;
@@ -309,9 +309,9 @@ void grainhdl::VOROMicrostructure() {
 //				y = 0.75;
 //				z = 0.75;
 //			}
-		/*
-		 * Tetraeder
-		 */
+			/*
+			 * Tetraeder
+			 */
 //			if (i == 0) {
 //				x = 0.5;
 //				y = 0.5;
@@ -664,7 +664,7 @@ void grainhdl::level_set() {
 				grains[id]->extractContour();
 		}
 	}
-#pragma omp critical
+#pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
@@ -675,7 +675,7 @@ void grainhdl::level_set() {
 			grains[id]->correctJunctionPositionWithNeighborInformation();
 		}
 	}
-#pragma omp critical
+#pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
@@ -686,7 +686,7 @@ void grainhdl::level_set() {
 			grains[id]->switchBufferPositions();
 		}
 	}
-#pragma omp critical
+#pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
@@ -731,9 +731,10 @@ void grainhdl::save_texture() {
 			file << grains[i]->getID() << "\t"
 					<< grains[i]->getDirectNeighbourCount() << "\t"
 					<< grains[i]->intersectsBoundaryGrain() << "\t"
-					<< grains[i]->getVolume() << "\t" << 0 << "\t"
-					<< grains[i]->getSurface() << "\t" << grains[i]->getEnergy()
-					<< "\t" << grains[i]->getMeanWidth() << "\t"
+					<< grains[i]->getVolume()  << "\t"
+					<< grains[i]->getSurface() << "\t"
+					<< grains[i]->getEnergy()  << "\t"
+					<< grains[i]->getMeanWidth() << "\t"
 					<< grains[i]->getTripleLineLength() << "\t"
 					<< grains[i]->get_NumberOfTriplelines() << "\t"
 					<< grains[i]->get_NumberOfQuadruplePoints() << "\t"

@@ -73,6 +73,8 @@ public:
 	void mergeJunction();
 	void switchBufferPositions();
 	void computeInterfacialElementMesh();
+	void meanWidth();
+	void computeTriplelineLength();
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
 
