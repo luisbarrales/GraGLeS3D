@@ -24,7 +24,7 @@ SquaresGrainScheduler::~SquaresGrainScheduler() {
 
 }
 void SquaresGrainScheduler::buildGrainWorkloads(
-		vector<vector<Eigen::Vector3d>>& hulls, int n_gridpoints) {
+		vector<vector<Eigen::Vector3d>*>& hulls, int n_gridpoints) {
 	if (Settings::ExecuteInParallel == 0 || omp_get_max_threads() == 1) {
 		for (int i = 1; i < hulls.size(); i++)
 			m_threadWorkVectors.at(0).push_back(i);
@@ -39,7 +39,7 @@ void SquaresGrainScheduler::buildGrainWorkloads(
 		list.resize(4);
 		for (unsigned int i = 1; i < hulls.size(); i++) {
 			int pos_x, pos_y, pos_z;
-			SPoint center = find_center(hulls[i], n_gridpoints);
+			SPoint center = find_center(*hulls[i], n_gridpoints);
 			//check for coordinate system
 			if (center.x > 2) { // coordinates are in gridpoint ids
 				pos_x = int(center.x / n_gridpoints + 0.5);

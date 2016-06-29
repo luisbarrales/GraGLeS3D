@@ -241,7 +241,7 @@ void grainhdl::VOROMicrostructure() {
 	if (blocks < 1)
 		blocks = 1;
 	container con(0, 1, 0, 1, 0, 1, blocks, blocks, blocks, randbedingung,
-			randbedingung, randbedingung, 8);
+			randbedingung, randbedingung, 10);
 	c_loop_all vl(con);
 
 	if (Settings::PseudoPeriodic) {
@@ -336,9 +336,11 @@ void grainhdl::VOROMicrostructure() {
 			con.put(i, x, y, z);
 		}
 	}
-	vector<vector<Vector3d> > initialHulls;
+	vector<vector<Vector3d>*> initialHulls;
 	vector<double> cellCoordinates;
+
 	if (vl.start()) {
+
 		initialHulls.resize(ngrains + 1);
 		do {
 			double cur_x, cur_y, cur_z;
@@ -347,16 +349,26 @@ void grainhdl::VOROMicrostructure() {
 			int box_id = vl.pid() + 1;
 			vl.pos(cur_x, cur_y, cur_z);
 			c.vertices(cur_x, cur_y, cur_z, cellCoordinates);
+			initialHulls.at(box_id) = new vector<Vector3d>;
+			initialHulls.at(box_id)->reserve(1000);
 			for (unsigned int i = 0; i < cellCoordinates.size() / 3; i++) {
-				initialHulls.at(box_id).push_back(
+				initialHulls.at(box_id)->push_back(
 						Vector3d(cellCoordinates.at(3 * i + 1),
 								cellCoordinates.at(3 * i),
 								cellCoordinates.at(3 * i + 2)));
 			}
 		} while (vl.inc());
 
-		IDField = new DimensionalBuffer<int>(0, 0, 0, ngridpoints, ngridpoints,
-				ngridpoints);
+		try {
+			IDField = new DimensionalBuffer<int>(0, 0, 0, ngridpoints,
+					ngridpoints, ngridpoints);
+		} catch (exception& e) {
+			cout << "Unable to read from Voronoi container! Reason:\n";
+			cout << e.what() << endl;
+			cout << "Simulation will now halt." << endl;
+			exit(2);
+			;
+		}
 		double x, y, z, rx, ry, rz;
 		int cell_id;
 		for (int k = 0; k < ngridpoints; k++) {
@@ -367,11 +379,11 @@ void grainhdl::VOROMicrostructure() {
 					z = double((k - grid_blowup) * h);
 
 					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-					//<<<<<<< HEAD
-					//							|| i >= ngridpoints - 1 - grid_blowup
-					//							|| j >= ngridpoints - 1 - grid_blowup
-					//							|| k >= ngridpoints - 1 - grid_blowup) {
-					//=======
+							//<<<<<<< HEAD
+							//							|| i >= ngridpoints - 1 - grid_blowup
+							//							|| j >= ngridpoints - 1 - grid_blowup
+							//							|| k >= ngridpoints - 1 - grid_blowup) {
+							//=======
 							|| i >= ngridpoints - grid_blowup
 							|| j >= ngridpoints - grid_blowup
 							|| k >= ngridpoints - grid_blowup) {
@@ -386,14 +398,19 @@ void grainhdl::VOROMicrostructure() {
 				}
 			}
 		}
+
 	} else {
 		throw runtime_error("Voronoy container error at start() method!");
 	}
+
 	gettimeofday(&time, NULL);
 	voro_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 	cout << "Voronoi construction time: " << voro_time << endl;
 
 	buildBoxVectors(initialHulls);
+	for (int i = 0; i < initialHulls.size(); i++) {
+		delete initialHulls[i];
+	}
 //	con.draw_particles("VoronoyP.gnu");
 //	con.draw_cells_gnuplot("VoronoyC.gnu");
 }
@@ -471,7 +488,7 @@ void grainhdl::read_voxelized_microstructure() {
 	int nvertices = 8;
 	int xmin, xmax, ymin, ymax, zmin, zmax;
 	int *counts;
-	vector<vector<Vector3d>> vertices;
+	vector<vector<Vector3d>*> vertices;
 	vertices.resize(ngrains + 1);
 	myQuaternion* Quaternionen = new myQuaternion[ngrains + 1];
 	ID = new int[ngrains + 1];
@@ -481,9 +498,9 @@ void grainhdl::read_voxelized_microstructure() {
 	z = new double[ngrains + 1];
 	int id = 0;
 	for (int nn = 1; nn <= ngrains; nn++) {
+		vertices[nn] = new vector<Vector3d>(8);
 		//ID, x, y, z, bunge1, bunge2, bunge3, xmin, xmax, zmin, ymin, ymax, zmax
-		fscanf(
-				compressedGrainInfo,
+		fscanf(compressedGrainInfo,
 				"%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d\t %d\t %d \n",
 				&id, &x[nn], &y[nn], &z[nn], &bunge[0], &bunge[1], &bunge[2],
 				&xmin, &xmax, &ymin, &ymax, &zmin, &zmax, &counts[nn]);
@@ -496,14 +513,14 @@ void grainhdl::read_voxelized_microstructure() {
 		}
 		ID[nn] = id - (ID_offset - 1);
 		Quaternionen[nn].euler2Quaternion(bunge);
-		vertices[nn].push_back(Vector3d(xmin, ymin, zmin));
-		vertices[nn].push_back(Vector3d(xmin, ymax, zmin));
-		vertices[nn].push_back(Vector3d(xmax, ymin, zmin));
-		vertices[nn].push_back(Vector3d(xmax, ymax, zmin));
-		vertices[nn].push_back(Vector3d(xmin, ymin, zmax));
-		vertices[nn].push_back(Vector3d(xmin, ymax, zmax));
-		vertices[nn].push_back(Vector3d(xmax, ymin, zmax));
-		vertices[nn].push_back(Vector3d(xmax, ymax, zmax));
+		vertices[nn]->push_back(Vector3d(xmin, ymin, zmin));
+		vertices[nn]->push_back(Vector3d(xmin, ymax, zmin));
+		vertices[nn]->push_back(Vector3d(xmax, ymin, zmin));
+		vertices[nn]->push_back(Vector3d(xmax, ymax, zmin));
+		vertices[nn]->push_back(Vector3d(xmin, ymin, zmax));
+		vertices[nn]->push_back(Vector3d(xmin, ymax, zmax));
+		vertices[nn]->push_back(Vector3d(xmax, ymin, zmax));
+		vertices[nn]->push_back(Vector3d(xmax, ymax, zmax));
 	}
 
 	fclose(compressedGrainInfo);
@@ -557,7 +574,9 @@ void grainhdl::read_voxelized_microstructure() {
 	//	fclose(voxelized_data);
 
 	buildBoxVectors(ID, vertices, Quaternionen);
-
+	for (auto it : vertices) {
+		delete &it;
+	}
 	delete[] ID;
 	delete[] Quaternionen;
 	delete[] x;
@@ -714,7 +733,7 @@ void grainhdl::redistancing() {
 	}
 }
 
-void grainhdl::save_texture() {
+void grainhdl::save_Texture() {
 	double totalSurface = 0;
 	double total_energy = 0.0;
 	string filename = string("Texture_") + to_string((unsigned long long) loop)
@@ -824,9 +843,9 @@ void grainhdl::run_sim() {
 		countGrains();
 		if (((loop - Settings::StartTime) % int(Settings::AnalysisTimestep))
 				== 0 || loop == Settings::NumberOfTimesteps) {
-			saveNetworkState();
-			save_texture();
-			save_sim();
+//			saveNetworkState();
+			save_Texture();
+			save_NrGrainsStats();
 			for (const auto & it : grains) {
 				if (it != NULL)
 					if (it->getID() != 0) {
@@ -868,8 +887,7 @@ void grainhdl::run_sim() {
 	cout << "Redistancing time: " << redistancing_time << endl;
 	cout << "Levelset time: " << levelset_time << endl;
 	cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
-	cout
-			<< "Sum parallel regions: "
+	cout << "Sum parallel regions: "
 			<< convo_time + comparison_time + levelset_time + parallelRest
 					+ redistancing_time << endl;
 }
@@ -906,16 +924,32 @@ void grainhdl::createParamsForSim(const char* param_filename,
 
 }
 
-void grainhdl::save_sim() {
+void grainhdl::save_NrGrainsStats() {
+//	ofstream myfile;
+//	myfile.open("NrGrains&EnergyStatistics.txt");
+//	for (unsigned int i = 0; i < nr_grains.size(); i++) {
+//		myfile << time[i] << "\t";
+//		myfile << nr_grains[i] << "\t";
+//		//myfile << totalenergy[i] << "\t";
+//		myfile << realDomainSize << endl;
+//	}
+//	myfile.close();
+//
+//}
+	// 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);
 	ofstream myfile;
-	myfile.open("NrGrains&EnergyStatistics.txt");
-	for (unsigned int i = 0; i < nr_grains.size(); i++) {
-		myfile << time[i] << "\t";
-		myfile << nr_grains[i] << "\t";
-		//myfile << totalenergy[i] << "\t";
-		myfile << realDomainSize << endl;
-	}
+	if (loop == 0)
+		myfile.open("NrGrains&EnergyStatistics.txt");
+	else
+		myfile.open("NrGrains&EnergyStatistics.txt", ios::app);
+	myfile << time.back() << "\t";
+	myfile << nr_grains.back() << "\t";
+	myfile << totalenergy.back() << "\t";
+	myfile << realDomainSize << endl;
 	myfile.close();
+
+	// 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
+	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 
 }
 
@@ -1021,7 +1055,7 @@ void grainhdl::clear_mem() {
 	}
 }
 
-void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
+void grainhdl::buildBoxVectors(vector<vector<Vector3d>*>& hulls) {
 	m_grainScheduler->buildGrainWorkloads(hulls, ngridpoints);
 	bool exceptionHappened = false;
 	string error_message;
@@ -1033,7 +1067,7 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
 				try {
-					LSbox* grain = new LSbox(id, hulls[id], *IDField, this);
+					LSbox* grain = new LSbox(id, *hulls[id], *IDField, this);
 					grains[id] = grain;
 				} catch (exception& e) {
 #pragma omp critical
@@ -1055,7 +1089,7 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>>& hulls) {
 	}
 }
 
-void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
+void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 		myQuaternion* Quaternionen) {
 	m_grainScheduler->buildGrainWorkloads(hulls, ngridpoints);
 	bool exceptionHappened = false;
@@ -1067,7 +1101,7 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
 				try {
-					LSbox* grain = new LSbox(ID[id], hulls[id],
+					LSbox* grain = new LSbox(ID[id], *hulls[id],
 							Quaternionen[id], this);
 					grains[id] = grain;
 				} catch (exception& e) {
@@ -1246,89 +1280,90 @@ void grainhdl::find_correctTimestepSize() {
 	if (ngrains == 1)
 		my_min = 0.0;
 	double Energy_deltaMAX = (my_max - my_min);
-	double m_dt_Correction = 0.5 / (double) realDomainSize / Energy_deltaMAX / dt;
+	double m_dt_Correction = 0.5 / (double) realDomainSize / Energy_deltaMAX
+			/ dt;
 	if (m_dt_Correction > 1.0)
 		m_dt_Correction = 1.0;
 	dt *= m_dt_Correction;
 }
 
 void grainhdl::updateGridAndTimeVariables(double newGridSize) {
-realDomainSize = newGridSize;
-switch (Settings::ConvolutionMode) {
-case E_LAPLACE: {
-	dt = 0.8 / double(realDomainSize * realDomainSize);
-	break;
-}
-case E_LAPLACE_RITCHARDSON: {
-	dt = 0.8 / double(realDomainSize * realDomainSize);
-	break;
-}
-case E_GAUSSIAN: {
-	dt = 0.2 / double(realDomainSize * realDomainSize);
-	TimeSlope = 1 / 1.25;
-	break;
-}
-default: {
-	throw std::runtime_error("Unknown convolution mode!");
-}
-}
-grid_blowup = Settings::DomainBorderSize;
-delta = Settings::DomainBorderSize / double(realDomainSize);
-ngridpoints = realDomainSize + 2 * grid_blowup;
-h = 1.0 / realDomainSize;
+	realDomainSize = newGridSize;
+	switch (Settings::ConvolutionMode) {
+	case E_LAPLACE: {
+		dt = 0.8 / double(realDomainSize * realDomainSize);
+		break;
+	}
+	case E_LAPLACE_RITCHARDSON: {
+		dt = 0.8 / double(realDomainSize * realDomainSize);
+		break;
+	}
+	case E_GAUSSIAN: {
+		dt = 0.2 / double(realDomainSize * realDomainSize);
+		TimeSlope = 1 / 1.25;
+		break;
+	}
+	default: {
+		throw std::runtime_error("Unknown convolution mode!");
+	}
+	}
+	grid_blowup = Settings::DomainBorderSize;
+	delta = Settings::DomainBorderSize / double(realDomainSize);
+	ngridpoints = realDomainSize + 2 * grid_blowup;
+	h = 1.0 / realDomainSize;
 //find_correctTimestepSize();
 }
 
 void grainhdl::gridCoarsement() {
-int newSize = pow(currentNrGrains, (1 / 3.0))
-		* Settings::NumberOfPointsPerGrain;
-if ((double) currentNrGrains / (double) ngrains
-		< Settings::GridCoarsementGradient && loop != 0
-		&& Settings::GridCoarsement) {
-	double h_old = h;
-	updateGridAndTimeVariables(newSize);
-	cout << "coarsing the current grid in Timestep: " << loop << endl;
-	cout << "newSize :" << newSize << endl << endl;
+	int newSize = pow(currentNrGrains, (1 / 3.0))
+			* Settings::NumberOfPointsPerGrain;
+	if ((double) currentNrGrains / (double) ngrains
+			< Settings::GridCoarsementGradient && loop != 0
+			&& Settings::GridCoarsement && newSize < realDomainSize) {
+		double h_old = h;
+		updateGridAndTimeVariables(newSize);
+		cout << "coarsing the current grid in Timestep: " << loop << endl;
+		cout << "newSize :" << newSize << endl << endl;
 #pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
+		{
+			vector<unsigned int>& workload =
+					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
 
-			grains[id]->resizeGrid(newSize, h_old);
+				grains[id]->resizeGrid(newSize, h_old);
+
+			}
 
 		}
+		//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
 
-	}
-	//! DISCREPANCY: Compare to the application of dt in the convolution, time decreasing factor 0.8
-
-	ngrains = currentNrGrains;
+		ngrains = currentNrGrains;
 #pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-			grains[id]->recalculateIDLocal();
+		{
+			vector<unsigned int>& workload =
+					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
+				grains[id]->recalculateIDLocal();
+			}
 		}
-	}
 #pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-			grains[id]->extractContour();
+		{
+			vector<unsigned int>& workload =
+					m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+			for (auto id : workload) {
+				if (id <= Settings::NumberOfParticles)
+					if (grains[id] == NULL)
+						continue;
+				grains[id]->extractContour();
+			}
 		}
+	} else {
+		switchDistancebuffer();
 	}
-} else {
-	switchDistancebuffer();
-}
 }

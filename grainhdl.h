@@ -122,9 +122,9 @@ public:
 	void redistancing();
 
 	void run_sim();
-	void save_sim();
+	void save_NrGrainsStats();
 	void clear_mem();
-	void save_texture();
+	void save_Texture();
 	void save_id();
 	void plot_contour();
 	void gridCoarsement();
@@ -185,8 +185,8 @@ public:
 protected:
 	void initEnvironment();
 	void initNUMABindings();
-	void buildBoxVectors(vector<vector<Vector3d>>& hulls);
-	void buildBoxVectors(int* ID, vector<vector<Vector3d>>& hulls,
+	void buildBoxVectors(vector<vector<Vector3d>*>& hulls);
+	void buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 			myQuaternion* Quaternionen);
 	int m_ThreadPoolCount;
 	vector<ExpandingVector<char> > m_ThreadMemPool;

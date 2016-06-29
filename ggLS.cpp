@@ -75,7 +75,7 @@ catch(exception& e)
 			+ (time_end.tv_usec - time_start.tv_usec) / 1000000.0;
 	cout << "Elapsed seconds for simulation:" << elapsed_secs << endl;
 
-	my_sim->save_sim();
+	//my_sim->save_NrGrainsStats();
 
 	my_sim->clear_mem();
 
