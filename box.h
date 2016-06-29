@@ -167,6 +167,8 @@ public:
 	void computeInterfacialElementMesh();
 	void switchBufferPositions();
 
+	void copyDataToConatiner(DimensionalBuffer<int> * container);
+
 #ifdef USE_FFTW
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);
 	void makeFFTPlans(float *in, float* out,fftwf_complex *fftTemp, fftwf_plan *fftplan1, fftwf_plan *fftplan2);
@@ -242,6 +244,9 @@ public:
 	}
 	inline const myQuaternion* getOrientationQuat() {
 		return m_orientationQuat;
+	}
+	inline double* getOrientationBunge() {
+		return m_orientationQuat->Quaternion2Euler();
 	}
 	inline grainhdl* get_grainHandler() {
 		return m_grainHandler;

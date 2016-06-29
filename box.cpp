@@ -1776,3 +1776,21 @@ int LSbox::getNeighbourAt(int i, int j, int k) {
 	}
 }
 
+void LSbox::copyDataToConatiner(DimensionalBuffer<int> * container) {
+	int gridblowup = m_grainHandler->get_grid_blowup();
+	for (int k = getMinZ(); k < getMaxZ(); k++) {
+		for (int i = getMinY(); i < getMaxY(); i++) {
+			for (int j = getMinX(); j < getMaxX(); j++) {
+				if (0. < m_outputDistance->getValueAt(i, j, k)) {
+					if (i >= gridblowup && j >= gridblowup && k >= gridblowup
+							&& i < container->getMaxY() + gridblowup
+							&& j < container->getMaxX() + gridblowup
+							&& k < container->getMaxZ() + gridblowup)
+						container->setValueAt(i - gridblowup, j - gridblowup,
+								k - gridblowup, getID());
+				}
+			}
+		}
+	}
+}
+

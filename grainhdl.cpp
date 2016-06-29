@@ -30,7 +30,9 @@
 #include "myQuaternion.h"
 #include "IterativeGrainScheduler.h"
 #include "SquaresGrainScheduler.h"
-
+#include <string>
+#include <string.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <stdexcept>
 #include <fstream>
@@ -763,7 +765,7 @@ void grainhdl::save_Texture() {
 				file << grains[i]->get_SEE();
 			file << "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
 					<< "\n";
-
+			delete[] euler;
 		}
 	}
 	file.close();
@@ -846,6 +848,7 @@ void grainhdl::run_sim() {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
+
 			for (const auto & it : grains) {
 				if (it != NULL)
 					if (it->getID() != 0) {
@@ -854,6 +857,7 @@ void grainhdl::run_sim() {
 										Settings::AnalysisTimestep
 												* Settings::PlotInterval))
 								== 0) {
+							saveNetworkAsVoxelContainer();
 							//						it->plotBoxInterfacialElements();
 							//	it->plotBoxVolumetric("end", E_OUTPUT_DISTANCE);
 							//					if (it->getID() == 3)
@@ -1012,23 +1016,49 @@ void grainhdl::tweakIDLocal() {
 	}
 }
 
-void grainhdl::saveNetworkState() {
-#pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-		}
+void grainhdl::saveNetworkAsVoxelContainer() {
+
+	DimensionalBuffer<int> * container = new DimensionalBuffer<int>(0, 0, 0,
+			realDomainSize, realDomainSize, realDomainSize);
+	string filename = string("Microstructure_")
+			+ to_string((unsigned long long) loop) + string(".uds");
+	ofstream file;
+	file.open(filename.c_str());
+	for (auto it : grains) {
+		if (it == NULL)
+			continue;
+		it->copyDataToConatiner(container);
+
+		// ID, x, y, z, bunge1, bunge2, bunge3, xmin, xmax, ymin, ymax, zmin, zmax, volume, stored
+		double *bunge = it->getOrientationBunge();
+		file << it->getID() << "\t"
+				<< ((it->getMaxX() - it->getMinX()) / 2 + it->getMinX() )* h
+				<< "\t"
+				<< ((it->getMaxY() - it->getMinY()) / 2 + it->getMinY() )* h
+				<< "\t"
+				<< ((it->getMaxZ() - it->getMinZ()) / 2 + it->getMinZ()) * h
+				<< "\t" << bunge[0] << "\t" << bunge[1] << "\t" << bunge[2]
+				<< "\t" << it->getMinX() << "\t" << it->getMaxX() << "\t"
+				<< it->getMinY() << "\t" << it->getMaxY() << "\t"
+				<< it->getMinZ() << "\t" << it->getMaxZ() << "\t"
+				<< it->getVolume() << "\t" << it->get_SEE() << endl;
+		delete [] bunge;
 	}
+	file.close();
+	stringstream filename2;
+	FILE* binaryFile;
+	filename2.str("");
+	filename2 << "Container" << "_" << loop << ".bin";
+	binaryFile = fopen(filename2.str().c_str(), "wb");
+	fwrite(container->getRawData(), sizeof(int),(realDomainSize*realDomainSize*realDomainSize), binaryFile);
+	fclose(binaryFile);
+	delete container;
 }
 
 void grainhdl::save_id() {
 }
 
-void grainhdl::saveAllContourLines() {
+void grainhdl::saveAllSurfaces() {
 
 }
 void grainhdl::removeGrain(int id) {

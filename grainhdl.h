@@ -132,8 +132,8 @@ public:
 	void find_correctTimestepSize();
 	void tweakIDLocal();
 
-	void saveAllContourLines();
-	void saveNetworkState();
+	void saveAllSurfaces();
+	void saveNetworkAsVoxelContainer();
 	void switchDistancebuffer();
 
 	void saveSpecialContourEnergies(int id);
