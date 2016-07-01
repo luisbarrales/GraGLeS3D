@@ -747,7 +747,7 @@ void grainhdl::save_Texture() {
 		if (grains[i] != NULL && grains[i]->grainExists()) {
 			totalSurface += grains[i]->getSurface() * 0.5;
 			total_energy += grains[i]->getEnergy() * 0.5;
-			;
+
 			euler = grains[i]->getOrientationQuat()->Quaternion2EulerConst();
 			file << grains[i]->getID() << "\t"
 					<< grains[i]->getDirectNeighbourCount() << "\t"
@@ -844,7 +844,7 @@ void grainhdl::run_sim() {
 
 		countGrains();
 		if (((loop - Settings::StartTime) % int(Settings::AnalysisTimestep))
-				== 0 || loop == Settings::NumberOfTimesteps) {
+				== 0 || loop == Settings::NumberOfTimesteps || loop == 99 || loop== 419) {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
@@ -1018,23 +1018,24 @@ void grainhdl::tweakIDLocal() {
 
 void grainhdl::saveNetworkAsVoxelContainer() {
 
-	DimensionalBuffer<int> * container = new DimensionalBuffer<int>(0, 0, 0,
-			realDomainSize, realDomainSize, realDomainSize);
+	DimensionalBuffer<unsigned int> * container = new DimensionalBuffer<
+			unsigned int>(0, 0, 0, realDomainSize, realDomainSize,
+			realDomainSize);
 	string filename = string("Microstructure_")
 			+ to_string((unsigned long long) loop) + string(".uds");
 	ofstream file;
 	file.open(filename.c_str());
 	for (auto it : grains) {
-		if (it == NULL)
+		if (it == NULL || it->grainExists() == false)
 			continue;
 		it->copyDataToConatiner(container);
 
 		// ID, x, y, z, bunge1, bunge2, bunge3, xmin, xmax, ymin, ymax, zmin, zmax, volume, stored
 		double *bunge = it->getOrientationBunge();
 		file << it->getID() << "\t"
-				<< ((it->getMaxX() - it->getMinX()) / 2 + it->getMinX() )* h
+				<< ((it->getMaxX() - it->getMinX()) / 2 + it->getMinX()) * h
 				<< "\t"
-				<< ((it->getMaxY() - it->getMinY()) / 2 + it->getMinY() )* h
+				<< ((it->getMaxY() - it->getMinY()) / 2 + it->getMinY()) * h
 				<< "\t"
 				<< ((it->getMaxZ() - it->getMinZ()) / 2 + it->getMinZ()) * h
 				<< "\t" << bunge[0] << "\t" << bunge[1] << "\t" << bunge[2]
@@ -1042,16 +1043,35 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 				<< it->getMinY() << "\t" << it->getMaxY() << "\t"
 				<< it->getMinZ() << "\t" << it->getMaxZ() << "\t"
 				<< it->getVolume() << "\t" << it->get_SEE() << endl;
-		delete [] bunge;
+		delete[] bunge;
 	}
 	file.close();
+
+	ofstream OutFile;
+
 	stringstream filename2;
-	FILE* binaryFile;
+	FILE* binaryFile, *File;
 	filename2.str("");
 	filename2 << "Container" << "_" << loop << ".bin";
-	binaryFile = fopen(filename2.str().c_str(), "wb");
-	fwrite(container->getRawData(), sizeof(int),(realDomainSize*realDomainSize*realDomainSize), binaryFile);
-	fclose(binaryFile);
+	OutFile.open(filename2.str(), ios::out | ios::binary);
+	OutFile.write((char*) container->getRawData(), sizeof(unsigned int));
+	OutFile.close();
+//	binaryFile = fopen(filename2.str().c_str(), "w");
+//	fwrite(container->getRawData(), sizeof(int),
+//			(realDomainSize * realDomainSize * realDomainSize), binaryFile);
+//	fclose(binaryFile);
+	filename2.str("");
+		filename2 << "Container2" << "_" << loop << ".gnu";
+	File = fopen(filename2.str().c_str(), "w");
+	for (int k = 0; k < realDomainSize; k++) {
+		for (int i = 0; i < realDomainSize; i++) {
+			for (int j = 0; j < realDomainSize; j++) {
+				fprintf(File, "%d \t %d \t %d \t %d \n", i, j, k,
+						container->getValueAt(j, i, k));
+			}
+		}
+	}
+	fclose(File);
 	delete container;
 }
 

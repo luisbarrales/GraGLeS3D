@@ -472,12 +472,14 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 												* localGB.mobility
 												* radiuscorrection);
 						if (Settings::UseMagneticField) {
-							double f_magneticEnergy =
-									(m_magneticEnergy
-											- m_grainHandler->getGrainByID(
-													grain.grainID)->get_magneticEnergy())
-											* localGB.mobility
-											* m_grainHandler->get_dt();
+							LSbox* neighbor = m_grainHandler->getGrainByID(
+									grain.grainID);
+							double f_magneticEnergy = 0;
+							if (neighbor != NULL)
+								f_magneticEnergy = (m_magneticEnergy
+										- neighbor->get_magneticEnergy())
+										* localGB.mobility
+										* m_grainHandler->get_dt();
 
 							m_outputDistance->setValueAt(i, j, k,
 									(m_outputDistance->getValueAt(i, j, k)
@@ -1776,7 +1778,7 @@ int LSbox::getNeighbourAt(int i, int j, int k) {
 	}
 }
 
-void LSbox::copyDataToConatiner(DimensionalBuffer<int> * container) {
+void LSbox::copyDataToConatiner(DimensionalBuffer<unsigned int> * container) {
 	int gridblowup = m_grainHandler->get_grid_blowup();
 	for (int k = getMinZ(); k < getMaxZ(); k++) {
 		for (int i = getMinY(); i < getMaxY(); i++) {
@@ -1787,7 +1789,7 @@ void LSbox::copyDataToConatiner(DimensionalBuffer<int> * container) {
 							&& j < container->getMaxX() + gridblowup
 							&& k < container->getMaxZ() + gridblowup)
 						container->setValueAt(i - gridblowup, j - gridblowup,
-								k - gridblowup, getID());
+								k - gridblowup, (unsigned int) getID());
 				}
 			}
 		}

@@ -239,7 +239,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 	 */
 
 	vector<double> distances;
-
+	double h = m_owner->get_grainHandler()->get_h();
 	string filenamePos;
 	filenamePos = "Position_";
 	filenamePos += to_string(m_owner->getID());
@@ -257,7 +257,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 	for (const auto it : m_QuadruplePoints) {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
-
+		int N = 0;
 		for (int i = 0; i < neighbors.size(); i++) {
 			if (neighbors[i] != 0) {
 
@@ -294,18 +294,20 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 				/*
 				 * end of debugging
 				 */
-				correspondingJunctions +=
-						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
-								it->get_Position());
+				if (distances.back() < 3 * h) {
+					correspondingJunctions += posClosestJunction;
+					N++;
+				}
+
 			}
 		}
-		correspondingJunctions /= (double) (it->get_NeighborIDs().size() + 1);
+		correspondingJunctions /= double (N + 1);
 		it->set_BufferPosition(correspondingJunctions);
 	}
 	for (const auto it : m_HighOrderJunctions) {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
-
+		int N = 0;
 		for (int i = 0; i < neighbors.size(); i++) {
 			if (neighbors[i] != 0) {
 				/*
@@ -342,13 +344,14 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 				/*
 				 * end of debugging
 				 */
+				if (distances.back() < 3 * h) {
+					correspondingJunctions += posClosestJunction;
+					N++;
+				}
 
-				correspondingJunctions +=
-						m_owner->get_grainHandler()->getGrainByID(neighbors[i])->findClosestJunctionTo(
-								it->get_Position());
 			}
 		}
-		correspondingJunctions /= (double) (it->get_NeighborIDs().size() + 1);
+		correspondingJunctions /= (double) (N + 1);
 		it->set_BufferPosition(correspondingJunctions);
 	}
 
@@ -397,7 +400,8 @@ void GrainHull::computeInterfacialElementMesh() {
 	for (const auto it : m_Grainboundary) {
 		it->findAdjacentTripleLines(m_TripleLines);
 	}
-	if (m_owner->get_grainHandler()->get_loop() == 50 || m_owner->get_grainHandler()->get_loop() == 100) {
+	if (m_owner->get_grainHandler()->get_loop() == 150
+			|| m_owner->get_grainHandler()->get_loop() == 100) {
 		meanWidth();
 		computeTriplelineLength();
 	}
@@ -948,9 +952,8 @@ void GrainHull::computeTriplelineLength() {
 	for (vector<TripleLine*>::iterator iter = m_TripleLines.begin();
 			iter != m_TripleLines.end(); ++iter) {
 		vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
-		if (vertices_temp[0] == NULL || vertices_temp[1] == NULL){
-			m_TripleLineLength = -1;
-			break;
+		if (vertices_temp[0] == NULL || vertices_temp[1] == NULL) {
+			continue;
 		}
 		m_TripleLineLength += (vertices_temp[0]->get_Position()
 				- vertices_temp[1]->get_Position()).norm();
