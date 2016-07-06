@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <fstream>
 #include <stdexcept>
+#include "Structs.h"
 
 #define PERIODIC(x, f) (((x)+f)%f)
 
@@ -484,6 +485,20 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 							m_outputDistance->setValueAt(i, j, k,
 									(m_outputDistance->getValueAt(i, j, k)
 											- f_magneticEnergy));
+						}
+						if (Settings::UseStoredElasticEnergy) {
+							LSbox* neighbor = m_grainHandler->getGrainByID(
+									grain.grainID);
+							double f_StoredEnergy = 0;
+							if (neighbor != NULL)
+								f_StoredEnergy = (m_StoredElasticEnergy
+										- neighbor->get_SEE())
+										* localGB.mobility
+										* m_grainHandler->get_dt();
+
+							m_outputDistance->setValueAt(i, j, k,
+									(m_outputDistance->getValueAt(i, j, k)
+											- f_StoredEnergy));
 						}
 					}
 				}

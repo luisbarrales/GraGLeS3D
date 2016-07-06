@@ -117,10 +117,10 @@ public:
 	inline void set_Position(Vector3d newposition) {
 		m_position = newposition;
 	}
-	inline void set_BufferPosition(Vector3d newposition){
+	inline void set_BufferPosition(Vector3d newposition) {
 		m_bufferPosition = newposition;
 	}
-	inline void switch_BufferPosition(){
+	inline void switch_BufferPosition() {
 		m_position = m_bufferPosition;
 	}
 };
@@ -155,10 +155,10 @@ public:
 	inline void set_Position(Vector3d newposition) {
 		m_position = newposition;
 	}
-	inline void set_BufferPosition(Vector3d newposition){
-			m_bufferPosition = newposition;
+	inline void set_BufferPosition(Vector3d newposition) {
+		m_bufferPosition = newposition;
 	}
-	inline void switch_BufferPosition(){
+	inline void switch_BufferPosition() {
 		m_position = m_bufferPosition;
 	}
 };
@@ -193,7 +193,7 @@ public:
 	inline void set_BufferPosition(Vector3d newposition) {
 
 	}
-	inline void switch_BufferPosition(){
+	inline void switch_BufferPosition() {
 
 	}
 };
@@ -202,6 +202,7 @@ class GrainBoundary: public InterfacialElement {
 private:
 	vector<TripleLine*> m_edges; // saves the indexes of edges in clockwise order
 	Vector3d inclination;
+	double area;
 public:
 	friend class GrainHull;
 	GrainBoundary(int key, GrainHull *owner);
@@ -209,8 +210,13 @@ public:
 	void computeEnergy();
 	void computeMobility();
 	void findAdjacentTripleLines(vector<TripleLine*>);
+	void computeArea();
 	inline vector<TripleLine*> get_edges() {
 		return m_edges;
+	}
+	inline double get_area() {
+		computeArea();
+		return area;
 	}
 	inline Vector3d get_Position() {
 		return Vector3d(-1, -1, -1);
@@ -221,7 +227,7 @@ public:
 	inline void set_BufferPosition(Vector3d newposition) {
 
 	}
-	inline void switch_BufferPosition(){
+	inline void switch_BufferPosition() {
 
 	}
 };

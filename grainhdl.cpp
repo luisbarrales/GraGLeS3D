@@ -37,6 +37,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
+#include "Structs.h"
 #ifdef USE_MKL
 #include "mkl.h"
 #endif
@@ -171,7 +172,7 @@ void grainhdl::read_HeaderCPG() {
 	int NX, NY, NZ;
 
 	for (int i = 1; i <= 12; i++) {
-		if (i == 12) {
+		if (i == 1 || i == 12) {
 			do {
 				c = fgetc(compressedGrainInfo);
 			} while (c != '\n');
@@ -211,7 +212,7 @@ void grainhdl::read_HeaderCPG() {
 					&Settings::NumberOfParticles);
 			//cout << buffer << "\t" << grains << endl;
 		}
-		if (i == 1 || i == 10 || i == 11)
+		if (i == 10 || i == 11)
 			fscanf(compressedGrainInfo, "\n");
 	}
 	ngrains = Settings::NumberOfParticles;
@@ -365,7 +366,7 @@ void grainhdl::VOROMicrostructure() {
 			IDField = new DimensionalBuffer<int>(0, 0, 0, ngridpoints,
 					ngridpoints, ngridpoints);
 		} catch (exception& e) {
-			cout << "Unable to read from Voronoi container! Reason:\n";
+			cout << "Unable to intialize ID Local! Reason:\n";
 			cout << e.what() << endl;
 			cout << "Simulation will now halt." << endl;
 			exit(2);
@@ -500,7 +501,7 @@ void grainhdl::read_voxelized_microstructure() {
 	z = new double[ngrains + 1];
 	int id = 0;
 	for (int nn = 1; nn <= ngrains; nn++) {
-		vertices[nn] = new vector<Vector3d>(8);
+		vertices[nn] = new vector<Vector3d>;
 		//ID, x, y, z, bunge1, bunge2, bunge3, xmin, xmax, zmin, ymin, ymax, zmax
 		fscanf(compressedGrainInfo,
 				"%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d\t %d\t %d \n",
@@ -557,8 +558,8 @@ void grainhdl::read_voxelized_microstructure() {
 					//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 					IDField->setValueAt(i, j, k, 0);
 				else {
-					int box_id;
-					fread(&box_id, sizeof(int), 1, voxelized_data);
+					unsigned int box_id;
+					fread(&box_id, sizeof(unsigned int), 1, voxelized_data);
 					box_id = box_id - (ID_offset - 1);
 					IDField->setValueAt(i, j, k, box_id);
 				}
@@ -577,7 +578,7 @@ void grainhdl::read_voxelized_microstructure() {
 
 	buildBoxVectors(ID, vertices, Quaternionen);
 	for (auto it : vertices) {
-		delete &it;
+		delete [] it;
 	}
 	delete[] ID;
 	delete[] Quaternionen;
@@ -743,6 +744,15 @@ void grainhdl::save_Texture() {
 	ofstream file;
 	file.open(filename.c_str());
 	double *euler = new double[3];
+
+	FILE* binaryFaces;
+	if (Settings::NeighbourTracking) {
+		stringstream filename;
+		filename.str("");
+		filename << "Faces" << "_" << loop << ".bin";
+		binaryFaces = fopen(filename.str().c_str(), "wb");
+	}
+
 	for (int i = 1; i < grains.size(); i++) {
 		if (grains[i] != NULL && grains[i]->grainExists()) {
 			totalSurface += grains[i]->getSurface() * 0.5;
@@ -767,6 +777,14 @@ void grainhdl::save_Texture() {
 					<< "\n";
 			delete[] euler;
 		}
+		if (Settings::NeighbourTracking) {
+			vector<Face>* myfaces = grains[i]->get_Faces();
+			fwrite(&*myfaces, sizeof(Face), myfaces->size(), binaryFaces);
+			delete[] myfaces;
+		}
+	}
+	if (Settings::NeighbourTracking) {
+		fclose(binaryFaces);
 	}
 	file.close();
 	nr_grains.push_back(currentNrGrains);
@@ -844,7 +862,8 @@ void grainhdl::run_sim() {
 
 		countGrains();
 		if (((loop - Settings::StartTime) % int(Settings::AnalysisTimestep))
-				== 0 || loop == Settings::NumberOfTimesteps || loop == 99 || loop== 419) {
+				== 0 || loop == Settings::NumberOfTimesteps || loop == 249
+				|| loop == 499 || loop == 999) {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
@@ -1052,26 +1071,26 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 	stringstream filename2;
 	FILE* binaryFile, *File;
 	filename2.str("");
-	filename2 << "Container" << "_" << loop << ".bin";
-	OutFile.open(filename2.str(), ios::out | ios::binary);
-	OutFile.write((char*) container->getRawData(), sizeof(unsigned int));
-	OutFile.close();
-//	binaryFile = fopen(filename2.str().c_str(), "w");
-//	fwrite(container->getRawData(), sizeof(int),
-//			(realDomainSize * realDomainSize * realDomainSize), binaryFile);
-//	fclose(binaryFile);
+	filename2 << "Container" << "_" << loop << ".raw";
+//	OutFile.open(filename2.str(), ios::out | ios::binary);
+//	OutFile.write((char*) container->getRawData(), sizeof(unsigned int));
+//	OutFile.close();
+	binaryFile = fopen(filename2.str().c_str(), "w");
+	fwrite(container->getRawData(), sizeof(unsigned int),
+			(realDomainSize * realDomainSize * realDomainSize), binaryFile);
+	fclose(binaryFile);
 	filename2.str("");
-		filename2 << "Container2" << "_" << loop << ".gnu";
-	File = fopen(filename2.str().c_str(), "w");
-	for (int k = 0; k < realDomainSize; k++) {
-		for (int i = 0; i < realDomainSize; i++) {
-			for (int j = 0; j < realDomainSize; j++) {
-				fprintf(File, "%d \t %d \t %d \t %d \n", i, j, k,
-						container->getValueAt(j, i, k));
-			}
-		}
-	}
-	fclose(File);
+	filename2 << "Container2" << "_" << loop << ".gnu";
+//	File = fopen(filename2.str().c_str(), "w");
+//	for (int k = 0; k < realDomainSize; k++) {
+//		for (int i = 0; i < realDomainSize; i++) {
+//			for (int j = 0; j < realDomainSize; j++) {
+//				fprintf(File, "%d \t %d \t %d \t %d \n", i, j, k,
+//						container->getValueAt(j, i, k));
+//			}
+//		}
+//	}
+//	fclose(File);
 	delete container;
 }
 
@@ -1153,7 +1172,7 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 				try {
 					LSbox* grain = new LSbox(ID[id], *hulls[id],
 							Quaternionen[id], this);
-					grains[id] = grain;
+//					grains[id] = grain;
 				} catch (exception& e) {
 #pragma omp critical
 					{

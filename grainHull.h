@@ -28,6 +28,7 @@ using namespace std;
 
 class LSbox;
 class grainhdl;
+struct Face;
 
 class GrainHull {
 private:
@@ -78,6 +79,9 @@ public:
 	GBInfo projectPointToGrainBoundary(Vector3d& point, int id);
 	void plotInterfacialElements(bool absoluteCoordinates, int timestep);
 	bool IsNeighbor(int candidate);
+	vector<Face>* get_Faces();
+
+
 	inline int get_numberOfQuadruplePoints() {
 		return m_QuadruplePoints.size();
 	}

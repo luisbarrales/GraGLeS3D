@@ -26,6 +26,7 @@
 #include "grahamScan.h"
 #include "grainhdl.h"
 #include <fstream>
+#include "Structs.h"
 
 using namespace std;
 
@@ -301,7 +302,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 
 			}
 		}
-		correspondingJunctions /= double (N + 1);
+		correspondingJunctions /= double(N + 1);
 		it->set_BufferPosition(correspondingJunctions);
 	}
 	for (const auto it : m_HighOrderJunctions) {
@@ -1010,4 +1011,13 @@ void GrainHull::computeTriplelineLength() {
 			 */
 		}
 	}
+}
+
+vector<Face>* GrainHull::get_Faces() {
+	vector<Face>* myfaces = new vector<Face>;
+	for (auto it : m_Grainboundary) {
+		if(m_owner->getID() > it->m_neighborIDs[0])
+		myfaces->push_back(Face(it->get_area(), m_owner->getID(), it->m_neighborIDs[0]));
+	}
+	return myfaces;
 }

@@ -267,5 +267,8 @@ public:
 	inline double get_NumberOfHighOrderJunctions() {
 		return m_explicitHull.getNumberOfHighOrderJunctions();
 	}
+	inline vector<Face>* get_Faces() {
+		return m_explicitHull.get_Faces();
+	}
 };
 #endif
