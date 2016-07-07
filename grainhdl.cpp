@@ -557,12 +557,12 @@ void grainhdl::read_voxelized_microstructure() {
 						|| j >= ngridpoints - grid_blowup
 						|| k >= ngridpoints - grid_blowup)
 					//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
-					IDField->setValueAt(i, j, k, 0);
+					IDField->setValueAt(j, i, k, 0);
 				else {
 					unsigned int box_id;
 					fread(&box_id, sizeof(unsigned int), 1, voxelized_data);
 					box_id = box_id - (ID_offset - 1);
-					IDField->setValueAt(i, j, k, box_id);
+					IDField->setValueAt(j, i, k, box_id);
 				}
 
 			}
