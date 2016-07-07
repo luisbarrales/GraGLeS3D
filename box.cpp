@@ -94,6 +94,11 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 			zmax = grid_blowup + z / h + 1;
 	}
 
+	if (xmin == m_grainHandler->get_ngridpoints()) {
+		cout << "no bounding box could be found for grain: " << m_ID << endl;
+		m_exists = false;
+		return;
+	}
 	xmax += grid_blowup;
 	xmin -= grid_blowup;
 	ymax += grid_blowup;
@@ -200,6 +205,12 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	ymax += 2 * grid_blowup;
 	zmax += 2 * grid_blowup;
 
+	if (xmin == m_grainHandler->get_ngridpoints()) {
+		cout << "no bounding box could be found for grain: " << m_ID << endl;
+		m_exists = false;
+		return;
+	}
+
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
 	m_outputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
@@ -212,10 +223,10 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 }
 
 LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
-		grainhdl* owner) :
+		grainhdl* owner, double StoredEnergy) :
 		m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitHull(this), m_isMotionRegular(
 				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
-				0), m_surface(0) {
+				0), m_surface(0), m_StoredElasticEnergy(StoredEnergy) {
 	m_orientationQuat = new myQuaternion(ori.get_q0(), ori.get_q1(),
 			ori.get_q2(), ori.get_q3());
 	//m_grainBoundary.getRawBoundary() = vertices;
@@ -233,6 +244,8 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 
 	double z, y, x;
 	for (int k = 0; k < vertices.size(); k++) {
+		cout << "vertice xyz: " << vertices[k][0] << "  " << vertices[k][1] << "  "
+				<< vertices[k][2] << "  " << endl;
 		x = vertices[k][0];
 		y = vertices[k][1];
 		z = vertices[k][2];
@@ -265,8 +278,13 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		xmin = 0;
 	if (zmin < 0)
 		zmin = 0;
-	//	cout << "constructed a box with size: "<< xmin << "  " << xmax << "  " << ymin << "  " << xmax << "  " << endl;
-
+	cout << "constructed a box with size: " << xmin << "  " << xmax << "  "
+			<< ymin << "  " << xmax << "  " << endl;
+	if (xmin == m_grainHandler->get_ngridpoints()) {
+		cout << "no bounding box could be found for grain: " << m_ID << endl;
+		m_exists = false;
+		return;
+	}
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
 	m_outputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,

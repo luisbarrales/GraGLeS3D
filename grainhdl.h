@@ -187,7 +187,7 @@ protected:
 	void initNUMABindings();
 	void buildBoxVectors(vector<vector<Vector3d>*>& hulls);
 	void buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
-			myQuaternion* Quaternionen);
+			myQuaternion* Quaternionen, double* StoredEnergy);
 	int m_ThreadPoolCount;
 	vector<ExpandingVector<char> > m_ThreadMemPool;
 };

@@ -486,16 +486,17 @@ void grainhdl::read_voxelized_microstructure() {
 	}
 
 	double bunge[3];
+	double* storedEnergy = new double[ngrains+1];
 	double *x, *y, *z;
 	int* ID;
 	int nvertices = 8;
 	int xmin, xmax, ymin, ymax, zmin, zmax;
-	int *counts;
+	double *counts;
 	vector<vector<Vector3d>*> vertices;
 	vertices.resize(ngrains + 1);
 	myQuaternion* Quaternionen = new myQuaternion[ngrains + 1];
 	ID = new int[ngrains + 1];
-	counts = new int[ngrains + 1];
+	counts = new double[ngrains + 1];
 	x = new double[ngrains + 1];
 	y = new double[ngrains + 1];
 	z = new double[ngrains + 1];
@@ -504,9 +505,9 @@ void grainhdl::read_voxelized_microstructure() {
 		vertices[nn] = new vector<Vector3d>;
 		//ID, x, y, z, bunge1, bunge2, bunge3, xmin, xmax, zmin, ymin, ymax, zmax
 		fscanf(compressedGrainInfo,
-				"%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d\t %d\t %d \n",
+				"%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d\t %d\t %lf \t %lf\n",
 				&id, &x[nn], &y[nn], &z[nn], &bunge[0], &bunge[1], &bunge[2],
-				&xmin, &xmax, &ymin, &ymax, &zmin, &zmax, &counts[nn]);
+				&xmin, &xmax, &ymin, &ymax, &zmin, &zmax, &counts[nn], &storedEnergy[nn]);
 		//printf("%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d \n",
 		//		id, x[nn], y[nn], bunge[0], bunge[1], bunge[2], xmin,
 		//		xmax, ymin, ymax, counts[nn]);
@@ -576,9 +577,9 @@ void grainhdl::read_voxelized_microstructure() {
 	//	}
 	//	fclose(voxelized_data);
 
-	buildBoxVectors(ID, vertices, Quaternionen);
+	buildBoxVectors(ID, vertices, Quaternionen, storedEnergy);
 	for (auto it : vertices) {
-		delete [] it;
+		delete[] it;
 	}
 	delete[] ID;
 	delete[] Quaternionen;
@@ -594,7 +595,7 @@ void grainhdl::distanceInitialisation() {
 				omp_get_thread_num());
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
-				if (grains[id] != NULL)
+				if (grains[id] != NULL || grains[id]->grainExists() != false)
 					grains[id]->calculateDistanceFunction(*IDField);
 		}
 	}
@@ -994,7 +995,7 @@ void grainhdl::find_neighbors() {
 	RTree<unsigned int, int, 3, float> tree;
 	int min[3], max[3];
 	for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
-		if (grains[i] == NULL)
+		if (grains[i] == NULL || grains[i]->grainExists() == false)
 			continue;
 		min[0] = grains[i]->getMinX();
 		min[1] = grains[i]->getMinY();
@@ -1159,7 +1160,7 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>*>& hulls) {
 }
 
 void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
-		myQuaternion* Quaternionen) {
+		myQuaternion* Quaternionen, double* storedEnergy) {
 	m_grainScheduler->buildGrainWorkloads(hulls, ngridpoints);
 	bool exceptionHappened = false;
 	string error_message;
@@ -1168,11 +1169,15 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
 		for (auto id : workload) {
+			cout << id << endl;
+		}
+		for (auto id : workload) {
+
 			if (id <= Settings::NumberOfParticles)
 				try {
 					LSbox* grain = new LSbox(ID[id], *hulls[id],
-							Quaternionen[id], this);
-//					grains[id] = grain;
+							Quaternionen[id], this, storedEnergy[id]);
+					grains[id] = grain;
 				} catch (exception& e) {
 #pragma omp critical
 					{
@@ -1189,6 +1194,7 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 
 		if (exceptionHappened) {
 			throw runtime_error(error_message);
+			exit(2);
 		}
 	}
 }
