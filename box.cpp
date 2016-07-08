@@ -278,10 +278,10 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		xmin = 0;
 	if (zmin < 0)
 		zmin = 0;
-	cout << "constructed a box with size: " << xmin << "  " << xmax << "  "
-			<< ymin << "  " << xmax << "  " << endl;
+	cout << m_ID << "constructed a box with size: " << xmin << "  " << xmax << "  "
+			<< ymin << "  " << ymax << "  "<< zmin << "  " << zmax << "  " << endl;
 	if (xmin == m_grainHandler->get_ngridpoints()) {
-		cout << "no bounding box could be found for grain: " << m_ID << endl;
+		cout << m_ID << "no bounding box could be found for grain: " << m_ID << endl;
 		m_exists = false;
 		return;
 	}
@@ -1816,7 +1816,7 @@ void LSbox::copyDataToConatiner(DimensionalBuffer<unsigned int> * container) {
 	for (int k = getMinZ(); k < getMaxZ(); k++) {
 		for (int i = getMinY(); i < getMaxY(); i++) {
 			for (int j = getMinX(); j < getMaxX(); j++) {
-				if (0. < m_outputDistance->getValueAt(i, j, k)) {
+				if (0. <= m_outputDistance->getValueAt(i, j, k)) {
 					if (i >= gridblowup && j >= gridblowup && k >= gridblowup
 							&& i < container->getMaxY() + gridblowup
 							&& j < container->getMaxX() + gridblowup

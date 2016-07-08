@@ -486,7 +486,7 @@ void grainhdl::read_voxelized_microstructure() {
 	}
 
 	double bunge[3];
-	double* storedEnergy = new double[ngrains+1];
+	double* storedEnergy = new double[ngrains + 1];
 	double *x, *y, *z;
 	int* ID;
 	int nvertices = 8;
@@ -507,7 +507,8 @@ void grainhdl::read_voxelized_microstructure() {
 		fscanf(compressedGrainInfo,
 				"%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d\t %d\t %lf \t %lf\n",
 				&id, &x[nn], &y[nn], &z[nn], &bunge[0], &bunge[1], &bunge[2],
-				&xmin, &xmax, &ymin, &ymax, &zmin, &zmax, &counts[nn], &storedEnergy[nn]);
+				&xmin, &xmax, &ymin, &ymax, &zmin, &zmax, &counts[nn],
+				&storedEnergy[nn]);
 		//printf("%d\t %lf\t %lf\t %lf\t %lf\t %lf\t %d\t %d\t %d\t %d\t %d \n",
 		//		id, x[nn], y[nn], bunge[0], bunge[1], bunge[2], xmin,
 		//		xmax, ymin, ymax, counts[nn]);
@@ -544,8 +545,8 @@ void grainhdl::read_voxelized_microstructure() {
 	IDField = new DimensionalBuffer<int>(0, 0, 0, ngridpoints, ngridpoints,
 			ngridpoints);
 	for (int k = 0; k < ngridpoints; k++) {
-		for (int i = 0; i < ngridpoints; i++) {
-			for (int j = 0; j < ngridpoints; j++) {
+		for (int j = 0; j < ngridpoints; j++) {
+			for (int i = 0; i < ngridpoints; i++) {
 				//<<<<<<< HEAD
 				//				if (i < grid_blowup || j < grid_blowup || k < grid_blowup
 				//						|| i >= ngridpoints - 1 - grid_blowup
@@ -556,7 +557,6 @@ void grainhdl::read_voxelized_microstructure() {
 						|| i >= ngridpoints - grid_blowup
 						|| j >= ngridpoints - grid_blowup
 						|| k >= ngridpoints - grid_blowup)
-					//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 					IDField->setValueAt(j, i, k, 0);
 				else {
 					unsigned int box_id;
@@ -1080,8 +1080,8 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 	fwrite(container->getRawData(), sizeof(unsigned int),
 			(realDomainSize * realDomainSize * realDomainSize), binaryFile);
 	fclose(binaryFile);
-	filename2.str("");
-	filename2 << "Container2" << "_" << loop << ".gnu";
+//	filename2.str("");
+//	filename2 << "Container2" << "_" << loop << ".gnu";
 //	File = fopen(filename2.str().c_str(), "w");
 //	for (int k = 0; k < realDomainSize; k++) {
 //		for (int i = 0; i < realDomainSize; i++) {
@@ -1170,9 +1170,6 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 				omp_get_thread_num());
 		for (auto id : workload) {
 			cout << id << endl;
-		}
-		for (auto id : workload) {
-
 			if (id <= Settings::NumberOfParticles)
 				try {
 					LSbox* grain = new LSbox(ID[id], *hulls[id],

@@ -22,22 +22,23 @@ struct Face {
 struct TextureData {
 	unsigned int id;
 	unsigned int NeighbourCount;
-	bool intersectsBoundaryGrain;
+	unsigned int intersectsBoundaryGrain;
 	double volume;
-	double dA;
-	double perimeter;
+	double surfaceArea;
 	double GBEnergy;
 	double BulkEnergy;
-	double* euler;
+	double euler[3];
+	double barycenter[3];
 	TextureData(unsigned int _id, unsigned int _NeighbourCount,
 			bool _intersectsBoundaryGrain, double _volume, double _dA,
-			double _perimeter, double _GBEnergy, double _BulkEnergy,
+			double _surfaceArea, double _GBEnergy, double _BulkEnergy,
 			myQuaternion *ori) :
 			id(_id), NeighbourCount(_NeighbourCount), intersectsBoundaryGrain(
-					_intersectsBoundaryGrain), volume(_volume), dA(_dA), perimeter(
-					_perimeter), GBEnergy(_GBEnergy), BulkEnergy(_BulkEnergy) {
-		euler = new double(3);
-		euler = ori->Quaternion2Euler();
+					_intersectsBoundaryGrain), volume(_volume), surfaceArea(
+					_surfaceArea), GBEnergy(_GBEnergy), BulkEnergy(_BulkEnergy) {
+		double* newori = ori->Quaternion2Euler();
+		*euler = *newori;
+		delete [] newori;
 
 	}
 	~TextureData() {
