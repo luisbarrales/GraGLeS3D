@@ -95,7 +95,6 @@ public:
 	static double InterpolatingSectorRadius;
 	static unsigned long NeighbourTracking;
 	static bool UseStoredElasticEnergy;
-	static bool PseudoPeriodic;
 	static bool UseMagneticField;
 	static std::string MagneticParams;
 	static double VacuumPermeability;

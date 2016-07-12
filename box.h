@@ -31,6 +31,7 @@
 #include "fftw3.h"
 #include "Eigen/Dense"
 #include "myQuaternion.h"
+
 #ifdef USE_MKL
 #include "mkl_dfti.h"
 #endif
@@ -38,6 +39,7 @@
 using namespace std;
 using namespace Eigen;
 
+struct TextureData;
 class grainhdl;
 class DimensionalBufferReal;
 class MarchingSquaresAlgorithm;
@@ -270,5 +272,6 @@ public:
 	inline vector<Face>* get_Faces() {
 		return m_explicitHull.get_Faces();
 	}
+	TextureData collectTextureData();
 };
 #endif

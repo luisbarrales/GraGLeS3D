@@ -45,6 +45,8 @@ string Settings::ReadFromFilename;
 string Settings::AdditionalFilename;
 double Settings::HAGB_Mobility = 0.0;
 double Settings::HAGB_Energy = 0.0;
+double Settings::DislocEnPerM = 0.0;
+
 double Settings::Physical_Domain_Size = 0.0;
 unsigned long Settings::PlotInterval = 0;
 double Settings::TripleLineDrag = 0.0;
@@ -53,7 +55,6 @@ bool Settings::DisableConvolutionCorrection = false;
 bool Settings::UseTexture = false;
 bool Settings::ExecuteInParallel = false;
 bool Settings::GridCoarsement = false;
-bool Settings::PseudoPeriodic = false;
 //! Enables the generation and capture of a wider spectrum of analysing data
 bool Settings::UniqueGBEnergies = false;
 bool Settings::DecoupleGrains = false;
@@ -152,6 +153,9 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("HAGB_Energy")) {
 		HAGB_Energy = std::stod(rootNode->first_node("HAGB_Energy")->value());
 	}
+	if (0 != rootNode->first_node("DislocEnPerM")) {
+		DislocEnPerM = std::stod(rootNode->first_node("DislocEnPerM")->value());
+	}
 	if (0 != rootNode->first_node("TripleLineDrag")) {
 		TripleLineDrag = std::stod(
 				rootNode->first_node("TripleLineDrag")->value());
@@ -225,7 +229,7 @@ void Settings::initializeParameters(string filename) {
 
 	if (0 != rootNode->first_node("UseStoredElasticEnergy")) {
 		UseStoredElasticEnergy = (bool) std::stoul(
-				rootNode->first_node("DislocationEnergy")->value());
+				rootNode->first_node("UseStoredElasticEnergy")->value());
 	}
 	if (0 != rootNode->first_node("GrainScheduler")) {
 		GrainScheduler = (E_GRAIN_SCHEDULER) std::stoi(
@@ -236,10 +240,6 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("DecoupleGrains")) {
 		DecoupleGrains = (bool) std::stoul(
 				rootNode->first_node("DecoupleGrains")->value());
-	}
-	if (0 != rootNode->first_node("PseudoPeriodic")) {
-		PseudoPeriodic = (bool) std::stoul(
-				rootNode->first_node("PseudoPeriodic")->value());
 	}
 	file.close();
 	if (UseMagneticField == 1)
@@ -336,6 +336,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(HAGB_Energy);
 	PUSH_PARAM(HAGB_Mobility);
 	PUSH_PARAM(Physical_Domain_Size);
+	PUSH_PARAM(DislocEnPerM);
 	PUSH_PARAM(TripleLineDrag);
 	PUSH_PARAM(UseMagneticField);
 	PUSH_PARAM(UseMobilityModel);

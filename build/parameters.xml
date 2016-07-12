@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
    <StartTime>0</StartTime>
-   <NumberOfParticles>100</NumberOfParticles>
+   <NumberOfParticles>50</NumberOfParticles>
    <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
    <AnalysisTimestep>1</AnalysisTimestep>
    <PlotInterval>5</PlotInterval>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
-   <NumberOfTimesteps>50000</NumberOfTimesteps>
+   <NumberOfTimesteps>5</NumberOfTimesteps>
    <BreakupNumber>10</BreakupNumber>
    <DiscreteSamplingRate>25</DiscreteSamplingRate>
    <DomainBorderSize>7</DomainBorderSize>
@@ -24,13 +24,14 @@
    <!--unit: Js/m² -->
    <HAGB_Mobility>2.6e-13</HAGB_Mobility>
    <!--unit: m^4/Js -->
-   <DislocEnDensPerSqM>8.81e-10</DislocEnDensPerSqM>
+   <DislocEnPerM>8.81e-10</DislocEnPerM>
    <!--1/2 Gbb - material constant -->
    <Physical_Domain_Size>2.01e-4</Physical_Domain_Size>   
    <!--unit: meter -->
    <TriplePointDrag>1</TriplePointDrag>
    <UseMobilityFactor>1</UseMobilityFactor>
-   <UseMagneticField>1</UseMagneticField>
+   <UseStoredElasticEnergy>1</UseStoredElasticEnergy>
+   <UseMagneticField>0</UseMagneticField>
    <MagneticParams>MagneticField.xml</MagneticParams>
    <DisableConvolutionCorrection>1</DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
@@ -54,6 +55,6 @@
     	0   	E_ITERATIVE
    	1   	E_SQUARES
    -->
-   <NeighbourTracking>0</NeighbourTracking>
+   <NeighbourTracking>1</NeighbourTracking>
    <PseudoPeriodic>0</PseudoPeriodic>
 </Parameters>

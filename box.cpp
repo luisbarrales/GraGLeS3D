@@ -129,11 +129,7 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	m_orientationQuat = new myQuaternion();
 #pragma omp critical
 	{
-		if (Settings::PseudoPeriodic) {
-			m_orientationQuat = new myQuaternion();
-			(*m_orientationQuat) = m_grainHandler->myOrientationSpace[m_ID
-					% (Settings::NumberOfParticles)];
-		} else if (Settings::UseMagneticField) {
+		if (Settings::UseMagneticField) {
 			double number;
 			int i = 0;
 			do {
@@ -226,7 +222,9 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		grainhdl* owner, double StoredEnergy) :
 		m_ID(id), m_exists(true), m_grainHandler(owner), m_explicitHull(this), m_isMotionRegular(
 				true), m_intersectsBoundaryGrain(false), m_volume(0), m_energy(
-				0), m_surface(0), m_StoredElasticEnergy(StoredEnergy) {
+				0), m_surface(0) {
+	m_StoredElasticEnergy = Settings::DislocEnPerM * StoredEnergy
+			/ Settings::HAGB_Energy * Settings::Physical_Domain_Size;
 	m_orientationQuat = new myQuaternion(ori.get_q0(), ori.get_q1(),
 			ori.get_q2(), ori.get_q3());
 	//m_grainBoundary.getRawBoundary() = vertices;
@@ -244,8 +242,8 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 
 	double z, y, x;
 	for (int k = 0; k < vertices.size(); k++) {
-		cout << "vertice xyz: " << vertices[k][0] << "  " << vertices[k][1] << "  "
-				<< vertices[k][2] << "  " << endl;
+//		cout << "vertice xyz: " << vertices[k][0] << "  " << vertices[k][1] << "  "
+//				<< vertices[k][2] << "  " << endl;
 		x = vertices[k][0];
 		y = vertices[k][1];
 		z = vertices[k][2];
@@ -278,10 +276,11 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		xmin = 0;
 	if (zmin < 0)
 		zmin = 0;
-	cout << m_ID << "constructed a box with size: " << xmin << "  " << xmax << "  "
-			<< ymin << "  " << ymax << "  "<< zmin << "  " << zmax << "  " << endl;
+//	cout << m_ID << "constructed a box with size: " << xmin << "  " << xmax << "  "
+//			<< ymin << "  " << ymax << "  "<< zmin << "  " << zmax << "  " << endl;
 	if (xmin == m_grainHandler->get_ngridpoints()) {
-		cout << m_ID << "no bounding box could be found for grain: " << m_ID << endl;
+		cout << m_ID << "no bounding box could be found for grain: " << m_ID
+				<< endl;
 		m_exists = false;
 		return;
 	}
@@ -289,11 +288,20 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 			zmax);
 	m_outputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
+
 	m_inputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	//	inputDistance->clearValues(0.0);
 	//	outputDistance->clearValues(0.0);
-
+	if (m_outputDistance->getTotalMemoryUsed() > 20*1.e6n	) {
+		cout << "unexpected memory allocation in grain: " << m_ID << endl;
+		cout << "try to allocate: "
+				<< m_outputDistance->getTotalMemoryUsed() / 1.e6 << " MB"
+				<< endl;
+		cout << m_ID << " constructed a box with size: " << xmin << "  " << xmax
+				<< "  " << ymin << "  " << ymax << "  " << zmin << "  " << zmax
+				<< "  " << endl;
+	}
 	resizeIDLocalToDistanceBuffer();
 }
 
@@ -1829,3 +1837,15 @@ void LSbox::copyDataToConatiner(DimensionalBuffer<unsigned int> * container) {
 	}
 }
 
+TextureData LSbox::collectTextureData() {
+	double x = (getMaxX() - getMinX()) / 2 + getMinX();
+	x *= m_grainHandler->get_h();
+	double y = (getMaxY() - getMinY()) / 2 + getMinY();
+	y *= m_grainHandler->get_h();
+	double z = (getMaxZ() - getMinZ()) / 2 + getMinZ();
+	z *= m_grainHandler->get_h();
+	TextureData newdata(m_ID, m_explicitHull.getAllNeighborsCount(),
+			m_explicitHull.IsNeighbor(0), m_volume, m_surface, m_energy,
+			m_StoredElasticEnergy, m_orientationQuat, x, y, z);
+	return newdata;
+}

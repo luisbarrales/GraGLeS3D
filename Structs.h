@@ -1,6 +1,5 @@
 class myQuaternion;
 
-
 struct VolEvolution {
 	double dA;
 	int nVertex;
@@ -20,28 +19,34 @@ struct Face {
 };
 
 struct TextureData {
-	unsigned int id;
-	unsigned int NeighbourCount;
-	unsigned int intersectsBoundaryGrain;
 	double volume;
 	double surfaceArea;
 	double GBEnergy;
 	double BulkEnergy;
-	double euler[3];
-	double barycenter[3];
+	double phi1;
+	double PHI;
+	double phi2;
+	double x;
+	double y;
+	double z;
+	unsigned int id;
+	unsigned int NeighbourCount;
+	unsigned int intersectsBoundaryGrain;
 	TextureData(unsigned int _id, unsigned int _NeighbourCount,
-			bool _intersectsBoundaryGrain, double _volume, double _dA,
-			double _surfaceArea, double _GBEnergy, double _BulkEnergy,
-			myQuaternion *ori) :
+			bool _intersectsBoundaryGrain, double _volume, double _surfaceArea,
+			double _GBEnergy, double _BulkEnergy, myQuaternion *ori, double _x,
+			double _y, double _z) :
 			id(_id), NeighbourCount(_NeighbourCount), intersectsBoundaryGrain(
 					_intersectsBoundaryGrain), volume(_volume), surfaceArea(
-					_surfaceArea), GBEnergy(_GBEnergy), BulkEnergy(_BulkEnergy) {
+					_surfaceArea), GBEnergy(_GBEnergy), BulkEnergy(_BulkEnergy),
+					x(_x), y(_y), z(_z) {
 		double* newori = ori->Quaternion2Euler();
-		*euler = *newori;
-		delete [] newori;
+		phi1 = newori[0];
+		PHI = newori[1];
+		phi2 = newori[2];
+		delete[] newori;
 
 	}
 	~TextureData() {
-		delete[] euler;
 	}
 };

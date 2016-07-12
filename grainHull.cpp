@@ -164,7 +164,7 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			GrainBoundary* GB = findGrainBoundary(key);
 			Vector3d current = m_actualHull[i].computeBarycenter();
 			GB->addBaryCenter(current);
-			//GB->addTriangle(m_actualHull[i]);
+			GB->addTriangle(m_actualHull[i]);
 			break;
 		}
 		case 3: {
@@ -178,7 +178,7 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 			QuadrupleJunction* QJ = findQuadrupleJunction(key);
 			Vector3d current = m_actualHull[i].computeBarycenter();
 			QJ->addBaryCenter(current);
-			//QJ->addTriangle(m_actualHull[i]);
+			QJ->addTriangle(m_actualHull[i]);
 			break;
 		}
 		default: {
