@@ -169,7 +169,7 @@ public:
 	void computeInterfacialElementMesh();
 	void switchBufferPositions();
 
-	void copyDataToConatiner(DimensionalBuffer<unsigned int> * container);
+	void copyDataToContainer(DimensionalBuffer<unsigned int> * container, int threadID);
 
 #ifdef USE_FFTW
 	void makeFFTPlans(double *in, double* out,fftw_complex *fftTemp, fftw_plan *fftplan1, fftw_plan *fftplan2);

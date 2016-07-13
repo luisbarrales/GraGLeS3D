@@ -62,15 +62,10 @@ myQuaternion myQuaternion::operator*(const myQuaternion & rhs) {
 	//equivalent to the multiplication given in Grimmer, H, 1974 Acta Cryst A30, 685-688
 	//mind vector cross product notation qp = q0p0 - qbar*pbar + q0 pbar + p0 qbar + qbar cross pbar with bar vector quantities parts of the quaternion
 	myQuaternion r;
-//	r.q0 = +q0 * rhs.q0 - q1 * rhs.q1 - q2 * rhs.q2 - q3 * rhs.q3;
-//	r.q1 = +q1 * rhs.q0 + q0 * rhs.q1 - q3 * rhs.q2 + q2 * rhs.q3;
-//	r.q2 = +q2 * rhs.q0 + q3 * rhs.q1 + q0 * rhs.q2 - q1 * rhs.q3;
-//	r.q3 = +q3 * rhs.q0 - q2 * rhs.q1 + q1 * rhs.q2 + q0 * rhs.q3;
-
-	r.q0 = +rhs.q0 * q0 - rhs.q1 * q1 - rhs.q2 * q2 - rhs.q3 * q3;
-	r.q1 = +rhs.q1 * q0 + rhs.q0 * q1 - rhs.q3 * q2 + rhs.q2 * q3;
-	r.q2 = +rhs.q2 * q0 + rhs.q3 * q1 + rhs.q0 * q2 - rhs.q1 * q3;
-	r.q3 = +rhs.q3 * q0 - rhs.q2 * q1 + rhs.q1 * q2 + rhs.q0 * q3;
+	r.q0 = +q0 * rhs.q0 - q1 * rhs.q1 - q2 * rhs.q2 - q3 * rhs.q3;
+	r.q1 = +q1 * rhs.q0 + q0 * rhs.q1 - q3 * rhs.q2 + q2 * rhs.q3;
+	r.q2 = +q2 * rhs.q0 + q3 * rhs.q1 + q0 * rhs.q2 - q1 * rhs.q3;
+	r.q3 = +q3 * rhs.q0 - q2 * rhs.q1 + q1 * rhs.q2 + q0 * rhs.q3;
 	return r;
 }
 

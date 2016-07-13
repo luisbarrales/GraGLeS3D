@@ -60,9 +60,9 @@ bool Settings::UniqueGBEnergies = false;
 bool Settings::DecoupleGrains = false;
 double Settings::ConstantSectorRadius = 0.0;
 double Settings::InterpolatingSectorRadius = 0.0;
-unsigned long Settings::NeighbourTracking = 0;
+unsigned long Settings::NeighborTracking = 0;
 bool Settings::UseStoredElasticEnergy = false;
-
+bool Settings::StoreTaskDistribution = false;
 bool Settings::UseMagneticField = false;
 string Settings::MagneticParams;
 double Settings::VacuumPermeability = 0.0;
@@ -164,10 +164,14 @@ void Settings::initializeParameters(string filename) {
 		UseMobilityModel = (bool) std::stoul(
 				rootNode->first_node("UseMobilityFactor")->value());
 	}
-	if (0 != rootNode->first_node("IsIsotropicNetwork")) {
+	if (0 != rootNode->first_node("DisableConvolutionCorrection")) {
 		DisableConvolutionCorrection = (bool) std::stoul(
-				rootNode->first_node("IsIsotropicNetwork")->value());
+				rootNode->first_node("DisableConvolutionCorrection")->value());
 	}
+	if (0 != rootNode->first_node("StoreTaskDistribution")) {
+			StoreTaskDistribution = (bool) std::stoul(
+					rootNode->first_node("StoreTaskDistribution")->value());
+		}
 	if (0 != rootNode->first_node("UseTexture")) {
 		UseTexture = (bool) std::stoul(
 				rootNode->first_node("UseTexture")->value());
@@ -222,9 +226,9 @@ void Settings::initializeParameters(string filename) {
 		InterpolatingSectorRadius = std::stod(
 				rootNode->first_node("InterpolatingSectorRadius")->value());
 	}
-	if (0 != rootNode->first_node("NeighbourTracking")) {
-		NeighbourTracking = std::stoul(
-				rootNode->first_node("NeighbourTracking")->value());
+	if (0 != rootNode->first_node("NeighborTracking")) {
+		NeighborTracking = std::stoul(
+				rootNode->first_node("NeighborTracking")->value());
 	}
 
 	if (0 != rootNode->first_node("UseStoredElasticEnergy")) {
@@ -351,7 +355,7 @@ xml_node<>* Settings::generateXMLParametersNode(xml_document<>* root,
 	PUSH_PARAM(ResearchProject);
 	PUSH_PARAM(ConstantSectorRadius);
 	PUSH_PARAM(InterpolatingSectorRadius);
-	PUSH_PARAM(NeighbourTracking);
+	PUSH_PARAM(NeighborTracking);
 	PUSH_PARAM(UseStoredElasticEnergy);
 	PUSH_PARAM(GrainScheduler);
 	return params;

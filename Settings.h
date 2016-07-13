@@ -93,9 +93,10 @@ public:
 	static E_CONVOLUTION_MODE ConvolutionMode;
 	static double ConstantSectorRadius;
 	static double InterpolatingSectorRadius;
-	static unsigned long NeighbourTracking;
+	static unsigned long NeighborTracking;
 	static bool UseStoredElasticEnergy;
 	static bool UseMagneticField;
+	static bool StoreTaskDistribution;
 	static std::string MagneticParams;
 	static double VacuumPermeability;
 	static double MagneticVector_x;

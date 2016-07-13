@@ -402,7 +402,9 @@ void GrainHull::computeInterfacialElementMesh() {
 		it->findAdjacentTripleLines(m_TripleLines);
 	}
 	if (m_owner->get_grainHandler()->get_loop() == 150
-			|| m_owner->get_grainHandler()->get_loop() == 100) {
+			|| m_owner->get_grainHandler()->get_loop() == 100
+			|| m_owner->get_grainHandler()->get_loop() == 250
+			|| m_owner->get_grainHandler()->get_loop() == 500) {
 		meanWidth();
 		computeTriplelineLength();
 	}
@@ -1016,8 +1018,10 @@ void GrainHull::computeTriplelineLength() {
 vector<Face>* GrainHull::get_Faces() {
 	vector<Face>* myfaces = new vector<Face>;
 	for (auto it : m_Grainboundary) {
-		if(m_owner->getID() > it->m_neighborIDs[0])
-		myfaces->push_back(Face(it->get_area(), m_owner->getID(), it->m_neighborIDs[0]));
+		if (m_owner->getID() > it->m_neighborIDs[0])
+			myfaces->push_back(
+					Face(it->get_area(), m_owner->getID(),
+							it->m_neighborIDs[0]));
 	}
 	return myfaces;
 }

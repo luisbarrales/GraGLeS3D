@@ -293,15 +293,7 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 	//	inputDistance->clearValues(0.0);
 	//	outputDistance->clearValues(0.0);
-	if (m_outputDistance->getTotalMemoryUsed() > 20*1.e6n	) {
-		cout << "unexpected memory allocation in grain: " << m_ID << endl;
-		cout << "try to allocate: "
-				<< m_outputDistance->getTotalMemoryUsed() / 1.e6 << " MB"
-				<< endl;
-		cout << m_ID << " constructed a box with size: " << xmin << "  " << xmax
-				<< "  " << ymin << "  " << ymax << "  " << zmin << "  " << zmax
-				<< "  " << endl;
-	}
+
 	resizeIDLocalToDistanceBuffer();
 }
 
@@ -927,7 +919,6 @@ void LSbox::boundaryCondition() {
 	double distZMin, distZMax, distXMin, distXMax, distX;
 	double distYMin, distYMax, distY, distZ;
 	double dist = 0;
-	//<<<<<<< HEAD
 	for (int k = m_inputDistance->getMinZ(); k < m_inputDistance->getMaxZ();
 			k++) {
 		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY();
@@ -945,13 +936,12 @@ void LSbox::boundaryCondition() {
 				//		for (int i = m_inputDistance->getMinY(); i < m_inputDistance->getMaxY(); i++) {
 				//			for (int j = m_inputDistance->getMinX(); j
 				//					< m_inputDistance->getMaxX(); j++) {
-				//				distXMin = -(j - grid_blowup - 1);
-				//				distYMin = -(i - grid_blowup - 1);
-				//				distZMin = -(k - grid_blowup - 1);
+				distXMin = -(j - grid_blowup + 1);
+				distYMin = -(i - grid_blowup + 1);
+				distZMin = -(k - grid_blowup + 1);
 				//				distXMax = (j - (m - grid_blowup));
 				//				distYMax = (i - (m - grid_blowup));
 				//				distZMax = (k - (m - grid_blowup));
-				////>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
 
 				if (abs(distXMin) < abs(distXMax))
 					distX = distXMin;
@@ -1819,7 +1809,8 @@ int LSbox::getNeighbourAt(int i, int j, int k) {
 	}
 }
 
-void LSbox::copyDataToConatiner(DimensionalBuffer<unsigned int> * container) {
+void LSbox::copyDataToContainer(DimensionalBuffer<unsigned int> * container,
+		int threadID) {
 	int gridblowup = m_grainHandler->get_grid_blowup();
 	for (int k = getMinZ(); k < getMaxZ(); k++) {
 		for (int i = getMinY(); i < getMaxY(); i++) {
@@ -1829,8 +1820,15 @@ void LSbox::copyDataToConatiner(DimensionalBuffer<unsigned int> * container) {
 							&& i < container->getMaxY() + gridblowup
 							&& j < container->getMaxX() + gridblowup
 							&& k < container->getMaxZ() + gridblowup)
-						container->setValueAt(i - gridblowup, j - gridblowup,
-								k - gridblowup, (unsigned int) getID());
+						if (Settings::StoreTaskDistribution)
+							container->setValueAt(i - gridblowup,
+									j - gridblowup, k - gridblowup,
+									(unsigned int) threadID);
+						else
+							container->setValueAt(i - gridblowup,
+									j - gridblowup, k - gridblowup,
+									(unsigned int) getID());
+
 				}
 			}
 		}

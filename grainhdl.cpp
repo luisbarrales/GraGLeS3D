@@ -361,16 +361,10 @@ void grainhdl::VOROMicrostructure() {
 					x = double((j - grid_blowup) * h);
 					y = double((i - grid_blowup) * h);
 					z = double((k - grid_blowup) * h);
-
 					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-							//<<<<<<< HEAD
-							//							|| i >= ngridpoints - 1 - grid_blowup
-							//							|| j >= ngridpoints - 1 - grid_blowup
-							//							|| k >= ngridpoints - 1 - grid_blowup) {
-							//=======
-							|| i >= ngridpoints - grid_blowup
-							|| j >= ngridpoints - grid_blowup
-							|| k >= ngridpoints - grid_blowup) {
+							|| i >= ngridpoints - 1 - grid_blowup
+							|| j >= ngridpoints - 1 - grid_blowup
+							|| k >= ngridpoints - 1 - grid_blowup) {
 						IDField->setValueAt(i, j, k, 0);
 					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
 							cell_id)) {
@@ -580,6 +574,11 @@ void grainhdl::distanceInitialisation() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
+#pragma omp critical
+		{
+			cout << "Thread " << omp_get_thread_num() << " owns "
+					<< workload.size() << " grains." << endl;
+		}
 		for (auto id : workload) {
 			if (id <= Settings::NumberOfParticles)
 				if (grains[id] != NULL || grains[id]->grainExists() != false)
@@ -727,66 +726,63 @@ void grainhdl::redistancing() {
 void grainhdl::save_Texture() {
 	double totalSurface = 0;
 	double total_energy = 0.0;
-	string filename = string("Texture_") + to_string((unsigned long long) loop)
-			+ string(".ori");
-	//ofstream file;
-	//file.open(filename.c_str());
-	double *euler;
-
-	filename.clear();
-	filename = string("Texture_") + to_string((unsigned long long) loop)
-			+ string(".bin");
-	FILE* binaryTexture = fopen(filename.c_str(), "wb");
-	FILE* binaryFaces;
-	if (Settings::NeighbourTracking && loop > 0) {
+	if (Settings::NeighborTracking && loop > 0) {
 		stringstream filename;
-		filename.str("");
+		filename << "Texture" << "_" << loop << ".bin";
+		FILE* binaryTexture = fopen(filename.str().c_str(), "wb");
+
+		filename.clear();
 		filename << "Faces" << "_" << loop << ".bin";
-		binaryFaces = fopen(filename.str().c_str(), "wb");
-	}
-	int faceCount = 0;
-	for (int i = 1; i < grains.size(); i++) {
-		if (grains[i] != NULL && grains[i]->grainExists()) {
-			totalSurface += grains[i]->getSurface() * 0.5;
-			total_energy += grains[i]->getEnergy() * 0.5;
-			fwrite(&grains[i]->collectTextureData(), sizeof(TextureData), 1,
-					binaryTexture);
-//			euler = grains[i]->getOrientationQuat()->Quaternion2EulerConst();
-//			file << grains[i]->getID() << "\t"
-//					<< grains[i]->getDirectNeighbourCount() << "\t"
-//					<< grains[i]->intersectsBoundaryGrain() << "\t"
-//					<< grains[i]->getVolume() << "\t" << grains[i]->getSurface()
-//					<< "\t" << grains[i]->getEnergy() << "\t"
-//					<< grains[i]->getMeanWidth() << "\t"
-//					<< grains[i]->getTripleLineLength() << "\t"
-//					<< grains[i]->get_NumberOfTriplelines() << "\t"
-//					<< grains[i]->get_NumberOfQuadruplePoints() << "\t"
-//					<< grains[i]->get_NumberOfHighOrderJunctions() << "\t";
-//			if (Settings::UseMagneticField)
-//				file << grains[i]->get_magneticEnergy();
-//			else
-//				file << grains[i]->get_SEE();
-//			file << "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
-//					<< "\n";
-//			delete[] euler;
-		}
-		if (Settings::NeighbourTracking && loop > 0) {
-			vector<Face>* myfaces = grains[i]->get_Faces();
-			faceCount += myfaces->size();
-			for (auto it : *myfaces) {
-//				cout << it.area << "  " << it.grainA << "  " << it.grainB << endl;
-				fwrite(&(it), sizeof(Face), 1, binaryFaces);
+		FILE* binaryFaces = fopen(filename.str().c_str(), "wb");
+
+		for (int i = 1; i < grains.size(); i++) {
+			if (grains[i] != NULL && grains[i]->grainExists()) {
+				totalSurface += grains[i]->getSurface() * 0.5;
+				total_energy += grains[i]->getEnergy() * 0.5;
+				fwrite(&grains[i]->collectTextureData(), sizeof(TextureData), 1,
+						binaryTexture);
+				vector<Face>* myfaces = grains[i]->get_Faces();
+				for (auto it : *myfaces) {
+					fwrite(&(it), sizeof(Face), 1, binaryFaces);
+				}
+				delete myfaces;
 			}
-			//fwrite(&(*myfaces), sizeof(Face), myfaces->size(), binaryFaces);
-			delete myfaces;
+		}
+		fclose(binaryFaces);
+		fclose(binaryTexture);
+	} else {
+		string filename = string("Texture_")
+				+ to_string((unsigned long long) loop) + string(".ori");
+		ofstream file;
+		file.open(filename.c_str());
+		double *euler;
+		for (int i = 1; i < grains.size(); i++) {
+			if (grains[i] != NULL && grains[i]->grainExists()) {
+				totalSurface += grains[i]->getSurface() * 0.5;
+				total_energy += grains[i]->getEnergy() * 0.5;
+				euler =
+						grains[i]->getOrientationQuat()->Quaternion2EulerConst();
+				file << grains[i]->getID() << "\t"
+						<< grains[i]->getDirectNeighbourCount() << "\t"
+						<< grains[i]->intersectsBoundaryGrain() << "\t"
+						<< grains[i]->getVolume() << "\t"
+						<< grains[i]->getSurface() << "\t"
+						<< grains[i]->getEnergy() << "\t"
+						<< grains[i]->getMeanWidth() << "\t"
+						<< grains[i]->getTripleLineLength() << "\t"
+						<< grains[i]->get_NumberOfTriplelines() << "\t"
+						<< grains[i]->get_NumberOfQuadruplePoints() << "\t"
+						<< grains[i]->get_NumberOfHighOrderJunctions() << "\t";
+				if (Settings::UseMagneticField)
+					file << grains[i]->get_magneticEnergy();
+				else
+					file << grains[i]->get_SEE();
+				file << "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
+						<< "\n";
+				delete[] euler;
+			}
 		}
 	}
-	if (Settings::NeighbourTracking && loop > 0) {
-		fclose(binaryFaces);
-	}
-	//cout << faceCount << endl;
-	fclose(binaryTexture);
-	//file.close();
 	nr_grains.push_back(currentNrGrains);
 	time.push_back(Realtime);
 	totalenergy.push_back(total_energy);
@@ -865,8 +861,8 @@ void grainhdl::run_sim() {
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		if (((loop - Settings::StartTime) % int(Settings::AnalysisTimestep))
-				== 0 || loop == Settings::NumberOfTimesteps || loop == 249
-				|| loop == 499 || loop == 999) {
+				== 0 || loop == Settings::NumberOfTimesteps || loop == 99
+				|| loop == 149 || loop == 249 || loop == 499) {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
@@ -1040,11 +1036,19 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 			+ to_string((unsigned long long) loop) + string(".uds");
 	ofstream file;
 	file.open(filename.c_str());
+	for (int thread = 0; thread < omp_get_max_threads(); thread++) {
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				thread);
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->copyDataToContainer(container, thread);
+		}
+	}
 	for (auto it : grains) {
 		if (it == NULL || it->grainExists() == false || it->getID() == 0)
 			continue;
-		it->copyDataToConatiner(container);
-
 		// ID, x, y, z, bunge1, bunge2, bunge3, xmin, xmax, ymin, ymax, zmin, zmax, volume, stored
 		double *bunge = it->getOrientationBunge();
 		file << it->getID() << "\t"
@@ -1066,27 +1070,33 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 
 	stringstream filename2;
 	FILE* binaryFile, *File;
-	filename2.str("");
+	filename2.clear();
 	filename2 << "Container" << "_" << loop << ".raw";
-//	OutFile.open(filename2.str(), ios::out | ios::binary);
-//	OutFile.write((char*) container->getRawData(), sizeof(unsigned int));
-//	OutFile.close();
-	binaryFile = fopen(filename2.str().c_str(), "w");
+	binaryFile = fopen(filename2.str().c_str(), "wb");
 	fwrite(container->getRawData(), sizeof(unsigned int),
 			(realDomainSize * realDomainSize * realDomainSize), binaryFile);
 	fclose(binaryFile);
-//	filename2.str("");
-//	filename2 << "Container2" << "_" << loop << ".gnu";
-//	File = fopen(filename2.str().c_str(), "w");
-//	for (int k = 0; k < realDomainSize; k++) {
-//		for (int i = 0; i < realDomainSize; i++) {
-//			for (int j = 0; j < realDomainSize; j++) {
-//				fprintf(File, "%d \t %d \t %d \t %d \n", i, j, k,
-//						container->getValueAt(j, i, k));
-//			}
-//		}
-//	}
-//	fclose(File);
+
+
+	filename2.clear();
+	filename2 << "ContainerVolumeEnergy" << "_" << loop << ".raw";
+	File = fopen(filename2.str().c_str(), "wb");
+	for (int k = 0; k < realDomainSize; k++) {
+		for (int i = 0; i < realDomainSize; i++) {
+			for (int j = 0; j < realDomainSize; j++) {
+				double energy;
+				if (Settings::UseStoredElasticEnergy) {
+					energy = grains[container->getValueAt(i, j, k)]->get_SEE();
+					fwrite(&energy, sizeof(double), 1, binaryFile);
+				} else if (Settings::UseMagneticField) {
+					energy =
+							grains[container->getValueAt(i, j, k)]->get_magneticEnergy();
+					fwrite(&energy, sizeof(double), 1, binaryFile);
+				}
+			}
+		}
+	}
+	fclose(File);
 	delete container;
 }
 

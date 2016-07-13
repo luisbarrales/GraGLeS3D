@@ -50,11 +50,11 @@
 	0 	Energies defined by ReadShockley Model
 	1	Energies set to 1			
    -->
-   <GrainScheduler>0</GrainScheduler>
+   <GrainScheduler>1</GrainScheduler>
    <!-- USAGE:
     	0   	E_ITERATIVE
    	1   	E_SQUARES
    -->
    <NeighbourTracking>1</NeighbourTracking>
-   <PseudoPeriodic>0</PseudoPeriodic>
+   <StoreTaskDistribution>1</StoreTaskDistribution>
 </Parameters>
