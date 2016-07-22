@@ -66,6 +66,7 @@ public:
 	static unsigned int NumberOfParticles;
 	static unsigned long NumberOfPointsPerGrain;
 	static unsigned long NumberOfTimesteps;
+	static double TimeStepSize;
 	static unsigned long BreakupNumber;
 	static unsigned long AnalysisTimestep;
 	static unsigned long PlotInterval;

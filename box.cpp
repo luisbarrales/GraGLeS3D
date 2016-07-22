@@ -498,7 +498,8 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 								f_magneticEnergy = (m_magneticEnergy
 										- neighbor->get_magneticEnergy())
 										* localGB.mobility
-										* m_grainHandler->get_dt();
+										* m_grainHandler->get_dt()/ (m_grainHandler->get_TimeSlope()
+												*m_grainHandler->get_TimeSlope());
 
 							m_outputDistance->setValueAt(i, j, k,
 									(m_outputDistance->getValueAt(i, j, k)
@@ -512,7 +513,8 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 								f_StoredEnergy = (m_StoredElasticEnergy
 										- neighbor->get_SEE())
 										* localGB.mobility
-										* m_grainHandler->get_dt();
+										* m_grainHandler->get_dt() / (m_grainHandler->get_TimeSlope()
+												*m_grainHandler->get_TimeSlope());
 
 							m_outputDistance->setValueAt(i, j, k,
 									(m_outputDistance->getValueAt(i, j, k)

@@ -68,7 +68,7 @@ void grainhdl::initializeSimulation() {
 		ngrains = Settings::NumberOfParticles;
 		currentNrGrains = ngrains;
 		realDomainSize = (pow((double) Settings::NumberOfParticles, 1. / 3.0)
-				* Settings::NumberOfPointsPerGrain) + 1;
+				* pow(PI*4/3,1./3) / 2 * Settings::NumberOfPointsPerGrain) + 1;
 	}
 
 	discreteEnergyDistribution.resize(Settings::DiscreteSamplingRate);
@@ -1375,8 +1375,8 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 		break;
 	}
 	case E_GAUSSIAN: {
-		dt = 0.2 / double(realDomainSize * realDomainSize);
-		TimeSlope = 1 / 1.25;
+		dt = Settings::TimeStepSize / double(realDomainSize * realDomainSize);
+		TimeSlope = 1 / 1.21;
 		break;
 	}
 	default: {
@@ -1392,7 +1392,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 
 void grainhdl::gridCoarsement() {
 	int newSize = pow(currentNrGrains, (1 / 3.0))
-			* Settings::NumberOfPointsPerGrain;
+			* 1.6 *Settings::NumberOfPointsPerGrain;
 	if ((double) currentNrGrains / (double) ngrains
 			< Settings::GridCoarsementGradient && loop != 0
 			&& Settings::GridCoarsement && newSize < realDomainSize) {

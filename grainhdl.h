@@ -181,6 +181,9 @@ public:
 	inline double get_ds() {
 		return 1 / realDomainSize;
 	}
+	inline double get_TimeSlope() {
+		return TimeSlope;
+	}
 
 protected:
 	void initEnvironment();

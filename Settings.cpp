@@ -46,6 +46,7 @@ string Settings::AdditionalFilename;
 double Settings::HAGB_Mobility = 0.0;
 double Settings::HAGB_Energy = 0.0;
 double Settings::DislocEnPerM = 0.0;
+double Settings::TimeStepSize = 0.2;
 
 double Settings::Physical_Domain_Size = 0.0;
 unsigned long Settings::PlotInterval = 0;
@@ -150,6 +151,9 @@ void Settings::initializeParameters(string filename) {
 		Physical_Domain_Size = std::stod(
 				rootNode->first_node("Physical_Domain_Size")->value());
 	}
+	if (0 != rootNode->first_node("TimeStepSize")) {
+		TimeStepSize = std::stod(rootNode->first_node("TimeStepSize")->value());
+	}
 	if (0 != rootNode->first_node("HAGB_Energy")) {
 		HAGB_Energy = std::stod(rootNode->first_node("HAGB_Energy")->value());
 	}
@@ -169,9 +173,9 @@ void Settings::initializeParameters(string filename) {
 				rootNode->first_node("DisableConvolutionCorrection")->value());
 	}
 	if (0 != rootNode->first_node("StoreTaskDistribution")) {
-			StoreTaskDistribution = (bool) std::stoul(
-					rootNode->first_node("StoreTaskDistribution")->value());
-		}
+		StoreTaskDistribution = (bool) std::stoul(
+				rootNode->first_node("StoreTaskDistribution")->value());
+	}
 	if (0 != rootNode->first_node("UseTexture")) {
 		UseTexture = (bool) std::stoul(
 				rootNode->first_node("UseTexture")->value());
