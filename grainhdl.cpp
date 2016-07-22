@@ -714,13 +714,20 @@ void grainhdl::redistancing() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-			grains[id]->executeRedistancing();
-		}
+for	(auto id : workload) {
+		if (id <= Settings::NumberOfParticles)
+		if (grains[id] == NULL)
+		continue;
+//		grains[id]->plotBoxVolumetric("Pre",
+//				E_INPUT_DISTANCE, get_h());
+//		grains[id]->executeRedistancing();
+//		grains[id]->switchInNOut();
+		grains[id]->executeNewRedistancing();
+//		grains[id]->switchInNOut();
+//		grains[id]->plotBoxVolumetric("Post",
+//				E_INPUT_DISTANCE, get_h());
 	}
+}
 }
 
 void grainhdl::save_Texture() {

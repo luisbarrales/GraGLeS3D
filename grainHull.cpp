@@ -295,7 +295,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 				/*
 				 * end of debugging
 				 */
-				if (distances.back() < 3 * h) {
+				if (distances.back() < 3 ) {
 					correspondingJunctions += posClosestJunction;
 					N++;
 				}

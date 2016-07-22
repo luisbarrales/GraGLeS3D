@@ -28,6 +28,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "Structs.h"
+#include <sys/time.h>
 
 #define PERIODIC(x, f) (((x)+f)%f)
 
@@ -1125,6 +1126,324 @@ void LSbox::computeVolumeAndEnergy() {
 	if (grainExists() != true || m_isMotionRegular == false)
 		return;
 }
+
+/*
+ * new redistancing
+ */
+
+double pos_sq(double x){
+	if(x>0) return x*x;
+	else return 0;
+}
+
+double neg_sq(double x){
+	if(x<0) return x*x;
+	else return 0;
+}
+
+double max(double x, double y){
+	if(x>y) return x;
+	else return y;
+}
+
+double norm_grad(DimensionalBufferReal* sdf, int i, int j, int k, double h){
+	double a,b,c,d,e,f;
+	double grad_x_sq, grad_y_sq, grad_z_sq;
+
+	int ip = i+1;
+	int im = i-1;
+	int jp = j+1;
+	int jm = j-1;
+	int kp = k+1;
+	int km = k-1;
+
+	a = sdf->getValueAt(j,i,k) - sdf->getValueAt(j,im,k);
+	b = sdf->getValueAt(j,ip,k) - sdf->getValueAt(j,i,k);
+
+	c = sdf->getValueAt(j,i,k) - sdf->getValueAt(jm,i,k);
+	d = sdf->getValueAt(jp,i,k) - sdf->getValueAt(j,i,k);
+
+	e = sdf->getValueAt(j,i,k) - sdf->getValueAt(j,i,km);
+	f = sdf->getValueAt(j,i,kp) - sdf->getValueAt(j,i,k);
+
+	if(sdf->getValueAt(j,i,k)>0){
+		grad_x_sq = max(pos_sq(a), neg_sq(b));
+		grad_y_sq = max(pos_sq(c), neg_sq(d));
+		grad_z_sq = max(pos_sq(e), neg_sq(f));
+	}else{
+		grad_x_sq = max(pos_sq(b), neg_sq(a));
+		grad_y_sq = max(pos_sq(d), neg_sq(c));
+		grad_z_sq = max(pos_sq(f), neg_sq(e));
+	}
+
+	return sqrt(grad_x_sq + grad_y_sq + grad_z_sq);
+}
+
+void LSbox::executeNewRedistancing(){
+	if (grainExists() != true)
+			return;
+
+	double tolerance = 0.001;
+	double max_dt = tolerance+1;
+	double h = m_grainHandler->get_h();
+	double dt = 0.25*h;
+
+	int x_Min = m_inputDistance->getMinX();
+	int x_Max = m_inputDistance->getMaxX();
+	int y_Min = m_inputDistance->getMinY();
+	int y_Max = m_inputDistance->getMaxY();
+	int z_Min = m_inputDistance->getMinZ();
+	int z_Max = m_inputDistance->getMaxZ();
+
+	m_outputDistance->resize(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	DimensionalBufferReal* d = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+	DimensionalBufferReal* curvature = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	/*
+	 * Calculate d for all points in the direct vicinity of the surface
+	 */
+
+//	timeval time1;
+//	timeval time2;
+//
+//	if(getID()==1){
+//		gettimeofday(&time1, NULL);
+//	}
+
+	for(int i=x_Min+1; i<x_Max-1;i++){
+		for(int j=y_Min+1; j<y_Max-1; j++){
+			for(int k=z_Min+1; k<z_Max-1;k++){
+				if(abs(m_inputDistance->getValueAt(j,i,k))<m_grainHandler->delta){
+					double ip,im,jp,jm,kp,km,current;
+					ip=m_inputDistance->getValueAt(j,i+1,k);
+					im=m_inputDistance->getValueAt(j,i-1,k);
+					jp=m_inputDistance->getValueAt(j+1,i,k);
+					jm=m_inputDistance->getValueAt(j-1,i,k);
+					kp=m_inputDistance->getValueAt(j,i,k+1);
+					km=m_inputDistance->getValueAt(j,i,k-1);
+					current=m_inputDistance->getValueAt(j,i,k);
+					if(
+							current*ip<0 ||
+							current*im<0 ||
+							current*jp<0 ||
+							current*jm<0 ||
+							current*kp<0 ||
+							current*km<0
+					){
+
+						/*
+						 * den is the inverse of the norm of the gradient of the level set function
+						 */
+						double den;
+						den = 1/sqrt(pow((ip-im)/(2*h),2)+
+								pow((jp-jm)/(2*h),2)+
+								pow((kp-km)/(2*h),2));
+						curvature->setValueAt(j,i,k,
+								(ip+im +
+								 jp+jm	+
+								 kp+km-6*current)/(h*h)*
+										(den-pow(den,3))-
+										2*pow(den,3)*(
+												m_inputDistance->getValueAt(j+1,i+1,k)-m_inputDistance->getValueAt(j-1,i+1,k)-
+												m_inputDistance->getValueAt(j+1,i-1,k)+m_inputDistance->getValueAt(j-1,i-1,k)+
+												m_inputDistance->getValueAt(j+1,i,k+1)-m_inputDistance->getValueAt(j-1,i,k+1)-
+												m_inputDistance->getValueAt(j+1,i,k-1)+m_inputDistance->getValueAt(j-1,i,k-1)+
+												m_inputDistance->getValueAt(j,i+1,k+1)-m_inputDistance->getValueAt(j,i+1,k-1)-
+												m_inputDistance->getValueAt(j,i-1,k+1)+m_inputDistance->getValueAt(j,i-1,k-1)
+										)/(4*h*h)
+						);
+						d->setValueAt(j,i,k,
+								current*den);
+					}
+				}
+			}
+		}
+	}
+//	if(getID()==1){
+//			gettimeofday(&time2, NULL);
+//			cout << "Time for calculating the curvature:" << endl;
+//			cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+//	}
+
+	for(int i=x_Min+1; i<x_Max-1;i++){
+		for(int j=y_Min+1; j<y_Max-1; j++){
+			for(int k=z_Min+1; k<z_Max-1;k++){
+				if(abs(m_inputDistance->getValueAt(j,i,k))<m_grainHandler->delta){
+					double ip,im,jp,jm,kp,km,current;
+					ip=m_inputDistance->getValueAt(j,i+1,k);
+					im=m_inputDistance->getValueAt(j,i-1,k);
+					jp=m_inputDistance->getValueAt(j+1,i,k);
+					jm=m_inputDistance->getValueAt(j-1,i,k);
+					kp=m_inputDistance->getValueAt(j,i,k+1);
+					km=m_inputDistance->getValueAt(j,i,k-1);
+					current=m_inputDistance->getValueAt(j,i,k);
+					if(
+							current*ip<0 ||
+							current*im<0 ||
+							current*jp<0 ||
+							current*jm<0 ||
+							current*kp<0 ||
+							current*km<0
+					){
+						if(curvature->getValueAt(j,i,k)*current<0){
+							int M=0;
+							double d_tilde=0;
+							if(current*ip<0){
+								d_tilde+=d->getValueAt(j,i+1,k)*current/ip;
+								M++;
+							}
+							if(current*im<0){
+								d_tilde+=d->getValueAt(j,i-1,k)*current/im;
+								M++;
+							}
+							if(current*jp<0){
+								d_tilde+=d->getValueAt(j+1,i,k)*current/jp;
+								M++;
+							}
+							if(current*jm<0){
+								d_tilde+=d->getValueAt(j-1,i,k)*current/jm;
+								M++;
+							}
+							if(current*kp<0){
+								d_tilde+=d->getValueAt(j,i,k+1)*current/kp;
+								M++;
+							}
+							if(current*m_inputDistance->getValueAt(j,i,k-1)<0){
+								d_tilde+=d->getValueAt(j,i,k-1)*current/km;
+								M++;
+							}
+							d->setValueAt(j,i,k,d_tilde/(double)M);
+						}
+					}
+				}
+			}
+		}
+	}
+
+//	if(getID()==1){
+//			gettimeofday(&time1, NULL);
+//			cout << "Time for calculating d on one side of the surface:" << endl;
+//			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
+//	}
+
+	for(int i=x_Min+1; i<x_Max-1;i++){
+		for(int j=y_Min+1; j<y_Max-1; j++){
+			for(int k=z_Min+1; k<z_Max-1;k++){
+				if(
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)<0
+				){
+					m_outputDistance->setValueAt(j,i,k,d->getValueAt(j,i,k));
+				}
+				else{
+					m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+				}
+			}
+		}
+	}
+
+//	if(getID()==1){
+//			gettimeofday(&time2, NULL);
+//			cout << "Time for correcting the levelset function in the vicinity of the surface:" << endl;
+//			cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+//	}
+
+	DimensionalBufferReal* sdf_dt = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	for(int i=x_Min; i<x_Max; i++){
+		for(int j=y_Min; j<y_Max; j++){
+			for(int k=z_Min; k<z_Max; k++){
+				m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+			}
+		}
+	}
+	int iter = 0;
+	//for(int iter = 0; iter<iterations; iter++){
+	while(max_dt > tolerance){
+
+		max_dt = 0.0;
+		//if(getID() == 1) cout << "ITERATION " <<iter << endl;
+		for(int i=x_Min+1; i<x_Max-1; i++){
+			for(int j=y_Min+1; j<y_Max-1; j++){
+				for(int k=z_Min+1; k<z_Max-1; k++){
+					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+						continue;
+
+					if(!(
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)<0
+					)){
+
+						double s = m_outputDistance->getValueAt(j,i,k)/
+								sqrt(m_outputDistance->getValueAt(j,i,k)*
+										m_outputDistance->getValueAt(j,i,k) + h*h);
+						//					double s;
+						//					if(m_inputDistance->getValueAt(j,i,k)>0) s = 1;
+						//					else s=-1;
+						sdf_dt->setValueAt(j,i,k,s *
+								(h - norm_grad(m_outputDistance, i, j, k, h)));
+						if(!(
+								abs(m_inputDistance->getValueAt(j+1,i,k))<m_grainHandler->delta ||
+								abs(m_inputDistance->getValueAt(j-1,i,k))<m_grainHandler->delta ||
+								abs(m_inputDistance->getValueAt(j,i+1,k))<m_grainHandler->delta ||
+								abs(m_inputDistance->getValueAt(j,i-1,k))<m_grainHandler->delta ||
+								abs(m_inputDistance->getValueAt(j,i,k+1))<m_grainHandler->delta ||
+								abs(m_inputDistance->getValueAt(j,i,k-1))<m_grainHandler->delta )
+						)
+							if(abs(sdf_dt->getValueAt(j,i,k))>max_dt) max_dt = abs(sdf_dt->getValueAt(j,i,k));
+						//if(getID() == 1) cout << norm_grad(m_outputDistance, i, j, k, h) << endl;
+					}
+				}
+			}
+		}
+
+		for(int i=x_Min+1; i<x_Max-1; i++){
+			for(int j=y_Min+1; j<y_Max-1; j++){
+				for(int k=z_Min+1; k<z_Max-1; k++){
+					if(!(
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)<0 ||
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)<0
+					)){
+						m_outputDistance->setValueAt(j,i,k,
+								m_outputDistance->getValueAt(j,i,k)+ dt * sdf_dt->getValueAt(j,i,k));
+					}
+				}
+			}
+		}
+	}
+
+
+//	if(getID()==1){
+//			gettimeofday(&time1, NULL);
+//			cout << "Time for the correction of the remaining level set function:" << endl;
+//			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
+//	}
+
+	m_outputDistance->clampValues(-m_grainHandler->delta,
+			m_grainHandler->delta);
+
+	d->clearValues();
+	curvature->clearValues();
+	sdf_dt->clearValues();
+	delete d;
+	delete curvature;
+	delete sdf_dt;
+
+}
+
 
 /**************************************/
 //  Redistancing

@@ -109,6 +109,7 @@ public:
 	//Dtors
 	virtual ~LSbox();
 	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);
+	void executeNewRedistancing();
 	void executeRedistancing();
 	void extractContour();
 	void calculateMagneticEnergy();
