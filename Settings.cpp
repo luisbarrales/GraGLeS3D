@@ -74,6 +74,7 @@ double Settings::deltaMagSys = 0.0;
 double Settings::MagneticForceField = 0.0;
 double Settings::A_Value = 0.0;
 double Settings::C_Value = 0.0;
+int Settings::NeighbourhoodGrain = 0;
 
 void Settings::initializeParameters(string filename) {
 	if (0 == filename.compare(""))
@@ -248,6 +249,10 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("DecoupleGrains")) {
 		DecoupleGrains = (bool) std::stoul(
 				rootNode->first_node("DecoupleGrains")->value());
+	}
+	if (0 != rootNode->first_node("NeighbourhoodGrain")) {
+		NeighbourhoodGrain = std::stoul(
+				rootNode->first_node("NeighbourhoodGrain")->value());
 	}
 	file.close();
 	if (UseMagneticField == 1)
