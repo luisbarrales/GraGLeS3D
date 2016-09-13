@@ -673,6 +673,7 @@ void grainhdl::level_set() {
 				grains[id]->extractContour();
 		}
 	}
+	cout << "extractCountour" << endl;
 #pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
@@ -684,6 +685,7 @@ void grainhdl::level_set() {
 			grains[id]->correctJunctionPositionWithNeighborInformation();
 		}
 	}
+	cout << "CorrectJunctionPosition" << endl;
 #pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
@@ -695,6 +697,7 @@ void grainhdl::level_set() {
 			grains[id]->switchBufferPositions();
 		}
 	}
+	cout << "switchBufferPositions" << endl;
 #pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
@@ -706,6 +709,7 @@ void grainhdl::level_set() {
 			grains[id]->computeInterfacialElementMesh();
 		}
 	}
+	cout << "computeInterfacialElementMesh" << endl;
 }
 
 void grainhdl::redistancing() {
@@ -860,6 +864,7 @@ void grainhdl::run_sim() {
 		} else {
 			tweakIDLocal();
 		}
+
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		level_set();
@@ -944,10 +949,10 @@ void grainhdl::plot_contour(){
 				if (grains[id] == NULL)
 					continue;
 			grains[id]->plotBoxContour(true);
-			if (id == 5)
-				grains[id]->plotNeighboringGrains(true);
 		}
 	}
+	int id = 5;
+	grains[id]->plotNeighboringGrains(true);
 }
 
 void grainhdl::saveMicrostructure() {
