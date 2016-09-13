@@ -27,6 +27,7 @@
 #include "grainhdl.h"
 #include <fstream>
 #include "Structs.h"
+#include <sys/time.h>
 
 using namespace std;
 
@@ -37,20 +38,81 @@ GrainHull::~GrainHull() {
 }
 
 double GrainHull::computeGrainVolume() {
-	double volume = 0;
-	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-		Triangle& tri = m_actualHull[i];
-		double v321 = tri.points[2][0] * tri.points[1][1] * tri.points[0][2];
-		double v231 = tri.points[1][0] * tri.points[2][1] * tri.points[0][2];
-		double v312 = tri.points[2][0] * tri.points[0][1] * tri.points[1][2];
-		double v132 = tri.points[0][0] * tri.points[2][1] * tri.points[1][2];
-		double v213 = tri.points[1][0] * tri.points[0][1] * tri.points[2][2];
-		double v123 = tri.points[0][0] * tri.points[1][1] * tri.points[2][2];
-		volume += (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
-	}
+//	double volume = 0;
+//	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+//		Triangle& tri = m_actualHull[i];
+//		double v321 = tri.points[2][0] * tri.points[1][1] * tri.points[0][2];
+//		double v231 = tri.points[1][0] * tri.points[2][1] * tri.points[0][2];
+//		double v312 = tri.points[2][0] * tri.points[0][1] * tri.points[1][2];
+//		double v132 = tri.points[0][0] * tri.points[2][1] * tri.points[1][2];
+//		double v213 = tri.points[1][0] * tri.points[0][1] * tri.points[2][2];
+//		double v123 = tri.points[0][0] * tri.points[1][1] * tri.points[2][2];
+//		volume += (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
+//	}
+//	double h = m_owner->get_h();
+//	volume = abs(volume) * h * h * h;
+
+	double radius=0;
+	Vector3d Center = Vector3d(0,0,0);
+	vector<double> SurfacePointsX;
+	vector<double> SurfacePointsY;
+	vector<double> SurfacePointsZ;
+
 	double h = m_owner->get_h();
-	volume = abs(volume) * h * h * h;
-	return volume;
+
+	timeval time1;
+	timeval time2;
+	gettimeofday(&time1, NULL);
+
+	std::vector<double>::iterator it;
+	bool nfound;
+
+	for(unsigned int i=0; i<m_actualHull.size(); i++){
+		for(unsigned int j=0; j<3; j++){
+			nfound=true;
+			it = SurfacePointsX.begin();
+			while(it != SurfacePointsX.end()){
+				it = find(it+1,SurfacePointsX.end(),m_actualHull[i].points[j][0]);
+				if(it==SurfacePointsX.end()){
+					break;
+				}
+				else{
+					if(SurfacePointsY[&*it-&SurfacePointsX[0]]!=m_actualHull[i].points[j][1])
+						continue;
+					else if(SurfacePointsZ[&*it-&SurfacePointsX[0]]!=m_actualHull[i].points[j][1])
+						continue;
+					else{
+						nfound = false;
+						break;
+					}
+				}
+			}
+
+			if(nfound){
+				SurfacePointsX.push_back(m_actualHull[i].points[j][0]);
+				SurfacePointsY.push_back(m_actualHull[i].points[j][1]);
+				SurfacePointsZ.push_back(m_actualHull[i].points[j][2]);
+			}
+		}
+	}
+	gettimeofday(&time2, NULL);
+	cout << "Filling Surface Points" << endl;
+	cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+
+	for(unsigned int i=0; i<SurfacePointsX.size();i++){
+		Center += Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i]);
+	}
+	Center /= (double)SurfacePointsX.size();
+
+	for(unsigned int i=0; i<SurfacePointsX.size();i++){
+		radius += (Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i])-Center).norm();
+	}
+
+	radius /= (double)SurfacePointsX.size();
+
+	radius *= h;
+
+	return 4.*PI*pow(radius,3)/3.;
 }
 
 double GrainHull::computeSurfaceArea() {
@@ -730,6 +792,118 @@ struct vectorComparator {
 //}
 //fclose( output);
 //}
+
+void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep){
+
+	string filename = string("Neighorborhood_")
+			+ to_string((unsigned long long) m_owner->getID())
+			+ string("Timestep_") + to_string((unsigned long long) timestep)
+			+ string(".vtk");
+	FILE* output = fopen(filename.c_str(), "wt");
+	if (output == NULL) {
+		throw runtime_error("Unable to save box hull!");
+	}
+
+	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
+			"vtk output\n"
+			"ASCII\n"
+			"DATASET POLYDATA\n");
+
+	int counter = 0;
+	int HullSize = 0;
+	map<Vector3d, int, vectorComparator> mymap;
+	map<int, Vector3d> orderedPoints;
+
+	vector<unsigned int>  Neighbours = m_neighbors;
+
+	for (unsigned int k = 0; k < Neighbours.size(); k++){
+		LSbox* Hull_tmp;
+		Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+		if(Hull_tmp->grainExists()){
+			vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+
+			for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+				if (mymap.find(NeighbourHull[i].points[0]) == mymap.end()) {
+					mymap.insert(
+							pair<Vector3d, int>(NeighbourHull[i].points[0], counter));
+					counter++;
+				}
+				if (mymap.find(NeighbourHull[i].points[1]) == mymap.end()) {
+					mymap.insert(
+							pair<Vector3d, int>(NeighbourHull[i].points[1], counter));
+					counter++;
+				}
+				if (mymap.find(NeighbourHull[i].points[2]) == mymap.end()) {
+					mymap.insert(
+							pair<Vector3d, int>(NeighbourHull[i].points[2], counter));
+					counter++;
+				}
+			}
+			HullSize += NeighbourHull.size();
+		}
+	}
+	for (const auto &myPair : mymap) {
+		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
+	}
+
+	fprintf(output, "POINTS %lu float\n", orderedPoints.size());
+
+	for (const auto &myPair : orderedPoints) {
+		fprintf(output, "%f %f %f\n", myPair.second[0], myPair.second[1],
+				myPair.second[2]);
+	}
+
+	fprintf(output, "POLYGONS %u %u\n", HullSize,
+			HullSize * 4);
+	for (unsigned int k = 0; k < Neighbours.size(); k++){
+		LSbox* Hull_tmp;
+		Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+		vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+
+		for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+			fprintf(output, "3 %d %d %d \n",
+					(*(mymap.find(NeighbourHull[i].points[2]))).second,
+					(*(mymap.find(NeighbourHull[i].points[1]))).second,
+					(*(mymap.find(NeighbourHull[i].points[0]))).second);
+		}
+	}
+
+	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
+	fprintf(output, "FIELD FieldData 1\n");
+	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
+
+	for (const auto &myPair : orderedPoints) {
+		const Vector3d& point = myPair.second;
+		int interestingness = 0;
+		int key = 0;
+
+		for (unsigned int k = 0; k < Neighbours.size(); k++){
+			LSbox* Hull_tmp;
+			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+			if(Hull_tmp->grainExists()){
+				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+
+				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+					if (point == NeighbourHull[i].points[0]
+														 || point == NeighbourHull[i].points[1]
+																							 || point == NeighbourHull[i].points[2]) {
+						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+						int interactingGrains =
+								m_triangleNeighborLists[NeighbourHull[i].additionalData].getNeighborsListCount();
+						key = NeighbourHull[i].additionalData;
+						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+						interestingness = max(interestingness, interactingGrains);
+					}
+				}
+			}
+		}
+		interestingness = 100 * interestingness + key;
+		fprintf(output, "%d ", interestingness);
+
+	}
+	fclose(output);
+}
 
 void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	string filename = string("GrainHull_")

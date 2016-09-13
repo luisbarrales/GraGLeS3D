@@ -59,6 +59,7 @@ public:
 	unsigned int getAllNeighborsCount() {
 		return m_neighbors.size();
 	}
+	void plotNeighboringGrains(bool absoluteCoordinates,int timestep);
 	void plotContour(bool absoluteCoordinates, int timestep);
 	HighOrderJunction* findHighOrderJunction(int key);
 	QuadrupleJunction* findQuadrupleJunction(int key);
@@ -108,6 +109,9 @@ public:
 	}
 	inline double getNumberOfHighOrderJunctions() {
 		return m_HighOrderJunctions.size();
+	}
+	inline vector<Triangle> get_actualHull(){
+		return m_actualHull;
 	}
 };
 

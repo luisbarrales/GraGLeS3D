@@ -610,30 +610,50 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 	int j2;
 	int i2;
 
+	double local_nsq =n * n;
+
 	executeFFTW(fftplan1);
 	//	Forward DFT
 
 	switch (Settings::ConvolutionMode) {
-		case E_GAUSSIAN: {
-			double local_nsq =n * n;
-			//			Convolution with Normaldistribution
-			for (int k = 0; k < n; k++) {
-				int k2 = min(k, n - k);
-				for (int i = 0; i < n; i++) {
-					i2 = min(i, n - i);
-					for (int j = 0; j < n2; j++) {
-						j2 = min(j, n - j);
-						G = exp(
-								-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
-								/ local_nsq * PI * PI) / (local_nsq*n);
-						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
-								* k)][0] * G;
-						fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
-								* k)][1] * G;
-					}
+	case E_LAPLACE: {
+		double l = 2.0 * PI / n;
+		for (int k = 0; k < n; k++) {
+			double coslk = cos(k*l);
+			for (int i = 0; i < n; i++) {
+				double cosli = cos(l*i);
+				for (int j = 0; j < n2; j++) {
+//					G = 2.0 * (cosli + coslk + cos(l * j) - 3.0) * nsq;
+					G = exp(2.0 * (cosli + coslk + cos(l * j) - 3.0) * nsq / local_nsq) /(local_nsq*n);
+//					G = 1.0 / (1.0 + (dt * G)) / (n * n);
+					fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
+							* k)][0] * G;
+					fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
+							* k)][1] * G;
 				}
 			}
-			break;
+		}
+		break;
+	}
+	case E_GAUSSIAN: {
+		//			Convolution with Normaldistribution
+		for (int k = 0; k < n; k++) {
+			int k2 = min(k, n - k);
+			for (int i = 0; i < n; i++) {
+				i2 = min(i, n - i);
+				for (int j = 0; j < n2; j++) {
+					j2 = min(j, n - j);
+					G = exp(
+							-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+							/ local_nsq * PI * PI) / (local_nsq*n);
+					fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
+							* k)][0] * G;
+					fftTemp[j + n2 * (i + n * k)][1] = fftTemp[j + n2 * (i + n
+							* k)][1] * G;
+				}
+			}
+		}
+		break;
 		}
 		default:
 		throw runtime_error("Unknown convolution mode!");
@@ -697,29 +717,49 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 	int j2;
 	int i2;
 
+	double local_nsq =n * n;
+
 	switch (Settings::ConvolutionMode) {
-		case E_GAUSSIAN: {
-			double local_nsq = n * n;
-			//			Convolution with Normaldistribution
-			for (int k = 0; k < n; k++) {
-				int k2 = min(k, n - k);
-				for (int i = 0; i < n; i++) {
-					i2 = min(i, n - i);
-					for (int j = 0; j < n2; j++) {
-						j2 = min(j, n - j);
-						G = exp(-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
-								/ local_nsq * PI * PI) / (local_nsq * n);
-						fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
-						fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
-					}
+	case E_LAPLACE: {
+		double l = 2.0 * PI / n;
+		for (int k = 0; k < n; k++) {
+			double coslk = cos(k*l);
+			for (int i = 0; i < n; i++) {
+				double cosli = cos(l*i);
+				for (int j = 0; j < n2; j++) {
+					//					G = 2.0 * (cosli + coslk + cos(l * j) - 3.0) * nsq;
+					G = exp(2.0 * (cosli + coslk + cos(l * j) - 3.0) * nsq / local_nsq) /(local_nsq*n);
+					//					G = 1.0 / (1.0 + (dt * G)) / (n * n);
+
+					fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
+					fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
 				}
 			}
-			break;
 		}
-		default: {
-			throw runtime_error("Unknown convolution mode!");
-			break;
+		break;
+	}
+	case E_GAUSSIAN: {
+		double local_nsq = n * n;
+		//			Convolution with Normaldistribution
+		for (int k = 0; k < n; k++) {
+			int k2 = min(k, n - k);
+			for (int i = 0; i < n; i++) {
+				i2 = min(i, n - i);
+				for (int j = 0; j < n2; j++) {
+					j2 = min(j, n - j);
+					G = exp(-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+							/ local_nsq * PI * PI) / (local_nsq * n);
+					fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
+					fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;
+				}
+			}
 		}
+		break;
+	}
+	default: {
+		throw runtime_error("Unknown convolution mode!");
+		break;
+	}
 
 	}
 	if (update_backward_plan) {
@@ -1146,6 +1186,10 @@ double max(double x, double y){
 	else return y;
 }
 
+int sign(double val){
+	return (0 < val) - (val < 0);
+}
+
 double norm_grad(DimensionalBufferReal* sdf, int i, int j, int k, double h){
 	double a,b,c,d,e,f;
 	double grad_x_sq, grad_y_sq, grad_z_sq;
@@ -1176,17 +1220,17 @@ double norm_grad(DimensionalBufferReal* sdf, int i, int j, int k, double h){
 		grad_z_sq = max(pos_sq(f), neg_sq(e));
 	}
 
-	return sqrt(grad_x_sq + grad_y_sq + grad_z_sq);
+	return sqrt(grad_x_sq + grad_y_sq + grad_z_sq)/h;
 }
 
-void LSbox::executeNewRedistancing(){
+void LSbox::executeSurfaceRedistancing(){
 	if (grainExists() != true)
 			return;
 
 	double tolerance = 0.001;
 	double max_dt = tolerance+1;
 	double h = m_grainHandler->get_h();
-	double dt = 0.25*h;
+	double dt = 0.95*h;
 
 	int x_Min = m_inputDistance->getMinX();
 	int x_Max = m_inputDistance->getMaxX();
@@ -1204,12 +1248,12 @@ void LSbox::executeNewRedistancing(){
 	 * Calculate d for all points in the direct vicinity of the surface
 	 */
 
-//	timeval time1;
-//	timeval time2;
-//
-//	if(getID()==1){
-//		gettimeofday(&time1, NULL);
-//	}
+	timeval time1;
+	timeval time2;
+
+	if(getID()==1){
+		gettimeofday(&time1, NULL);
+	}
 
 	for(int i=x_Min+1; i<x_Max-1;i++){
 		for(int j=y_Min+1; j<y_Max-1; j++){
@@ -1223,6 +1267,22 @@ void LSbox::executeNewRedistancing(){
 					kp=m_inputDistance->getValueAt(j,i,k+1);
 					km=m_inputDistance->getValueAt(j,i,k-1);
 					current=m_inputDistance->getValueAt(j,i,k);
+
+					double ipjp, ipjm, imjp, imjm, jpkp, jpkm, jmkp, jmkm, kpip, kpim, kmip, kmim;
+
+					ipjp=m_inputDistance->getValueAt(j+1,i+1,k);
+					ipjm=m_inputDistance->getValueAt(j-1,i+1,k);
+					imjp=m_inputDistance->getValueAt(j+1,i-1,k);
+					imjm=m_inputDistance->getValueAt(j-1,i-1,k);
+					jpkp=m_inputDistance->getValueAt(j+1,i,k+1);
+					jpkm=m_inputDistance->getValueAt(j+1,i,k-1);
+					jmkp=m_inputDistance->getValueAt(j-1,i,k+1);
+					jmkm=m_inputDistance->getValueAt(j-1,i,k-1);
+					kpip=m_inputDistance->getValueAt(j,i+1,k+1);
+					kpim=m_inputDistance->getValueAt(j,i-1,k+1);
+					kmip=m_inputDistance->getValueAt(j,i+1,k-1);
+					kmim=m_inputDistance->getValueAt(j,i-1,k-1);
+
 					if(
 							current*ip<0 ||
 							current*im<0 ||
@@ -1239,19 +1299,29 @@ void LSbox::executeNewRedistancing(){
 						den = 1/sqrt(pow((ip-im)/(2*h),2)+
 								pow((jp-jm)/(2*h),2)+
 								pow((kp-km)/(2*h),2));
+
+						/*
+						 * in this step the curvature is calculated
+						 */
+
 						curvature->setValueAt(j,i,k,
-								(ip+im +
-								 jp+jm	+
-								 kp+km-6*current)/(h*h)*
-										(den-pow(den,3))-
-										2*pow(den,3)*(
-												m_inputDistance->getValueAt(j+1,i+1,k)-m_inputDistance->getValueAt(j-1,i+1,k)-
-												m_inputDistance->getValueAt(j+1,i-1,k)+m_inputDistance->getValueAt(j-1,i-1,k)+
-												m_inputDistance->getValueAt(j+1,i,k+1)-m_inputDistance->getValueAt(j-1,i,k+1)-
-												m_inputDistance->getValueAt(j+1,i,k-1)+m_inputDistance->getValueAt(j-1,i,k-1)+
-												m_inputDistance->getValueAt(j,i+1,k+1)-m_inputDistance->getValueAt(j,i+1,k-1)-
-												m_inputDistance->getValueAt(j,i-1,k+1)+m_inputDistance->getValueAt(j,i-1,k-1)
-										)/(4*h*h)
+								-(ip+im + jp+jm + kp+km-6*current)/(h*h) +
+								pow(den,2) * ( (ip -im)* (4*(ip+im-2*current) +
+												ipjp-ipjm-
+												imjp+imjm+
+												kpip-kmip-
+												kpim+kmim)
+											  +(jp-jm) * (4*(jp+jm-2*current) +
+												ipjp-ipjm-
+												imjp+imjm+
+												jpkp-jmkp-
+												jpkm+jmkm)
+											  +(kp-km) * (4*(kp+km-2*current) +
+												jpkp-jmkp-
+												jpkm+jmkm+
+												kpip-kmip-
+												kpim+kmim)
+										) / (8*pow(h,3))
 						);
 						d->setValueAt(j,i,k,
 								current*den);
@@ -1265,6 +1335,12 @@ void LSbox::executeNewRedistancing(){
 //			cout << "Time for calculating the curvature:" << endl;
 //			cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
 //	}
+
+	/*
+	 * Choose one side of the surface and correct d on this side by using the values of d
+	 * on the other side of the surface
+	 * This should ensure that the zero isosurface does not shift
+	 */
 
 	for(int i=x_Min+1; i<x_Max-1;i++){
 		for(int j=y_Min+1; j<y_Max-1; j++){
@@ -1309,7 +1385,7 @@ void LSbox::executeNewRedistancing(){
 								d_tilde+=d->getValueAt(j,i,k+1)*current/kp;
 								M++;
 							}
-							if(current*m_inputDistance->getValueAt(j,i,k-1)<0){
+							if(current*km<0){
 								d_tilde+=d->getValueAt(j,i,k-1)*current/km;
 								M++;
 							}
@@ -1321,11 +1397,28 @@ void LSbox::executeNewRedistancing(){
 		}
 	}
 
+	/*
+	 * Set the initial conditions for the corrected level set function
+	 */
+
+	for(int i=x_Min; i<x_Max;i++){
+		for(int j=y_Min; j<y_Max; j++){
+			for(int k=z_Min; k<z_Max;k++){
+				m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+			}
+		}
+	}
+
 //	if(getID()==1){
 //			gettimeofday(&time1, NULL);
 //			cout << "Time for calculating d on one side of the surface:" << endl;
 //			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
 //	}
+
+	/*
+	 * In the direct vicinity of the surface set the level set function to d.
+	 * By doing this the gradient of the levelset function is set to one.
+	 */
 
 	for(int i=x_Min+1; i<x_Max-1;i++){
 		for(int j=y_Min+1; j<y_Max-1; j++){
@@ -1340,67 +1433,370 @@ void LSbox::executeNewRedistancing(){
 				){
 					m_outputDistance->setValueAt(j,i,k,d->getValueAt(j,i,k));
 				}
-				else{
-					m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+			}
+		}
+	}
+
+	d->clearValues();
+	curvature->clearValues();
+	delete d;
+	delete curvature;
+}
+
+void LSbox::executePreRedistancing(){
+	if (grainExists() != true)
+		return;
+
+	double h = m_grainHandler->get_h();
+	double candidate, i_slope, distToZero;
+
+	m_outputDistance->clearValues(-1.0);
+
+	// 	resize the outputDistance array. be careful because during this part of algorithm both arrays have not the same size!!
+	int intersec_xmin, intersec_xmax, intersec_ymin, intersec_ymax,
+	intersec_zmin, intersec_zmax;
+
+	intersec_xmin = m_inputDistance->getMinX();
+	intersec_ymin = m_inputDistance->getMinY();
+	intersec_zmin = m_inputDistance->getMinZ();
+	intersec_xmax = m_inputDistance->getMaxX();
+	intersec_ymax = m_inputDistance->getMaxY();
+	intersec_zmax = m_inputDistance->getMaxZ();
+
+
+	// first to updates layer by layer to take advantage of the order of point in memory - there are aligned layer by layer.
+	for (int k = intersec_zmin+1; k < intersec_zmax - 1; k++) {
+		for (int i = intersec_ymin+1; i < m_outputDistance->getMaxY()-1; i++) {
+			for (int j = intersec_xmin+1; j < m_outputDistance->getMaxX() - 1;
+					j++) {
+				if(
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j+1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j-1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i+1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i-1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k+1)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k-1)>0
+				){
+					// x-direction forward
+					if (j < intersec_xmax - 1 && i < intersec_ymax) {
+						if (m_inputDistance->getValueAt(i, j, k)
+								* m_inputDistance->getValueAt(i, j + 1, k) <= 0.0) {
+							// interpolate
+							i_slope = (m_inputDistance->getValueAt(i, j + 1, k)
+									- m_inputDistance->getValueAt(i, j, k)) / h;
+							distToZero = -m_inputDistance->getValueAt(i, j, k)
+													/ i_slope;
+							if (abs(m_outputDistance->getValueAt(i, j, k))
+									> abs(distToZero))
+								m_outputDistance->setValueAt(i, j, k,
+										-distToZero * sgn(i_slope));
+						}
+						candidate =
+								m_outputDistance->getValueAt(i, j, k)
+								+ (sgn(
+										m_inputDistance->getValueAt(i,
+												j + 1, k)) * h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j + 1, k)))
+							m_outputDistance->setValueAt(i, j + 1, k, candidate);
+					} else {
+						candidate = m_outputDistance->getValueAt(i, j, k)
+												+ (sgn(m_outputDistance->getValueAt(i, j + 1, k))
+														* h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j + 1, k)))
+							m_outputDistance->setValueAt(i, j + 1, k, candidate);
+					}
+				}
+			}
+		}
+
+		for (int i = intersec_ymin+1; i < m_outputDistance->getMaxY()-1; i++) {
+			for (int j = intersec_xmax - 1; j > m_outputDistance->getMinX()+1;
+					j--) {
+				if(
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j+1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j-1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i+1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i-1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k+1)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k-1)>0
+				){
+
+					// x-direction outputDistanceward
+					//check for sign change
+					if (j > intersec_xmin && i < intersec_ymax) {
+						// calculate new distance candidate and assign if appropriate
+						candidate =
+								m_outputDistance->getValueAt(i, j, k)
+								+ (sgn(
+										m_inputDistance->getValueAt(i,
+												j - 1, k)) * h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j - 1, k)))
+							m_outputDistance->setValueAt(i, j - 1, k, candidate);
+					} else {
+						//<<<<<<< HEAD
+						//					candidate = m_outputDistance->getValueAt(i, j, k)
+						//							+ sgn(m_outputDistance->getValueAt(i, j - 1, k))
+						//									* h;
+						//					if (abs(candidate)
+						//							< abs(m_outputDistance->getValueAt(i, j - 1, k)))
+						//=======
+						candidate = m_outputDistance->getValueAt(i, j, k)
+												+ sgn(m_outputDistance->getValueAt(i, j - 1, k))
+												* h;
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j - 1, k)))
+							//>>>>>>> 66c3d6672001fb0db664a7cc036f13ecf8da0d05
+							m_outputDistance->setValueAt(i, j - 1, k, candidate);
+					}
+				}
+			}
+		}
+
+		// y-direction forward
+		for (int j = intersec_xmin+1; j < m_outputDistance->getMaxX()-1; j++) {
+			for (int i = intersec_ymin+1; i < m_outputDistance->getMaxY() - 1;
+					i++) {
+				if(
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j+1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j-1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i+1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i-1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k+1)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k-1)>0
+				){
+					if (j < intersec_xmax && i < intersec_ymax - 1) {
+						if (m_inputDistance->getValueAt(i, j, k)
+								* m_inputDistance->getValueAt(i + 1, j, k) <= 0.0) {
+							// interpolate
+							i_slope = (m_inputDistance->getValueAt(i + 1, j, k)
+									- m_inputDistance->getValueAt(i, j, k)) / h;
+							distToZero = -m_inputDistance->getValueAt(i, j, k)
+													/ i_slope;
+							if (abs(m_outputDistance->getValueAt(i, j, k))
+									> abs(distToZero))
+								m_outputDistance->setValueAt(i, j, k,
+										-distToZero * sgn(i_slope));
+						}
+						// calculate new distance candidate and assign if appropriate
+						candidate =
+								m_outputDistance->getValueAt(i, j, k)
+								+ (sgn(
+										m_inputDistance->getValueAt(i + 1,
+												j, k)) * h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i + 1, j, k)))
+							m_outputDistance->setValueAt(i + 1, j, k, candidate);
+					} else {
+						candidate = m_outputDistance->getValueAt(i, j, k)
+												+ (sgn(m_outputDistance->getValueAt(i + 1, j, k))
+														* h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i + 1, j, k)))
+							m_outputDistance->setValueAt(i + 1, j, k, candidate);
+					}
+				}
+			}
+		}
+
+		for (int j = intersec_xmin+1; j < m_outputDistance->getMaxX()-1; j++) {
+			for (int i = intersec_ymax - 1; i > m_outputDistance->getMinY()+1;
+					i--) {
+				if(
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j+1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j-1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i+1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i-1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k+1)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k-1)>0
+				){
+					if (j < intersec_xmax && i > intersec_ymin) {
+						// calculate new distance candidate and assign if appropriate
+						candidate =
+								m_outputDistance->getValueAt(i, j, k)
+								+ (sgn(
+										m_inputDistance->getValueAt(i - 1,
+												j, k)) * h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i - 1, j, k)))
+							m_outputDistance->setValueAt(i - 1, j, k, candidate);
+					} else {
+						candidate = m_outputDistance->getValueAt(i, j, k)
+												+ (sgn(m_outputDistance->getValueAt(i - 1, j, k))
+														* h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i - 1, j, k)))
+							m_outputDistance->setValueAt(i - 1, j, k, candidate);
+					}
 				}
 			}
 		}
 	}
 
-//	if(getID()==1){
-//			gettimeofday(&time2, NULL);
-//			cout << "Time for correcting the levelset function in the vicinity of the surface:" << endl;
-//			cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
-//	}
-
-	DimensionalBufferReal* sdf_dt = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
-
-	for(int i=x_Min; i<x_Max; i++){
-		for(int j=y_Min; j<y_Max; j++){
-			for(int k=z_Min; k<z_Max; k++){
-				m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+	// update the point into the third dimensio. the strategy has to change to avoid unneccesary cache loads
+	// the idea is to compare all points in one layer first to the next and go on:
+	//TODO redist into the third direction
+	// z forward:
+	for (int k = intersec_zmin+1; k < m_outputDistance->getMaxZ() - 1; k++) {
+		for (int i = intersec_ymin+1; i < m_outputDistance->getMaxY()-1; i++) {
+			for (int j = intersec_xmin+1; j < m_outputDistance->getMaxX()-1; j++) {
+				if(
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j+1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j-1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i+1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i-1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k+1)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k-1)>0
+				){
+					// x-direction forward
+					if (k < intersec_zmax - 1 && i < intersec_ymax
+							&& j < intersec_xmax) {
+						if (m_inputDistance->getValueAt(i, j, k)
+								* m_inputDistance->getValueAt(i, j, k + 1) <= 0.0) {
+							// interpolate
+							i_slope = (m_inputDistance->getValueAt(i, j, k + 1)
+									- m_inputDistance->getValueAt(i, j, k)) / h;
+							distToZero = -m_inputDistance->getValueAt(i, j, k)
+													/ i_slope;
+							if (abs(m_outputDistance->getValueAt(i, j, k))
+									> abs(distToZero))
+								m_outputDistance->setValueAt(i, j, k,
+										-distToZero * sgn(i_slope));
+						}
+						candidate =
+								m_outputDistance->getValueAt(i, j, k)
+								+ (sgn(
+										m_inputDistance->getValueAt(i, j,
+												k + 1)) * h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j, k + 1)))
+							m_outputDistance->setValueAt(i, j, k + 1, candidate);
+					} else {
+						candidate = m_outputDistance->getValueAt(i, j, k)
+												+ (sgn(m_outputDistance->getValueAt(i, j, k + 1))
+														* h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j, k + 1)))
+							m_outputDistance->setValueAt(i, j, k + 1, candidate);
+					}
+				}
 			}
 		}
 	}
-	int iter = 0;
-	//for(int iter = 0; iter<iterations; iter++){
+
+
+	// z backward:
+	for (int k = intersec_zmax-2; k > m_outputDistance->getMinZ() + 1; k--) {
+		for (int i = intersec_ymin+1; i < m_outputDistance->getMaxY()-1; i++) {
+			for (int j = intersec_xmin+1; j < m_outputDistance->getMaxX()-1; j++) {
+				if(
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j+1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j-1,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i+1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i-1,j,k)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k+1)>0 &&
+						m_inputDistance->getValueAt(i,j,k)*m_inputDistance->getValueAt(i,j,k-1)>0
+				){
+					// x-direction forward
+					if (k > intersec_zmin && i < intersec_ymax
+							&& j < intersec_xmax) {
+						if (m_inputDistance->getValueAt(i, j, k)
+								* m_inputDistance->getValueAt(i, j, k - 1) <= 0.0) {
+							// interpolate
+							i_slope = (m_inputDistance->getValueAt(i, j, k - 1)
+									- m_inputDistance->getValueAt(i, j, k)) / h;
+							distToZero = -m_inputDistance->getValueAt(i, j, k)
+															/ i_slope;
+							if (abs(m_outputDistance->getValueAt(i, j, k))
+									> abs(distToZero))
+								m_outputDistance->setValueAt(i, j, k,
+										-distToZero * sgn(i_slope));
+						}
+						candidate =
+								m_outputDistance->getValueAt(i, j, k)
+								+ (sgn(
+										m_inputDistance->getValueAt(i, j,
+												k - 1)) * h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j, k - 1)))
+							m_outputDistance->setValueAt(i, j, k - 1, candidate);
+					} else {
+						candidate = m_outputDistance->getValueAt(i, j, k)
+														+ (sgn(m_outputDistance->getValueAt(i, j, k - 1))
+																* h);
+						if (abs(candidate)
+								< abs(m_outputDistance->getValueAt(i, j, k - 1)))
+							m_outputDistance->setValueAt(i, j, k - 1, candidate);
+					}
+				}
+			}
+		}
+	}
+
+}
+
+void LSbox::executeFinalRedistancing(){
+	if (grainExists() != true)
+		return;
+
+	double tolerance = 0.001;
+	double max_dt = tolerance+1;
+	double h = m_grainHandler->get_h();
+	double dt = 0.95*h;
+
+	int x_Min = m_inputDistance->getMinX();
+	int x_Max = m_inputDistance->getMaxX();
+	int y_Min = m_inputDistance->getMinY();
+	int y_Max = m_inputDistance->getMaxY();
+	int z_Min = m_inputDistance->getMinZ();
+	int z_Max = m_inputDistance->getMaxZ();
+
+	DimensionalBufferReal* sdf_dt = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	int iter=0;
+
 	while(max_dt > tolerance){
 
 		max_dt = 0.0;
-		//if(getID() == 1) cout << "ITERATION " <<iter << endl;
 		for(int i=x_Min+1; i<x_Max-1; i++){
 			for(int j=y_Min+1; j<y_Max-1; j++){
 				for(int k=z_Min+1; k<z_Max-1; k++){
 					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
 						continue;
+					double ip,im,jp,jm,kp,km,current;
+					ip=m_inputDistance->getValueAt(j,i+1,k);
+					im=m_inputDistance->getValueAt(j,i-1,k);
+					jp=m_inputDistance->getValueAt(j+1,i,k);
+					jm=m_inputDistance->getValueAt(j-1,i,k);
+					kp=m_inputDistance->getValueAt(j,i,k+1);
+					km=m_inputDistance->getValueAt(j,i,k-1);
+					current=m_inputDistance->getValueAt(j,i,k);
 
-					if(!(
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)<0
-					)){
+					if(
+							current*ip>0 &&
+							current*im>0 &&
+							current*jp>0 &&
+							current*jm>0 &&
+							current*kp>0 &&
+							current*km>0
+					){
 
-						double s = m_outputDistance->getValueAt(j,i,k)/
-								sqrt(m_outputDistance->getValueAt(j,i,k)*
-										m_outputDistance->getValueAt(j,i,k) + h*h);
-						//					double s;
-						//					if(m_inputDistance->getValueAt(j,i,k)>0) s = 1;
-						//					else s=-1;
+						double s = current/
+								sqrt(current*
+										current + h*h);
 						sdf_dt->setValueAt(j,i,k,s *
 								(h - norm_grad(m_outputDistance, i, j, k, h)));
-						if(!(
-								abs(m_inputDistance->getValueAt(j+1,i,k))<m_grainHandler->delta ||
-								abs(m_inputDistance->getValueAt(j-1,i,k))<m_grainHandler->delta ||
-								abs(m_inputDistance->getValueAt(j,i+1,k))<m_grainHandler->delta ||
-								abs(m_inputDistance->getValueAt(j,i-1,k))<m_grainHandler->delta ||
-								abs(m_inputDistance->getValueAt(j,i,k+1))<m_grainHandler->delta ||
-								abs(m_inputDistance->getValueAt(j,i,k-1))<m_grainHandler->delta )
+						if(
+								abs(jp)<m_grainHandler->delta &&
+								abs(jm)<m_grainHandler->delta &&
+								abs(ip)<m_grainHandler->delta &&
+								abs(im)<m_grainHandler->delta &&
+								abs(kp)<m_grainHandler->delta &&
+								abs(km)<m_grainHandler->delta
 						)
 							if(abs(sdf_dt->getValueAt(j,i,k))>max_dt) max_dt = abs(sdf_dt->getValueAt(j,i,k));
-						//if(getID() == 1) cout << norm_grad(m_outputDistance, i, j, k, h) << endl;
 					}
 				}
 			}
@@ -1409,20 +1805,23 @@ void LSbox::executeNewRedistancing(){
 		for(int i=x_Min+1; i<x_Max-1; i++){
 			for(int j=y_Min+1; j<y_Max-1; j++){
 				for(int k=z_Min+1; k<z_Max-1; k++){
-					if(!(
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)<0 ||
-							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)<0
-					)){
+					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+						continue;
+					if(
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)>0
+					){
 						m_outputDistance->setValueAt(j,i,k,
 								m_outputDistance->getValueAt(j,i,k)+ dt * sdf_dt->getValueAt(j,i,k));
 					}
 				}
 			}
 		}
+		iter++;
 	}
 
 
@@ -1430,7 +1829,444 @@ void LSbox::executeNewRedistancing(){
 //			gettimeofday(&time1, NULL);
 //			cout << "Time for the correction of the remaining level set function:" << endl;
 //			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
+//
+//			cout << "Number of iterations: "<< iter << endl;
 //	}
+
+	m_outputDistance->clampValues(-m_grainHandler->delta,
+			m_grainHandler->delta);
+
+	sdf_dt->clearValues();
+	delete sdf_dt;
+}
+
+void LSbox::executeDERedistancing(){
+	if (grainExists() != true)
+		return;
+
+	double h = m_grainHandler->get_h();
+	double tolerance = 0.001*h;
+	double max_dt = tolerance+1;
+	double dt = 0.95*h;
+
+	int x_Min = m_inputDistance->getMinX();
+	int x_Max = m_inputDistance->getMaxX();
+	int y_Min = m_inputDistance->getMinY();
+	int y_Max = m_inputDistance->getMaxY();
+	int z_Min = m_inputDistance->getMinZ();
+	int z_Max = m_inputDistance->getMaxZ();
+
+	m_outputDistance->resize(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	DimensionalBufferReal* sdf_dt = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	for(int i=x_Min; i<x_Max;i++){
+		for(int j=y_Min; j<y_Max; j++){
+			for(int k=z_Min; k<z_Max;k++){
+				m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+			}
+		}
+	}
+
+	int iter=0;
+
+	while(max_dt > tolerance){
+
+		max_dt = 0.0;
+		for(int i=x_Min+1; i<x_Max-1; i++){
+			for(int j=y_Min+1; j<y_Max-1; j++){
+				for(int k=z_Min+1; k<z_Max-1; k++){
+					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+						continue;
+					double ip,im,jp,jm,kp,km,current;
+					ip=m_inputDistance->getValueAt(j,i+1,k);
+					im=m_inputDistance->getValueAt(j,i-1,k);
+					jp=m_inputDistance->getValueAt(j+1,i,k);
+					jm=m_inputDistance->getValueAt(j-1,i,k);
+					kp=m_inputDistance->getValueAt(j,i,k+1);
+					km=m_inputDistance->getValueAt(j,i,k-1);
+					current=m_inputDistance->getValueAt(j,i,k);
+
+
+					double s = current/
+							sqrt(current*
+									current + h*h);
+					sdf_dt->setValueAt(j,i,k,s *
+							(h - norm_grad(m_outputDistance, i, j, k, h)));
+					if(
+							abs(jp)<m_grainHandler->delta &&
+							abs(jm)<m_grainHandler->delta &&
+							abs(ip)<m_grainHandler->delta &&
+							abs(im)<m_grainHandler->delta &&
+							abs(kp)<m_grainHandler->delta &&
+							abs(km)<m_grainHandler->delta
+					)
+						if(abs(sdf_dt->getValueAt(j,i,k)/s)>max_dt) max_dt = abs(sdf_dt->getValueAt(j,i,k)/s);
+				}
+			}
+		}
+		cout << max_dt/h << endl;
+
+		for(int i=x_Min+1; i<x_Max-1; i++){
+			for(int j=y_Min+1; j<y_Max-1; j++){
+				for(int k=z_Min+1; k<z_Max-1; k++){
+					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+						continue;
+					m_outputDistance->setValueAt(j,i,k,
+							m_outputDistance->getValueAt(j,i,k)+ dt * sdf_dt->getValueAt(j,i,k));
+				}
+			}
+		}
+		iter++;
+	}
+
+
+	if(getID()==1){
+//			gettimeofday(&time1, NULL);
+//			cout << "Time for the correction of the remaining level set function:" << endl;
+//			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
+
+			cout << "Number of iterations: "<< iter << endl;
+	}
+
+	m_outputDistance->clampValues(-m_grainHandler->delta,
+			m_grainHandler->delta);
+
+	sdf_dt->clearValues();
+	delete sdf_dt;
+}
+
+void LSbox::executeNewRedistancing(){
+	if (grainExists() != true)
+			return;
+
+	double tolerance = 0.0001;
+	double max_dt = tolerance+1;
+	double h = m_grainHandler->get_h();
+	double dt = 0.75*h;
+
+	int x_Min = m_inputDistance->getMinX();
+	int x_Max = m_inputDistance->getMaxX();
+	int y_Min = m_inputDistance->getMinY();
+	int y_Max = m_inputDistance->getMaxY();
+	int z_Min = m_inputDistance->getMinZ();
+	int z_Max = m_inputDistance->getMaxZ();
+
+	m_outputDistance->resize(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	DimensionalBufferReal* d = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+	DimensionalBufferReal* curvature = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	/*
+	 * Calculate d for all points in the direct vicinity of the surface
+	 */
+
+	timeval time1;
+	timeval time2;
+
+	if(getID()==1){
+		gettimeofday(&time1, NULL);
+	}
+
+	for(int k=z_Min+1; k<z_Max-1;k++){
+		for(int j=y_Min+1; j<y_Max-1; j++){
+			for(int i=x_Min+1; i<x_Max-1;i++){
+				if(abs(m_inputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+					continue;
+
+				double ip,im,jp,jm,kp,km,current;
+				ip=m_inputDistance->getValueAt(j,i+1,k);
+				im=m_inputDistance->getValueAt(j,i-1,k);
+				jp=m_inputDistance->getValueAt(j+1,i,k);
+				jm=m_inputDistance->getValueAt(j-1,i,k);
+				kp=m_inputDistance->getValueAt(j,i,k+1);
+				km=m_inputDistance->getValueAt(j,i,k-1);
+				current=m_inputDistance->getValueAt(j,i,k);
+
+				double ipjp, ipjm, imjp, imjm, jpkp, jpkm, jmkp, jmkm, kpip, kpim, kmip, kmim;
+
+				ipjp=m_inputDistance->getValueAt(j+1,i+1,k);
+				ipjm=m_inputDistance->getValueAt(j-1,i+1,k);
+				imjp=m_inputDistance->getValueAt(j+1,i-1,k);
+				imjm=m_inputDistance->getValueAt(j-1,i-1,k);
+				jpkp=m_inputDistance->getValueAt(j+1,i,k+1);
+				jpkm=m_inputDistance->getValueAt(j+1,i,k-1);
+				jmkp=m_inputDistance->getValueAt(j-1,i,k+1);
+				jmkm=m_inputDistance->getValueAt(j-1,i,k-1);
+				kpip=m_inputDistance->getValueAt(j,i+1,k+1);
+				kpim=m_inputDistance->getValueAt(j,i-1,k+1);
+				kmip=m_inputDistance->getValueAt(j,i+1,k-1);
+				kmim=m_inputDistance->getValueAt(j,i-1,k-1);
+
+				if(
+						current*ip>0 &&
+						current*im>0 &&
+						current*jp>0 &&
+						current*jm>0 &&
+						current*kp>0 &&
+						current*km>0
+				)
+					continue;
+
+				/*
+				 * den is the inverse of the norm of the gradient of the level set function
+				 */
+				double den;
+				den = 1/sqrt(pow((ip-im)/(2*h),2)+
+						pow((jp-jm)/(2*h),2)+
+						pow((kp-km)/(2*h),2));
+
+				/*
+				 * in this step the curvature is calculated
+				 */
+
+				curvature->setValueAt(j,i,k,
+						-(ip+im + jp+jm + kp+km-6*current)/(h*h) +
+						pow(den,2) * ( (ip -im)* (4*(ip+im-2*current) +
+								ipjp-ipjm-
+								imjp+imjm+
+								kpip-kmip-
+								kpim+kmim)
+								+(jp-jm) * (4*(jp+jm-2*current) +
+										ipjp-ipjm-
+										imjp+imjm+
+										jpkp-jmkp-
+										jpkm+jmkm)
+										+(kp-km) * (4*(kp+km-2*current) +
+												jpkp-jmkp-
+												jpkm+jmkm+
+												kpip-kmip-
+												kpim+kmim)
+						) / (8*pow(h,3))
+				);
+				d->setValueAt(j,i,k,
+						current*den);
+			}
+		}
+	}
+	if(getID()==1){
+		gettimeofday(&time2, NULL);
+		cout << "Time for calculating the curvature:" << endl;
+		cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+	}
+
+	/*
+	 * Choose one side of the surface and correct d on this side by using the values of d
+	 * on the other side of the surface
+	 * This should ensure that the zero isosurface does not shift
+	 */
+
+	for(int k=z_Min+1; k<z_Max-1;k++){
+		for(int j=y_Min+1; j<y_Max-1; j++){
+			for(int i=x_Min+1; i<x_Max-1;i++){
+				if(abs(m_inputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+					continue;
+				double ip,im,jp,jm,kp,km,current;
+				ip=m_inputDistance->getValueAt(j,i+1,k);
+				im=m_inputDistance->getValueAt(j,i-1,k);
+				jp=m_inputDistance->getValueAt(j+1,i,k);
+				jm=m_inputDistance->getValueAt(j-1,i,k);
+				kp=m_inputDistance->getValueAt(j,i,k+1);
+				km=m_inputDistance->getValueAt(j,i,k-1);
+				current=m_inputDistance->getValueAt(j,i,k);
+				if(
+						current*ip>0 &&
+						current*im>0 &&
+						current*jp>0 &&
+						current*jm>0 &&
+						current*kp>0 &&
+						current*km>0
+				)
+					continue;
+				if(curvature->getValueAt(j,i,k)*current<0){
+					int M=0;
+					double d_tilde=0;
+					if(current*ip>0){
+					}else{
+						d_tilde+=d->getValueAt(j,i+1,k)*current/ip;
+						M++;
+					}
+					if(current*im>0){
+					}else{
+						d_tilde+=d->getValueAt(j,i-1,k)*current/im;
+						M++;
+					}
+					if(current*jp>0){
+					}else{
+						d_tilde+=d->getValueAt(j+1,i,k)*current/jp;
+						M++;
+					}
+					if(current*jm>0){
+					}else{
+						d_tilde+=d->getValueAt(j-1,i,k)*current/jm;
+						M++;
+					}
+					if(current*kp>0){
+					}else{
+						d_tilde+=d->getValueAt(j,i,k+1)*current/kp;
+						M++;
+					}
+					if(current*km>0){
+					}else{
+						d_tilde+=d->getValueAt(j,i,k-1)*current/km;
+						M++;
+					}
+					d->setValueAt(j,i,k,d_tilde/(double)M);
+				}
+			}
+		}
+	}
+
+	/*
+	 * Set the initial conditions for the corrected level set function
+	 */
+
+	for(int k=z_Min; k<z_Max;k++){
+		for(int j=y_Min; j<y_Max; j++){
+			for(int i=x_Min; i<x_Max;i++){
+				m_outputDistance->setValueAt(j,i,k,m_inputDistance->getValueAt(j,i,k));
+			}
+		}
+	}
+
+	if(getID()==1){
+			gettimeofday(&time1, NULL);
+			cout << "Time for calculating d on one side of the surface:" << endl;
+			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
+	}
+
+	/*
+	 * In the direct vicinity of the surface set the level set function to d.
+	 * By doing this the gradient of the levelset function is set to one.
+	 */
+
+	for(int k=z_Min+1; k<z_Max-1;k++){
+		for(int j=y_Min+1; j<y_Max-1; j++){
+			for(int i=x_Min+1; i<x_Max-1;i++){
+				if(
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)<0 ||
+						m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)<0
+				){
+					m_outputDistance->setValueAt(j,i,k,d->getValueAt(j,i,k));
+				}
+			}
+		}
+	}
+
+
+
+	if(getID()==1){
+			gettimeofday(&time2, NULL);
+			cout << "Time for correcting the levelset function in the vicinity of the surface:" << endl;
+			cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+	}
+
+	DimensionalBufferReal* sdf_dt = new DimensionalBufferReal(x_Min,y_Min,z_Min,x_Max,y_Max,z_Max);
+
+	/*
+	 * Set the gradient of the level set function everywhere else to 1.
+	 */
+
+	int iter=0;
+
+	while(max_dt > tolerance){
+
+//		string Gradient;
+//		Gradient = "Gradient";
+//		Gradient += to_string(iter);
+//		ofstream GradientFile;
+
+//		if(getID()==1 && m_grainHandler->get_loop() == 1){
+//			GradientFile.open(Gradient.c_str());
+//		}
+
+		max_dt = 0.0;
+		for(int k=z_Min+1; k<z_Max-1; k++){
+			for(int j=y_Min+1; j<y_Max-1; j++){
+				for(int i=x_Min+1; i<x_Max-1; i++){
+					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+						continue;
+					double ip,im,jp,jm,kp,km,current;
+					ip=m_inputDistance->getValueAt(j,i+1,k);
+					im=m_inputDistance->getValueAt(j,i-1,k);
+					jp=m_inputDistance->getValueAt(j+1,i,k);
+					jm=m_inputDistance->getValueAt(j-1,i,k);
+					kp=m_inputDistance->getValueAt(j,i,k+1);
+					km=m_inputDistance->getValueAt(j,i,k-1);
+					current=m_inputDistance->getValueAt(j,i,k);
+
+					if(
+							current*ip>0 &&
+							current*im>0 &&
+							current*jp>0 &&
+							current*jm>0 &&
+							current*kp>0 &&
+							current*km>0
+					){
+
+//						double s = current/
+//								sqrt(current*
+//										current + h*h);
+
+						int s = sign(current);
+						sdf_dt->setValueAt(j,i,k,s *
+								(1 - norm_grad(m_outputDistance, i, j, k, h)));
+						if(
+								abs(jp)<m_grainHandler->delta &&
+								abs(jm)<m_grainHandler->delta &&
+								abs(ip)<m_grainHandler->delta &&
+								abs(im)<m_grainHandler->delta &&
+								abs(kp)<m_grainHandler->delta &&
+								abs(km)<m_grainHandler->delta
+						)
+							if(abs(sdf_dt->getValueAt(j,i,k))>max_dt) max_dt = abs(sdf_dt->getValueAt(j,i,k));
+					}
+//					if(getID()==1 && m_grainHandler->get_loop() == 1){
+//								GradientFile << sdf_dt->getValueAt(j,i,k) << endl;
+//					}
+				}
+			}
+		}
+
+		for(int k=z_Min+1; k<z_Max-1; k++){
+			for(int j=y_Min+1; j<y_Max-1; j++){
+				for(int i=x_Min+1; i<x_Max-1; i++){
+					if(abs(m_outputDistance->getValueAt(j,i,k))>=m_grainHandler->delta)
+						continue;
+					if(
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i+1,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i-1,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j+1,i,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j-1,i,k)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k+1)>0 &&
+							m_inputDistance->getValueAt(j,i,k)*m_inputDistance->getValueAt(j,i,k-1)>0
+					){
+						m_outputDistance->setValueAt(j,i,k,
+								m_outputDistance->getValueAt(j,i,k)+ dt * sdf_dt->getValueAt(j,i,k));
+					}
+				}
+			}
+		}
+
+//		if(getID()==1 && m_grainHandler->get_loop() == 1){
+//			GradientFile.close();
+//		}
+
+		iter++;
+	}
+
+
+	if(getID()==1){
+			gettimeofday(&time1, NULL);
+			cout << "Time for the correction of the remaining level set function:" << endl;
+			cout << time1.tv_sec-time2.tv_sec << ":" << time1.tv_usec-time2.tv_usec << endl;
+
+			cout << "Number of iterations: "<< iter << endl;
+	}
 
 	m_outputDistance->clampValues(-m_grainHandler->delta,
 			m_grainHandler->delta);
@@ -2021,6 +2857,10 @@ void LSbox::plotBoxInterfacialElements(bool absoluteCoordinates) {
 
 void LSbox::plotBoxContour(bool absoluteCoordinates) {
 	m_explicitHull.plotContour(false, m_grainHandler->loop);
+}
+
+void LSbox::plotNeighboringGrains(bool absoluteCoordinates) {
+	m_explicitHull.plotNeighboringGrains(false, m_grainHandler->loop);
 }
 
 void LSbox::plotBoxVolumetric(string identifier,

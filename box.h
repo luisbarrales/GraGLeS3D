@@ -109,6 +109,10 @@ public:
 	//Dtors
 	virtual ~LSbox();
 	void calculateDistanceFunction(DimensionalBuffer<int>& IDField);
+	void executeDERedistancing();
+	void executeSurfaceRedistancing();
+	void executePreRedistancing();
+	void executeFinalRedistancing();
 	void executeNewRedistancing();
 	void executeRedistancing();
 	void extractContour();
@@ -154,6 +158,7 @@ public:
 	//Debug printing functions
 	void plotBoxInterfacialElements(bool absoluteCoordinates = false);
 	void plotBoxContour(bool absoluteCoordinates = false);
+	void plotNeighboringGrains(bool absoluteCoordinates);
 	void plotBoxVolumetric(string identifier,
 			E_BUFFER_SELECTION bufferSelection, double h);
 	void plotBoxIDLocal();
@@ -272,6 +277,12 @@ public:
 	}
 	inline vector<Face>* get_Faces() {
 		return m_explicitHull.get_Faces();
+	}
+	inline vector<unsigned int> get_Neighbors(){
+		return m_secondOrderNeighbours;
+	}
+	inline vector<Triangle> get_actualHull(){
+		return m_explicitHull.get_actualHull();
 	}
 	TextureData collectTextureData();
 };

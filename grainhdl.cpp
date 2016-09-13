@@ -720,9 +720,17 @@ for	(auto id : workload) {
 		continue;
 //		grains[id]->plotBoxVolumetric("Pre",
 //				E_INPUT_DISTANCE, get_h());
+//		cout << "Surface Redistancing" << endl;
+//		grains[id]->executeSurfaceRedistancing();
+//		grains[id]->executeDERedistancing();
+//		cout << "Pre Redistancing" << endl;
+//		grains[id]->executePreRedistancing();
+//		cout << "Final Redistancing" << endl;
+//		grains[id]->executeFinalRedistancing();
 //		grains[id]->executeRedistancing();
 //		grains[id]->switchInNOut();
 		grains[id]->executeNewRedistancing();
+//		grains[id]->executeCombinedRedistancing();
 //		grains[id]->switchInNOut();
 //		grains[id]->plotBoxVolumetric("Post",
 //				E_INPUT_DISTANCE, get_h());
@@ -881,13 +889,16 @@ void grainhdl::run_sim() {
 				saveNetworkAsVoxelContainer();
 			}
 		}
+//		plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime +=
 				(dt
 						* (Settings::Physical_Domain_Size
 								* Settings::Physical_Domain_Size)
-						/ (TimeSlope * Settings::HAGB_Energy
+						/ (
+//								TimeSlope *
+								Settings::HAGB_Energy
 								* Settings::HAGB_Mobility));
 
 		if (currentNrGrains < Settings::BreakupNumber) {
@@ -920,6 +931,22 @@ void grainhdl::countGrains() {
 		if (*it == NULL)
 			continue;
 		currentNrGrains++;
+	}
+}
+
+void grainhdl::plot_contour(){
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+				omp_get_thread_num());
+		for (auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			grains[id]->plotBoxContour(true);
+			if (id == 5)
+				grains[id]->plotNeighboringGrains(true);
+		}
 	}
 }
 
