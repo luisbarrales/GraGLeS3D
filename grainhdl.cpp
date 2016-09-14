@@ -860,6 +860,7 @@ void grainhdl::run_sim() {
 		} else {
 			tweakIDLocal();
 		}
+
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		level_set();
@@ -945,10 +946,10 @@ void grainhdl::plot_contour(){
 				if (grains[id] == NULL)
 					continue;
 			grains[id]->plotBoxContour(true);
-			if (id == 5)
-				grains[id]->plotNeighboringGrains(true);
 		}
 	}
+	int id = Settings::NeighbourhoodGrain;
+	grains[id]->plotNeighboringGrains(true);
 }
 
 void grainhdl::saveMicrostructure() {

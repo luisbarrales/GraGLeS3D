@@ -56,5 +56,6 @@
    	1   	E_SQUARES
    -->
    <NeighbourTracking>1</NeighbourTracking>
+   <NeighbourhoodGrain>5</NeighbourhoodGrain>
    <StoreTaskDistribution>1</StoreTaskDistribution>
 </Parameters>
