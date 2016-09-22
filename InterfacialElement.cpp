@@ -97,6 +97,8 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 	}
 	computeMobility();
 	computeEnergy();
+	if(m_owner->m_owner->getID()==1)
+		int a;
 }
 TripleLine::TripleLine(int neighbor1, int neighbor2, GrainHull* owner) :
 		InterfacialElement(-1, owner) {
@@ -129,7 +131,7 @@ void TripleLine::computeEnergy() {
 	sigma = gamma[0] - gamma[1] + gamma[2];
 
 	if (sigma < 0.01) {
-		//cout << "negative sigma " << endl;
+//		cout << "negative sigma " << endl;
 		sigma = 0.01;
 	}
 	m_energy = sigma;
@@ -154,6 +156,8 @@ void TripleLine::computeMobility() {
 // ds is the extension of the Tripleline - maximum 3 times the diagonal of a grid cell
 	m_mobility = 1
 			/ ((1 / (ds * Settings::TripleLineDrag)) + 1 / averageMobility);
+	if(m_owner->m_owner->getID()==3)
+		cout << m_mobility << endl;
 }
 
 void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {

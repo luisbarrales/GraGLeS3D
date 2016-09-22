@@ -108,6 +108,7 @@ public:
 	static double C_Value;
 	static double A_Value;
 	static int NeighbourhoodGrain;
+	static int PlotPhysicalQuantities;
 
 	static void initializeParameters(std::string filename = "");
 	static void readMagneticFieldParams(std::string filename);
