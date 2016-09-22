@@ -156,8 +156,7 @@ void TripleLine::computeMobility() {
 // ds is the extension of the Tripleline - maximum 3 times the diagonal of a grid cell
 	m_mobility = 1
 			/ ((1 / (ds * Settings::TripleLineDrag)) + 1 / averageMobility);
-	if(m_owner->m_owner->getID()==3)
-		cout << m_mobility << endl;
+
 }
 
 void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
