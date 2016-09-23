@@ -96,8 +96,8 @@ double GrainHull::computeGrainVolume() {
 		}
 	}
 	gettimeofday(&time2, NULL);
-	cout << "Filling Surface Points" << endl;
-	cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+//	cout << "Filling Surface Points" << endl;
+//	cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
 
 	for(unsigned int i=0; i<SurfacePointsX.size();i++){
 		Center += Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i]);

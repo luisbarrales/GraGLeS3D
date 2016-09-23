@@ -74,7 +74,7 @@ double Settings::deltaMagSys = 0.0;
 double Settings::MagneticForceField = 0.0;
 double Settings::A_Value = 0.0;
 double Settings::C_Value = 0.0;
-int Settings::NeighbourhoodGrain = 0;
+unsigned int Settings::NeighbourhoodGrain = 0;
 
 void Settings::initializeParameters(string filename) {
 	if (0 == filename.compare(""))

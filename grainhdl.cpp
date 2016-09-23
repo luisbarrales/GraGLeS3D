@@ -727,9 +727,9 @@ for	(auto id : workload) {
 //		grains[id]->executePreRedistancing();
 //		cout << "Final Redistancing" << endl;
 //		grains[id]->executeFinalRedistancing();
-//		grains[id]->executeRedistancing();
+		grains[id]->executeRedistancing();
 //		grains[id]->switchInNOut();
-		grains[id]->executeNewRedistancing();
+//		grains[id]->executeNewRedistancing();
 //		grains[id]->executeCombinedRedistancing();
 //		grains[id]->switchInNOut();
 //		grains[id]->plotBoxVolumetric("Post",
@@ -745,7 +745,7 @@ void grainhdl::save_Texture() {
 		stringstream filename;
 		filename << "Texture" << "_" << loop << ".bin";
 		FILE* binaryTexture = fopen(filename.str().c_str(), "wb");
-
+		filename.str(std::string());
 		filename.clear();
 		filename << "Faces" << "_" << loop << ".bin";
 		FILE* binaryFaces = fopen(filename.str().c_str(), "wb");
@@ -937,18 +937,19 @@ void grainhdl::countGrains() {
 }
 
 void grainhdl::plot_contour(){
-#pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-			grains[id]->plotBoxContour(true);
-		}
-	}
+//#pragma omp parallel
+//	{
+//		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+//				omp_get_thread_num());
+//		for (auto id : workload) {
+//			if (id <= Settings::NumberOfParticles)
+//				if (grains[id] == NULL)
+//					continue;
+//			grains[id]->plotBoxContour(true);
+//		}
+//	}
 	int id = Settings::NeighbourhoodGrain;
+	grains[id]->plotBoxContour(true);
 	grains[id]->plotNeighboringGrains(true);
 }
 
@@ -1107,7 +1108,7 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 	stringstream filename2;
 	FILE* binaryFile, *File;
 	filename2.clear();
-	filename2 << "Container" << "_" << loop << ".raw";
+	filename2 << "Container_size_"<< realDomainSize<< "_t_" << loop << ".raw";
 	binaryFile = fopen(filename2.str().c_str(), "wb");
 	fwrite(container->getRawData(), sizeof(unsigned int),
 			(realDomainSize * realDomainSize * realDomainSize), binaryFile);
@@ -1115,7 +1116,7 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 
 
 	filename2.clear();
-	filename2 << "ContainerVolumeEnergy" << "_" << loop << ".raw";
+	filename2 << "ContainerVolumeEnergy_size_" << realDomainSize << "_t_" << loop << ".raw";
 	File = fopen(filename2.str().c_str(), "wb");
 	for (int k = 0; k < realDomainSize; k++) {
 		for (int i = 0; i < realDomainSize; i++) {

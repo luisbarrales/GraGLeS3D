@@ -107,7 +107,7 @@ public:
 	static double MagneticForceField;
 	static double C_Value;
 	static double A_Value;
-	static int NeighbourhoodGrain;
+	static unsigned int NeighbourhoodGrain;
 
 	static void initializeParameters(std::string filename = "");
 	static void readMagneticFieldParams(std::string filename);
