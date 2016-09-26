@@ -963,27 +963,106 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 
 	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
 	fprintf(output, "FIELD FieldData 1\n");
-	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
 
-	for (const auto &myPair : orderedPoints) {
-		const Vector3d& point = myPair.second;
-		int interestingness = 0;
-		int key = 0;
-		for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-			if (point == m_actualHull[i].points[0]
-					|| point == m_actualHull[i].points[1]
-					|| point == m_actualHull[i].points[2]) {
-				//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-				int interactingGrains =
-						m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
-				key = m_actualHull[i].additionalData;
-				//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-				//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
-				interestingness = max(interestingness, interactingGrains);
+
+	switch(Settings::PlotPhysicalQuantities){
+	case 0:
+		fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
+		for (const auto &myPair : orderedPoints) {
+			int interestingness = 0;
+			const Vector3d& point = myPair.second;
+			int key = 0;
+
+			for (const auto &myPair : orderedPoints) {
+				const Vector3d& point = myPair.second;
+				int key = 0;
+				for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+					if (point == m_actualHull[i].points[0]
+														|| point == m_actualHull[i].points[1]
+																						   || point == m_actualHull[i].points[2]) {
+						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+						int interactingGrains =
+								m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+						key = m_actualHull[i].additionalData;
+
+						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+						interestingness = max(interestingness, interactingGrains);
+					}
+				}
+				interestingness = 100 * interestingness + key;
+				fprintf(output, "%d ", interestingness);
+
 			}
+
+			interestingness = 100 * interestingness + key;
+			fprintf(output, "%d ", interestingness);
 		}
-		interestingness = 100 * interestingness + key;
-		fprintf(output, "%d ", interestingness);
+		break;
+	case 1:
+		fprintf(output, "Interestingness 1 %lu double\n", orderedPoints.size());
+		for (const auto &myPair : orderedPoints) {
+			const Vector3d& point = myPair.second;
+			double interestingness = 0;
+			int key = 0;
+			for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+				if (point == m_actualHull[i].points[0]
+						|| point == m_actualHull[i].points[1]
+						|| point == m_actualHull[i].points[2]) {
+					//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+					int interactingGrains =
+							m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+					key = m_actualHull[i].additionalData;
+
+					switch(interactingGrains){
+					case 2:
+						vector<GrainBoundary*>::iterator iterGB;
+						for(iterGB = m_Grainboundary.begin(); iterGB != m_Grainboundary.end(); iterGB++){
+							if((*iterGB)->get_m_Key_NeighborList()==key){
+								interestingness = (*iterGB)->get_energy()*(*iterGB)->get_mobility();
+								break;
+							}
+						}
+						break;
+						//Search grainboundaries
+					case 3:
+						vector<TripleLine*>::iterator iterTL;
+						for(iterTL = m_TripleLines.begin(); iterTL != m_TripleLines.end(); iterTL++){
+							if((*iterTL)->get_m_Key_NeighborList()==key){
+								interestingness = (*iterTL)->get_energy()*(*iterTL)->get_mobility();
+								break;
+							}
+						}
+						break;
+						//Search triple lines
+					case 4:
+						vector<QuadrupleJunction*>::iterator iterQJ;
+						for(iterQJ = m_QuadruplePoints.begin(); iterQJ != m_QuadruplePoints.end(); iterQJ++){
+							if((*iterQJ)->get_m_Key_NeighborList()==key){
+								interestingness = (*iterQJ)->get_energy()*(*iterQJ)->get_mobility();
+								break;
+							}
+						}
+						break;
+						//Search quadruple junctions
+					default:
+						vector<HighOrderJunction*>::iterator iterHJ;
+						for(iterHJ = m_HighOrderJunctions.begin(); iterHJ != m_HighOrderJunctions.end(); iterHJ++){
+							if((*iterHJ)->get_m_Key_NeighborList()==key){
+								interestingness = (*iterHJ)->get_energy()*(*iterHJ)->get_mobility();
+								break;
+							}
+						}
+						break;
+						//Search higher order junctions
+
+					}
+
+				}
+			}
+			fprintf(output, "%f ", interestingness);
+
+		}
 
 	}
 	fclose(output);

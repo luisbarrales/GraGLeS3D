@@ -75,6 +75,7 @@ double Settings::MagneticForceField = 0.0;
 double Settings::A_Value = 0.0;
 double Settings::C_Value = 0.0;
 unsigned int Settings::NeighbourhoodGrain = 0;
+int Settings::PlotPhysicalQuantities = 0;
 
 void Settings::initializeParameters(string filename) {
 	if (0 == filename.compare(""))
@@ -253,6 +254,10 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("NeighbourhoodGrain")) {
 		NeighbourhoodGrain = std::stoul(
 				rootNode->first_node("NeighbourhoodGrain")->value());
+	}
+	if (0 != rootNode->first_node("PlotPhysicalQuantities")) {
+		PlotPhysicalQuantities = std::stoul(
+					rootNode->first_node("PlotPhysicalQuantities")->value());
 	}
 	file.close();
 	if (UseMagneticField == 1)

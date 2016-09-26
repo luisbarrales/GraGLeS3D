@@ -179,7 +179,7 @@ public:
 		return BoundaryGrainTube;
 	}
 	inline double get_ds() {
-		return 1 / realDomainSize;
+		return 1 / (double)realDomainSize;
 	}
 	inline double get_TimeSlope() {
 		return TimeSlope;
