@@ -28,6 +28,12 @@ public:
 			neighbors[i] = 0xFFFFFFFF;
 		}
 	}
+	void PrintNeighborList(){
+		for(int i=0; i<8; i++){
+			cout << neighbors[i] << "	";
+		}
+		cout << endl;
+	}
 	unsigned int getNeighborsListCount() {
 		int interactingGrains = 0;
 		for (int j = 0; j < NEIGHBOR_LIST_SIZE; j++)
