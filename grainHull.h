@@ -56,7 +56,7 @@ public:
 	double computeSurfaceArea();
 	const Triangle& projectPointToSurface(Vector3d& point);
 	const vector<unsigned int>& getAllNeighbors();
-	unsigned int getAllNeighborsCount() {
+	inline unsigned int getAllNeighborsCount() {
 		return m_neighbors.size();
 	}
 	void plotNeighboringGrains(bool absoluteCoordinates,int timestep);

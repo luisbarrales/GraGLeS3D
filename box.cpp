@@ -850,6 +850,21 @@ void LSbox::executeSetComparison() {
 	m_newYMax += m_grainHandler->get_grid_blowup();
 	m_newZMin -= m_grainHandler->get_grid_blowup();
 	m_newZMax += m_grainHandler->get_grid_blowup();
+
+	int ngridpoints = m_grainHandler->get_ngridpoints();
+
+	if(m_newXMin<0)
+		m_newXMin=0;
+	if(m_newYMin<0)
+		m_newYMin=0;
+	if(m_newZMin<0)
+		m_newZMin=0;
+	if(m_newXMax>=ngridpoints)
+		m_newXMax = ngridpoints-1;
+	if(m_newYMax>=ngridpoints)
+		m_newYMax = ngridpoints-1;
+	if(m_newZMax>=ngridpoints)
+		m_newZMax = ngridpoints-1;
 }
 
 bool LSbox::checkIntersection(LSbox* box2) {
@@ -868,12 +883,13 @@ void LSbox::executeComparison() {
 		return;
 	m_outputDistance->clearValues(-1.0);
 	m_secondOrderNeighbours = m_comparisonList;
+	int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
 
 	for (unsigned int neighs = 0; neighs < m_secondOrderNeighbours.size();
 			neighs++) {
 		LSbox* neighbor = m_grainHandler->getGrainByID(
 				m_secondOrderNeighbours[neighs]);
-		int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
+//		int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
 
 		if (m_inputDistance->getMinX() < neighbor->m_inputDistance->getMinX())
 			x_min_new = neighbor->m_inputDistance->getMinX();
@@ -917,6 +933,24 @@ void LSbox::executeComparison() {
 				}
 			}
 		}
+	}
+
+	vector<int> Neighbors;
+
+	if(m_ID == 1){
+		for (int k = z_min_new; k < z_max_new; k++) {
+			for (int i = y_min_new; i < y_max_new; i++) {
+				for (int j = x_min_new; j < x_max_new; j++) {
+					if(find(Neighbors.begin(),Neighbors.end(),m_IDLocal.getValueAt(i,j,k).grainID) == Neighbors.end())
+						Neighbors.push_back(m_IDLocal.getValueAt(i,j,k).grainID);
+				}
+			}
+		}
+		cout << "Neighbor information in IDLocal" << endl;
+		for(int i=0; i<Neighbors.size(); i++){
+			cout << Neighbors[i] << "	";
+		}
+		cout << endl;
 	}
 
 	if (BoundaryIntersection()) {
@@ -1103,7 +1137,6 @@ void LSbox::computeSecondOrderNeighbours() {
 /**************************************/
 
 void LSbox::extractContour() {
-
 	m_exists = m_explicitHull.generateHull();
 	if (!m_exists) {
 		return;
@@ -1135,6 +1168,7 @@ void LSbox::computeSurfaceArea() {
 	m_surface = m_explicitHull.computeSurfaceArea();
 }
 void LSbox::computeSurfaceElements() {
+
 	m_explicitHull.computeGrainBoundaryElements();
 	m_explicitHull.subDivideTrianglesToInterfacialElements();
 	m_explicitHull.computeJunctionPosition();

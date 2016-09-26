@@ -97,8 +97,6 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 	}
 	computeMobility();
 	computeEnergy();
-	if(m_owner->m_owner->getID()==1)
-		int a;
 }
 TripleLine::TripleLine(int neighbor1, int neighbor2, GrainHull* owner) :
 		InterfacialElement(-1, owner) {

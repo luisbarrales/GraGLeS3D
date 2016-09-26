@@ -5,7 +5,7 @@
    <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
    <AnalysisTimestep>1</AnalysisTimestep>
    <PlotInterval>20</PlotInterval>
-   <PlotPhysicalQuantities>1</PlotPhysicalQuantities>
+   <PlotPhysicalQuantities>0</PlotPhysicalQuantities>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps>200</NumberOfTimesteps>
    <BreakupNumber>10</BreakupNumber>
@@ -31,7 +31,7 @@
    <!--unit: meter -->
    <TripleLineDrag>1.e6</TripleLineDrag>
    <UseMobilityFactor>1</UseMobilityFactor>
-   <UseStoredElasticEnergy>1</UseStoredElasticEnergy>
+   <UseStoredElasticEnergy>0</UseStoredElasticEnergy>
    <UseMagneticField>0</UseMagneticField>
    <MagneticParams>MagneticField.xml</MagneticParams>
    <DisableConvolutionCorrection>1</DisableConvolutionCorrection>

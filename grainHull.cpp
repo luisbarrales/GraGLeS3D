@@ -186,26 +186,33 @@ void GrainHull::computeGrainBoundaryElements() {
 	clearInterfacialElements();
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
 		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
+		if(m_owner->getID()==1){
+			m_triangleNeighborLists[i].PrintNeighborList();
+		}
 		switch (junctionType) {
 		case 2: {
+			if(m_owner->getID()==4) cout << "--------------------GRAINBOUNDARY---------------------" << endl;
 			GrainBoundary* newGB = new GrainBoundary(i, this);
 			m_Grainboundary.push_back(newGB);
 			//triangle has only one adjacent grain
 			break;
 		}
 		case 3: {
+			if(m_owner->getID()==4) cout << "--------------------TRIPLELINE------------------------" << endl;
 			TripleLine* newTL = new TripleLine(i, this);
 			m_TripleLines.push_back(newTL);
 			//triangle is part of tripleLine
 			break;
 		}
 		case 4: {
+			if(m_owner->getID()==4) cout << "--------------------QUADRUPLEJUNCTION-----------------" << endl;
 			QuadrupleJunction* newQJ = new QuadrupleJunction(i, this);
 			m_QuadruplePoints.push_back(newQJ);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
 		default: {
+			if(m_owner->getID()==4) cout << "--------------------HIGHERORDER-----------------------" << endl;
 			HighOrderJunction* newHJ = new HighOrderJunction(i, this);
 			m_HighOrderJunctions.push_back(newHJ);
 			// high order junction is found
@@ -972,31 +979,23 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 			int interestingness = 0;
 			const Vector3d& point = myPair.second;
 			int key = 0;
+			for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+				if (point == m_actualHull[i].points[0]
+													|| point == m_actualHull[i].points[1]
+																					   || point == m_actualHull[i].points[2]) {
+					//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+					int interactingGrains =
+							m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
+					key = m_actualHull[i].additionalData;
 
-			for (const auto &myPair : orderedPoints) {
-				const Vector3d& point = myPair.second;
-				int key = 0;
-				for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-					if (point == m_actualHull[i].points[0]
-														|| point == m_actualHull[i].points[1]
-																						   || point == m_actualHull[i].points[2]) {
-						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-						int interactingGrains =
-								m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
-						key = m_actualHull[i].additionalData;
-
-						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
-						interestingness = max(interestingness, interactingGrains);
-					}
+					//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+					//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+					interestingness = max(interestingness, interactingGrains);
 				}
-				interestingness = 100 * interestingness + key;
-				fprintf(output, "%d ", interestingness);
-
 			}
-
 			interestingness = 100 * interestingness + key;
 			fprintf(output, "%d ", interestingness);
+
 		}
 		break;
 	case 1:
