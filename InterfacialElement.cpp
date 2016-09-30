@@ -132,6 +132,8 @@ void TripleLine::computeEnergy() {
 //		cout << "negative sigma " << endl;
 		sigma = 0.01;
 	}
+	if (sigma > 1.0)
+		sigma = 1.0;
 	m_energy = sigma;
 }
 
@@ -152,8 +154,8 @@ void TripleLine::computeMobility() {
 //TODO:
 	double ds = 3 * sqrt(3 * handler->get_ds() * handler->get_ds());
 // ds is the extension of the Tripleline - maximum 3 times the diagonal of a grid cell
-	m_mobility = 1
-			/ ((1 / (ds * Settings::TripleLineDrag)) + 1 / averageMobility);
+	m_mobility = 1.
+			/ ((1. / (ds * Settings::TripleLineDrag)) + 1. / averageMobility);
 
 }
 
@@ -365,11 +367,11 @@ HighOrderJunction::~HighOrderJunction() {
 }
 
 void HighOrderJunction::computeEnergy() {
-	m_energy = 1;
+	m_energy = 1.0;
 
 }
 void HighOrderJunction::computeMobility() {
-	m_mobility = 1;
+	m_mobility = 1.0;
 }
 
 void HighOrderJunction::mergeWith(InterfacialElement* B) {
@@ -431,12 +433,21 @@ void QuadrupleJunction::computeEnergy() {
 	TripleLine T1(m_neighborIDs[0], m_neighborIDs[1], m_owner);
 	TripleLine T2(m_neighborIDs[1], m_neighborIDs[2], m_owner);
 	TripleLine T3(m_neighborIDs[0], m_neighborIDs[2], m_owner);
-	m_energy = (T1.get_energy() + T2.get_energy() + T3.get_energy()) / 3;
+	m_energy = (T1.get_energy() + T2.get_energy() + T3.get_energy()) / 3.0;
+//	if (m_energy < 1.0)
+//		m_energy = 1.0;
 }
 
 void QuadrupleJunction::computeMobility() {
-//TODO::
-	m_mobility = 1;
+
+	m_mobility = 1.0;
+	TripleLine T1(m_neighborIDs[0], m_neighborIDs[1], m_owner);
+	TripleLine T2(m_neighborIDs[1], m_neighborIDs[2], m_owner);
+	TripleLine T3(m_neighborIDs[0], m_neighborIDs[2], m_owner);
+	m_mobility = (T1.get_mobility() + T2.get_mobility() + T3.get_mobility())
+			/ 3.0;
+//	if (m_mobility < 1.0)
+//		m_mobility = 1.0;
 }
 
 void QuadrupleJunction::computePosition() {

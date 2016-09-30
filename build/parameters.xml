@@ -5,7 +5,7 @@
    <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
    <AnalysisTimestep>1</AnalysisTimestep>
    <PlotInterval>20</PlotInterval>
-   <PlotPhysicalQuantities>0</PlotPhysicalQuantities>
+   <PlotPhysicalQuantities>1</PlotPhysicalQuantities>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps>200</NumberOfTimesteps>
    <BreakupNumber>10</BreakupNumber>
@@ -57,6 +57,6 @@
    	1   	E_SQUARES
    -->
    <NeighbourTracking>1</NeighbourTracking>
-   <NeighbourhoodGrain>5</NeighbourhoodGrain>
+   <NeighbourhoodGrain>4</NeighbourhoodGrain>
    <StoreTaskDistribution>1</StoreTaskDistribution>
 </Parameters>

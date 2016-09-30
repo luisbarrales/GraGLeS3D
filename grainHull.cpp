@@ -186,33 +186,33 @@ void GrainHull::computeGrainBoundaryElements() {
 	clearInterfacialElements();
 	for (unsigned int i = 0; i < m_triangleNeighborLists.size(); i++) {
 		int junctionType = m_triangleNeighborLists[i].getNeighborsListCount();
-		if(m_owner->getID()==1){
-			m_triangleNeighborLists[i].PrintNeighborList();
-		}
+//		if(m_owner->getID()==4 || m_owner->getID()==1){
+//			m_triangleNeighborLists[i].PrintNeighborList();
+//		}
 		switch (junctionType) {
 		case 2: {
-			if(m_owner->getID()==4) cout << "--------------------GRAINBOUNDARY---------------------" << endl;
+//			if(m_owner->getID()==4 || m_owner->getID()==1) cout << "--------------------GRAINBOUNDARY---------------------" << endl;
 			GrainBoundary* newGB = new GrainBoundary(i, this);
 			m_Grainboundary.push_back(newGB);
 			//triangle has only one adjacent grain
 			break;
 		}
 		case 3: {
-			if(m_owner->getID()==4) cout << "--------------------TRIPLELINE------------------------" << endl;
+//			if(m_owner->getID()==4 || m_owner->getID()==1) cout << "--------------------TRIPLELINE------------------------" << endl;
 			TripleLine* newTL = new TripleLine(i, this);
 			m_TripleLines.push_back(newTL);
 			//triangle is part of tripleLine
 			break;
 		}
 		case 4: {
-			if(m_owner->getID()==4) cout << "--------------------QUADRUPLEJUNCTION-----------------" << endl;
+//			if(m_owner->getID()==4 || m_owner->getID()==1) cout << "--------------------QUADRUPLEJUNCTION-----------------" << endl;
 			QuadrupleJunction* newQJ = new QuadrupleJunction(i, this);
 			m_QuadruplePoints.push_back(newQJ);
 			//triangle contains to QuadrupleJunction
 			break;
 		}
 		default: {
-			if(m_owner->getID()==4) cout << "--------------------HIGHERORDER-----------------------" << endl;
+//			if(m_owner->getID()==4 || m_owner->getID()==1) cout << "--------------------HIGHERORDER-----------------------" << endl;
 			HighOrderJunction* newHJ = new HighOrderJunction(i, this);
 			m_HighOrderJunctions.push_back(newHJ);
 			// high order junction is found

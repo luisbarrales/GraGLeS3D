@@ -877,8 +877,7 @@ void grainhdl::run_sim() {
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		if (((loop - Settings::StartTime) % int(Settings::AnalysisTimestep))
-				== 0 || loop == Settings::NumberOfTimesteps || loop == 99
-				|| loop == 149 || loop == 249 || loop == 499) {
+				== 0 || loop == Settings::NumberOfTimesteps) {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
@@ -887,11 +886,11 @@ void grainhdl::run_sim() {
 							% int(
 									Settings::AnalysisTimestep
 											* Settings::PlotInterval)) == 0) {
-				//saveNetworkAsVoxelContainer();
+				saveNetworkAsVoxelContainer();
 //				plot_contour();
 			}
 		}
-		plot_contour();
+//		plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime +=
@@ -1429,7 +1428,7 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 
 void grainhdl::gridCoarsement() {
 	int newSize = pow(currentNrGrains, (1 / 3.0))
-			* 1.6 *Settings::NumberOfPointsPerGrain;
+			* pow(PI*4/3,1./3) / 2 * Settings::NumberOfPointsPerGrain;
 	if ((double) currentNrGrains / (double) ngrains
 			< Settings::GridCoarsementGradient && loop != 0
 			&& Settings::GridCoarsement && newSize < realDomainSize) {
