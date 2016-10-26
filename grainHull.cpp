@@ -38,81 +38,83 @@ GrainHull::~GrainHull() {
 }
 
 double GrainHull::computeGrainVolume() {
-//	double volume = 0;
-//	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
-//		Triangle& tri = m_actualHull[i];
-//		double v321 = tri.points[2][0] * tri.points[1][1] * tri.points[0][2];
-//		double v231 = tri.points[1][0] * tri.points[2][1] * tri.points[0][2];
-//		double v312 = tri.points[2][0] * tri.points[0][1] * tri.points[1][2];
-//		double v132 = tri.points[0][0] * tri.points[2][1] * tri.points[1][2];
-//		double v213 = tri.points[1][0] * tri.points[0][1] * tri.points[2][2];
-//		double v123 = tri.points[0][0] * tri.points[1][1] * tri.points[2][2];
-//		volume += (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
-//	}
-//	double h = m_owner->get_h();
-//	volume = abs(volume) * h * h * h;
-
-	double radius=0;
-	Vector3d Center = Vector3d(0,0,0);
-	vector<double> SurfacePointsX;
-	vector<double> SurfacePointsY;
-	vector<double> SurfacePointsZ;
-
+	double volume = 0;
+	for (unsigned int i = 0; i < m_actualHull.size(); i++) {
+		Triangle& tri = m_actualHull[i];
+		double v321 = tri.points[2][0] * tri.points[1][1] * tri.points[0][2];
+		double v231 = tri.points[1][0] * tri.points[2][1] * tri.points[0][2];
+		double v312 = tri.points[2][0] * tri.points[0][1] * tri.points[1][2];
+		double v132 = tri.points[0][0] * tri.points[2][1] * tri.points[1][2];
+		double v213 = tri.points[1][0] * tri.points[0][1] * tri.points[2][2];
+		double v123 = tri.points[0][0] * tri.points[1][1] * tri.points[2][2];
+		volume += (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
+	}
 	double h = m_owner->get_h();
+	volume = abs(volume) * h * h * h;
 
-	timeval time1;
-	timeval time2;
-	gettimeofday(&time1, NULL);
+	return volume;
 
-	std::vector<double>::iterator it;
-	bool nfound;
-
-	for(unsigned int i=0; i<m_actualHull.size(); i++){
-		for(unsigned int j=0; j<3; j++){
-			nfound=true;
-			it = SurfacePointsX.begin();
-			while(it != SurfacePointsX.end()){
-				it = find(it+1,SurfacePointsX.end(),m_actualHull[i].points[j][0]);
-				if(it==SurfacePointsX.end()){
-					break;
-				}
-				else{
-					if(SurfacePointsY[&*it-&SurfacePointsX[0]]!=m_actualHull[i].points[j][1])
-						continue;
-					else if(SurfacePointsZ[&*it-&SurfacePointsX[0]]!=m_actualHull[i].points[j][1])
-						continue;
-					else{
-						nfound = false;
-						break;
-					}
-				}
-			}
-
-			if(nfound){
-				SurfacePointsX.push_back(m_actualHull[i].points[j][0]);
-				SurfacePointsY.push_back(m_actualHull[i].points[j][1]);
-				SurfacePointsZ.push_back(m_actualHull[i].points[j][2]);
-			}
-		}
-	}
-	gettimeofday(&time2, NULL);
-//	cout << "Filling Surface Points" << endl;
-//	cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
-
-	for(unsigned int i=0; i<SurfacePointsX.size();i++){
-		Center += Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i]);
-	}
-	Center /= (double)SurfacePointsX.size();
-
-	for(unsigned int i=0; i<SurfacePointsX.size();i++){
-		radius += (Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i])-Center).norm();
-	}
-
-	radius /= (double)SurfacePointsX.size();
-
-	radius *= h;
-
-	return 4.*PI*pow(radius,3)/3.;
+//	double radius=0;
+//	Vector3d Center = Vector3d(0,0,0);
+//	vector<double> SurfacePointsX;
+//	vector<double> SurfacePointsY;
+//	vector<double> SurfacePointsZ;
+//
+//	double h = m_owner->get_h();
+//
+//	timeval time1;
+//	timeval time2;
+//	gettimeofday(&time1, NULL);
+//
+//	std::vector<double>::iterator it;
+//	bool nfound;
+//
+//	for(unsigned int i=0; i<m_actualHull.size(); i++){
+//		for(unsigned int j=0; j<3; j++){
+//			nfound=true;
+//			it = SurfacePointsX.begin();
+//			while(it != SurfacePointsX.end()){
+//				it = find(it+1,SurfacePointsX.end(),m_actualHull[i].points[j][0]);
+//				if(it==SurfacePointsX.end()){
+//					break;
+//				}
+//				else{
+//					if(SurfacePointsY[&*it-&SurfacePointsX[0]]!=m_actualHull[i].points[j][1])
+//						continue;
+//					else if(SurfacePointsZ[&*it-&SurfacePointsX[0]]!=m_actualHull[i].points[j][1])
+//						continue;
+//					else{
+//						nfound = false;
+//						break;
+//					}
+//				}
+//			}
+//
+//			if(nfound){
+//				SurfacePointsX.push_back(m_actualHull[i].points[j][0]);
+//				SurfacePointsY.push_back(m_actualHull[i].points[j][1]);
+//				SurfacePointsZ.push_back(m_actualHull[i].points[j][2]);
+//			}
+//		}
+//	}
+//	gettimeofday(&time2, NULL);
+////	cout << "Filling Surface Points" << endl;
+////	cout << time2.tv_sec-time1.tv_sec << ":" << time2.tv_usec-time1.tv_usec << endl;
+//
+//	for(unsigned int i=0; i<SurfacePointsX.size();i++){
+//		Center += Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i]);
+//	}
+//	Center /= (double)SurfacePointsX.size();
+//
+//	for(unsigned int i=0; i<SurfacePointsX.size();i++){
+//		radius += (Vector3d(SurfacePointsX[i],SurfacePointsY[i],SurfacePointsZ[i])-Center).norm();
+//	}
+//
+//	radius /= (double)SurfacePointsX.size();
+//
+//	radius *= h;
+//
+//	return 4.*PI*pow(radius,3)/3.;
 }
 
 double GrainHull::computeSurfaceArea() {
@@ -352,14 +354,14 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 								<< posClosestJunction(2) << " "
 								<< distances.back() << endl;
 
-						cout << (it->get_Position())(0) << " "
-								<< (it->get_Position())(1) << " "
-								<< (it->get_Position())(2) << " "
-								<< distances.back() << endl;
-						cout << posClosestJunction(0) << " "
-								<< posClosestJunction(1) << " "
-								<< posClosestJunction(2) << " "
-								<< distances.back() << endl;
+//						cout << (it->get_Position())(0) << " "
+//								<< (it->get_Position())(1) << " "
+//								<< (it->get_Position())(2) << " "
+//								<< distances.back() << endl;
+//						cout << posClosestJunction(0) << " "
+//								<< posClosestJunction(1) << " "
+//								<< posClosestJunction(2) << " "
+//								<< distances.back() << endl;
 					}
 				/*
 				 * end of debugging

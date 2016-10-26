@@ -951,11 +951,6 @@ void LSbox::executeComparison() {
 				}
 			}
 		}
-		cout << "Neighbor information in IDLocal" << endl;
-		for(int i=0; i<Neighbors.size(); i++){
-			cout << Neighbors[i] << "	";
-		}
-		cout << endl;
 	}
 
 	if (BoundaryIntersection()) {
@@ -1194,9 +1189,6 @@ void LSbox::switchBufferPositions() {
 
 Vector3d LSbox::findClosestJunctionTo(Vector3d myposition) {
 	Vector3d neighborJunction;
-//	cout << "LSBOX" << endl;
-//	cout << m_explicitHull.get_numberOfQuadruplePoints() << endl;
-//	cout << m_explicitHull.get_numberOfHighOrderJunctions() << endl;
 	neighborJunction = m_explicitHull.findClosestJunctionTo(myposition);
 	return neighborJunction;
 }
@@ -2318,7 +2310,6 @@ void LSbox::executeNewRedistancing(){
 	delete sdf_dt;
 
 }
-
 
 /**************************************/
 //  Redistancing
