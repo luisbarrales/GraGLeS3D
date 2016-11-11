@@ -890,7 +890,7 @@ void grainhdl::run_sim() {
 //				plot_contour();
 			}
 		}
-//		plot_contour();
+		plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime +=
@@ -947,6 +947,7 @@ void grainhdl::plot_contour(){
 //			grains[id]->plotBoxContour(true);
 //		}
 //	}
+
 	int id = Settings::NeighbourhoodGrain;
 	grains[id]->plotBoxContour(true);
 	grains[id]->plotNeighboringGrains(true);

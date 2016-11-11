@@ -823,11 +823,23 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep){
 	map<Vector3d, int, vectorComparator> mymap;
 	map<int, Vector3d> orderedPoints;
 
+	vector<int> SEE;
+
+
+	//For the relative stored elastic energy plot
 	vector<unsigned int>  Neighbours = m_neighbors;
 
 	for (unsigned int k = 0; k < Neighbours.size(); k++){
 		LSbox* Hull_tmp;
 		Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+
+		//For the relative stored elastic energy plot
+		int tmp;
+		if(Hull_tmp->get_SEE() < m_owner->get_SEE())
+			tmp = 2;
+		else
+			tmp = 1;
+
 		if(Hull_tmp->grainExists()){
 			vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
 
@@ -836,16 +848,19 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep){
 					mymap.insert(
 							pair<Vector3d, int>(NeighbourHull[i].points[0], counter));
 					counter++;
+					SEE.push_back(tmp);
 				}
 				if (mymap.find(NeighbourHull[i].points[1]) == mymap.end()) {
 					mymap.insert(
 							pair<Vector3d, int>(NeighbourHull[i].points[1], counter));
 					counter++;
+					SEE.push_back(tmp);
 				}
 				if (mymap.find(NeighbourHull[i].points[2]) == mymap.end()) {
 					mymap.insert(
 							pair<Vector3d, int>(NeighbourHull[i].points[2], counter));
 					counter++;
+					SEE.push_back(tmp);
 				}
 			}
 			HullSize += NeighbourHull.size();
@@ -881,36 +896,41 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep){
 	fprintf(output, "FIELD FieldData 1\n");
 	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
 
-	for (const auto &myPair : orderedPoints) {
-		const Vector3d& point = myPair.second;
-		int interestingness = 0;
-		int key = 0;
-
-		for (unsigned int k = 0; k < Neighbours.size(); k++){
-			LSbox* Hull_tmp;
-			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
-			if(Hull_tmp->grainExists()){
-				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
-
-				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
-					if (point == NeighbourHull[i].points[0]
-														 || point == NeighbourHull[i].points[1]
-																							 || point == NeighbourHull[i].points[2]) {
-						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-						int interactingGrains =
-								m_triangleNeighborLists[NeighbourHull[i].additionalData].getNeighborsListCount();
-						key = NeighbourHull[i].additionalData;
-						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
-						interestingness = max(interestingness, interactingGrains);
-					}
-				}
-			}
-		}
-		interestingness = 100 * interestingness + key;
-		fprintf(output, "%d ", interestingness);
-
+	for(int i=0; i<SEE.size(); i++){
+		fprintf(output, "%d ", SEE[i]);
 	}
+//
+//	for (const auto &myPair : orderedPoints) {
+//		const Vector3d& point = myPair.second;
+//		int interestingness = 0;
+//		int key = 0;
+//
+//		for (unsigned int k = 0; k < Neighbours.size(); k++){
+//			LSbox* Hull_tmp;
+//			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+//			if(Hull_tmp->grainExists()){
+//				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+//
+//				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+//					if (point == NeighbourHull[i].points[0]
+//														 || point == NeighbourHull[i].points[1]
+//																							 || point == NeighbourHull[i].points[2]) {
+//						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+//						int interactingGrains =
+//								m_triangleNeighborLists[NeighbourHull[i].additionalData].getNeighborsListCount();
+//						key = NeighbourHull[i].additionalData;
+//						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+//						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+//						interestingness = max(interestingness, interactingGrains);
+//					}
+//				}
+//			}
+//		}
+//		interestingness = 100 * interestingness + key;
+//
+//		fprintf(output, "%d ", interestingness);
+//
+//	}
 	fclose(output);
 }
 
@@ -1015,8 +1035,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 							m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
 					key = m_actualHull[i].additionalData;
 
-					switch(interactingGrains){
-					case 2:
+					if(interactingGrains==2){
 						vector<GrainBoundary*>::iterator iterGB;
 						for(iterGB = m_Grainboundary.begin(); iterGB != m_Grainboundary.end(); iterGB++){
 							if((*iterGB)->get_m_Key_NeighborList()==key){
@@ -1024,9 +1043,9 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 								break;
 							}
 						}
-						break;
+					}
 						//Search grainboundaries
-					case 3:
+					else if(interactingGrains==3){
 						vector<TripleLine*>::iterator iterTL;
 						for(iterTL = m_TripleLines.begin(); iterTL != m_TripleLines.end(); iterTL++){
 							if((*iterTL)->get_m_Key_NeighborList()==key){
@@ -1034,9 +1053,9 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 								break;
 							}
 						}
-						break;
+					}
 						//Search triple lines
-					case 4:
+					else if(interactingGrains==4){
 						vector<QuadrupleJunction*>::iterator iterQJ;
 						for(iterQJ = m_QuadruplePoints.begin(); iterQJ != m_QuadruplePoints.end(); iterQJ++){
 							if((*iterQJ)->get_m_Key_NeighborList()==key){
@@ -1044,9 +1063,9 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 								break;
 							}
 						}
-						break;
+					}
 						//Search quadruple junctions
-					default:
+					else{
 						vector<HighOrderJunction*>::iterator iterHJ;
 						for(iterHJ = m_HighOrderJunctions.begin(); iterHJ != m_HighOrderJunctions.end(); iterHJ++){
 							if((*iterHJ)->get_m_Key_NeighborList()==key){
@@ -1054,9 +1073,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 								break;
 							}
 						}
-						break;
 						//Search higher order junctions
-
 					}
 
 				}

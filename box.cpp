@@ -42,6 +42,7 @@ LSbox::LSbox(int id, double phi1, double PHI, double phi2, grainhdl* owner) :
 	m_inputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_outputDistance = new DimensionalBufferReal(0, 0, 0, 0, 0, 0);
 	m_magneticEnergy = 0;
+
 	if (Settings::UseMagneticField)
 		calculateMagneticEnergy();
 }
@@ -116,6 +117,7 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 
 	resizeIDLocalToDistanceBuffer();
+
 }
 
 LSbox::LSbox(int id, const vector<Vector3d>& vertices,
@@ -217,6 +219,9 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 	m_outputDistance->resizeToCube(m_grainHandler->get_ngridpoints());
 
 	resizeIDLocalToDistanceBuffer();
+
+	m_StoredElasticEnergy = (double)rand()/(double)RAND_MAX * 10e-14;
+
 }
 
 LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,

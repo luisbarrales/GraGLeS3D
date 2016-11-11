@@ -3,11 +3,11 @@
    <StartTime>0</StartTime>
    <NumberOfParticles>100</NumberOfParticles>
    <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
-   <AnalysisTimestep>20</AnalysisTimestep>
+   <AnalysisTimestep>1</AnalysisTimestep>
    <PlotInterval>20</PlotInterval>
    <PlotPhysicalQuantities>1</PlotPhysicalQuantities>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
-   <NumberOfTimesteps>20</NumberOfTimesteps>
+   <NumberOfTimesteps>200</NumberOfTimesteps>
    <BreakupNumber>10</BreakupNumber>
    <DiscreteSamplingRate>25</DiscreteSamplingRate>
    <DomainBorderSize>7</DomainBorderSize>
@@ -57,6 +57,6 @@
    	1   	E_SQUARES
    -->
    <NeighbourTracking>1</NeighbourTracking>
-   <NeighbourhoodGrain>4</NeighbourhoodGrain>
+   <NeighbourhoodGrain>6</NeighbourhoodGrain>
    <StoreTaskDistribution>1</StoreTaskDistribution>
 </Parameters>

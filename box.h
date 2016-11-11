@@ -284,6 +284,11 @@ public:
 	inline vector<Triangle> get_actualHull(){
 		return m_explicitHull.get_actualHull();
 	}
+
+	inline void setRandomStoredElasticEnergy(){
+		m_StoredElasticEnergy = (double)rand()/(double)RAND_MAX * 10e-14;
+	}
+
 	TextureData collectTextureData();
 };
 #endif
