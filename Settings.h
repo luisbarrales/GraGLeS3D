@@ -108,6 +108,7 @@ public:
 	static double C_Value;
 	static double A_Value;
 	static unsigned int NeighbourhoodGrain;
+	static unsigned int NeighbourhoodOrder;
 	static int PlotPhysicalQuantities;
 
 	static void initializeParameters(std::string filename = "");

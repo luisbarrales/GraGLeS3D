@@ -59,7 +59,7 @@ public:
 	inline unsigned int getAllNeighborsCount() {
 		return m_neighbors.size();
 	}
-	void plotNeighboringGrains(bool absoluteCoordinates,int timestep);
+	void plotNeighboringGrains(bool absoluteCoordinates,int timestep,int order);
 	void plotContour(bool absoluteCoordinates, int timestep);
 	HighOrderJunction* findHighOrderJunction(int key);
 	QuadrupleJunction* findQuadrupleJunction(int key);

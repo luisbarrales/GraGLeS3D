@@ -802,7 +802,11 @@ struct vectorComparator {
 //fclose( output);
 //}
 
-void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep){
+void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int order){
+
+	/*
+	 * order : plot the order-th neighbourhood of the grain
+	 */
 
 	string filename = string("Neighorborhood_")
 			+ to_string((unsigned long long) m_owner->getID())
@@ -828,6 +832,20 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep){
 
 	//For the relative stored elastic energy plot
 	vector<unsigned int>  Neighbours = m_neighbors;
+
+	for(int i=0; i<order-1; i++){
+		int NeighboursSize = Neighbours.size();
+		for(int j=0; j<NeighboursSize; j++){
+			LSbox* Neighbour;
+			Neighbour = m_owner->get_grainHandler()->getGrainByID(Neighbours[j]);
+			vector<unsigned int> Neighbours_tmp = Neighbour->getAllNeighbors();
+			for(int k=0; k<Neighbours_tmp.size(); k++){
+				if(find(Neighbours.begin(), Neighbours.end(), Neighbours_tmp[k]) == Neighbours.end())
+					Neighbours.push_back(Neighbours_tmp[k]);
+			}
+		}
+	}
+
 
 	for (unsigned int k = 0; k < Neighbours.size(); k++){
 		LSbox* Hull_tmp;

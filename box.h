@@ -289,6 +289,10 @@ public:
 		m_StoredElasticEnergy = (double)rand()/(double)RAND_MAX * 10e-14;
 	}
 
+	inline const vector<unsigned int>& getAllNeighbors(){
+		return m_explicitHull.getAllNeighbors();
+	}
+
 	TextureData collectTextureData();
 };
 #endif

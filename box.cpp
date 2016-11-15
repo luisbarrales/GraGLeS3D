@@ -2895,7 +2895,7 @@ void LSbox::plotBoxContour(bool absoluteCoordinates) {
 }
 
 void LSbox::plotNeighboringGrains(bool absoluteCoordinates) {
-	m_explicitHull.plotNeighboringGrains(false, m_grainHandler->loop);
+	m_explicitHull.plotNeighboringGrains(false, m_grainHandler->loop,Settings::NeighbourhoodOrder);
 }
 
 void LSbox::plotBoxVolumetric(string identifier,
