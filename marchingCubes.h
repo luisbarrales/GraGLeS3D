@@ -28,6 +28,23 @@ public:
 			neighbors[i] = 0xFFFFFFFF;
 		}
 	}
+	bool PartOf(const NeighborList& other){
+		int non_trivial_elements=0;
+		int coinciding_elements=0;
+		for(int i=0; i<NEIGHBOR_LIST_SIZE; i++){
+			if(neighbors[i] != 0xFFFFFFFF){
+				non_trivial_elements++;
+				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++){
+					if(neighbors[i]==other.neighbors[j])
+						coinciding_elements++;
+				}
+			}
+		}
+		if(coinciding_elements==non_trivial_elements)
+			return true;
+		else
+			return false;
+	}
 	void PrintNeighborList(){
 		for(int i=0; i<8; i++){
 			cout << neighbors[i] << "	";
