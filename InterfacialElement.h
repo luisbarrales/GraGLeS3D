@@ -67,6 +67,9 @@ public:
 	inline int get_m_Key_NeighborList() {
 		return m_Key_NeighborList;
 	}
+	inline void set_m_Key_NeighborList(int key){
+		m_Key_NeighborList = key;
+	}
 	inline GBInfo get_GBInfo() {
 		return GBInfo(m_energy, m_mobility);
 	}

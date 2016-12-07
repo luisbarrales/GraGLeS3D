@@ -58,6 +58,6 @@
    -->
    <NeighbourTracking>1</NeighbourTracking>
    <NeighbourhoodGrain>54</NeighbourhoodGrain>
-   <NeighbourhoodOrder>2</NeighbourhoodOrder>
+   <NeighbourhoodOrder>4</NeighbourhoodOrder>
    <StoreTaskDistribution>1</StoreTaskDistribution>
 </Parameters>

@@ -466,7 +466,7 @@ void GrainHull::computeInterfacialElementMesh() {
 
 	for (const auto it : m_TripleLines) {
 		//TODO:
-		//is it possible to merge Triplelines with less than 1 vertice?
+		//is it possible to merge Triplelines with less than 1 vertex?
 		it->findAdjacentJunctions(m_QuadruplePoints, m_HighOrderJunctions);
 	}
 	for (const auto it : m_Grainboundary) {
@@ -488,13 +488,23 @@ void GrainHull::mergeJunction() {
 				//create new high order junction / delete old
 				HighOrderJunction* newHJ = new HighOrderJunction(
 						m_QuadruplePoints[i], m_QuadruplePoints[j], this);
-				m_HighOrderJunctions.push_back(newHJ);
 				delete m_QuadruplePoints[i];
 				delete m_QuadruplePoints[j];
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + j - 1);
 				i--;
 				j--;
+
+				NeighborList newNeighborList;
+				vector<int> neighbors = newHJ->get_NeighborIDs();
+				sort(neighbors.begin(),neighbors.end());
+				for(int k=0; k<neighbors.size(); k++){
+					newNeighborList.neighbors[k] = neighbors[k];
+				}
+				m_triangleNeighborLists.push_back(newNeighborList);
+				newHJ->set_m_Key_NeighborList(m_triangleNeighborLists.size()-1);
+
+				m_HighOrderJunctions.push_back(newHJ);
 				break;
 			}
 		}
@@ -502,14 +512,20 @@ void GrainHull::mergeJunction() {
 
 	for (int k = 0; k < m_HighOrderJunctions.size(); k++) {
 		for (int i = 0; i < m_QuadruplePoints.size(); i++) {
-//			cout << "Quadruple point position" << endl;
-//			cout << m_QuadruplePoints[i]->get_Position() << endl;
-//			cout << "High order junction position" << endl;
-//			cout << m_HighOrderJunctions[k]->get_Position() << endl;
 			if ((m_QuadruplePoints[i]->get_Position()
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[k]->mergeWith(m_QuadruplePoints[i]);
+
+				NeighborList newNeighborList;
+				vector<int> neighbors = m_HighOrderJunctions[k]->get_NeighborIDs();
+				sort(neighbors.begin(),neighbors.end());
+				for(int n=0; n<neighbors.size(); n++){
+					newNeighborList.neighbors[n] = neighbors[n];
+				}
+				m_triangleNeighborLists.push_back(newNeighborList);
+				m_HighOrderJunctions[k]->set_m_Key_NeighborList(m_triangleNeighborLists.size()-1);
+
 				delete m_QuadruplePoints[i];
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
 				i--;
@@ -523,6 +539,16 @@ void GrainHull::mergeJunction() {
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[i]->mergeWith((m_HighOrderJunctions[k]));
+
+				NeighborList newNeighborList;
+				vector<int> neighbors = m_HighOrderJunctions[i]->get_NeighborIDs();
+				sort(neighbors.begin(),neighbors.end());
+				for(int n=0; n<neighbors.size(); n++){
+					newNeighborList.neighbors[k] = neighbors[k];
+				}
+				m_triangleNeighborLists.push_back(newNeighborList);
+				m_HighOrderJunctions[i]->set_m_Key_NeighborList(m_triangleNeighborLists.size()-1);
+
 				delete m_HighOrderJunctions[k];
 				m_HighOrderJunctions.erase(m_HighOrderJunctions.begin() + k);
 				k--;
@@ -808,32 +834,149 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 	 * order : plot the order-th neighbourhood of the grain
 	 */
 
-	string filename = string("Neighorborhood_")
-			+ to_string((unsigned long long) m_owner->getID())
-			+ string("Timestep_") + to_string((unsigned long long) timestep)
-			+ string(".vtk");
-	FILE* output = fopen(filename.c_str(), "wt");
-	if (output == NULL) {
-		throw runtime_error("Unable to save box hull!");
-	}
+	vector<unsigned int> plottedGrains;
+	vector<unsigned int> Neighbours=m_neighbors;
 
-	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
-			"vtk output\n"
-			"ASCII\n"
-			"DATASET POLYDATA\n");
+	for(int ord=0; ord<order;ord++){
+		for(int j=0; j<Neighbours.size(); j++){
+			if(find(plottedGrains.begin(),plottedGrains.end(),Neighbours[j]) != plottedGrains.end()){
+				Neighbours.erase(Neighbours.begin()+j);
+				j--;
+			}
+		}
 
-	int counter = 0;
-	int HullSize = 0;
-	map<Vector3d, int, vectorComparator> mymap;
-	map<int, Vector3d> orderedPoints;
+		string filename = string("Neighorborhood_")
+					+ to_string((unsigned long long) m_owner->getID())
+					+ string("Order_") + to_string(ord+1)
+					+ string("Timestep_") + to_string((unsigned long long) timestep)
+					+ string(".vtk");
+		FILE* output = fopen(filename.c_str(), "wt");
+		if (output == NULL) {
+			throw runtime_error("Unable to save box hull!");
+		}
 
-	vector<int> SEE;
+		fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
+				"vtk output\n"
+				"ASCII\n"
+				"DATASET POLYDATA\n");
 
+		int counter = 0;
+		int HullSize = 0;
+		map<Vector3d, int, vectorComparator> mymap;
+		map<int, Vector3d> orderedPoints;
 
-	//For the relative stored elastic energy plot
-	vector<unsigned int>  Neighbours = m_neighbors;
+		vector<int> SEE;
 
-	for(int i=0; i<order-1; i++){
+		for (unsigned int k = 0; k < Neighbours.size(); k++){
+			LSbox* Hull_tmp;
+			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+
+			//For the relative stored elastic energy plot
+			int tmp;
+			if(Hull_tmp->get_SEE() < m_owner->get_SEE())
+				tmp = 2;
+			else
+				tmp = 1;
+
+			if(Hull_tmp->grainExists()){
+				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+
+				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+					if (mymap.find(NeighbourHull[i].points[0]) == mymap.end()) {
+						mymap.insert(
+								pair<Vector3d, int>(NeighbourHull[i].points[0], counter));
+						counter++;
+						SEE.push_back(tmp);
+					}
+					if (mymap.find(NeighbourHull[i].points[1]) == mymap.end()) {
+						mymap.insert(
+								pair<Vector3d, int>(NeighbourHull[i].points[1], counter));
+						counter++;
+						SEE.push_back(tmp);
+					}
+					if (mymap.find(NeighbourHull[i].points[2]) == mymap.end()) {
+						mymap.insert(
+								pair<Vector3d, int>(NeighbourHull[i].points[2], counter));
+						counter++;
+						SEE.push_back(tmp);
+					}
+				}
+				HullSize += NeighbourHull.size();
+			}
+		}
+		for (const auto &myPair : mymap) {
+			orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
+		}
+
+		fprintf(output, "POINTS %lu float\n", orderedPoints.size());
+
+		for (const auto &myPair : orderedPoints) {
+			fprintf(output, "%f %f %f\n", myPair.second[0], myPair.second[1],
+					myPair.second[2]);
+		}
+
+		fprintf(output, "POLYGONS %u %u\n", HullSize,
+				HullSize * 4);
+		for (unsigned int k = 0; k < Neighbours.size(); k++){
+			LSbox* Hull_tmp;
+			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+			vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+
+			for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+				fprintf(output, "3 %d %d %d \n",
+						(*(mymap.find(NeighbourHull[i].points[2]))).second,
+						(*(mymap.find(NeighbourHull[i].points[1]))).second,
+						(*(mymap.find(NeighbourHull[i].points[0]))).second);
+			}
+		}
+
+		fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
+		fprintf(output, "FIELD FieldData 1\n");
+		fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
+
+		for(int i=0; i<SEE.size(); i++){
+			fprintf(output, "%d ", SEE[i]);
+		}
+		//
+		//	for (const auto &myPair : orderedPoints) {
+		//		const Vector3d& point = myPair.second;
+		//		int interestingness = 0;
+		//		int key = 0;
+		//
+		//		for (unsigned int k = 0; k < Neighbours.size(); k++){
+		//			LSbox* Hull_tmp;
+		//			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
+		//			if(Hull_tmp->grainExists()){
+		//				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
+		//
+		//				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
+		//					if (point == NeighbourHull[i].points[0]
+		//														 || point == NeighbourHull[i].points[1]
+		//																							 || point == NeighbourHull[i].points[2]) {
+		//						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
+		//						int interactingGrains =
+		//								m_triangleNeighborLists[NeighbourHull[i].additionalData].getNeighborsListCount();
+		//						key = NeighbourHull[i].additionalData;
+		//						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
+		//						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
+		//						interestingness = max(interestingness, interactingGrains);
+		//					}
+		//				}
+		//			}
+		//		}
+		//		interestingness = 100 * interestingness + key;
+		//
+		//		fprintf(output, "%d ", interestingness);
+		//
+		//	}
+		fclose(output);
+
+		//For the relative stored elastic energy plot
+
+		for(int i=0; i<Neighbours.size();i++){
+			plottedGrains.push_back(Neighbours[i]);
+		}
+
 		int NeighboursSize = Neighbours.size();
 		for(int j=0; j<NeighboursSize; j++){
 			LSbox* Neighbour;
@@ -845,111 +988,6 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 			}
 		}
 	}
-
-
-	for (unsigned int k = 0; k < Neighbours.size(); k++){
-		LSbox* Hull_tmp;
-		Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
-
-		//For the relative stored elastic energy plot
-		int tmp;
-		if(Hull_tmp->get_SEE() < m_owner->get_SEE())
-			tmp = 2;
-		else
-			tmp = 1;
-
-		if(Hull_tmp->grainExists()){
-			vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
-
-			for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
-				if (mymap.find(NeighbourHull[i].points[0]) == mymap.end()) {
-					mymap.insert(
-							pair<Vector3d, int>(NeighbourHull[i].points[0], counter));
-					counter++;
-					SEE.push_back(tmp);
-				}
-				if (mymap.find(NeighbourHull[i].points[1]) == mymap.end()) {
-					mymap.insert(
-							pair<Vector3d, int>(NeighbourHull[i].points[1], counter));
-					counter++;
-					SEE.push_back(tmp);
-				}
-				if (mymap.find(NeighbourHull[i].points[2]) == mymap.end()) {
-					mymap.insert(
-							pair<Vector3d, int>(NeighbourHull[i].points[2], counter));
-					counter++;
-					SEE.push_back(tmp);
-				}
-			}
-			HullSize += NeighbourHull.size();
-		}
-	}
-	for (const auto &myPair : mymap) {
-		orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
-	}
-
-	fprintf(output, "POINTS %lu float\n", orderedPoints.size());
-
-	for (const auto &myPair : orderedPoints) {
-		fprintf(output, "%f %f %f\n", myPair.second[0], myPair.second[1],
-				myPair.second[2]);
-	}
-
-	fprintf(output, "POLYGONS %u %u\n", HullSize,
-			HullSize * 4);
-	for (unsigned int k = 0; k < Neighbours.size(); k++){
-		LSbox* Hull_tmp;
-		Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
-		vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
-
-		for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
-			fprintf(output, "3 %d %d %d \n",
-					(*(mymap.find(NeighbourHull[i].points[2]))).second,
-					(*(mymap.find(NeighbourHull[i].points[1]))).second,
-					(*(mymap.find(NeighbourHull[i].points[0]))).second);
-		}
-	}
-
-	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
-	fprintf(output, "FIELD FieldData 1\n");
-	fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
-
-	for(int i=0; i<SEE.size(); i++){
-		fprintf(output, "%d ", SEE[i]);
-	}
-//
-//	for (const auto &myPair : orderedPoints) {
-//		const Vector3d& point = myPair.second;
-//		int interestingness = 0;
-//		int key = 0;
-//
-//		for (unsigned int k = 0; k < Neighbours.size(); k++){
-//			LSbox* Hull_tmp;
-//			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
-//			if(Hull_tmp->grainExists()){
-//				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
-//
-//				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
-//					if (point == NeighbourHull[i].points[0]
-//														 || point == NeighbourHull[i].points[1]
-//																							 || point == NeighbourHull[i].points[2]) {
-//						//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
-//						int interactingGrains =
-//								m_triangleNeighborLists[NeighbourHull[i].additionalData].getNeighborsListCount();
-//						key = NeighbourHull[i].additionalData;
-//						//				for(int j=0; j<NEIGHBOR_LIST_SIZE; j++)
-//						//				interactingGrains += (list.neighbors[j] == 0xFFFFFFFF ? 0 : 1);
-//						interestingness = max(interestingness, interactingGrains);
-//					}
-//				}
-//			}
-//		}
-//		interestingness = 100 * interestingness + key;
-//
-//		fprintf(output, "%d ", interestingness);
-//
-//	}
-	fclose(output);
 }
 
 void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
@@ -1076,8 +1114,8 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 						break;
 					}
 				}
-				if(nfound)
-					cout << "No GB found!" << endl;
+//				if(nfound)
+//					cout << "No GB found!" << endl;
 			}
 			//Search triple lines
 			else if(interactingGrains_Max==3){
@@ -1092,8 +1130,8 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 						break;
 					}
 				}
-				if(nfound)
-					cout << "No TL found" << endl;
+//				if(nfound)
+//					cout << "No TL found" << endl;
 			}
 			//Search quadruple junctions
 			else if(interactingGrains_Max==4){
@@ -1118,18 +1156,22 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 						}
 					}
 				}
-				if(nfound)
-					cout << "No QJ found!" << endl;
+//				if(nfound)
+//					cout << "No QJ found!" << endl;
 			}
 			//Search higher order junctions
 			else{
+				bool nfound = true;
 				vector<HighOrderJunction*>::iterator iterHOJ;
 				for(iterHOJ = m_HighOrderJunctions.begin(); iterHOJ != m_HighOrderJunctions.end(); iterHOJ++){
 					if((*iterHOJ)->get_m_Key_NeighborList()==key){
 						interestingness = (*iterHOJ)->get_energy()*(*iterHOJ)->get_mobility();
+						nfound=false;
 						break;
 					}
 				}
+//				if(nfound)
+//					cout << "No HOJ found!" << endl;
 			}
 			fprintf(output, "%f ", interestingness);
 
