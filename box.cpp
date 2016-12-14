@@ -653,8 +653,8 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 				i2 = min(i, n - i);
 				for (int j = 0; j < n2; j++) {
 					j2 = min(j, n - j);
-					G = exp(
-							-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+					G = exp( -sqrt(2/PI)*
+							(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
 							/ local_nsq * PI * PI) / (local_nsq*n);
 					fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
 							* k)][0] * G;
@@ -757,7 +757,7 @@ void LSbox::convolutionGeneratorMKL(MKL_Complex16* fftTemp)
 				i2 = min(i, n - i);
 				for (int j = 0; j < n2; j++) {
 					j2 = min(j, n - j);
-					G = exp(-(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
+					G = exp(-sqrt(2/PI)*(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
 							/ local_nsq * PI * PI) / (local_nsq * n);
 					fftTemp[j + n2 * (i + n * k)].real = fftTemp[j + n2 * (i + n * k)].real * G;
 					fftTemp[j + n2 * (i + n * k)].imag = fftTemp[j + n2 * (i + n * k)].imag * G;

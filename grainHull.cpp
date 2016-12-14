@@ -1104,74 +1104,46 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 			//Search grainboundaries
 			if(interactingGrains_Max==2){
 
-				bool nfound = true;
 
 				vector<GrainBoundary*>::iterator iterGB;
 				for(iterGB = m_Grainboundary.begin(); iterGB != m_Grainboundary.end(); iterGB++){
 					if((*iterGB)->get_m_Key_NeighborList()==key){
 						interestingness = (*iterGB)->get_energy()*(*iterGB)->get_mobility();
-						nfound = false;
 						break;
 					}
 				}
-//				if(nfound)
-//					cout << "No GB found!" << endl;
 			}
 			//Search triple lines
 			else if(interactingGrains_Max==3){
-
-				bool nfound = true;
 
 				vector<TripleLine*>::iterator iterTL;
 				for(iterTL = m_TripleLines.begin(); iterTL != m_TripleLines.end(); iterTL++){
 					if((*iterTL)->get_m_Key_NeighborList()==key){
 						interestingness = (*iterTL)->get_energy()*(*iterTL)->get_mobility();
-						nfound = false;
 						break;
 					}
 				}
-//				if(nfound)
-//					cout << "No TL found" << endl;
 			}
 			//Search quadruple junctions
 			else if(interactingGrains_Max==4){
-
-				bool nfound = true;
 
 				vector<QuadrupleJunction*>::iterator iterQJ;
 				for(iterQJ = m_QuadruplePoints.begin(); iterQJ != m_QuadruplePoints.end(); iterQJ++){
 					if((*iterQJ)->get_m_Key_NeighborList()==key){
 						interestingness = (*iterQJ)->get_energy()*(*iterQJ)->get_mobility();
-						nfound = false;
 						break;
 					}
 				}
-				if(nfound){
-					vector<HighOrderJunction*>::iterator iterHOJ;
-					for(iterHOJ = m_HighOrderJunctions.begin(); iterHOJ != m_HighOrderJunctions.end(); iterHOJ++){
-						if(m_triangleNeighborLists[key].PartOf(m_triangleNeighborLists[(*iterHOJ)->get_m_Key_NeighborList()])){
-							interestingness = (*iterHOJ)->get_energy()*(*iterHOJ)->get_mobility();
-							nfound = false;
-							break;
-						}
-					}
-				}
-				if(nfound)
-					cout << "No QJ found!" << endl;
 			}
 			//Search higher order junctions
 			else{
-				bool nfound = true;
 				vector<HighOrderJunction*>::iterator iterHOJ;
 				for(iterHOJ = m_HighOrderJunctions.begin(); iterHOJ != m_HighOrderJunctions.end(); iterHOJ++){
 					if((*iterHOJ)->get_m_Key_NeighborList()==key){
 						interestingness = (*iterHOJ)->get_energy()*(*iterHOJ)->get_mobility();
-						nfound=false;
 						break;
 					}
 				}
-//				if(nfound)
-//					cout << "No HOJ found!" << endl;
 			}
 			fprintf(output, "%f ", interestingness);
 
