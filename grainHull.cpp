@@ -1156,8 +1156,8 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 						}
 					}
 				}
-//				if(nfound)
-//					cout << "No QJ found!" << endl;
+				if(nfound)
+					cout << "No QJ found!" << endl;
 			}
 			//Search higher order junctions
 			else{
