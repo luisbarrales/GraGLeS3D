@@ -495,15 +495,6 @@ void GrainHull::mergeJunction() {
 				i--;
 				j--;
 
-				NeighborList newNeighborList;
-				vector<int> neighbors = newHJ->get_NeighborIDs();
-				sort(neighbors.begin(),neighbors.end());
-				for(int k=0; k<neighbors.size(); k++){
-					newNeighborList.neighbors[k] = neighbors[k];
-				}
-				m_triangleNeighborLists.push_back(newNeighborList);
-				newHJ->set_m_Key_NeighborList(m_triangleNeighborLists.size()-1);
-
 				m_HighOrderJunctions.push_back(newHJ);
 				break;
 			}
@@ -516,15 +507,6 @@ void GrainHull::mergeJunction() {
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[k]->mergeWith(m_QuadruplePoints[i]);
-
-				NeighborList newNeighborList;
-				vector<int> neighbors = m_HighOrderJunctions[k]->get_NeighborIDs();
-				sort(neighbors.begin(),neighbors.end());
-				for(int n=0; n<neighbors.size(); n++){
-					newNeighborList.neighbors[n] = neighbors[n];
-				}
-				m_triangleNeighborLists.push_back(newNeighborList);
-				m_HighOrderJunctions[k]->set_m_Key_NeighborList(m_triangleNeighborLists.size()-1);
 
 				delete m_QuadruplePoints[i];
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
@@ -539,15 +521,6 @@ void GrainHull::mergeJunction() {
 					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[i]->mergeWith((m_HighOrderJunctions[k]));
-
-				NeighborList newNeighborList;
-				vector<int> neighbors = m_HighOrderJunctions[i]->get_NeighborIDs();
-				sort(neighbors.begin(),neighbors.end());
-				for(int n=0; n<neighbors.size(); n++){
-					newNeighborList.neighbors[k] = neighbors[k];
-				}
-				m_triangleNeighborLists.push_back(newNeighborList);
-				m_HighOrderJunctions[i]->set_m_Key_NeighborList(m_triangleNeighborLists.size()-1);
 
 				delete m_HighOrderJunctions[k];
 				m_HighOrderJunctions.erase(m_HighOrderJunctions.begin() + k);
