@@ -820,26 +820,32 @@ void grainhdl::run_sim() {
 
 	timeval time;
 	double timer;
+	cout << "distanceInitialisation" << endl;
 	distanceInitialisation();
 	Realtime = 0;
+	cout << "find_neighbors" << endl;
 	find_neighbors();
+	cout << "start" << endl;
 
 	for (loop = Settings::StartTime;
 			loop <= Settings::StartTime + Settings::NumberOfTimesteps; loop++) {
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
+		cout << "gridCoarsement" << endl;
 		gridCoarsement();
 		gettimeofday(&time, NULL);
 		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
+		cout << "convolution" << endl;
 		convolution(plan_overhead);
 		gettimeofday(&time, NULL);
 		convo_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
+		cout << "switchDistancebuffer/updateSecondOrderNeighbors" << endl;
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
 		gettimeofday(&time, NULL);
@@ -848,12 +854,14 @@ void grainhdl::run_sim() {
 		if (Settings::DecoupleGrains != 1) {
 			gettimeofday(&time, NULL);
 			timer = time.tv_sec + time.tv_usec / 1000000.0;
+			cout << "comparison_box" << endl;
 			comparison_box();
 			gettimeofday(&time, NULL);
 			comparison_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
 			gettimeofday(&time, NULL);
 			timer = time.tv_sec + time.tv_usec / 1000000.0;
+			cout << "switchDistancebuffer" << endl;
 			switchDistancebuffer();
 			gettimeofday(&time, NULL);
 			parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
@@ -863,16 +871,19 @@ void grainhdl::run_sim() {
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
+		cout << "level_set" << endl;
 		level_set();
 		gettimeofday(&time, NULL);
 		levelset_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
+		cout << "redistancing" << endl;
 		redistancing();
 		gettimeofday(&time, NULL);
 		redistancing_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
+		cout << "countGrains" << endl;
 		countGrains();
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
@@ -890,6 +901,7 @@ void grainhdl::run_sim() {
 //				plot_contour();
 			}
 		}
+		cout << "plot" << endl;
 		plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
