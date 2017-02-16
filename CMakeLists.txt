@@ -5,14 +5,14 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp IterativeGrainScheduler.cpp SquaresGrainScheduler.cpp grahamScan.cpp)
+set(MY_SOURCES LinearCurve.cpp LocalPointset.cpp Plane.cpp Point3D.cpp PointCloudGenerator.cpp QuadraticCurve.cpp Spline.cpp TriplelinePointsetClass.cpp allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp IterativeGrainScheduler.cpp SquaresGrainScheduler.cpp grahamScan.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 
 #set(CMAKE_CXX_FLAGS "-g -O0 -Wall ")
-#set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
-set(CMAKE_CXX_FLAGS "-g -O3 -ip -axAVX,SSE4.2,SSE4.1 -fp-model fast=2 -Wall -mkl -DMKL_ILP64")
+set(CMAKE_CXX_FLAGS "-g -O3 -Wall -mkl -DMKL_ILP64")
+#set(CMAKE_CXX_FLAGS "-g -O3 -ip -axAVX,SSE4.2,SSE4.1 -fp-model fast=2 -Wall -mkl -DMKL_ILP64")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}") 
 
@@ -45,7 +45,7 @@ include_directories(${VORO++_INCLUDE_DIRS})
 #include_directories(${MPI_INCLUDE_PATH})
 
 link_directories(${Boost_LIBRARY_DIR} ${CMAKE_SOURCE_DIR})
-
+include_directories("${CMAKE_SOURCE_DIR}")
 #find_package(MPI REQUIRED)
 
 ADD_DEFINITIONS("-std=c++0x")

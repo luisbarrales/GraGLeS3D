@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
    <StartTime>0</StartTime>
-   <NumberOfParticles>100</NumberOfParticles>
+   <NumberOfParticles>20</NumberOfParticles>
    <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
    <AnalysisTimestep>1</AnalysisTimestep>
    <PlotInterval>20</PlotInterval>
@@ -34,7 +34,7 @@
    <UseStoredElasticEnergy>0</UseStoredElasticEnergy>
    <UseMagneticField>0</UseMagneticField>
    <MagneticParams>MagneticField.xml</MagneticParams>
-   <DisableConvolutionCorrection>1</DisableConvolutionCorrection>
+   <DisableConvolutionCorrection>0</DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
    <MaximumNumberOfThreads>32</MaximumNumberOfThreads>

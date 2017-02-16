@@ -28,9 +28,12 @@
 #include <fstream>
 #include "Structs.h"
 #include <sys/time.h>
+#include "TriplelinePointsetClass.h"
+
+
 
 using namespace std;
-
+double pointToTriangleDistance(Vector3d& point, Triangle& triangle);
 GrainHull::GrainHull(LSbox* owner) :
 		m_owner(owner) {
 }
@@ -154,7 +157,7 @@ bool GrainHull::generateHull() {
 		return true;
 }
 
-double pointToTriangleDistance(Vector3d& point, Triangle& triangle);
+
 
 const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 	double minimalDistance = 10000000.0;
@@ -477,8 +480,11 @@ void GrainHull::computeInterfacialElementMesh() {
 //			|| m_owner->get_grainHandler()->get_loop() == 250
 //			|| m_owner->get_grainHandler()->get_loop() == 500) {
 //		meanWidth();
-//		computeTriplelineLength();
-//	}
+
+	if(m_owner->getID() == 10){
+		computeTriplelineLength();
+		cout << m_TripleLineLength<< endl;
+	}
 }
 void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
@@ -1266,14 +1272,16 @@ void GrainHull::computeTriplelineLength() {
 	m_TripleLineLength = 0;
 	for (vector<TripleLine*>::iterator iter = m_TripleLines.begin();
 			iter != m_TripleLines.end(); ++iter) {
-		vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
-		if (vertices_temp[0] == NULL || vertices_temp[1] == NULL) {
-			continue;
-		}
-		m_TripleLineLength += (vertices_temp[0]->get_Position()
-				- vertices_temp[1]->get_Position()).norm();
+//		vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
+//		if (vertices_temp[0] == NULL || vertices_temp[1] == NULL) {
+//			continue;
+//		}
+//		m_TripleLineLength += (vertices_temp[0]->get_Position()
+//				- vertices_temp[1]->get_Position()).norm();
+		(*iter)->computeTripleLineLength();
+		m_TripleLineLength += (*iter)->m_length;
 	}
-	if (Settings::DecoupleGrains == 0) {
+	if (Settings::DecoupleGrains == 1) {
 		vector<SPoint> ProjectedPoints;
 		if (m_owner->getID() == 1) {
 

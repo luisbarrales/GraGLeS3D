@@ -1,71 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters>
-	 <StartTime>0</StartTime>
-   <NumberOfParticles>7995</NumberOfParticles> 
-   <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain>
+   <StartTime>0</StartTime>
+   <NumberOfParticles>100</NumberOfParticles>
+   <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
    <AnalysisTimestep>1</AnalysisTimestep>
-   <NumberOfTimesteps>10000</NumberOfTimesteps>
-   <PlotInterval>1</PlotInterval>
-   <PlotPhysicalQuantities>1</PlotPhysicalQuantities>   
-   <TimeStepSize>0.4</TimeStepSize>
+   <PlotInterval>20</PlotInterval>
+   <PlotPhysicalQuantities>1</PlotPhysicalQuantities>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
-   <BreakupNumber>100</BreakupNumber>
+   <NumberOfTimesteps>200</NumberOfTimesteps>
+   <BreakupNumber>10</BreakupNumber>
    <DiscreteSamplingRate>25</DiscreteSamplingRate>
-   <DomainBorderSize>7</DomainBorderSize>   
-   <MicrostructureGenMode>4</MicrostructureGenMode>
+   <DomainBorderSize>7</DomainBorderSize>
+   <MicrostructureGenMode>1</MicrostructureGenMode>
    <!-- USAGE:
    	(	O		E_READ_FROM_FILE,	)
 		1		E_GENERATE_WITH_VORONOY, 
 	(	2		E_READ_VERTEX,		)
 	(	3		E_GENERATE_TESTCASE,	)
-	(       4               E_READ_VOXELIZED_MICROSTRUCTURE,    )
-
+	(   4	    E_READ_VOXELIZED_MICROSTRUCTURE,    )
    -->
-   <ReadFromFilename>Container.raw</ReadFromFilename>
-   <AdditionalFilename>Microstructure.uds</AdditionalFilename>
-   <HAGB_Energy>0.324</HAGB_Energy>
+   <ReadFromFilename>points2D.txt</ReadFromFilename>
+   <AdditionalFilename>BimodalTitaniumInitialODF.txt</AdditionalFilename>
+   <HAGB_Energy>1</HAGB_Energy>
    <!--unit: Js/m² -->
    <HAGB_Mobility>2.6e-13</HAGB_Mobility>
-   <!--unit: m⁴/Js -->
+   <!--unit: m^4/Js -->
    <DislocEnPerM>8.81e-10</DislocEnPerM>
    <!--1/2 Gbb - material constant -->
-   <Physical_Domain_Size>29.2e-6</Physical_Domain_Size>   
+   <Physical_Domain_Size>2.01e-4</Physical_Domain_Size>   
    <!--unit: meter -->
    <TripleLineDrag>1.e6</TripleLineDrag>
    <UseMobilityFactor>1</UseMobilityFactor>
-   <UseStoredElasticEnergy>1</UseStoredElasticEnergy>
+   <UseStoredElasticEnergy>0</UseStoredElasticEnergy>
    <UseMagneticField>0</UseMagneticField>
    <MagneticParams>MagneticField.xml</MagneticParams>
-   <DisableConvolutionCorrection>0</DisableConvolutionCorrection>
+   <DisableConvolutionCorrection>1</DisableConvolutionCorrection>
    <UseTexture>1</UseTexture>
    <ExecuteInParallel>1</ExecuteInParallel>
-   <MaximumNumberOfThreads>8</MaximumNumberOfThreads>
+   <MaximumNumberOfThreads>32</MaximumNumberOfThreads>
    <GridCoarsement>1</GridCoarsement>
-   <GridCoarsementGradient>0.95</GridCoarsementGradient> 
+   <GridCoarsementGradient>0.99</GridCoarsementGradient> 
    <ConvolutionMode>2</ConvolutionMode>   
    <!-- USAGE:
-   	(	O		E_LAPLACE,		)
-	(	1		E_LAPLACE_RITCHARDSON,	)
-		2		E_GAUSSIAN, only one available for 3D
-   -->
-   <UniqueGBEnergies>0</UniqueGBEnergies>
-		<!-- USAGE:
-   		0 	Energies defined by ReadShockley Model
-			1	  Energies set to 1			
+   (	O		E_LAPLACE,		)
+   (	1		E_LAPLACE_RITCHARDSON,	)
+	2		E_GAUSSIAN, only one available for 3D
+-->
+	<UniqueGBEnergies>0</UniqueGBEnergies>
+<!-- USAGE:
+	0 	Energies defined by ReadShockley Model
+	1	Energies set to 1			
    -->
    <GrainScheduler>1</GrainScheduler>
-      <!-- USAGE:
-	           0       E_ITERATIVE
-        1       E_SQUARES
+   <!-- USAGE:
+    	0   	E_ITERATIVE
+   	1   	E_SQUARES
    -->
-   <NeighbourhoodGrain>1068</NeighbourhoodGrain>
-   <DecoupleGrains>0</DecoupleGrains>
-   	<!-- USAGE:
-			0	  DEFAULT
-   		1   skips comparison and let grains shring isolated
-   -->
-  <NeighborTracking>1</NeighborTracking>
-  <NeighbourhoodOrder>4</NeighbourhoodOrder>
-  <StoreTaskDistribution>1</StoreTaskDistribution>
- 
+   <NeighbourTracking>1</NeighbourTracking>
+   <NeighbourhoodGrain>54</NeighbourhoodGrain>
+   <NeighbourhoodOrder>4</NeighbourhoodOrder>
+   <StoreTaskDistribution>1</StoreTaskDistribution>
 </Parameters>

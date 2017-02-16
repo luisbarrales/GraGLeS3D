@@ -166,6 +166,7 @@ public:
 class TripleLine: public InterfacialElement {
 private:
 	vector<InterfacialElement*> m_vertices;
+	double m_length;
 public:
 	friend class GrainHull;
 	TripleLine(int key, GrainHull *owner);
@@ -175,6 +176,7 @@ public:
 	void computeMobility();
 	void findAdjacentJunctions(vector<QuadrupleJunction*>,
 			vector<HighOrderJunction*>);
+	void computeTripleLineLength();
 	inline int get_FirstNeighbor() {
 		return m_neighborIDs[0];
 	}

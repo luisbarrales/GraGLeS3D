@@ -13,6 +13,7 @@
 #include "myQuaternion.h"
 #include "grainHull.h"
 #include <fstream>
+#include "TriplelinePointsetClass.h"
 
 InterfacialElement::InterfacialElement(int key, GrainHull* owner) :
 		m_Key_NeighborList(key), m_owner(owner) {
@@ -23,9 +24,14 @@ InterfacialElement::~InterfacialElement() {
 double InterfacialElement::computeMobilityMisori(double misori) {
 	if (Settings::UseMobilityModel == 0)
 		return 1.0;
-	if (Settings::UseMobilityModel == 1)
-		return 1 - (1.0 * exp(-5. * (pow(misori / (15 * PI / 180), 4.))));
-	else
+	if (Settings::UseMobilityModel == 1) {
+		double mob = 1.0
+				- (0.99 * exp(-5. * (pow(misori / (15 * PI / 180), 9.))));
+		if (mob < 0.1)
+			return 0.1;
+		else
+			return mob;
+	} else
 		return 1.0;
 }
 
@@ -159,6 +165,13 @@ void TripleLine::computeMobility() {
 
 }
 
+void TripleLine::computeTripleLineLength() {
+	TriplelinePointsetClass TL(m_barycenterTriangles);
+	cout << "huhu" <<endl;
+	TL.process_TriplelinePointset();
+	cout << TL.get_length() <<endl;
+	m_length= TL.get_length();
+}
 void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
 	int i = 0;
 	for (const auto it : Junctions) {
