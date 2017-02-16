@@ -107,10 +107,9 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
-	maxPointID =N-1;
-
 	N = RawTriplelinePointsetInput.size();
-	cout << N << endl;
+	maxPointID = N-1;
+
 	int i = 0;
 	TPS_BeforeMLS = new vector<Point3D>(N);
 	for (auto it : *TPS_BeforeMLS) {
