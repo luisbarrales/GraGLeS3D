@@ -107,8 +107,9 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
+	maxPointID =N-1;
 
-	int N = RawTriplelinePointsetInput.size();
+	N = RawTriplelinePointsetInput.size();
 	cout << N << endl;
 	int i = 0;
 	TPS_BeforeMLS = new vector<Point3D>(N);
@@ -413,8 +414,9 @@ void TriplelinePointsetClass::calc_PointToPointDistances(vector<Point3D>* TPS) {
 	double Distance = 0;
 	double squaredDistance = 0;
 
-	for (int i = 0; i <= maxPointID; i++) {
+	for (int i = 0; i < maxPointID; i++) {
 		p = i;
+		(*PointToPointDistances)(p, p) = 0.0;
 		for (u = i + 1; u <= maxPointID; u++) {
 			(*Vector3d_1) = (*TPS)[p].get_CoordinatesXYZ()
 					- (*TPS)[u].get_CoordinatesXYZ();
