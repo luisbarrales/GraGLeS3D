@@ -424,6 +424,7 @@ void TriplelinePointsetClass::calc_PointToPointDistances(vector<Point3D>* TPS) {
 			(*PointToPointDistances)(u, p) = Distance;
 		}
 	}
+	(*PointToPointDistances)(maxPointID, maxPointID) = 0.0;
 }
 
 void TriplelinePointsetClass::calc_MLS_Iteration() {
