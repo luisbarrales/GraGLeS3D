@@ -28,7 +28,8 @@ public:
     ~TriplelinePointsetClass();
   
     void use_PointCloudGenerator(int);
-   
+    void input_TPS_OutOfTxtFile(string);
+    void input_TPS_LevelSet(vector<Eigen::Vector3d>&);
     void set_Parameter();
     void process_TriplelinePointset(); // const oder nicht const... leiber neue matrizen erstellen ??
     
@@ -70,8 +71,8 @@ public:
 private:
     
     //output functions:
-    void input_TPS_OutOfTxtFile(string);
     void output_internFunctionIntoTxtFile();
+    void output_TPS_IntoTxtFile_onlyCoordinates(vector<Point3D>*, string, int);
     void output_TPS_IntoTxtFile(vector<Point3D>*, string, int);
     void output_EigenMatrixXd(Eigen::MatrixXd*, string);
     void output_LP_Object_IntoTxtFile(double, double);
