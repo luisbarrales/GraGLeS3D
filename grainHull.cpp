@@ -29,8 +29,7 @@
 #include "Structs.h"
 #include <sys/time.h>
 #include "TriplelinePointsetClass.h"
-
-
+#include "Point3D.h"
 
 using namespace std;
 double pointToTriangleDistance(Vector3d& point, Triangle& triangle);
@@ -156,8 +155,6 @@ bool GrainHull::generateHull() {
 	else
 		return true;
 }
-
-
 
 const Triangle& GrainHull::projectPointToSurface(Vector3d& point) {
 	double minimalDistance = 10000000.0;
@@ -369,7 +366,7 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 				/*
 				 * end of debugging
 				 */
-				if (distances.back() < 3 ) {
+				if (distances.back() < 3) {
 					correspondingJunctions += posClosestJunction;
 					N++;
 				}
@@ -481,9 +478,10 @@ void GrainHull::computeInterfacialElementMesh() {
 //			|| m_owner->get_grainHandler()->get_loop() == 500) {
 //		meanWidth();
 
-	if(m_owner->getID() == 10){
+	if (m_owner->getID() == 10) {
 		computeTriplelineLength();
-		cout << m_TripleLineLength<< endl;
+		cout << m_TripleLineLength << endl;
+		plotTripleline(m_owner->get_grainHandler()->get_loop());
 	}
 }
 void GrainHull::mergeJunction() {
@@ -807,28 +805,29 @@ struct vectorComparator {
 //fclose( output);
 //}
 
-void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int order){
+void GrainHull::plotNeighboringGrains(bool absoluteCoordinates, int timestep,
+		int order) {
 
 	/*
 	 * order : plot the order-th neighbourhood of the grain
 	 */
 
 	vector<unsigned int> plottedGrains;
-	vector<unsigned int> Neighbours=m_neighbors;
+	vector<unsigned int> Neighbours = m_neighbors;
 
-	for(int ord=0; ord<order;ord++){
-		for(int j=0; j<Neighbours.size(); j++){
-			if(find(plottedGrains.begin(),plottedGrains.end(),Neighbours[j]) != plottedGrains.end()){
-				Neighbours.erase(Neighbours.begin()+j);
+	for (int ord = 0; ord < order; ord++) {
+		for (int j = 0; j < Neighbours.size(); j++) {
+			if (find(plottedGrains.begin(), plottedGrains.end(), Neighbours[j])
+					!= plottedGrains.end()) {
+				Neighbours.erase(Neighbours.begin() + j);
 				j--;
 			}
 		}
 
 		string filename = string("Neighorborhood_")
-					+ to_string((unsigned long long) m_owner->getID())
-					+ string("Order_") + to_string(ord+1)
-					+ string("Timestep_") + to_string((unsigned long long) timestep)
-					+ string(".vtk");
+				+ to_string((unsigned long long) m_owner->getID())
+				+ string("Order_") + to_string(ord + 1) + string("Timestep_")
+				+ to_string((unsigned long long) timestep) + string(".vtk");
 		FILE* output = fopen(filename.c_str(), "wt");
 		if (output == NULL) {
 			throw runtime_error("Unable to save box hull!");
@@ -846,36 +845,39 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 
 		vector<int> SEE;
 
-		for (unsigned int k = 0; k < Neighbours.size(); k++){
+		for (unsigned int k = 0; k < Neighbours.size(); k++) {
 			LSbox* Hull_tmp;
 			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
 
 			//For the relative stored elastic energy plot
 			int tmp;
-			if(Hull_tmp->get_SEE() < m_owner->get_SEE())
+			if (Hull_tmp->get_SEE() < m_owner->get_SEE())
 				tmp = 2;
 			else
 				tmp = 1;
 
-			if(Hull_tmp->grainExists()){
+			if (Hull_tmp->grainExists()) {
 				vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
 
 				for (unsigned int i = 0; i < NeighbourHull.size(); i++) {
 					if (mymap.find(NeighbourHull[i].points[0]) == mymap.end()) {
 						mymap.insert(
-								pair<Vector3d, int>(NeighbourHull[i].points[0], counter));
+								pair<Vector3d, int>(NeighbourHull[i].points[0],
+										counter));
 						counter++;
 						SEE.push_back(tmp);
 					}
 					if (mymap.find(NeighbourHull[i].points[1]) == mymap.end()) {
 						mymap.insert(
-								pair<Vector3d, int>(NeighbourHull[i].points[1], counter));
+								pair<Vector3d, int>(NeighbourHull[i].points[1],
+										counter));
 						counter++;
 						SEE.push_back(tmp);
 					}
 					if (mymap.find(NeighbourHull[i].points[2]) == mymap.end()) {
 						mymap.insert(
-								pair<Vector3d, int>(NeighbourHull[i].points[2], counter));
+								pair<Vector3d, int>(NeighbourHull[i].points[2],
+										counter));
 						counter++;
 						SEE.push_back(tmp);
 					}
@@ -884,7 +886,8 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 			}
 		}
 		for (const auto &myPair : mymap) {
-			orderedPoints.insert(pair<int, Vector3d>(myPair.second, myPair.first));
+			orderedPoints.insert(
+					pair<int, Vector3d>(myPair.second, myPair.first));
 		}
 
 		fprintf(output, "POINTS %lu float\n", orderedPoints.size());
@@ -894,9 +897,8 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 					myPair.second[2]);
 		}
 
-		fprintf(output, "POLYGONS %u %u\n", HullSize,
-				HullSize * 4);
-		for (unsigned int k = 0; k < Neighbours.size(); k++){
+		fprintf(output, "POLYGONS %u %u\n", HullSize, HullSize * 4);
+		for (unsigned int k = 0; k < Neighbours.size(); k++) {
 			LSbox* Hull_tmp;
 			Hull_tmp = m_owner->get_grainHandler()->getGrainByID(Neighbours[k]);
 			vector<Triangle> NeighbourHull = Hull_tmp->get_actualHull();
@@ -913,7 +915,7 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 		fprintf(output, "FIELD FieldData 1\n");
 		fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
 
-		for(int i=0; i<SEE.size(); i++){
+		for (int i = 0; i < SEE.size(); i++) {
 			fprintf(output, "%d ", SEE[i]);
 		}
 		//
@@ -952,17 +954,19 @@ void GrainHull::plotNeighboringGrains(bool absoluteCoordinates,int timestep, int
 
 		//For the relative stored elastic energy plot
 
-		for(int i=0; i<Neighbours.size();i++){
+		for (int i = 0; i < Neighbours.size(); i++) {
 			plottedGrains.push_back(Neighbours[i]);
 		}
 
 		int NeighboursSize = Neighbours.size();
-		for(int j=0; j<NeighboursSize; j++){
+		for (int j = 0; j < NeighboursSize; j++) {
 			LSbox* Neighbour;
-			Neighbour = m_owner->get_grainHandler()->getGrainByID(Neighbours[j]);
+			Neighbour = m_owner->get_grainHandler()->getGrainByID(
+					Neighbours[j]);
 			vector<unsigned int> Neighbours_tmp = Neighbour->getAllNeighbors();
-			for(int k=0; k<Neighbours_tmp.size(); k++){
-				if(find(Neighbours.begin(), Neighbours.end(), Neighbours_tmp[k]) == Neighbours.end())
+			for (int k = 0; k < Neighbours_tmp.size(); k++) {
+				if (find(Neighbours.begin(), Neighbours.end(),
+						Neighbours_tmp[k]) == Neighbours.end())
 					Neighbours.push_back(Neighbours_tmp[k]);
 			}
 		}
@@ -1028,10 +1032,8 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	fprintf(output, "POINT_DATA %lu\n", orderedPoints.size());
 	fprintf(output, "FIELD FieldData 1\n");
 
-
-	switch(Settings::PlotPhysicalQuantities){
-	case 0:
-	{
+	switch (Settings::PlotPhysicalQuantities) {
+	case 0: {
 		fprintf(output, "Interestingness 1 %lu int\n", orderedPoints.size());
 		for (const auto &myPair : orderedPoints) {
 			int interestingness = 0;
@@ -1039,8 +1041,8 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 			int key = 0;
 			for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 				if (point == m_actualHull[i].points[0]
-													|| point == m_actualHull[i].points[1]
-																					   || point == m_actualHull[i].points[2]) {
+						|| point == m_actualHull[i].points[1]
+						|| point == m_actualHull[i].points[2]) {
 					//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
 					int interactingGrains =
 							m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
@@ -1057,8 +1059,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 		}
 		break;
 	}
-	case 1:
-	{
+	case 1: {
 		fprintf(output, "Interestingness 1 %lu double\n", orderedPoints.size());
 		for (const auto &myPair : orderedPoints) {
 			const Vector3d& point = myPair.second;
@@ -1067,13 +1068,13 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 			int key = 0;
 			for (unsigned int i = 0; i < m_actualHull.size(); i++) {
 				if (point == m_actualHull[i].points[0]
-													|| point == m_actualHull[i].points[1]
-																					   || point == m_actualHull[i].points[2]) {
+						|| point == m_actualHull[i].points[1]
+						|| point == m_actualHull[i].points[2]) {
 					//const NeighborList& list = m_triangleNeighborLists[m_actualHull[i].additionalData];
 					int interactingGrains =
 							m_triangleNeighborLists[m_actualHull[i].additionalData].getNeighborsListCount();
 
-					if(interactingGrains_Max < interactingGrains){
+					if (interactingGrains_Max < interactingGrains) {
 						interactingGrains_Max = interactingGrains;
 						key = m_actualHull[i].additionalData;
 					}
@@ -1081,45 +1082,52 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 			}
 //			cout << key << endl;
 			//Search grainboundaries
-			if(interactingGrains_Max==2){
-
+			if (interactingGrains_Max == 2) {
 
 				vector<GrainBoundary*>::iterator iterGB;
-				for(iterGB = m_Grainboundary.begin(); iterGB != m_Grainboundary.end(); iterGB++){
-					if((*iterGB)->get_m_Key_NeighborList()==key){
-						interestingness = (*iterGB)->get_energy()*(*iterGB)->get_mobility();
+				for (iterGB = m_Grainboundary.begin();
+						iterGB != m_Grainboundary.end(); iterGB++) {
+					if ((*iterGB)->get_m_Key_NeighborList() == key) {
+						interestingness = (*iterGB)->get_energy()
+								* (*iterGB)->get_mobility();
 						break;
 					}
 				}
 			}
 			//Search triple lines
-			else if(interactingGrains_Max==3){
+			else if (interactingGrains_Max == 3) {
 
 				vector<TripleLine*>::iterator iterTL;
-				for(iterTL = m_TripleLines.begin(); iterTL != m_TripleLines.end(); iterTL++){
-					if((*iterTL)->get_m_Key_NeighborList()==key){
-						interestingness = (*iterTL)->get_energy()*(*iterTL)->get_mobility();
+				for (iterTL = m_TripleLines.begin();
+						iterTL != m_TripleLines.end(); iterTL++) {
+					if ((*iterTL)->get_m_Key_NeighborList() == key) {
+						interestingness = (*iterTL)->get_energy()
+								* (*iterTL)->get_mobility();
 						break;
 					}
 				}
 			}
 			//Search quadruple junctions
-			else if(interactingGrains_Max==4){
+			else if (interactingGrains_Max == 4) {
 
 				vector<QuadrupleJunction*>::iterator iterQJ;
-				for(iterQJ = m_QuadruplePoints.begin(); iterQJ != m_QuadruplePoints.end(); iterQJ++){
-					if((*iterQJ)->get_m_Key_NeighborList()==key){
-						interestingness = (*iterQJ)->get_energy()*(*iterQJ)->get_mobility();
+				for (iterQJ = m_QuadruplePoints.begin();
+						iterQJ != m_QuadruplePoints.end(); iterQJ++) {
+					if ((*iterQJ)->get_m_Key_NeighborList() == key) {
+						interestingness = (*iterQJ)->get_energy()
+								* (*iterQJ)->get_mobility();
 						break;
 					}
 				}
 			}
 			//Search higher order junctions
-			else{
+			else {
 				vector<HighOrderJunction*>::iterator iterHOJ;
-				for(iterHOJ = m_HighOrderJunctions.begin(); iterHOJ != m_HighOrderJunctions.end(); iterHOJ++){
-					if((*iterHOJ)->get_m_Key_NeighborList()==key){
-						interestingness = (*iterHOJ)->get_energy()*(*iterHOJ)->get_mobility();
+				for (iterHOJ = m_HighOrderJunctions.begin();
+						iterHOJ != m_HighOrderJunctions.end(); iterHOJ++) {
+					if ((*iterHOJ)->get_m_Key_NeighborList() == key) {
+						interestingness = (*iterHOJ)->get_energy()
+								* (*iterHOJ)->get_mobility();
 						break;
 					}
 				}
@@ -1163,6 +1171,52 @@ void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
 	fclose(output);
 }
 
+void GrainHull::plotTripleline(int timestep) {
+	int ID = 0;
+	string filename = string("Tripleline_")
+			+ to_string((unsigned long long) m_owner->getID())
+			+ string("Timestep_") + to_string((unsigned long long) timestep)
+			+ string(".vtk");
+	FILE* output = fopen(filename.c_str(), "wt");
+	if (output == NULL) {
+		throw runtime_error("Unable to save Tripleline!");
+	}
+	fprintf(output, "%s\n", "# vtk DataFile Version 3.0\n"
+			"vtk output\n"
+			"ASCII\n"
+			"DATASET POLYDATA\n");
+	int n_points = 0;
+	int i = 0;
+	int line_length[m_TripleLines.size()];
+	for (const auto it : m_TripleLines) {
+		for (const auto it2 : *it->m_TPS_ref) {
+			n_points += (*it->m_TPS_ref).size();
+			line_length[i] = (*it->m_TPS_ref).size();
+			i++;
+		}
+	}
+	fprintf(output, "POINTS %d float\n", n_points);
+	for (const auto it : m_TripleLines) {
+		for (auto it2 : *it->m_TPS_ref) {
+			Vector3d Voutput = it2.get_CoordinatesXYZ();
+			fprintf(output, "%lf \t %lf \t %lf \n ", Voutput(0), Voutput(1), Voutput(2));
+		}
+	}
+	fprintf(output, "LINES %lu \t %lu \n", m_TripleLines.size(),
+			n_points + m_TripleLines.size());
+	int last = 0;
+	int first = 0;
+	for (int j = 0; j < m_TripleLines.size(); j++) {
+		fprintf(output, "%d \t", line_length[j]);
+		last += line_length[j];
+		for (int k = first; k < last; k++) {
+			fprintf(output, "%d \t", k);
+		}
+		first = last + 1;
+		fprintf(output, "\n");
+	}
+	fclose(output);
+}
 //fprintf(output, "\n\nGRAINBOUNDARY %lu\n", m_Grainboundary.size());
 //
 //for (const auto it : m_Grainboundary) {

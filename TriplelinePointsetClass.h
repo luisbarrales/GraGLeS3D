@@ -65,6 +65,9 @@ public:
     inline double get_length(){
     	return lenght_spline;
     }
+    inline vector<Point3D>* get_TPS_processed(){
+    	return TPS_processed;
+    }
     
     
 private:
