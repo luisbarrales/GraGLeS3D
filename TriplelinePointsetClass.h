@@ -66,6 +66,9 @@ public:
     inline double get_length(){
     	return lenght_spline;
     }
+    inline vector<Point3D>* get_TPS_processed(){
+    	return TPS_processed;
+    }
     
     
 private:
@@ -90,18 +93,21 @@ private:
     
     //Ordering:
     void orderAndReduce_TPS();
-        void ordering_dynamicDistances();
-        int select_startPoint(int);
+        void calc_starting_point_ordering();
         int calc_RandomID(int);
-        void calc_Sufficient_LP_forOrdering(int);
         int calc_Next_Neighbor_ID(int);
         double calc_Next_Neighbor_Distance(int);
-        void order_Neighborhood_method1(int);
+        int check_existing_neighbor(int, int);
+        bool check_direction_dotProduct(int, int, int);
+        int check_Neighbor_within_min_gap();
+        void ordering_dynamicDistances_method();
+        	void calc_Sufficient_LP_forOrdering(int);
             void order_direction_forward(int);
-            int check_existing_neighbor(int);
-            bool check_direction_dotProduct(int, int);
             void order_direction_backward(int);
             void copy_Buffer_ReducedAndOrdered();
+        void ordering_Next_Neighbor_method();
+            void calc_nonordered_Neighbors_forward(int);
+            void calc_nonordered_Neighbors_backward(int);
     
     //Spline:
     void calc_BSpline_ProcessedTPS();  

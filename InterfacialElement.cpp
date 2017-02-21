@@ -14,6 +14,7 @@
 #include "grainHull.h"
 #include <fstream>
 #include "TriplelinePointsetClass.h"
+#include "Point3D.h"
 
 InterfacialElement::InterfacialElement(int key, GrainHull* owner) :
 		m_Key_NeighborList(key), m_owner(owner) {
@@ -167,10 +168,10 @@ void TripleLine::computeMobility() {
 
 void TripleLine::computeTripleLineLength() {
 	TriplelinePointsetClass TL(m_barycenterTriangles);
-	cout << "huhu" <<endl;
 	TL.process_TriplelinePointset();
-	cout << TL.get_length() <<endl;
+	m_TPS_ref = TL.get_TPS_processed();
 	m_length= TL.get_length();
+	cout << TL.get_length() <<endl;
 }
 void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
 	int i = 0;

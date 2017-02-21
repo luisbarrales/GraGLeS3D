@@ -18,6 +18,7 @@ class Settings;
 class MarchingCubesAlgorithm;
 class myQuaternion;
 class GrainHull;
+class Point3D;
 
 using namespace std;
 
@@ -167,6 +168,7 @@ class TripleLine: public InterfacialElement {
 private:
 	vector<InterfacialElement*> m_vertices;
 	double m_length;
+	vector<Point3D>* m_TPS_ref;
 public:
 	friend class GrainHull;
 	TripleLine(int key, GrainHull *owner);

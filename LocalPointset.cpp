@@ -118,14 +118,12 @@ void LocalPointset::calc_PointToPointDistances(string outFilename){ //nur als Te
     Eigen::MatrixXd* PointToPointDistances;
     PointToPointDistances= new Eigen::MatrixXd(N_LocalPoints, N_LocalPoints);
     
-    int u=0;
     int p=0;
     double Distance=0;
     
     for(int i=0; i<=maxPointID; i++){
         p=i;
-        u=i+1;
-        for(u; u<=maxPointID; u++){
+        for(int u=i+1; u<=maxPointID; u++){
         (*Vector3d_1) = (*LocalPoints)[p].get_CoordinatesXYZ() - (*LocalPoints)[u].get_CoordinatesXYZ();
         Distance = (*Vector3d_1).norm();
         (*PointToPointDistances)(p,u) = (*PointToPointDistances)(u,p) = Distance;
@@ -411,7 +409,7 @@ void LocalPointset::calc_LS_Plane(){
     sum_X = sum_Y = sum_Z = sum_X2 = sum_Y2 = sum_XY = sum_XZ = sum_YZ = sum = 0;
     
     for(int i=0; i<= maxPointID; i++){
-        sum;
+        sum++;
         sum_X += ((*LocalPoints)[i].get_CoordinatesX());
         sum_Y += ((*LocalPoints)[i].get_CoordinatesY());
         sum_Z += ((*LocalPoints)[i].get_CoordinatesZ());
@@ -488,13 +486,13 @@ Eigen::Matrix3d* LocalPointset::calc_RotationMatrix(Eigen::Vector3d* normalized_
 
 double LocalPointset::calc_AngleTwoVector3d(Eigen::Vector3d* Vector1, Eigen::Vector3d* Vector2){
     
-    double a, b, c, d;
+    double a, b, d; //c,
     a = (*Vector1).dot((*Vector2)); // dot product nK*nXY 
     if( (a==1) || (a==-1)){ //vektoren schon parallel!
         cout << "ERROR WINKEL" << endl;
     }
     b = (*Vector1).norm() * (*Vector2).norm(); //produkt der beträge der beiden vektoren
-    c = a/b; //cos(theta)= (n1*n2)/(|n1|*|n2|)
+    //c = a/b; //cos(theta)= (n1*n2)/(|n1|*|n2|)
     d = acos(a/b);
     return d;
 }
@@ -743,7 +741,7 @@ double LocalPointset::calc_AverageApproxmationError_LinearCurve(){ //kann nicht 
     
     double sum_PointErrors = 0;
     for(int i=0; i<=maxPointID; i++){
-        sum_PointErrors += abs((*LocalPoints)[i].get_CoordinatesY() - (*WLS_LinearCurve).get_y((*LocalPoints)[i].get_CoordinatesX()));
+        sum_PointErrors += fabs((*LocalPoints)[i].get_CoordinatesY() - (*WLS_LinearCurve).get_y((*LocalPoints)[i].get_CoordinatesX()));
     }
    return sum_PointErrors/N_LocalPoints;
     
@@ -752,7 +750,7 @@ double LocalPointset::calc_AverageApproxmationError_LinearCurve(){ //kann nicht 
 double LocalPointset::calc_AverageApproxmationError_QuadraticCurve(){  //kann nicht nach rotationen verwendet werden. general eq. of Qline wird nicht rotiert
     double sum_PointErrors = 0;
     for(int i=0; i<=maxPointID; i++){
-        sum_PointErrors += abs((*LocalPoints)[i].get_CoordinatesY() - (*WLS_QuadraticCurve).get_y((*LocalPoints)[i].get_CoordinatesX()));
+        sum_PointErrors += fabs((*LocalPoints)[i].get_CoordinatesY() - (*WLS_QuadraticCurve).get_y((*LocalPoints)[i].get_CoordinatesX()));
     }
    return sum_PointErrors/N_LocalPoints;
     
@@ -829,8 +827,9 @@ int LocalPointset::get_ID_first_forwardPoint(double weight_order, double max_gap
     double weight=0;
     double delta_w=0;
     double delta_w_min =1;
-    double weight_max=0;
     double dist=0;
+    double delta_dist_to_min_gap = max_gap;
+    int ID_next_to_min_gap = -1;
     
     output_DataDebugging_txt(get_NameDataOutput("get_ID_first_forwardPoint"));
     
@@ -857,11 +856,18 @@ int LocalPointset::get_ID_first_forwardPoint(double weight_order, double max_gap
         weight = (*LocalPoints)[i].get_CubicWeight();
         (*pOutFile_LP) << "weight: " << weight << endl;
         (*pOutFile_LP) << "weight2: " << (*LocalPoints)[i].get_CubicWeight() << endl; 
-        delta_w = abs(weight-weight_order);
+        delta_w = fabs(weight-weight_order);
         (*pOutFile_LP) << "delta_w: " << delta_w << endl;
         dist = ((*(m_origin->get_PointToPointDistancesMatrix()))((*LocalPoints)[i].get_GlobalID(), (*LocalPoints)[0].get_GlobalID()));
         
-        if( (delta_w < delta_w_min) && (max_gap > dist > min_gap)){
+        if(dist < min_gap){
+            if( (min_gap - dist) < delta_dist_to_min_gap){
+            delta_dist_to_min_gap =  min_gap - dist;
+            ID_next_to_min_gap = (*LocalPoints)[i].get_GlobalID();
+            }
+        }
+        
+        if( (delta_w < delta_w_min) && (max_gap > dist) && (dist > min_gap)){
            
             delta_w_min = delta_w;
             (*pOutFile_LP) << "delta_w_min: " << delta_w_min << endl;
@@ -874,12 +880,12 @@ int LocalPointset::get_ID_first_forwardPoint(double weight_order, double max_gap
     }
     (*pOutFile_LP) << "END FOR LOOP" << endl;
     
-    (*pOutFile_LP) << "final ID_first_forwardPoint: " << ID_first_forwardPoint << endl;
-    
-    if(ID_first_forwardPoint <= 0){
+    if(ID_first_forwardPoint < 0){
         
-        cout << "ERROR final ID_first_forwardPoint" << endl;
+       ID_first_forwardPoint = ID_next_to_min_gap;
     }
+    
+    (*pOutFile_LP) << "final ID_first_forwardPoint: " << ID_first_forwardPoint << endl;
     
     if(ID_first_forwardPoint < 0){
         cout << "ERROR get_next_orderedPoint; no ID_first_forwardPoint!!!" << endl;
@@ -894,11 +900,12 @@ int LocalPointset::get_next_orderedPoint(double weight_order, double max_gap, do
     int ID_next_orderedPoint=-1;
     int localID_next_orderedPoint=0;
     double weight =0;
-    double weight_max=0;
     double delta_w=0;
     double delta_w_min =1;
     double dist=0;
     double dist2=0;
+    double delta_dist_to_min_gap = max_gap;
+    int ID_next_to_min_gap = -1;
    
     if(ID_2last_orderedPoint < 0){
         cout << "ERROR get_next_orderedPoint; no ID_2öast_orderedPoint!!!" << endl;
@@ -933,14 +940,21 @@ int LocalPointset::get_next_orderedPoint(double weight_order, double max_gap, do
             weight = (*LocalPoints)[i].get_CubicWeight();
             (*pOutFile_LP) << "weight: " << weight << endl;
             (*pOutFile_LP) << "weight2: " << (*LocalPoints)[i].get_CubicWeight() << endl; 
-            delta_w = abs(weight-weight_order);
+            delta_w = fabs(weight-weight_order);
             (*pOutFile_LP) << "delta_w: " << delta_w << endl;
             dist = ((*(m_origin->get_PointToPointDistancesMatrix()))((*LocalPoints)[i].get_GlobalID(), (*LocalPoints)[LocalID_OriginPoint].get_GlobalID()));
             dist2 = (((*m_origin->get_PointToPointDistancesMatrix()))((*LocalPoints)[i].get_GlobalID(), ID_2last_orderedPoint));
             (*pOutFile_LP) << "dist: " << dist << endl;
             (*pOutFile_LP) << "dist2: " << dist2 << endl;
             
-            if( ((delta_w < delta_w_min) && (max_gap > dist > min_gap)) && (check_direction_dotProduct(i, ID_2last_orderedPoint) == true) && (dist2 > dist)){
+            if( (dist < min_gap) && (check_direction_dotProduct(i, ID_2last_orderedPoint) == true) && (dist2 > dist)){
+                if( (min_gap - dist) < delta_dist_to_min_gap){
+                delta_dist_to_min_gap =  min_gap - dist;
+                ID_next_to_min_gap = (*LocalPoints)[i].get_GlobalID();
+                }
+            }
+            
+            if( ((delta_w < delta_w_min) && (max_gap > dist) && (dist > min_gap) ) && (check_direction_dotProduct(i, ID_2last_orderedPoint) == true) && (dist2 > dist)){
             
                 delta_w_min = delta_w;
                 (*pOutFile_LP) << "delta_w_min: " << delta_w_min << endl;
@@ -953,6 +967,11 @@ int LocalPointset::get_next_orderedPoint(double weight_order, double max_gap, do
         }
     }
    
+    if(ID_next_orderedPoint < 0){
+        
+       ID_next_orderedPoint = ID_next_to_min_gap;
+    }
+    
     (*pOutFile_LP) << "final ID_next_orderedPoint: " <<  ID_next_orderedPoint << endl << endl;
    
     pOutFile_LP->close();
@@ -971,7 +990,6 @@ bool LocalPointset::check_direction_dotProduct(int ID_newP, int ID_2last_lastP){
     (*pOutFile_LP) << "(*LocalPoints)[LocalID_OriginPoint].get_CoordinatesXYZ(): " << (*LocalPoints)[LocalID_OriginPoint].get_CoordinatesXYZ() << endl;
     (*pOutFile_LP) << "ID_2last_lastP: " << ID_2last_lastP << endl;
     (*pOutFile_LP) << "(*(m_origin->get_TriplelinePointsetAfterMLS()))[ID_2last_lastP].get_CoordinatesXYZ(): " << (*(m_origin->get_TriplelinePointsetAfterMLS()))[ID_2last_lastP].get_CoordinatesXYZ() << endl;
-    
     
     (*Vector3d_1) = (*LocalPoints)[LocalID_OriginPoint].get_CoordinatesXYZ() - (*(m_origin->get_TriplelinePointsetAfterMLS()))[ID_2last_lastP].get_CoordinatesXYZ(); 
     (*Vector3d_2) = (*LocalPoints)[ID_newP].get_CoordinatesXYZ() - (*LocalPoints)[LocalID_OriginPoint].get_CoordinatesXYZ();
