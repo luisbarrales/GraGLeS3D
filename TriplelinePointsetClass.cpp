@@ -35,7 +35,7 @@ TriplelinePointsetClass::TriplelinePointsetClass() {
 	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
 	Nmin = 3; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
-	rho0 = 0.4;
+	rho0 = 0.7;
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
@@ -369,7 +369,10 @@ void TriplelinePointsetClass::process_TriplelinePointset() { // input matrix mit
 		//TPS nur zwei Punkte --> keine Rechnung möglich
 		(*Vector3d_1) = (*TPS_BeforeMLS)[0].get_CoordinatesXYZ() - (*TPS_BeforeMLS)[1].get_CoordinatesXYZ();
 		lenght_spline = (*Vector3d_1).norm();
-		cout << "lenght_spline: " << lenght_spline << endl;
+		TPS_processed->resize(0);
+		TPS_processed->push_back((*TPS_BeforeMLS)[0]);
+		TPS_processed->push_back((*TPS_BeforeMLS)[1]);
+		cout << "lenght_spline mit N=2: " << lenght_spline << endl;
 	}
 }
 
@@ -539,13 +542,18 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 		if (N_LocalPoints == N) {
 			cout << "ERROR LP FOR WLS" << endl;
 			cout << "N_LocalPoints: " << N_LocalPoints << endl;
-			exit(0);
+			outFile << "ERROR LP FOR WLS" << endl;
+			outFile << "N_LocalPoints: " << N_LocalPoints << endl;
+			//exit(0);
+			break;
 		}
 	}
 
 	outFile << endl << "Final LP: " << endl;
 	outFile << "used H_end: " << H_end << endl;
 	outFile << "used rho_end: " << rho_end << endl;
+	//cout << "used H_end: " << H_end << endl;
+	//cout << "used rho_end: " << rho_end << endl;
 	(*(*LP_Object).get_LocalPoints()).resize(0);
 	(*LP_Object).set_OriginPoint(GlobalID_LoopPoint, TPS_BeforeMLS);
 	calc_NextNeighborSet_RadiusH(H_end, TPS_BeforeMLS);
@@ -554,6 +562,8 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 	outFile << "Final N: " << N_LocalPoints << endl;
 	outFile << "Final rho: " << rho << endl;
 
+	//cout << "Final N: " << N_LocalPoints << endl;
+	//cout << "Final rho: " << rho << endl;
 	(*(LP_Object->get_LocalPoints()))[0].set_H_last_iteration(H); // 0 ist origin point im local Pset
 	outFile.close();
 }
