@@ -76,9 +76,9 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 
 TriplelinePointsetClass::TriplelinePointsetClass(
 		vector<Eigen::Vector3d>& RawTriplelinePointsetInput) {
-	n0 = 5;
+	n0 = 2;
 	n = 0;
-	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
+	H0 = 3; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
 	Nmin = 3; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
 	rho0 = 0.6;
@@ -542,7 +542,7 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 		if (N_LocalPoints == N) {
 			cout << "ERROR LP FOR WLS" << endl;
 			cout << "N_LocalPoints: " << N_LocalPoints << endl;
-//			exit(0);
+			break;
 		}
 	}
 
