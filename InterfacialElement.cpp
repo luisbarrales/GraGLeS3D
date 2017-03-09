@@ -102,6 +102,7 @@ TripleLine::TripleLine(int key, GrainHull *owner) :
 					m_owner->m_triangleNeighborLists[key].neighbors[i]);
 		}
 	}
+	m_TPS_ref = new vector<Point3D>;
 	computeMobility();
 	computeEnergy();
 }
@@ -109,11 +110,13 @@ TripleLine::TripleLine(int neighbor1, int neighbor2, GrainHull* owner) :
 		InterfacialElement(-1, owner) {
 	m_neighborIDs.push_back(neighbor1);
 	m_neighborIDs.push_back(neighbor2);
+	m_TPS_ref = new vector<Point3D>;
 	computeMobility();
 	computeEnergy();
 }
 
 TripleLine::~TripleLine() {
+	delete 	m_TPS_ref;
 }
 
 void TripleLine::computeEnergy() {
@@ -169,7 +172,8 @@ void TripleLine::computeMobility() {
 void TripleLine::computeTripleLineLength() {
 	TriplelinePointsetClass TL(m_barycenterTriangles);
 	TL.process_TriplelinePointset();
-	m_TPS_ref = TL.get_TPS_processed();
+	(*m_TPS_ref).clear();
+	*m_TPS_ref = *TL.get_TPS_processed();
 	m_length= TL.get_length();
 	cout << TL.get_length() <<endl;
 }
@@ -388,6 +392,21 @@ void HighOrderJunction::computeMobility() {
 	m_mobility = 1.0;
 }
 
+QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
+		InterfacialElement(key, owner) {
+	int currentID = owner->m_owner->getID();
+	int j = 0;
+	for (int i = 0; i < 4; i++) {
+		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
+			m_neighborIDs.push_back(
+					m_owner->m_triangleNeighborLists[key].neighbors[i]);
+			j++;
+		}
+	}
+	computeMobility();
+	computeEnergy();
+}
+
 void HighOrderJunction::mergeWith(InterfacialElement* B) {
 	m_Triangles.insert(m_Triangles.end(), B->get_Triangles()->begin(),
 			B->get_Triangles()->end());
@@ -424,21 +443,6 @@ void HighOrderJunction::computePosition() {
 	}
 	m_position /= (double) m_barycenterTriangles.size();
 }
-QuadrupleJunction::QuadrupleJunction(int key, GrainHull* owner) :
-		InterfacialElement(key, owner) {
-	int currentID = owner->m_owner->getID();
-	int j = 0;
-	for (int i = 0; i < 4; i++) {
-		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
-			m_neighborIDs.push_back(
-					m_owner->m_triangleNeighborLists[key].neighbors[i]);
-			j++;
-		}
-	}
-	computeMobility();
-	computeEnergy();
-}
-
 QuadrupleJunction::~QuadrupleJunction() {
 }
 

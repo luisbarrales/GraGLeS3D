@@ -896,10 +896,10 @@ void grainhdl::run_sim() {
 									Settings::AnalysisTimestep
 											* Settings::PlotInterval)) == 0) {
 //				saveNetworkAsVoxelContainer();
-				plot_contour();
+//				plot_contour();
 			}
 		}
-//		plot_contour();
+		plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime += (dt

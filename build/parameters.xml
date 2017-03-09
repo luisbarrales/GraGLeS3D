@@ -4,7 +4,7 @@
    <NumberOfParticles>20</NumberOfParticles>
    <NumberOfPointsPerGrain>15</NumberOfPointsPerGrain> 
    <AnalysisTimestep>1</AnalysisTimestep>
-   <PlotInterval>20</PlotInterval>
+   <PlotInterval>1</PlotInterval>
    <PlotPhysicalQuantities>1</PlotPhysicalQuantities>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps>200</NumberOfTimesteps>
@@ -60,4 +60,5 @@
    <NeighbourhoodGrain>10</NeighbourhoodGrain>
    <NeighbourhoodOrder>1</NeighbourhoodOrder>
    <StoreTaskDistribution>1</StoreTaskDistribution>
+   <PlotPhysicalQuantities>0</PlotPhysicalQuantities>
 </Parameters>

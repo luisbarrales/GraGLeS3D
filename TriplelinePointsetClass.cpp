@@ -81,7 +81,7 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
 	Nmin = 3; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
-	rho0 = 0.4;
+	rho0 = 0.6;
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
@@ -436,6 +436,7 @@ void TriplelinePointsetClass::calc_MLS_Iteration() {
 
 	for (int i = 0; i <= maxPointID; i++) {
 
+		cout << "Point ID: " << i  << endl;
 		if ((*TPS_BeforeMLS)[i].get_epsilon() >= epsilon0) {
 			calc_Sufficient_LP_forMLS(i);
 			(*TPS_AfterMLS)[i] = (*LP_Object).calc_MovedPoint_AfterMLS();
@@ -478,6 +479,8 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 	double delta_rho =0;
 	double delta_rho_min = 1;
 	double rho_end = 0;
+	double rho_max = 0;
+	double H_rho_max = 0;
 	outFile << "GlobalID_LoopPoint: " << GlobalID_LoopPoint << endl;
 	count = 0;
 
@@ -525,10 +528,17 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 			N_LocalPoints = (*LP_Object).get_N_LocalPoints();
 			delta_rho = fabs(rho-rho0);
 
+			//Möglichkeit 1: punktset mit rho möglichst nahe zu rho0
 			if(delta_rho < delta_rho_min){
 				delta_rho_min = delta_rho;
 				H_end = H;
 				rho_end = rho;
+			}
+			//Möglichkeit 2:  Punktset mit rho_max genommen;
+			if(rho > rho_max){
+
+				rho_max = rho;
+				H_rho_max = H;
 			}
 		}
 		outFile << "count: " << count << endl;
@@ -544,7 +554,10 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 			cout << "N_LocalPoints: " << N_LocalPoints << endl;
 			outFile << "ERROR LP FOR WLS" << endl;
 			outFile << "N_LocalPoints: " << N_LocalPoints << endl;
-			//exit(0);
+
+			//Wenn Möglickeit 2:
+			H_end = H_rho_max; //M2
+			rho_end = rho_max; //M2
 			break;
 		}
 	}
@@ -561,6 +574,8 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 	N_LocalPoints = (*LP_Object).get_N_LocalPoints();
 	outFile << "Final N: " << N_LocalPoints << endl;
 	outFile << "Final rho: " << rho << endl;
+	cout << "Final N: " << N_LocalPoints << endl;
+	cout << "Final rho: " << rho << endl;
 
 	//cout << "Final N: " << N_LocalPoints << endl;
 	//cout << "Final rho: " << rho << endl;
@@ -629,10 +644,10 @@ void TriplelinePointsetClass::orderAndReduce_TPS() {
 	(*pOutFile) << "ordering_dynamicDistances:" << endl;
 	calc_starting_point_ordering();
 
-	(*pOutFile) << "ordering_dynamicDistances_method" << endl;
-	ordering_dynamicDistances_method();
-        //(*pOutFile) << "ordering_Next_Neighbor_method" << endl;
-        //ordering_Next_Neighbor_method();
+	//(*pOutFile) << "ordering_dynamicDistances_method" << endl;
+	//ordering_dynamicDistances_method();
+    (*pOutFile) << "ordering_Next_Neighbor_method" << endl;
+    ordering_Next_Neighbor_method();
 
 	(*pOutFile) << "output_ordered_TPS_IntoTxtFile" << endl;
 
@@ -1171,10 +1186,13 @@ void TriplelinePointsetClass::calc_nonordered_Neighbors_backward(int ID_first_ba
 
 void TriplelinePointsetClass::calc_BSpline_ProcessedTPS() {
 
+	double delta_length = 0;
+
 	Spline_Object->input_Pointset(TPS_processed);
 	Spline_Object->interpolate_BSpline_3D_Degree_2_Default();
 	lenght_spline = Spline_Object->calc_Line_Lenght_Spline();
 	cout << "lenght_spline: " << lenght_spline << endl;
 	cout << "lenght_input: " << Spline_Object->calc_Line_Lenght_ordered_PointInput() << endl;
+	cout << "delta_length: " << delta_length << endl;
 }
 

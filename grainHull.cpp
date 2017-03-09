@@ -480,7 +480,7 @@ void GrainHull::computeInterfacialElementMesh() {
 
 	if (m_owner->getID() == 10) {
 		computeTriplelineLength();
-		cout << m_TripleLineLength << endl;
+		cout <<"Triple line length " <<  m_TripleLineLength << endl;
 		plotTripleline(m_owner->get_grainHandler()->get_loop());
 	}
 }
@@ -1189,21 +1189,21 @@ void GrainHull::plotTripleline(int timestep) {
 	int i = 0;
 	int line_length[m_TripleLines.size()];
 	for (const auto it : m_TripleLines) {
-		for (const auto it2 : *it->m_TPS_ref) {
-			n_points += (*it->m_TPS_ref).size();
 			line_length[i] = (*it->m_TPS_ref).size();
+			n_points += line_length[i];
 			i++;
-		}
 	}
+	cout << n_points << endl;
+	cout << m_TripleLines.size() << endl;
 	fprintf(output, "POINTS %d float\n", n_points);
 	for (const auto it : m_TripleLines) {
 		for (auto it2 : *it->m_TPS_ref) {
 			Vector3d Voutput = it2.get_CoordinatesXYZ();
-			fprintf(output, "%lf \t %lf \t %lf \n ", Voutput(0), Voutput(1), Voutput(2));
+			fprintf(output, "%lf \t %lf \t %lf \n", Voutput(0), Voutput(1),
+					Voutput(2));
 		}
 	}
-	fprintf(output, "LINES %lu \t %lu \n", m_TripleLines.size(),
-			n_points + m_TripleLines.size());
+	fprintf(output,"\nLINES %lu \t %lu \n", m_TripleLines.size(), m_TripleLines.size()+n_points);
 	int last = 0;
 	int first = 0;
 	for (int j = 0; j < m_TripleLines.size(); j++) {
@@ -1212,9 +1212,10 @@ void GrainHull::plotTripleline(int timestep) {
 		for (int k = first; k < last; k++) {
 			fprintf(output, "%d \t", k);
 		}
-		first = last + 1;
+		first = last;
 		fprintf(output, "\n");
 	}
+	int ii=0;
 	fclose(output);
 }
 //fprintf(output, "\n\nGRAINBOUNDARY %lu\n", m_Grainboundary.size());
