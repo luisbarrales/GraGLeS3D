@@ -1325,6 +1325,7 @@ void GrainHull::meanWidth() {
 void GrainHull::computeTriplelineLength() {
 	double old_length = m_TripleLineLength;
 	m_TripleLineLength = 0;
+	char buf;
 	for (vector<TripleLine*>::iterator iter = m_TripleLines.begin();
 			iter != m_TripleLines.end(); ++iter) {
 //		vector<InterfacialElement*> vertices_temp = (*iter)->get_vertices();
@@ -1335,6 +1336,7 @@ void GrainHull::computeTriplelineLength() {
 //				- vertices_temp[1]->get_Position()).norm();
 		(*iter)->computeTripleLineLength();
 		m_TripleLineLength += (*iter)->m_length;
+		cin >> buf;
 	}
 	if (Settings::DecoupleGrains == 1) {
 		vector<SPoint> ProjectedPoints;

@@ -188,7 +188,7 @@ double LocalPointset::calc_Correlation_LP(double H){
     (*pOutFile_LP) << "H local: " << H << endl;
    
     calc_CubicWeights(H); //cubic weights nach buffer switch der ersten iteration alle = 1 --> grund: es werden immer die orrigin points in TPS_AfterMLS abgesopeichert welche den weight 1 haben. weight wird nicht auf NULL zurück gesetzt!
-    output_LP_TxtFile(get_NameDataOutput("LP_cubicWeights"));
+    //output_LP_TxtFile(get_NameDataOutput("LP_cubicWeights"));
     
     calc_WLS_Plane();
     project_LP_OntoWLSPlane();

@@ -170,7 +170,7 @@ void TripleLine::computeMobility() {
 }
 
 void TripleLine::computeTripleLineLength() {
-	TriplelinePointsetClass TL(m_barycenterTriangles);
+	TriplelinePointsetClass TL(m_barycenterTriangles,m_vertices);
 	TL.process_TriplelinePointset();
 	(*m_TPS_ref).clear();
 	*m_TPS_ref = *TL.get_TPS_processed();
@@ -191,6 +191,7 @@ void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
 }
 void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		vector<HighOrderJunction*> JunctionsH) {
+	m_vertices.clear();
 	int i = 0;
 	for (const auto it : JunctionsQ) {
 		if (it->get_FirstNeighbor() == m_neighborIDs[0]
@@ -227,8 +228,8 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		}
 	}
 //if(m_owner->getID() == 1){
-	if (i != 2) {
-		m_vertices.push_back(NULL);
+//	if (i != 2) {
+//		m_vertices.push_back(NULL);
 		//cout << "Tripleline has not found two adjacent junctions. Grain ID:"
 		//		<< m_owner->m_owner->getID() << endl;
 		//		string filename = string("Grain_") + to_string(
@@ -298,9 +299,7 @@ void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		//		}
 		//		str.close();
 		//	}
-	}
-
-	return;
+//	}
 }
 
 HighOrderJunction::HighOrderJunction(QuadrupleJunction* A, QuadrupleJunction* B,

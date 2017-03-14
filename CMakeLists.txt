@@ -5,7 +5,7 @@ project(LevelSet_IMM C CXX)
 
 set(CMAKE_BUILD_DIR "build")
 
-set(MY_SOURCES LinearCurve.cpp LocalPointset.cpp Plane.cpp Point3D.cpp PointCloudGenerator.cpp QuadraticCurve.cpp Spline.cpp TriplelinePointsetClass.cpp allocator.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp IterativeGrainScheduler.cpp SquaresGrainScheduler.cpp grahamScan.cpp)
+set(MY_SOURCES allocator.cpp PointCloudGenerator.cpp LinearCurve.cpp Plane.cpp Point3D.cpp QuadraticCurve.cpp Spline.cpp LocalPointset.cpp TriplelinePointsetClass.cpp ggLS.cpp mymath.cpp random.cpp grainhdl.cpp box.cpp Settings.cpp marchingCubes.cpp myQuaternion.cpp grainHull.cpp InterfacialElement.cpp IterativeGrainScheduler.cpp SquaresGrainScheduler.cpp grahamScan.cpp)
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 

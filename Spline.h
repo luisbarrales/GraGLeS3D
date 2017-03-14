@@ -33,6 +33,8 @@ typedef Spline3D_deg3::ControlPointVectorType ControlPointVectorType3D_deg3;
 
 class Point3D;
 
+namespace splineclass{
+
 class Spline {
 
 public:
@@ -69,6 +71,7 @@ private:
     //rechnenmatrizen:
     Eigen::Vector3d* Vector3d_1;
 };
+}
 
 #endif /* SPLINE_H */
 

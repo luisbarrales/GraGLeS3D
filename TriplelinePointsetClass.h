@@ -11,12 +11,15 @@
 
 #include <vector>
 #include <Eigen/Dense>
+#include "Spline.h"
 
 class Point3D;
 class LocalPointset;
-class Spline;
+
+class InterfacialElement;
 
 using namespace std;
+
 
 class  TriplelinePointsetClass{
 public:
@@ -24,12 +27,12 @@ public:
     
     TriplelinePointsetClass();
     TriplelinePointsetClass(const Eigen::MatrixXd*, int);
-    TriplelinePointsetClass(vector<Eigen::Vector3d>&);
+    TriplelinePointsetClass(vector<Eigen::Vector3d>&, vector<InterfacialElement*>);
     ~TriplelinePointsetClass();
   
     void use_PointCloudGenerator(int);
     void input_TPS_OutOfTxtFile(string);
-    void input_TPS_LevelSet(vector<Eigen::Vector3d>&);
+    void input_TPS_LevelSet(vector<Eigen::Vector3d>&, vector<InterfacialElement*>);
     void set_Parameter();
     void process_TriplelinePointset(); // const oder nicht const... leiber neue matrizen erstellen ??
     
@@ -127,7 +130,7 @@ private:
     Eigen::MatrixXd* PointToPointDistances; //distances r=|deltaP|
     
     LocalPointset* LP_Object; //statisch alloc mit vorgegebener Vectorgröße
-    Spline* Spline_Object;
+    splineclass::Spline::Spline* Spline_Object;
     
     //global variables for txt file output name declarations:
     ofstream* pOutFile;

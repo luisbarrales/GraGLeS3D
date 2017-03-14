@@ -12,6 +12,8 @@
 #include "Spline.h"
 #include "Point3D.h"
 
+
+namespace splineclass{
 Spline::Spline() {
 
 
@@ -356,3 +358,5 @@ double Spline::calc_Line_Lenght_ordered_PointInput(){
     
     return lenght;  
 }
+}
+
