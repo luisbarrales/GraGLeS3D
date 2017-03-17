@@ -314,6 +314,33 @@ double LSbox::get_h() {
 	return m_grainHandler->get_h();
 }
 
+void LSbox::shiftXDirection(){
+	m_inputDistance->setMinX(m_inputDistance->getMinX()+m_grainHandler->get_ngridpoints());
+	m_inputDistance->setMaxX(m_inputDistance->getMaxX()+m_grainHandler->get_ngridpoints());
+	m_outputDistance->setMinX(m_outputDistance->getMinX()+m_grainHandler->get_ngridpoints());
+	m_outputDistance->setMaxX(m_outputDistance->getMaxX()+m_grainHandler->get_ngridpoints());
+	resizeIDLocalToDistanceBuffer();
+	m_explicitHull.shift_x_GrainBoundary(m_grainHandler->get_ngridpoints(),m_grainHandler->get_h());
+}
+
+void LSbox::shiftYDirection(){
+	m_inputDistance->setMinY(m_inputDistance->getMinY()+m_grainHandler->get_ngridpoints());
+	m_inputDistance->setMaxY(m_inputDistance->getMaxY()+m_grainHandler->get_ngridpoints());
+	m_outputDistance->setMinY(m_outputDistance->getMinY()+m_grainHandler->get_ngridpoints());
+	m_outputDistance->setMaxY(m_outputDistance->getMaxY()+m_grainHandler->get_ngridpoints());
+	resizeIDLocalToDistanceBuffer();
+	m_explicitHull.shift_y_GrainBoundary(m_grainHandler->get_ngridpoints(),m_grainHandler->get_h());
+}
+
+void LSbox::shiftZDirection(){
+	m_inputDistance->setMinZ(m_inputDistance->getMinZ()+m_grainHandler->get_ngridpoints());
+	m_inputDistance->setMaxZ(m_inputDistance->getMaxZ()+m_grainHandler->get_ngridpoints());
+	m_outputDistance->setMinZ(m_outputDistance->getMinZ()+m_grainHandler->get_ngridpoints());
+	m_outputDistance->setMaxZ(m_outputDistance->getMaxZ()+m_grainHandler->get_ngridpoints());
+	resizeIDLocalToDistanceBuffer();
+	m_explicitHull.shift_z_GrainBoundary(m_grainHandler->get_ngridpoints(),m_grainHandler->get_h());
+}
+
 void LSbox::calculateMagneticEnergy() {
 	int i, j;
 	double ND[3] = { 0.0, 0.0, 1.0 };
@@ -878,14 +905,61 @@ void LSbox::executeSetComparison() {
 }
 
 bool LSbox::checkIntersection(LSbox* box2) {
-	if (m_inputDistance->getMinX() > box2->m_inputDistance->getMaxX()
-			|| m_inputDistance->getMaxX() < box2->m_inputDistance->getMinX()
-			|| m_inputDistance->getMinY() > box2->m_inputDistance->getMaxY()
-			|| m_inputDistance->getMaxY() < box2->m_inputDistance->getMinY()
-			|| m_inputDistance->getMinZ() > box2->m_inputDistance->getMaxZ()
-			|| m_inputDistance->getMaxZ() < box2->m_inputDistance->getMinZ())
-		return false;
-	return true;
+	if(Settings::PeriodicBoundaryConditions){
+		/*
+		 * Rotate the torus such that box1 is in the middle of the system and
+		 * transform the coordinates of box2 accordingly
+		 */
+
+		int PeriodicBox2_MinX,PeriodicBox2_MinY,PeriodicBox2_MinZ,
+			PeriodicBox2_MaxX,PeriodicBox2_MaxY,PeriodicBox2_MaxZ;
+		PeriodicBox2_MinX = (box2->getMinX()-m_inputDistance->getMinX() + m_grainHandler->get_ngridpoints()/2
+				+m_grainHandler->get_ngridpoints()) %m_grainHandler->get_ngridpoints();
+		PeriodicBox2_MinY = (box2->getMinY()-m_inputDistance->getMinY() + m_grainHandler->get_ngridpoints()/2
+				+m_grainHandler->get_ngridpoints())	%m_grainHandler->get_ngridpoints();
+		PeriodicBox2_MinZ = (box2->getMinZ()-m_inputDistance->getMinZ() + m_grainHandler->get_ngridpoints()/2
+				+m_grainHandler->get_ngridpoints())	%m_grainHandler->get_ngridpoints();
+		PeriodicBox2_MaxX = (box2->getMaxX()-m_inputDistance->getMinX() + m_grainHandler->get_ngridpoints()/2
+				+m_grainHandler->get_ngridpoints())	%m_grainHandler->get_ngridpoints();
+		PeriodicBox2_MaxY = (box2->getMaxY()-m_inputDistance->getMinY() + m_grainHandler->get_ngridpoints()/2
+				+m_grainHandler->get_ngridpoints()) %m_grainHandler->get_ngridpoints();
+		PeriodicBox2_MaxZ = (box2->getMaxZ()-m_inputDistance->getMinZ() + m_grainHandler->get_ngridpoints()/2
+				+m_grainHandler->get_ngridpoints()) %m_grainHandler->get_ngridpoints();
+
+		if(PeriodicBox2_MaxX < PeriodicBox2_MinX)
+			PeriodicBox2_MaxX += m_grainHandler->get_ngridpoints();
+
+		if(PeriodicBox2_MaxY < PeriodicBox2_MinY)
+			PeriodicBox2_MaxY += m_grainHandler->get_ngridpoints();
+
+		if(PeriodicBox2_MaxZ < PeriodicBox2_MinZ)
+			PeriodicBox2_MaxZ += m_grainHandler->get_ngridpoints();
+
+		if(		m_grainHandler->get_ngridpoints()/2 > PeriodicBox2_MaxX ||
+				m_grainHandler->get_ngridpoints()/2 > PeriodicBox2_MaxY ||
+				m_grainHandler->get_ngridpoints()/2 > PeriodicBox2_MaxZ ||
+				m_grainHandler->get_ngridpoints()/2+m_inputDistance->getMaxX()-m_inputDistance->getMinX()
+				< PeriodicBox2_MinX ||
+				m_grainHandler->get_ngridpoints()/2+m_inputDistance->getMaxY()-m_inputDistance->getMinY()
+				< PeriodicBox2_MinY ||
+				m_grainHandler->get_ngridpoints()/2+m_inputDistance->getMaxZ()-m_inputDistance->getMinZ()
+				< PeriodicBox2_MinZ)
+			return false;
+		else
+			return true;
+
+
+	}
+	else{
+		if (m_inputDistance->getMinX() > box2->m_inputDistance->getMaxX()
+				|| m_inputDistance->getMaxX() < box2->m_inputDistance->getMinX()
+				|| m_inputDistance->getMinY() > box2->m_inputDistance->getMaxY()
+				|| m_inputDistance->getMaxY() < box2->m_inputDistance->getMinY()
+				|| m_inputDistance->getMinZ() > box2->m_inputDistance->getMaxZ()
+				|| m_inputDistance->getMaxZ() < box2->m_inputDistance->getMinZ())
+			return false;
+		return true;
+	}
 }
 
 void LSbox::executeComparison() {
@@ -895,74 +969,148 @@ void LSbox::executeComparison() {
 	m_secondOrderNeighbours = m_comparisonList;
 	int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
 
-	for (unsigned int neighs = 0; neighs < m_secondOrderNeighbours.size();
+	if(Settings::PeriodicBoundaryConditions){
+		for (unsigned int neighs = 0; neighs < m_secondOrderNeighbours.size();
 			neighs++) {
-		LSbox* neighbor = m_grainHandler->getGrainByID(
-				m_secondOrderNeighbours[neighs]);
-//		int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
+			LSbox* neighbor = m_grainHandler->getGrainByID(
+							m_secondOrderNeighbours[neighs]);
+			int x_shift,y_shift,z_shift;
+			x_shift=0;
+			y_shift=0;
+			z_shift=0;
 
-		if (m_inputDistance->getMinX() < neighbor->m_inputDistance->getMinX())
-			x_min_new = neighbor->m_inputDistance->getMinX();
-		else
-			x_min_new = m_inputDistance->getMinX();
+			if(neighbor->getMaxX()<m_inputDistance->getMinX())
+				x_shift = m_grainHandler->get_ngridpoints();
 
-		if (m_inputDistance->getMaxX() > neighbor->m_inputDistance->getMaxX())
-			x_max_new = neighbor->m_inputDistance->getMaxX();
-		else
-			x_max_new = m_inputDistance->getMaxX();
+			if(neighbor->getMinX()>m_inputDistance->getMaxX())
+				x_shift = -m_grainHandler->get_ngridpoints();
 
-		if (m_inputDistance->getMinY() < neighbor->m_inputDistance->getMinY())
-			y_min_new = neighbor->m_inputDistance->getMinY();
-		else
-			y_min_new = m_inputDistance->getMinY();
+			if(neighbor->getMaxY()<m_inputDistance->getMinY())
+				y_shift = m_grainHandler->get_ngridpoints();
 
-		if (m_inputDistance->getMaxY() > neighbor->m_inputDistance->getMaxY())
-			y_max_new = neighbor->m_inputDistance->getMaxY();
-		else
-			y_max_new = m_inputDistance->getMaxY();
+			if(neighbor->getMinY()>m_inputDistance->getMaxY())
+				y_shift = -m_grainHandler->get_ngridpoints();
 
-		if (m_inputDistance->getMinZ() < neighbor->m_inputDistance->getMinZ())
-			z_min_new = neighbor->m_inputDistance->getMinZ();
-		else
-			z_min_new = m_inputDistance->getMinZ();
+			if(neighbor->getMaxZ()<m_inputDistance->getMinZ())
+				z_shift = m_grainHandler->get_ngridpoints();
 
-		if (m_inputDistance->getMaxZ() > neighbor->m_inputDistance->getMaxZ())
-			z_max_new = neighbor->m_inputDistance->getMaxZ();
-		else
-			z_max_new = m_inputDistance->getMaxZ();
+			if(neighbor->getMinZ()>m_inputDistance->getMaxZ())
+				z_shift = -m_grainHandler->get_ngridpoints();
 
-		for (int k = z_min_new; k < z_max_new; k++) {
-			for (int i = y_min_new; i < y_max_new; i++) {
-				for (int j = x_min_new; j < x_max_new; j++) {
-					double dist = neighbor->getDistanceFromInputBuff(i, j, k);
-					if (dist > m_outputDistance->getValueAt(i, j, k)) {
-						m_outputDistance->setValueAt(i, j, k, dist);
-						m_IDLocal.getValueAt(i, j, k).grainID =
-								neighbor->getID();
+			if (m_inputDistance->getMinX() < neighbor->m_inputDistance->getMinX()+x_shift)
+				x_min_new = neighbor->m_inputDistance->getMinX()+x_shift;
+			else
+				x_min_new = m_inputDistance->getMinX();
+
+			if (m_inputDistance->getMaxX() > neighbor->m_inputDistance->getMaxX()+x_shift)
+				x_max_new = neighbor->m_inputDistance->getMaxX()+x_shift;
+			else
+				x_max_new = m_inputDistance->getMaxX();
+
+			if (m_inputDistance->getMinY() < neighbor->m_inputDistance->getMinY()+y_shift)
+				y_min_new = neighbor->m_inputDistance->getMinY()+y_shift;
+			else
+				y_min_new = m_inputDistance->getMinY();
+
+			if (m_inputDistance->getMaxY() > neighbor->m_inputDistance->getMaxY()+y_shift)
+				y_max_new = neighbor->m_inputDistance->getMaxY()+y_shift;
+			else
+				y_max_new = m_inputDistance->getMaxY();
+
+			if (m_inputDistance->getMinZ() < neighbor->m_inputDistance->getMinZ()+z_shift)
+				z_min_new = neighbor->m_inputDistance->getMinZ()+z_shift;
+			else
+				z_min_new = m_inputDistance->getMinZ();
+
+			if (m_inputDistance->getMaxZ() > neighbor->m_inputDistance->getMaxZ()+z_shift)
+				z_max_new = neighbor->m_inputDistance->getMaxZ()+z_shift;
+			else
+				z_max_new = m_inputDistance->getMaxZ();
+
+			for (int k = z_min_new; k < z_max_new; k++) {
+				for (int i = y_min_new; i < y_max_new; i++) {
+					for (int j = x_min_new; j < x_max_new; j++) {
+						double dist = neighbor->getDistanceFromInputBuff(i-y_shift, j-x_shift, k-z_shift);
+						if (dist > m_outputDistance->getValueAt(i, j, k)) {
+							m_outputDistance->setValueAt(i, j, k, dist);
+							m_IDLocal.getValueAt(i, j, k).grainID =
+									neighbor->getID();
+						}
 					}
 				}
 			}
 		}
 	}
+	else{
+		for (unsigned int neighs = 0; neighs < m_secondOrderNeighbours.size();
+				neighs++) {
+			LSbox* neighbor = m_grainHandler->getGrainByID(
+					m_secondOrderNeighbours[neighs]);
+			//		int x_min_new, x_max_new, y_min_new, y_max_new, z_min_new, z_max_new;
 
-	vector<int> Neighbors;
+			if (m_inputDistance->getMinX() < neighbor->m_inputDistance->getMinX())
+				x_min_new = neighbor->m_inputDistance->getMinX();
+			else
+				x_min_new = m_inputDistance->getMinX();
 
-	if(m_ID == 1){
-		for (int k = z_min_new; k < z_max_new; k++) {
-			for (int i = y_min_new; i < y_max_new; i++) {
-				for (int j = x_min_new; j < x_max_new; j++) {
-					if(find(Neighbors.begin(),Neighbors.end(),m_IDLocal.getValueAt(i,j,k).grainID) == Neighbors.end())
-						Neighbors.push_back(m_IDLocal.getValueAt(i,j,k).grainID);
+			if (m_inputDistance->getMaxX() > neighbor->m_inputDistance->getMaxX())
+				x_max_new = neighbor->m_inputDistance->getMaxX();
+			else
+				x_max_new = m_inputDistance->getMaxX();
+
+			if (m_inputDistance->getMinY() < neighbor->m_inputDistance->getMinY())
+				y_min_new = neighbor->m_inputDistance->getMinY();
+			else
+				y_min_new = m_inputDistance->getMinY();
+
+			if (m_inputDistance->getMaxY() > neighbor->m_inputDistance->getMaxY())
+				y_max_new = neighbor->m_inputDistance->getMaxY();
+			else
+				y_max_new = m_inputDistance->getMaxY();
+
+			if (m_inputDistance->getMinZ() < neighbor->m_inputDistance->getMinZ())
+				z_min_new = neighbor->m_inputDistance->getMinZ();
+			else
+				z_min_new = m_inputDistance->getMinZ();
+
+			if (m_inputDistance->getMaxZ() > neighbor->m_inputDistance->getMaxZ())
+				z_max_new = neighbor->m_inputDistance->getMaxZ();
+			else
+				z_max_new = m_inputDistance->getMaxZ();
+
+			for (int k = z_min_new; k < z_max_new; k++) {
+				for (int i = y_min_new; i < y_max_new; i++) {
+					for (int j = x_min_new; j < x_max_new; j++) {
+						double dist = neighbor->getDistanceFromInputBuff(i, j, k);
+						if (dist > m_outputDistance->getValueAt(i, j, k)) {
+							m_outputDistance->setValueAt(i, j, k, dist);
+							m_IDLocal.getValueAt(i, j, k).grainID =
+									neighbor->getID();
+						}
+					}
 				}
 			}
 		}
-	}
 
-	if (BoundaryIntersection()) {
-		m_intersectsBoundaryGrain = true;
-		boundaryCondition();
-	} else
-		m_intersectsBoundaryGrain = false;
+		vector<int> Neighbors;
+
+		if(m_ID == 1){
+			for (int k = z_min_new; k < z_max_new; k++) {
+				for (int i = y_min_new; i < y_max_new; i++) {
+					for (int j = x_min_new; j < x_max_new; j++) {
+						if(find(Neighbors.begin(),Neighbors.end(),m_IDLocal.getValueAt(i,j,k).grainID) == Neighbors.end())
+							Neighbors.push_back(m_IDLocal.getValueAt(i,j,k).grainID);
+					}
+				}
+			}
+		}
+
+		if (BoundaryIntersection()) {
+			m_intersectsBoundaryGrain = true;
+			boundaryCondition();
+		} else
+			m_intersectsBoundaryGrain = false;
+	}
 }
 
 bool LSbox::BoundaryIntersection() {
@@ -1165,6 +1313,23 @@ void LSbox::updateFirstOrderNeigbors() {
 		return;
 	return;
 }
+
+void LSbox::cleanUpNeighbourLists(){
+	vector<int> SecondOrderNeighbourList_tmp;
+	vector<unsigned int>::iterator it;
+	for(it=m_secondOrderNeighbours.begin();it!=m_secondOrderNeighbours.end();it++){
+		int ID = (*it);
+		if(find(SecondOrderNeighbourList_tmp.begin(),SecondOrderNeighbourList_tmp.end(),ID)
+				!= SecondOrderNeighbourList_tmp.end()){
+			m_secondOrderNeighbours.erase(it);
+			it--;
+		}
+		else{
+			SecondOrderNeighbourList_tmp.push_back(ID);
+		}
+	}
+}
+
 void LSbox::computeGrainVolume() {
 	m_volume = m_explicitHull.computeGrainVolume();
 }
@@ -1192,9 +1357,9 @@ void LSbox::switchBufferPositions() {
 	m_explicitHull.switchBufferPositions();
 }
 
-Vector3d LSbox::findClosestJunctionTo(Vector3d myposition) {
+Vector3d LSbox::findClosestJunctionTo(Vector3d myposition, double x_shift, double y_shift, double z_shift) {
 	Vector3d neighborJunction;
-	neighborJunction = m_explicitHull.findClosestJunctionTo(myposition);
+	neighborJunction = m_explicitHull.findClosestJunctionTo(myposition, x_shift, y_shift, z_shift);
 	return neighborJunction;
 }
 
@@ -2877,6 +3042,18 @@ void LSbox::computeDirectNeighbours(
 	max[0] = getMaxX();
 	max[1] = getMaxY();
 	max[2] = getMaxZ();
+	vector<unsigned int> intersectingGrains;
+	tree.Search(min, max, intersectingGrains);
+	for (unsigned int k = 0; k < intersectingGrains.size(); k++) {
+		if (m_ID != intersectingGrains[k]) {
+			m_secondOrderNeighbours.push_back(intersectingGrains[k]);
+		}
+	}
+}
+
+void LSbox::computeDirectNeighboursPeriodic(
+		const RTree<unsigned int, int, 3, float>& tree, int min[3], int max[3]){
+
 	vector<unsigned int> intersectingGrains;
 	tree.Search(min, max, intersectingGrains);
 	for (unsigned int k = 0; k < intersectingGrains.size(); k++) {

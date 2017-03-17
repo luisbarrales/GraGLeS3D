@@ -129,6 +129,8 @@ public:
 	void computeSecondOrderNeighbours();
 	void computeDirectNeighbours(
 			const RTree<unsigned int, int, 3, float>& rtree);
+	void computeDirectNeighboursPeriodic(
+			const RTree<unsigned int, int, 3, float>& rtree, int min[3], int max[3]);
 	void computeGrainVolume();
 	void computeSurfaceArea();
 	void computeSurfaceElements();
@@ -150,7 +152,7 @@ public:
 	//map<int, double>& getDiscreteEnergyDistribution() { }
 	bool checkIntersection(LSbox* box2);
 	void preallocateMemory(ExpandingVector<char>& memory_dump);
-	Vector3d findClosestJunctionTo(Vector3d myposition);
+	Vector3d findClosestJunctionTo(Vector3d myposition, double x_shift, double y_shift, double z_shift);
 
 	void resizeIDLocalToDistanceBuffer();
 	void recalculateIDLocal();
@@ -194,6 +196,7 @@ public:
 		return m_intersectsBoundaryGrain;
 	}
 	void updateFirstOrderNeigbors();
+	void cleanUpNeighbourLists();
 	double GBmobilityModel(double thetaMis);
 	bool isNeighbour(LSbox* candidate);
 	bool BoundaryIntersection();
@@ -205,6 +208,10 @@ public:
 	void calculateCentroid(SPoint& centroid, vector<GrainJunction> junctions);
 
 	double get_h();
+
+	void shiftXDirection();
+	void shiftYDirection();
+	void shiftZDirection();
 
 	void outputMemoryUsage(ofstream& output);
 

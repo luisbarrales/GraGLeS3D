@@ -49,7 +49,7 @@ using namespace Eigen;
 using namespace voro;
 
 grainhdl::grainhdl() :
-		m_ThreadPoolCount(0) {
+				m_ThreadPoolCount(0) {
 }
 grainhdl::~grainhdl() {
 	delete mymath;
@@ -232,7 +232,7 @@ void grainhdl::VOROMicrostructure() {
 
 	grains.resize(Settings::NumberOfParticles + 1);
 
-	bool randbedingung = false; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
+	bool randbedingung = Settings::PeriodicBoundaryConditions; // bei false ist der container halb offen?! d.h. gitterwert mit 1 werden keinem partikel zugeordnet
 	if (randbedingung == false)
 		realDomainSize -= 1;
 
@@ -255,68 +255,68 @@ void grainhdl::VOROMicrostructure() {
 		/*
 		 * Double pyramid
 		 */
-//
-//			if (i == 0) {
-//				x = 0.5;
-//				y = 0.5;
-//				z = 0.5;
-//			} else if (i == 1) {
-//				x = 0.25;
-//				y = 0.25;
-//				z = 0.25;
-//			} else if (i == 2) {
-//				x = 0.75;
-//				y = 0.25;
-//				z = 0.25;
-//			} else if (i == 3) {
-//				x = 0.25;
-//				y = 0.75;
-//				z = 0.25;
-//			} else if (i == 4) {
-//				x = 0.75;
-//				y = 0.75;
-//				z = 0.25;
-//			} else if (i == 5) {
-//				x = 0.25;
-//				y = 0.25;
-//				z = 0.75;
-//			} else if (i == 6) {
-//				x = 0.25;
-//				y = 0.75;
-//				z = 0.75;
-//			} else if (i == 7) {
-//				x = 0.75;
-//				y = 0.25;
-//				z = 0.75;
-//			} else if (i == 8) {
-//				x = 0.75;
-//				y = 0.75;
-//				z = 0.75;
-//			}
+		//
+		//			if (i == 0) {
+		//				x = 0.5;
+		//				y = 0.5;
+		//				z = 0.5;
+		//			} else if (i == 1) {
+		//				x = 0.25;
+		//				y = 0.25;
+		//				z = 0.25;
+		//			} else if (i == 2) {
+		//				x = 0.75;
+		//				y = 0.25;
+		//				z = 0.25;
+		//			} else if (i == 3) {
+		//				x = 0.25;
+		//				y = 0.75;
+		//				z = 0.25;
+		//			} else if (i == 4) {
+		//				x = 0.75;
+		//				y = 0.75;
+		//				z = 0.25;
+		//			} else if (i == 5) {
+		//				x = 0.25;
+		//				y = 0.25;
+		//				z = 0.75;
+		//			} else if (i == 6) {
+		//				x = 0.25;
+		//				y = 0.75;
+		//				z = 0.75;
+		//			} else if (i == 7) {
+		//				x = 0.75;
+		//				y = 0.25;
+		//				z = 0.75;
+		//			} else if (i == 8) {
+		//				x = 0.75;
+		//				y = 0.75;
+		//				z = 0.75;
+		//			}
 		/*
 		 * Tetraeder
 		 */
-//			if (i == 0) {
-//				x = 0.5;
-//				y = 0.5;
-//				z = 0.5;
-//			} else if (i == 1) {
-//				x = 0.5;
-//				y = 0.5;
-//				z = 0.0;
-//			} else if (i == 2) {
-//				x = 0.5;
-//				y = 0.9713;
-//				z = 0.6669;
-//			} else if (i == 3) {
-//				x = 0.319;
-//				y = 0.3427;
-//				z = 0.6669;
-//			} else if (i == 4) {
-//				x = 0.6928;
-//				y = 0.1337;
-//				z = 0.6669;
-//			}
+		//			if (i == 0) {
+		//				x = 0.5;
+		//				y = 0.5;
+		//				z = 0.5;
+		//			} else if (i == 1) {
+		//				x = 0.5;
+		//				y = 0.5;
+		//				z = 0.0;
+		//			} else if (i == 2) {
+		//				x = 0.5;
+		//				y = 0.9713;
+		//				z = 0.6669;
+		//			} else if (i == 3) {
+		//				x = 0.319;
+		//				y = 0.3427;
+		//				z = 0.6669;
+		//			} else if (i == 4) {
+		//				x = 0.6928;
+		//				y = 0.1337;
+		//				z = 0.6669;
+		//			}
 		con.put(i, x, y, z);
 
 	}
@@ -355,23 +355,39 @@ void grainhdl::VOROMicrostructure() {
 		}
 		double x, y, z, rx, ry, rz;
 		int cell_id;
-		for (int k = 0; k < ngridpoints; k++) {
-			for (int i = 0; i < ngridpoints; i++) {
-				for (int j = 0; j < ngridpoints; j++) {
-					x = double((j - grid_blowup) * h);
-					y = double((i - grid_blowup) * h);
-					z = double((k - grid_blowup) * h);
-					if (i < grid_blowup || j < grid_blowup || k < grid_blowup
-							|| i >= ngridpoints - 1 - grid_blowup
-							|| j >= ngridpoints - 1 - grid_blowup
-							|| k >= ngridpoints - 1 - grid_blowup) {
-						IDField->setValueAt(i, j, k, 0);
-					} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
-							cell_id)) {
-						int box_id = cell_id + 1;
-						IDField->setValueAt(i, j, k, box_id);
-					} else {
-						IDField->setValueAt(i, j, k, 0);
+		if(Settings::PeriodicBoundaryConditions){
+			for(int k=0; k<ngridpoints; k++){
+				for(int i=0; i<ngridpoints; i++){
+					for(int j=0; j<ngridpoints; j++){
+						x = double(j*h);
+						y = double(i*h);
+						z = double(k*h);
+						con.find_voronoi_cell(x,y,z,rx,ry,rz,cell_id);
+						int box_id = cell_id+1;
+						IDField->setValueAt(i,j,k,box_id);
+					}
+				}
+			}
+		}
+		else{
+			for (int k = 0; k < ngridpoints; k++) {
+				for (int i = 0; i < ngridpoints; i++) {
+					for (int j = 0; j < ngridpoints; j++) {
+						x = double((j - grid_blowup) * h);
+						y = double((i - grid_blowup) * h);
+						z = double((k - grid_blowup) * h);
+						if (i < grid_blowup || j < grid_blowup || k < grid_blowup
+								|| i >= ngridpoints - 1 - grid_blowup
+								|| j >= ngridpoints - 1 - grid_blowup
+								|| k >= ngridpoints - 1 - grid_blowup) {
+							IDField->setValueAt(i, j, k, 0);
+						} else if (con.find_voronoi_cell(x, y, z, rx, ry, rz,
+								cell_id)) {
+							int box_id = cell_id + 1;
+							IDField->setValueAt(i, j, k, box_id);
+						} else {
+							IDField->setValueAt(i, j, k, 0);
+						}
 					}
 				}
 			}
@@ -389,8 +405,8 @@ void grainhdl::VOROMicrostructure() {
 	for (int i = 0; i < initialHulls.size(); i++) {
 		delete initialHulls[i];
 	}
-//	con.draw_particles("VoronoyP.gnu");
-//	con.draw_cells_gnuplot("VoronoyC.gnu");
+	//	con.draw_particles("VoronoyP.gnu");
+	//	con.draw_cells_gnuplot("VoronoyC.gnu");
 }
 
 void grainhdl::readMicrostructure() {
@@ -514,7 +530,7 @@ void grainhdl::read_voxelized_microstructure() {
 	voxelized_data = fopen(Settings::ReadFromFilename.c_str(), "rb");
 	if (voxelized_data == NULL) {
 		cout
-				<< "Could not read from specified file: Settings::ReadFromFilename !";
+		<< "Could not read from specified file: Settings::ReadFromFilename !";
 		exit(2);
 	}
 
@@ -603,8 +619,8 @@ void grainhdl::createConvolutionPlans() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(i);
 		for(auto & id : workload)
-		if(grains[id] != NULL)
-		grains[id]->createConvolutionPlans(m_ThreadMemPool[i]);
+			if(grains[id] != NULL)
+				grains[id]->createConvolutionPlans(m_ThreadMemPool[i]);
 	}
 #endif
 }
@@ -635,7 +651,7 @@ void grainhdl::convolution(double& planOverhead) {
 	timer = time.tv_sec + time.tv_usec / 1000000.0;
 	for (unsigned int i = 1; i < grains.size(); i++) {
 		if (grains[i] != NULL)
-		grains[i]->cleanupConvolution();
+			grains[i]->cleanupConvolution();
 	}
 	gettimeofday(&time, NULL);
 #endif
@@ -673,28 +689,28 @@ void grainhdl::level_set() {
 				grains[id]->extractContour();
 		}
 	}
-#pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-			grains[id]->correctJunctionPositionWithNeighborInformation();
-		}
-	}
-#pragma omp parallel
-	{
-		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-				omp_get_thread_num());
-		for (auto id : workload) {
-			if (id <= Settings::NumberOfParticles)
-				if (grains[id] == NULL)
-					continue;
-			grains[id]->switchBufferPositions();
-		}
-	}
+//#pragma omp parallel
+//	{
+//		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+//				omp_get_thread_num());
+//		for (auto id : workload) {
+//			if (id <= Settings::NumberOfParticles)
+//				if (grains[id] == NULL)
+//					continue;
+//			grains[id]->correctJunctionPositionWithNeighborInformation();
+//		}
+//	}
+//#pragma omp parallel
+//	{
+//		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+//				omp_get_thread_num());
+//		for (auto id : workload) {
+//			if (id <= Settings::NumberOfParticles)
+//				if (grains[id] == NULL)
+//					continue;
+//			grains[id]->switchBufferPositions();
+//		}
+//	}
 #pragma omp parallel
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
@@ -714,28 +730,28 @@ void grainhdl::redistancing() {
 	{
 		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
 				omp_get_thread_num());
-for	(auto id : workload) {
-		if (id <= Settings::NumberOfParticles)
-		if (grains[id] == NULL)
-		continue;
-//		grains[id]->plotBoxVolumetric("Pre",
-//				E_INPUT_DISTANCE, get_h());
-//		cout << "Surface Redistancing" << endl;
-//		grains[id]->executeSurfaceRedistancing();
-//		grains[id]->executeDERedistancing();
-//		cout << "Pre Redistancing" << endl;
-//		grains[id]->executePreRedistancing();
-//		cout << "Final Redistancing" << endl;
-//		grains[id]->executeFinalRedistancing();
-		grains[id]->executeRedistancing();
-//		grains[id]->switchInNOut();
-//		grains[id]->executeNewRedistancing();
-//		grains[id]->executeCombinedRedistancing();
-//		grains[id]->switchInNOut();
-//		grains[id]->plotBoxVolumetric("Post",
-//				E_INPUT_DISTANCE, get_h());
+		for	(auto id : workload) {
+			if (id <= Settings::NumberOfParticles)
+				if (grains[id] == NULL)
+					continue;
+			//		grains[id]->plotBoxVolumetric("Pre",
+			//				E_INPUT_DISTANCE, get_h());
+			//		cout << "Surface Redistancing" << endl;
+			//		grains[id]->executeSurfaceRedistancing();
+			//		grains[id]->executeDERedistancing();
+			//		cout << "Pre Redistancing" << endl;
+			//		grains[id]->executePreRedistancing();
+			//		cout << "Final Redistancing" << endl;
+			//		grains[id]->executeFinalRedistancing();
+			grains[id]->executeRedistancing();
+			//		grains[id]->switchInNOut();
+			//		grains[id]->executeNewRedistancing();
+			//		grains[id]->executeCombinedRedistancing();
+			//		grains[id]->switchInNOut();
+			//		grains[id]->plotBoxVolumetric("Post",
+			//				E_INPUT_DISTANCE, get_h());
+		}
 	}
-}
 }
 
 void grainhdl::save_Texture() {
@@ -767,7 +783,7 @@ void grainhdl::save_Texture() {
 		fclose(binaryTexture);
 	} else {
 		string filename = string("Texture_")
-				+ to_string((unsigned long long) loop) + string(".ori");
+						+ to_string((unsigned long long) loop) + string(".ori");
 		ofstream file;
 		file.open(filename.c_str());
 		double *euler;
@@ -793,7 +809,7 @@ void grainhdl::save_Texture() {
 				else
 					file << grains[i]->get_SEE();
 				file << "\t" << euler[0] << "\t" << euler[1] << "\t" << euler[2]
-						<< "\n";
+																			  << "\n";
 				delete[] euler;
 			}
 		}
@@ -821,6 +837,7 @@ void grainhdl::run_sim() {
 	timeval time;
 	double timer;
 	distanceInitialisation();
+
 	Realtime = 0;
 	find_neighbors();
 
@@ -829,12 +846,14 @@ void grainhdl::run_sim() {
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		gridCoarsement();
+
 		gettimeofday(&time, NULL);
 		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		convolution(plan_overhead);
+
 		gettimeofday(&time, NULL);
 		convo_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
@@ -842,6 +861,8 @@ void grainhdl::run_sim() {
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		switchDistancebuffer();
 		updateSecondOrderNeighbors();
+
+
 		gettimeofday(&time, NULL);
 		parallelRest += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
@@ -849,6 +870,7 @@ void grainhdl::run_sim() {
 			gettimeofday(&time, NULL);
 			timer = time.tv_sec + time.tv_usec / 1000000.0;
 			comparison_box();
+
 			gettimeofday(&time, NULL);
 			comparison_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
@@ -861,9 +883,13 @@ void grainhdl::run_sim() {
 			tweakIDLocal();
 		}
 
+		if(Settings::PeriodicBoundaryConditions)
+					checkBorderOverlap();
+
 		gettimeofday(&time, NULL);
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		level_set();
+
 		gettimeofday(&time, NULL);
 		levelset_time += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 
@@ -878,16 +904,16 @@ void grainhdl::run_sim() {
 		timer = time.tv_sec + time.tv_usec / 1000000.0;
 		if (((loop - Settings::StartTime) % int(Settings::AnalysisTimestep))
 				== 0 || loop == Settings::NumberOfTimesteps) {
-//			saveNetworkState();
+			//			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
 			if (loop > 0
 					&& ((loop - Settings::StartTime)
 							% int(
 									Settings::AnalysisTimestep
-											* Settings::PlotInterval)) == 0) {
+									* Settings::PlotInterval)) == 0) {
 				saveNetworkAsVoxelContainer();
-//				plot_contour();
+				//				plot_contour();
 			}
 		}
 		plot_contour();
@@ -897,16 +923,16 @@ void grainhdl::run_sim() {
 				(dt
 						* (Settings::Physical_Domain_Size
 								* Settings::Physical_Domain_Size)
-						/ (
-//								TimeSlope *
-								Settings::HAGB_Energy
-								* Settings::HAGB_Mobility));
+								/ (
+										//								TimeSlope *
+										Settings::HAGB_Energy
+										* Settings::HAGB_Mobility));
 
 		if (currentNrGrains < Settings::BreakupNumber) {
 			cout
-					<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
-					<< "Remaining Grains: " << currentNrGrains
-					<< ". Break and save." << endl;
+			<< "Network has coarsed to less than specified by Settings::BreakupNumber. "
+			<< "Remaining Grains: " << currentNrGrains
+			<< ". Break and save." << endl;
 			break;
 		}
 		// 	utils::CreateMakeGif();
@@ -922,7 +948,7 @@ void grainhdl::run_sim() {
 	cout << "GridCoarse/SwitchBuffer/UpNeigh: " << parallelRest << endl;
 	cout << "Sum parallel regions: "
 			<< convo_time + comparison_time + levelset_time + parallelRest
-					+ redistancing_time << endl;
+			+ redistancing_time << endl;
 	cout << "I/O time: " << output << endl;
 }
 
@@ -936,17 +962,17 @@ void grainhdl::countGrains() {
 }
 
 void grainhdl::plot_contour(){
-//#pragma omp parallel
-//	{
-//		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
-//				omp_get_thread_num());
-//		for (auto id : workload) {
-//			if (id <= Settings::NumberOfParticles)
-//				if (grains[id] == NULL)
-//					continue;
-//			grains[id]->plotBoxContour(true);
-//		}
-//	}
+	//#pragma omp parallel
+	//	{
+	//		vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+	//				omp_get_thread_num());
+	//		for (auto id : workload) {
+	//			if (id <= Settings::NumberOfParticles)
+	//				if (grains[id] == NULL)
+	//					continue;
+	//			grains[id]->plotBoxContour(true);
+	//		}
+	//	}
 
 	int id = Settings::NeighbourhoodGrain;
 	grains[id]->plotBoxContour(true);
@@ -977,18 +1003,18 @@ void grainhdl::createParamsForSim(const char* param_filename,
 }
 
 void grainhdl::save_NrGrainsStats() {
-//	ofstream myfile;
-//	myfile.open("NrGrains&EnergyStatistics.txt");
-//	for (unsigned int i = 0; i < nr_grains.size(); i++) {
-//		myfile << time[i] << "\t";
-//		myfile << nr_grains[i] << "\t";
-//		//myfile << totalenergy[i] << "\t";
-//		myfile << realDomainSize << endl;
-//	}
-//	myfile.close();
-//
-//}
-// 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);
+	//	ofstream myfile;
+	//	myfile.open("NrGrains&EnergyStatistics.txt");
+	//	for (unsigned int i = 0; i < nr_grains.size(); i++) {
+	//		myfile << time[i] << "\t";
+	//		myfile << nr_grains[i] << "\t";
+	//		//myfile << totalenergy[i] << "\t";
+	//		myfile << realDomainSize << endl;
+	//	}
+	//	myfile.close();
+	//
+	//}
+	// 	(*my_weights).plot_weightmap(ngridpoints, ID, ST, zeroBox);
 	ofstream myfile;
 	if (loop == 0)
 		myfile.open("NrGrains&EnergyStatistics.txt");
@@ -1000,8 +1026,8 @@ void grainhdl::save_NrGrainsStats() {
 	myfile << realDomainSize << endl;
 	myfile.close();
 
-// 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
-//cout << "number of distanzmatrices: "<< domains.size() << endl;
+	// 	if (SAVEIMAGE)utils::PNGtoGIF("test.mp4");
+	//cout << "number of distanzmatrices: "<< domains.size() << endl;
 
 }
 
@@ -1044,6 +1070,327 @@ void grainhdl::find_neighbors() {
 			grains[id]->computeDirectNeighbours(tree);
 		}
 	}
+	if(Settings::PeriodicBoundaryConditions){
+
+		/*
+		 * Compute the neighbours after shifting the front and back faces into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_1;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = (grains[i]->getMinX()+ngridpoints/2)%ngridpoints;
+			min[1] = grains[i]->getMinY();
+			min[2] = grains[i]->getMinZ();
+			max[0] = (grains[i]->getMaxX()+ngridpoints/2)%ngridpoints;
+			max[1] = grains[i]->getMaxY();
+			max[2] = grains[i]->getMaxZ();
+			if(min[0]>max[0])
+				max[0]+=ngridpoints;
+			tree_1.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = (grains[id]->getMinX()+ngridpoints/2)%ngridpoints;
+					min[1] = grains[id]->getMinY();
+					min[2] = grains[id]->getMinZ();
+					max[0] = (grains[id]->getMaxX()+ngridpoints/2)%ngridpoints;
+					max[1] = grains[id]->getMaxY();
+					max[2] = grains[id]->getMaxZ();
+					if(min[0]>max[0])
+						max[0]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_1, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Compute the neighbours after shifting the left and right faces into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_2;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = grains[i]->getMinX();
+			min[1] = (grains[i]->getMinY()+ngridpoints/2)%ngridpoints;
+			min[2] = grains[i]->getMinZ();
+			max[0] = grains[i]->getMaxX();
+			max[1] = (grains[i]->getMaxY()+ngridpoints/2)%ngridpoints;
+			max[2] = grains[i]->getMaxZ();
+			if(min[1]>max[1])
+				max[1]+=ngridpoints;
+			tree_2.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = grains[id]->getMinX();
+					min[1] = (grains[id]->getMinY()+ngridpoints/2)%ngridpoints;
+					min[2] = grains[id]->getMinZ();
+					max[0] = grains[id]->getMaxX();
+					max[1] = (grains[id]->getMaxY()+ngridpoints/2)%ngridpoints;
+					max[2] = grains[id]->getMaxZ();
+					if(min[1]>max[1])
+						max[1]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_2, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Compute the neighbours after shifting the top and bottom faces into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_3;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = grains[i]->getMinX();
+			min[1] = grains[i]->getMinY();
+			min[2] = (grains[i]->getMinZ()+ngridpoints/2)%ngridpoints;
+			max[0] = grains[i]->getMaxX();
+			max[1] = grains[i]->getMaxY();
+			max[2] = (grains[i]->getMaxZ()+ngridpoints/2)%ngridpoints;
+			if(min[2]>max[2])
+				max[2]+=ngridpoints;
+			tree_3.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = grains[id]->getMinX();
+					min[1] = grains[id]->getMinY();
+					min[2] = (grains[id]->getMinZ()+ngridpoints/2)%ngridpoints;
+					max[0] = grains[id]->getMaxX();
+					max[1] = grains[id]->getMaxY();
+					max[2] = (grains[id]->getMaxZ()+ngridpoints/2)%ngridpoints;
+					if(min[2]>max[2])
+						max[2]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_3, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Compute the neighbours after shifting the edges in x and y direction into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_4;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = (grains[i]->getMinX()+ngridpoints/2)%ngridpoints;
+			min[1] = (grains[i]->getMinY()+ngridpoints/2)%ngridpoints;
+			min[2] = grains[i]->getMinZ();
+			max[0] = (grains[i]->getMaxX()+ngridpoints/2)%ngridpoints;
+			max[1] = (grains[i]->getMaxY()+ngridpoints/2)%ngridpoints;
+			max[2] = grains[i]->getMaxZ();
+
+			if(min[0]>max[0])
+				max[0]+=ngridpoints;
+			if(min[1]>max[1])
+				max[1]+=ngridpoints;
+			tree_4.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = (grains[id]->getMinX()+ngridpoints/2)%ngridpoints;
+					min[1] = (grains[id]->getMinY()+ngridpoints/2)%ngridpoints;
+					min[2] = grains[id]->getMinZ();
+					max[0] = (grains[id]->getMaxX()+ngridpoints/2)%ngridpoints;
+					max[1] = (grains[id]->getMaxY()+ngridpoints/2)%ngridpoints;
+					max[2] = grains[id]->getMaxZ();
+
+					if(min[0]>max[0])
+						max[0]+=ngridpoints;
+					if(min[1]>max[1])
+						max[1]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_4, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Compute the neighbours after shifting the edges in x and z direction into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_5;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = (grains[i]->getMinX()+ngridpoints/2)%ngridpoints;
+			min[1] = grains[i]->getMinY();
+			min[2] = (grains[i]->getMinZ()+ngridpoints/2)%ngridpoints;
+			max[0] = (grains[i]->getMaxX()+ngridpoints/2)%ngridpoints;
+			max[1] = grains[i]->getMaxY();
+			max[2] = (grains[i]->getMaxZ()+ngridpoints/2)%ngridpoints;
+
+			if(min[0]>max[0])
+				max[0]+=ngridpoints;
+			if(min[2]>max[2])
+				max[1]+=ngridpoints;
+			tree_5.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = (grains[id]->getMinX()+ngridpoints/2)%ngridpoints;
+					min[1] = grains[id]->getMinY();
+					min[2] = (grains[id]->getMinZ()+ngridpoints/2)%ngridpoints;
+					max[0] = (grains[id]->getMaxX()+ngridpoints/2)%ngridpoints;
+					max[1] = grains[id]->getMaxY();
+					max[2] = (grains[id]->getMaxZ()+ngridpoints/2)%ngridpoints;
+
+					if(min[0]>max[0])
+						max[0]+=ngridpoints;
+					if(min[2]>max[2])
+						max[1]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_5, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Compute the neighbours after shifting the edges in y and z direction into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_6;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = grains[i]->getMinX();
+			min[1] = (grains[i]->getMinY()+ngridpoints/2)%ngridpoints;
+			min[2] = (grains[i]->getMinZ()+ngridpoints/2)%ngridpoints;
+			max[0] = grains[i]->getMaxX();
+			max[1] = (grains[i]->getMaxY()+ngridpoints/2)%ngridpoints;
+			max[2] = (grains[i]->getMaxZ()+ngridpoints/2)%ngridpoints;
+
+			if(min[1]>max[1])
+				max[1]+=ngridpoints;
+			if(min[2]>max[2])
+				max[1]+=ngridpoints;
+			tree_6.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = grains[id]->getMinX();
+					min[1] = (grains[id]->getMinY()+ngridpoints/2)%ngridpoints;
+					min[2] = (grains[id]->getMinZ()+ngridpoints/2)%ngridpoints;
+					max[0] = grains[id]->getMaxX();
+					max[1] = (grains[id]->getMaxY()+ngridpoints/2)%ngridpoints;
+					max[2] = (grains[id]->getMaxZ()+ngridpoints/2)%ngridpoints;
+
+					if(min[1]>max[1])
+						max[1]+=ngridpoints;
+					if(min[2]>max[2])
+						max[1]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_6, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Compute the neighbours after shifting the corners into the middle
+		 */
+
+		RTree<unsigned int, int, 3, float> tree_7;
+		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
+			if (grains[i] == NULL)
+				continue;
+			min[0] = (grains[i]->getMinX()+ngridpoints/2)%ngridpoints;
+			min[1] = (grains[i]->getMinY()+ngridpoints/2)%ngridpoints;
+			min[2] = (grains[i]->getMinZ()+ngridpoints/2)%ngridpoints;
+			max[0] = (grains[i]->getMaxX()+ngridpoints/2)%ngridpoints;
+			max[1] = (grains[i]->getMaxY()+ngridpoints/2)%ngridpoints;
+			max[2] = (grains[i]->getMaxZ()+ngridpoints/2)%ngridpoints;
+
+			if(min[0]>max[0])
+				max[0]+=ngridpoints;
+			if(min[1]>max[1])
+				max[1]+=ngridpoints;
+			if(min[2]>max[2])
+				max[1]+=ngridpoints;
+			tree_7.Insert(min, max, i);
+		}
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					min[0] = (grains[id]->getMinX()+ngridpoints/2)%ngridpoints;
+					min[1] = (grains[id]->getMinY()+ngridpoints/2)%ngridpoints;
+					min[2] = (grains[id]->getMinZ()+ngridpoints/2)%ngridpoints;
+					max[0] = (grains[id]->getMaxX()+ngridpoints/2)%ngridpoints;
+					max[1] = (grains[id]->getMaxY()+ngridpoints/2)%ngridpoints;
+					max[2] = (grains[id]->getMaxZ()+ngridpoints/2)%ngridpoints;
+
+					if(min[0]>max[0])
+						max[0]+=ngridpoints;
+					if(min[1]>max[1])
+						max[1]+=ngridpoints;
+					if(min[2]>max[2])
+						max[1]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree_7, min, max);
+				}
+			}
+		}
+
+		/*
+		 * Clean up neighbourlists by removing grains that are stored twice
+		 */
+
+#pragma omp parallel
+		{
+			vector<unsigned int>& workload = m_grainScheduler->getThreadWorkload(
+					omp_get_thread_num());
+			for	(auto id : workload) {
+				if (id <= Settings::NumberOfParticles) {
+					if (grains[id] == NULL)
+						continue;
+					grains[id]->cleanUpNeighbourLists();
+				}
+			}
+		}
+
+	}
 }
 
 void grainhdl::saveSpecialContourEnergies(int id) {
@@ -1068,9 +1415,9 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 
 	DimensionalBuffer<unsigned int> * container = new DimensionalBuffer<
 			unsigned int>(0, 0, 0, realDomainSize, realDomainSize,
-			realDomainSize);
+					realDomainSize);
 	string filename = string("Microstructure_")
-			+ to_string((unsigned long long) loop) + string(".uds");
+					+ to_string((unsigned long long) loop) + string(".uds");
 	ofstream file;
 	file.open(filename.c_str());
 	for (int thread = 0; thread < omp_get_max_threads(); thread++) {
@@ -1095,10 +1442,10 @@ void grainhdl::saveNetworkAsVoxelContainer() {
 				<< "\t"
 				<< ((it->getMaxZ() - it->getMinZ()) / 2 + it->getMinZ()) * h
 				<< "\t" << bunge[0] << "\t" << bunge[1] << "\t" << bunge[2]
-				<< "\t" << it->getMinX() << "\t" << it->getMaxX() << "\t"
-				<< it->getMinY() << "\t" << it->getMaxY() << "\t"
-				<< it->getMinZ() << "\t" << it->getMaxZ() << "\t"
-				<< it->getVolume() << "\t" << it->get_SEE() << endl;
+																		 << "\t" << it->getMinX() << "\t" << it->getMaxX() << "\t"
+																		 << it->getMinY() << "\t" << it->getMaxY() << "\t"
+																		 << it->getMinZ() << "\t" << it->getMaxZ() << "\t"
+																		 << it->getVolume() << "\t" << it->get_SEE() << endl;
 		delete[] bunge;
 	}
 	file.close();
@@ -1186,11 +1533,11 @@ void grainhdl::buildBoxVectors(vector<vector<Vector3d>*>& hulls) {
 					{
 						exceptionHappened = true;
 						error_message += string("Grain ")
-								+ to_string((unsigned long long) id)
-								+ string(" failed at timestep ")
-								+ to_string((unsigned long long) loop)
-								+ " in its constructor! Reason : " + e.what()
-								+ string("\n");
+										+ to_string((unsigned long long) id)
+										+ string(" failed at timestep ")
+										+ to_string((unsigned long long) loop)
+										+ " in its constructor! Reason : " + e.what()
+										+ string("\n");
 					}
 				}
 		}
@@ -1221,11 +1568,11 @@ void grainhdl::buildBoxVectors(int* ID, vector<vector<Vector3d>*>& hulls,
 					{
 						exceptionHappened = true;
 						error_message += string("Grain ")
-								+ to_string((unsigned long long) id)
-								+ string(" failed at timestep ")
-								+ to_string((unsigned long long) loop)
-								+ " in its constructor! Reason : " + e.what()
-								+ string("\n");
+										+ to_string((unsigned long long) id)
+										+ string(" failed at timestep ")
+										+ to_string((unsigned long long) loop)
+										+ " in its constructor! Reason : " + e.what()
+										+ string("\n");
 					}
 				}
 		}
@@ -1265,7 +1612,7 @@ int grainhdl::read_ScenarioPoints() {
 }
 
 void grainhdl::initEnvironment() {
-//Set up correct Maximum Number of threads
+	//Set up correct Maximum Number of threads
 	if (Settings::ExecuteInParallel) {
 		Settings::MaximumNumberOfThreads = omp_get_max_threads();
 
@@ -1277,12 +1624,12 @@ void grainhdl::initEnvironment() {
 	m_ThreadPoolCount = Settings::MaximumNumberOfThreads;
 	m_ThreadMemPool.resize(m_ThreadPoolCount);
 
-//These lines might need to be moved if spatial distribution of grains is utilized
-//At best the grain scheduler should be configurable through the parameters file
+	//These lines might need to be moved if spatial distribution of grains is utilized
+	//At best the grain scheduler should be configurable through the parameters file
 
-//m_grainScheduler = new IterativeGrainScheduler(Settings::MaximumNumberOfThreads, Settings::NumberOfParticles);
+	//m_grainScheduler = new IterativeGrainScheduler(Settings::MaximumNumberOfThreads, Settings::NumberOfParticles);
 
-//choose grain scheduler:
+	//choose grain scheduler:
 	if (Settings::GrainScheduler == E_ITERATIVE) {
 		m_grainScheduler = new IterativeGrainScheduler(
 				Settings::MaximumNumberOfThreads, Settings::NumberOfParticles);
@@ -1323,7 +1670,7 @@ void grainhdl::initNUMABindings() {
 	vector<NUMANode> nodes;
 	nodes.reserve(16);
 	numa_available();
-// returns a mask of CPUs on which the current task is allowed to run.
+	// returns a mask of CPUs on which the current task is allowed to run.
 	bitmask* mask = numa_get_run_node_mask();
 	bitmask* cpus = numa_allocate_cpumask();
 	for (unsigned int j = 0; j < mask->size; j++) {
@@ -1424,12 +1771,12 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	delta = Settings::DomainBorderSize / double(realDomainSize);
 	ngridpoints = realDomainSize + 2 * grid_blowup;
 	h = 1.0 / realDomainSize;
-//find_correctTimestepSize();
+	//find_correctTimestepSize();
 }
 
 void grainhdl::gridCoarsement() {
 	int newSize = pow(currentNrGrains, (1 / 3.0))
-			* pow(PI*4/3,1./3) / 2 * Settings::NumberOfPointsPerGrain;
+					* pow(PI*4/3,1./3) / 2 * Settings::NumberOfPointsPerGrain;
 	if ((double) currentNrGrains / (double) ngrains
 			< Settings::GridCoarsementGradient && loop != 0
 			&& Settings::GridCoarsement && newSize < realDomainSize) {
@@ -1478,5 +1825,28 @@ void grainhdl::gridCoarsement() {
 		}
 	} else {
 		switchDistancebuffer();
+	}
+}
+
+void grainhdl::checkBorderOverlap(){
+#pragma omp parallel
+	{
+		vector<unsigned int>& workload =
+				m_grainScheduler->getThreadWorkload(omp_get_thread_num());
+		for		(auto id : workload) {
+			if (id <= Settings::NumberOfParticles) {
+				if (grains[id] == NULL)
+					continue;
+				if(grains[id]->getMinX()<0){
+					grains[id]->shiftXDirection();
+				}
+				if(grains[id]->getMinY()<0){
+					grains[id]->shiftYDirection();
+				}
+				if(grains[id]->getMinZ()<0){
+									grains[id]->shiftZDirection();
+				}
+			}
+		}
 	}
 }

@@ -262,6 +262,42 @@ public:
 	inline int getMaxZ() const
 	{return m_zMax;}
 	/*!
+	 * \brief This method sets the value for the left boundary of the managed region.
+	 */
+	inline void setMinX(int val) {
+		m_xMin = val;
+	}
+	/*!
+	 * \brief This method sets the value for the right boundary of the managed region.
+	 */
+	inline void setMaxX(int val) {
+		m_xMax = val;
+	}
+	/*!
+	 * \brief This method sets the value for the bottom boundary of the managed region.
+	 */
+	inline void setMinY(int val) {
+		m_yMin = val;
+	}
+	/*!
+	 * \brief This method sets the value for the top boundary of the managed region.
+	 */
+	inline void setMaxY(int val) {
+		m_yMax = val;
+	}
+	/*!
+	 * \brief This method sets the value for the front boundary of the managed region.
+	 */
+	inline void setMinZ(int val) {
+		m_zMin = val;
+	}
+	/*!
+	 * \brief This method sets the value for the back boundary of the managed region.
+	 */
+	inline void setMaxZ(int val) {
+		m_zMax = val;
+	}
+	/*!
 	* \brief This method returns a pointer to the actual data stored in the buffer.
 	*/
 	inline T* getRawData()

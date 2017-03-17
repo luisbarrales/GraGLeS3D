@@ -274,16 +274,18 @@ void GrainHull::computeJunctionPosition() {
 	mergeJunction();
 }
 
-Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
+Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition, double x_shift, double y_shift, double z_shift) {
 	double distanceH = 1000000000;
 	double distanceQ = 1000000000;
 	double distanceTo;
 	int posQuadruple;
 	int posHigherOrder;
 
+	Vector3d Shift(x_shift,y_shift,z_shift);
+
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 		distanceTo =
-				(m_QuadruplePoints[i]->get_Position() - myposition).squaredNorm();
+				(m_QuadruplePoints[i]->get_Position() + Shift - myposition).squaredNorm();
 		if (distanceTo < distanceQ) {
 			distanceQ = distanceTo;
 			posQuadruple = i;
@@ -292,81 +294,55 @@ Vector3d GrainHull::findClosestJunctionTo(Vector3d myposition) {
 
 	for (int i = 0; i < m_HighOrderJunctions.size(); i++) {
 		distanceTo =
-				(m_HighOrderJunctions[i]->get_Position() - myposition).squaredNorm();
+				(m_HighOrderJunctions[i]->get_Position()+Shift - myposition).squaredNorm();
 		if (distanceTo < distanceH) {
 			distanceH = distanceTo;
 			posHigherOrder = i;
 		}
 	}
 	if (distanceH > distanceQ) {
-		return m_QuadruplePoints[posQuadruple]->get_Position();
+		return m_QuadruplePoints[posQuadruple]->get_Position()+Shift;
 	} else {
-		return m_HighOrderJunctions[posHigherOrder]->get_Position();
+		return m_HighOrderJunctions[posHigherOrder]->get_Position()+Shift;
 	}
 }
 
 void GrainHull::correctJunctionPositionWithNeighborInformation() {
-	/*
-	 * some debugging
-	 */
 
-	vector<double> distances;
 	double h = m_owner->get_grainHandler()->get_h();
-	string filenamePos;
-	filenamePos = "Position_";
-	filenamePos += to_string(m_owner->getID());
-	filenamePos += "Timestep_";
-	filenamePos += to_string(m_owner->get_grainHandler()->get_loop());
-	ofstream CorrectingPositions;
-//	CorrectingPositions.open(filenamePos.c_str());
-//
-//	CorrectingPositions << "xcoord ycoord zcoord scalar" << endl;
-
-	/*
-	 * end of debugging
-	 */
+	double x_shift=0;
+	double y_shift=0;
+	double z_shift=0;
 
 	for (const auto it : m_QuadruplePoints) {
 		vector<int> neighbors = it->get_NeighborIDs();
 		Vector3d correspondingJunctions(it->get_Position());
 		int N = 0;
+
 		for (int i = 0; i < neighbors.size(); i++) {
 			if (neighbors[i] != 0) {
 
-				/*
-				 * some debugging
-				 */
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMaxX() < m_owner->getMinX())
+					x_shift=1.;
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMinX() > m_owner->getMaxX())
+					x_shift=-1.;
+
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMaxY() < m_owner->getMinY())
+					y_shift=1.;
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMinY() > m_owner->getMaxY())
+					y_shift=-1.;
+
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMaxZ() < m_owner->getMinZ())
+					z_shift=1.;
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMinZ() > m_owner->getMaxZ())
+					z_shift=-1.;
+
 				Vector3d posClosestJunction;
 				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(
 						neighbors[i])->findClosestJunctionTo(
-						it->get_Position());
-				distances.push_back(
-						(posClosestJunction - it->get_Position()).norm());
+								it->get_Position(), x_shift, y_shift, z_shift);
 
-				if (m_owner->getID() == 1)
-					if (distances.back() > 7) {
-						CorrectingPositions << (it->get_Position())(0) << " "
-								<< (it->get_Position())(1) << " "
-								<< (it->get_Position())(2) << " "
-								<< distances.back() << endl;
-						CorrectingPositions << posClosestJunction(0) << " "
-								<< posClosestJunction(1) << " "
-								<< posClosestJunction(2) << " "
-								<< distances.back() << endl;
-
-//						cout << (it->get_Position())(0) << " "
-//								<< (it->get_Position())(1) << " "
-//								<< (it->get_Position())(2) << " "
-//								<< distances.back() << endl;
-//						cout << posClosestJunction(0) << " "
-//								<< posClosestJunction(1) << " "
-//								<< posClosestJunction(2) << " "
-//								<< distances.back() << endl;
-					}
-				/*
-				 * end of debugging
-				 */
-				if (distances.back() < 3 ) {
+				if ((posClosestJunction - it->get_Position()).norm() < 3 ) {
 					correspondingJunctions += posClosestJunction;
 					N++;
 				}
@@ -382,41 +358,29 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		int N = 0;
 		for (int i = 0; i < neighbors.size(); i++) {
 			if (neighbors[i] != 0) {
-				/*
-				 * some debugging
-				 */
+
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMaxX() < m_owner->getMinX())
+					x_shift=1.;
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMinX() > m_owner->getMaxX())
+					x_shift=-1.;
+
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMaxY() < m_owner->getMinY())
+					y_shift=1.;
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMinY() > m_owner->getMaxY())
+					y_shift=-1.;
+
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMaxZ() < m_owner->getMinZ())
+					z_shift=1.;
+				if(m_owner->get_grainHandler()->getGrainByID(neighbors[i])->getMinZ() > m_owner->getMaxZ())
+					z_shift=-1.;
+
 				Vector3d posClosestJunction;
 				posClosestJunction = m_owner->get_grainHandler()->getGrainByID(
 						neighbors[i])->findClosestJunctionTo(
-						it->get_Position());
-				distances.push_back(
-						(posClosestJunction - it->get_Position()).norm());
+								it->get_Position(), x_shift, y_shift, z_shift);
 
-				if (m_owner->getID() == 1)
-					if (distances.back() > 7) {
-						CorrectingPositions << (it->get_Position())(0) << " "
-								<< (it->get_Position())(1) << " "
-								<< (it->get_Position())(2) << " "
-								<< distances.back() << endl;
-						CorrectingPositions << posClosestJunction(0) << " "
-								<< posClosestJunction(1) << " "
-								<< posClosestJunction(2) << " "
-								<< distances.back() << endl;
 
-						cout << (it->get_Position())(0) << " "
-								<< (it->get_Position())(1) << " "
-								<< (it->get_Position())(2) << " "
-								<< distances.back() << endl;
-						cout << posClosestJunction(0) << " "
-								<< posClosestJunction(1) << " "
-								<< posClosestJunction(2) << " "
-								<< distances.back() << endl;
-					}
-
-				/*
-				 * end of debugging
-				 */
-				if (distances.back() < 3 * h) {
+				if ((posClosestJunction - it->get_Position()).norm() < 3 * h) {
 					correspondingJunctions += posClosestJunction;
 					N++;
 				}
@@ -426,29 +390,6 @@ void GrainHull::correctJunctionPositionWithNeighborInformation() {
 		correspondingJunctions /= (double) (N + 1);
 		it->set_BufferPosition(correspondingJunctions);
 	}
-
-	/*
-	 * some debugging
-	 */
-
-//	if (m_owner->getID() == 1)
-//		CorrectingPositions.close();
-//	if (m_owner->getID() == 1) {
-//		string filename;
-//		filename = "DistanceHistogram_Grain_";
-//		filename += to_string(m_owner->getID());
-//		filename += "Timestep_";
-//		filename += to_string(m_owner->get_grainHandler()->get_loop());
-//		ofstream DistanceHistogram;
-//		DistanceHistogram.open(filename.c_str());
-//		for (int i = 0; i < distances.size(); i++) {
-////			DistanceHistogram << distances[i] << endl;
-//		}
-//		DistanceHistogram.close();
-//	}
-	/*
-	 * end of debugging
-	 */
 
 }
 
@@ -1336,4 +1277,28 @@ vector<Face>* GrainHull::get_Faces() {
 							it->m_neighborIDs[0]));
 	}
 	return myfaces;
+}
+
+void GrainHull::shift_x_GrainBoundary(int ngridpoints, double h){
+	for(int i=0; i<m_actualHull.size(); i++){
+		((m_actualHull[i]).points[0])(0) +=ngridpoints*h;
+		((m_actualHull[i]).points[1])(0) +=ngridpoints*h;
+		((m_actualHull[i]).points[2])(0) +=ngridpoints*h;
+	}
+}
+
+void GrainHull::shift_y_GrainBoundary(int ngridpoints, double h){
+	for(int i=0; i<m_actualHull.size(); i++){
+		((m_actualHull[i]).points[0])(1) +=ngridpoints*h;
+		((m_actualHull[i]).points[1])(1) +=ngridpoints*h;
+		((m_actualHull[i]).points[2])(1) +=ngridpoints*h;
+	}
+}
+
+void GrainHull::shift_z_GrainBoundary(int ngridpoints, double h){
+	for(int i=0; i<m_actualHull.size(); i++){
+		((m_actualHull[i]).points[0])(2) +=ngridpoints*h;
+		((m_actualHull[i]).points[1])(2) +=ngridpoints*h;
+		((m_actualHull[i]).points[2])(2) +=ngridpoints*h;
+	}
 }

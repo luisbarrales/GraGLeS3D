@@ -71,6 +71,7 @@ public:
 	static unsigned long AnalysisTimestep;
 	static unsigned long PlotInterval;
 	static unsigned long DiscreteSamplingRate;
+	static bool PeriodicBoundaryConditions;
 	static unsigned long DomainBorderSize;
 	static unsigned long GrainScheduler;
 	static E_MICROSTRUCTURE_GEN_MODE MicrostructureGenMode;

@@ -145,6 +145,8 @@ public:
 	//! Used if points are set manually
 	int read_ScenarioPoints();
 
+	void checkBorderOverlap();
+
 	inline LSbox* getGrainByID(unsigned int ID) {
 		if (ID == 0)
 			return boundary;

@@ -71,7 +71,7 @@ public:
 	void correctJunctionPositionWithNeighborInformation();
 	void computeGrainBoundaryElements();
 	void subDivideTrianglesToInterfacialElements();
-	Vector3d findClosestJunctionTo(Vector3d myposition);
+	Vector3d findClosestJunctionTo(Vector3d myposition, double x_shift, double y_shift, double z_shift);
 	void mergeJunction();
 	void switchBufferPositions();
 	void computeInterfacialElementMesh();
@@ -113,6 +113,10 @@ public:
 	inline vector<Triangle> get_actualHull(){
 		return m_actualHull;
 	}
+	void shift_x_GrainBoundary(int ngridpoints, double h);
+	void shift_y_GrainBoundary(int ngridpoints, double h);
+	void shift_z_GrainBoundary(int ngridpoints, double h);
+
 };
 
 #endif //__GRAIN_HULL__

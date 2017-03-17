@@ -34,6 +34,7 @@ unsigned long Settings::NumberOfTimesteps = 0;
 unsigned long Settings::BreakupNumber = 0;
 unsigned long Settings::AnalysisTimestep = 0;
 unsigned long Settings::DiscreteSamplingRate = 0;
+bool Settings::PeriodicBoundaryConditions=1;
 unsigned long Settings::DomainBorderSize = 0;
 unsigned long Settings::MaximumNumberOfThreads = 0;
 unsigned long Settings::GrainScheduler = 0;
@@ -128,6 +129,10 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("DiscreteSamplingRate")) {
 		DiscreteSamplingRate = std::stoul(
 				rootNode->first_node("DiscreteSamplingRate")->value());
+	}
+	if (0 != rootNode->first_node("PeriodicBoundaryConditions")) {
+			PeriodicBoundaryConditions = std::stoul(
+					rootNode->first_node("PeriodicBoundaryConditions")->value());
 	}
 	if (0 != rootNode->first_node("DomainBorderSize")) {
 		DomainBorderSize = std::stoul(
