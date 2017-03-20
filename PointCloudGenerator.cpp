@@ -65,7 +65,6 @@ PointCloudGenerator::PointCloudGenerator(vector<Point3D>* store_PointCloud) {
             x_max = 4;
         //ii)
           //input_FunctionValues_OutOfTxtFile(string inFilename)  
-          // N_Fct 
             
        
         //RandomPoint spawn box borders:
@@ -122,6 +121,26 @@ void PointCloudGenerator::output_FunctionPointsIntoTxtFile(){
      outFile.close();  
 }
 
+void PointCloudGenerator::output_inputPointsIntoTxtFile(){
+    
+    double x, y, z;
+    ofstream outFile;
+    string directory = "PointCloudGenerator_FunctionPoints";
+    outFile.open (directory.c_str());
+    outFile << "N_Fct: " << N_Fct << endl;
+    outFile << "function: y=a*x^2+b; z=c*x+d" << endl;
+    outFile << "X" << "    " << "Y" << "   "  << "Z" << "   " << "GLobalID" << endl;  //Header
+      
+    for(int i=0; i<=maxFctPointID; i++){
+         if(i == maxFctPointID){
+         outFile << (*FunctionPoints)[i].get_CoordinatesX() << "  " << (*FunctionPoints)[i].get_CoordinatesY() << " "  << (*FunctionPoints)[i].get_CoordinatesZ()<< " " << i;   
+         }else{
+         outFile << (*FunctionPoints)[i].get_CoordinatesX() << "  " << (*FunctionPoints)[i].get_CoordinatesY() << " "  << (*FunctionPoints)[i].get_CoordinatesZ() << " " << i << endl;
+         }
+     }
+     outFile.close();  
+}
+
 void PointCloudGenerator::calc_FunctionPoints(){
     
     double a,b,c,d; //y=ax^2+b; z = c*x +d
@@ -139,13 +158,55 @@ void PointCloudGenerator::calc_FunctionPoints(){
         (*FunctionPoints)[i].set_CoordinatesZ(0); //c * x + d
         x += delta_x;
     }
-    //output_internFunctionIntoTxtFile();
+    output_FunctionPointsIntoTxtFile();
 }
 
 void PointCloudGenerator::input_FunctionPoints_OutOfTxtFile(string inFilename){
     
-    
-    
+        N_input=0;
+        inputPoints = new vector<Point3D>(N_input);
+   
+        double x, y, z;
+	string X, Y, Z;
+	string unused;
+	int linecount = 0;
+
+	ifstream inFile;
+	//inFile.open("bla");
+	string directory =
+			"D:\\masterarbeit\\NetBeansProjects\\Masterarbeit_FW\\input\\"
+					+ inFilename;
+	inFile.open(directory.c_str());
+
+	if (inFile.fail()) {
+		cout << "Error" << endl;
+		exit(1);
+	}
+
+        cout << "check1" << endl;
+        string b ="";
+	Point3D Point;
+        N_input=0;
+        inputPoints = new vector<Point3D>;
+	inputPoints->reserve(800);
+	int pointID = 0;
+	while (!inFile.eof()) {
+		inFile >> x >> b >> y;
+		Point.set_CoordinatesX(x);
+		Point.set_CoordinatesY(0);
+		Point.set_CoordinatesZ(0);
+		Point.set_GlobalID(pointID);
+		Point.set_epsilon(1); //so wird am anfang jeder Punkt gemoved
+		inputPoints->push_back(Point);
+		linecount += 1;
+		pointID++;
+		
+	}
+	N_input = pointID;
+	maxInputID = N_input - 1; //vector size da ID bei 0 beginnt
+	inFile.close();
+	output_inputPointsIntoTxtFile();
+        cout << "check2" << endl;
 }
 
 void PointCloudGenerator::calc_RandomPointCloud(){

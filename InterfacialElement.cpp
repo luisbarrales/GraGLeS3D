@@ -170,7 +170,11 @@ void TripleLine::computeMobility() {
 }
 
 void TripleLine::computeTripleLineLength() {
-	TriplelinePointsetClass TL(m_barycenterTriangles,m_vertices);
+	vector<Vector3d*> vertices;
+	for(int i=0; i <m_vertices.size();i++){
+		vertices.push_back(&(m_vertices[i]->get_Position()));
+	}
+	TriplelinePointsetClass TL(m_barycenterTriangles,vertices);
 	TL.process_TriplelinePointset();
 	(*m_TPS_ref).clear();
 	*m_TPS_ref = *TL.get_TPS_processed();

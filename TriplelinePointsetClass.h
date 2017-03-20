@@ -130,7 +130,10 @@ private:
     Eigen::MatrixXd* PointToPointDistances; //distances r=|deltaP|
     
     LocalPointset* LP_Object; //statisch alloc mit vorgegebener Vectorgröße
-    splineclass::Spline::Spline* Spline_Object;
+    splineclass::Spline* Spline_Object;
+    
+    // pointcloud generator 
+    int PC_GEN; 
     
     //global variables for txt file output name declarations:
     ofstream* pOutFile;

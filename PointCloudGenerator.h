@@ -29,6 +29,7 @@ public:
     void calc_FunctionPoints();
     void input_FunctionPoints_OutOfTxtFile(string inFilename);
     void output_FunctionPointsIntoTxtFile();
+    void output_inputPointsIntoTxtFile();
     void calc_RandomPointCloud();
     
     double check_DistancesToFunction(Eigen::Vector3d*);
@@ -39,10 +40,13 @@ private:
     
     //PointCloudGenerator()
     vector<Point3D>* FunctionPoints;
+    vector<Point3D>* inputPoints;
     vector<Point3D>* PointCloud;
     int N_Fct;
+    int N_input;
     int maxFctPointID;
     int maxPointID;
+    int maxInputID;
     double x_min, x_max;
     double x_min_box, x_max_box, y_min_box, y_max_box, z_min_box, z_max_box;// RandomPoint spawn box borders; max zwei nachkomma stellen wegen RND funktion die nur für integer gilt !!! wird durch 100 geteilt !!!!
     double allowed_maxDistance_toFunction,  allowed_minDistance_toOtherRandomPoints;
