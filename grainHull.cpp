@@ -485,6 +485,7 @@ void GrainHull::computeInterfacialElementMesh() {
 //	}
 }
 void GrainHull::mergeJunction() {
+//	vector<int> QP_to_remove;
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 		for (int j = i + 1; j < m_QuadruplePoints.size(); j++) {
 			if ((m_QuadruplePoints[i]->get_Position()
@@ -494,11 +495,12 @@ void GrainHull::mergeJunction() {
 						m_QuadruplePoints[i], m_QuadruplePoints[j], this);
 				delete m_QuadruplePoints[i];
 				delete m_QuadruplePoints[j];
+//				QP_to_remove.push_back(i);
+//				QP_to_remove.push_back(j);
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + j - 1);
 				i--;
 				j--;
-
 				m_HighOrderJunctions.push_back(newHJ);
 				break;
 			}
@@ -508,10 +510,9 @@ void GrainHull::mergeJunction() {
 	for (int k = 0; k < m_HighOrderJunctions.size(); k++) {
 		for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 			if ((m_QuadruplePoints[i]->get_Position()
-					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
+					- m_HighOrderJunctions[k]->get_Position()).norm() < 4) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[k]->mergeWith(m_QuadruplePoints[i]);
-
 				delete m_QuadruplePoints[i];
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
 				i--;
@@ -522,7 +523,7 @@ void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_HighOrderJunctions.size(); i++) {
 		for (int k = i + 1; k < m_HighOrderJunctions.size(); k++) {
 			if ((m_HighOrderJunctions[i]->get_Position()
-					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
+					- m_HighOrderJunctions[k]->get_Position()).norm() < 4) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[i]->mergeWith((m_HighOrderJunctions[k]));
 
