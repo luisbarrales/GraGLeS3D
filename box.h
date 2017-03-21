@@ -292,7 +292,9 @@ public:
 	inline const vector<unsigned int>& getAllNeighbors(){
 		return m_explicitHull.getAllNeighbors();
 	}
-
+	inline GrainHull* get_GrainHull(){
+		return &m_explicitHull;
+	}
 	TextureData collectTextureData();
 };
 #endif

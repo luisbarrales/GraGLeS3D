@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <Eigen/Dense>
+
 #include "Spline.h"
 
 class Point3D;
@@ -27,12 +28,12 @@ public:
     
     TriplelinePointsetClass();
     TriplelinePointsetClass(const Eigen::MatrixXd*, int);
-    TriplelinePointsetClass(vector<Eigen::Vector3d>&, vector<InterfacialElement*>);
+    TriplelinePointsetClass(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d*>);
     ~TriplelinePointsetClass();
   
     void use_PointCloudGenerator(int);
     void input_TPS_OutOfTxtFile(string);
-    void input_TPS_LevelSet(vector<Eigen::Vector3d>&, vector<InterfacialElement*>);
+    void input_TPS_LevelSet(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d*>);
     void set_Parameter();
     void process_TriplelinePointset(); // const oder nicht const... leiber neue matrizen erstellen ??
     

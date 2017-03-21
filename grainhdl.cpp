@@ -896,10 +896,10 @@ void grainhdl::run_sim() {
 									Settings::AnalysisTimestep
 											* Settings::PlotInterval)) == 0) {
 //				saveNetworkAsVoxelContainer();
-//				plot_contour();
+				plot_contour();
 			}
 		}
-		plot_contour();
+//		plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime += (dt
@@ -954,9 +954,12 @@ void grainhdl::plot_contour() {
 //			grains[id]->plotBoxContour(true);
 //		}
 //	}
-
 	int id = Settings::NeighbourhoodGrain;
 	grains[id]->plotBoxContour(true);
+	vector<int> neighbors = grains[id]->getDirectNeighbourIDs();
+	for (int j=0; j < neighbors.size();j++)
+		grains[neighbors[j]]->get_GrainHull()->plotTripleline(get_loop());
+
 	grains[id]->plotNeighboringGrains(true);
 }
 

@@ -478,11 +478,11 @@ void GrainHull::computeInterfacialElementMesh() {
 //			|| m_owner->get_grainHandler()->get_loop() == 500) {
 //		meanWidth();
 
-	if (m_owner->getID() == 10) {
+//	if (m_owner->getID() == 10) {
 		computeTriplelineLength();
-		cout <<"Triple line length " <<  m_TripleLineLength << endl;
+//		cout <<"Triple line length " <<  m_TripleLineLength << endl;
 		plotTripleline(m_owner->get_grainHandler()->get_loop());
-	}
+//	}
 }
 void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
@@ -1336,7 +1336,7 @@ void GrainHull::computeTriplelineLength() {
 //				- vertices_temp[1]->get_Position()).norm();
 		(*iter)->computeTripleLineLength();
 		m_TripleLineLength += (*iter)->m_length;
-		cin >> buf;
+//		cin >> buf;
 	}
 	if (Settings::DecoupleGrains == 1) {
 		vector<SPoint> ProjectedPoints;

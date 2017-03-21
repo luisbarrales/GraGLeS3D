@@ -17,7 +17,7 @@
 #include "PointCloudGenerator.h"
 #include "LocalPointset.h"
 #include "Point3D.h"
-#include "InterfacialElement.h"
+
 
 TriplelinePointsetClass::TriplelinePointsetClass() {
     
@@ -76,7 +76,7 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 
 TriplelinePointsetClass::TriplelinePointsetClass(
 		vector<Eigen::Vector3d>& RawTriplelinePointsetInput,
-		vector<InterfacialElement*> QP) {
+		vector<Eigen::Vector3d*> QP) {
 	PC_GEN = 0;
         n0 = 2;
 	n = 0;
@@ -168,10 +168,10 @@ void TriplelinePointsetClass::use_PointCloudGenerator(int N_Points) {
 }
 
 void TriplelinePointsetClass::input_TPS_LevelSet(
-		vector<Eigen::Vector3d>& TPS_Input, vector<InterfacialElement*> QP) {
+		vector<Eigen::Vector3d>& TPS_Input, vector<Eigen::Vector3d*> QP) {
 	for (int i = 0; i < QP.size(); i++) {
-		Eigen::Vector3d temp = QP[i]->get_Position();
-		(*TPS_BeforeMLS)[i].set_CoordinatesXYZ(&temp);
+		Eigen::Vector3d* temp = QP[i];
+		(*TPS_BeforeMLS)[i].set_CoordinatesXYZ(temp);
 		(*TPS_BeforeMLS)[i].set_GlobalID(i);
 		(*TPS_BeforeMLS)[i].set_epsilon(0.0); //so wird am anfang jeder Punkt
 	}
