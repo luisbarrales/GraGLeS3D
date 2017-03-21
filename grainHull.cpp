@@ -192,6 +192,9 @@ void GrainHull::computeGrainBoundaryElements() {
 //			m_triangleNeighborLists[i].PrintNeighborList();
 //		}
 		switch (junctionType) {
+		case 1:{
+			break;
+			}
 		case 2: {
 //			if(m_owner->getID()==4 || m_owner->getID()==1) cout << "--------------------GRAINBOUNDARY---------------------" << endl;
 			GrainBoundary* newGB = new GrainBoundary(i, this);
@@ -231,6 +234,9 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 		unsigned int type =
 				m_triangleNeighborLists[key].getNeighborsListCount();
 		switch (type) {
+		case 1:{
+			break;
+			}
 		case 2: {
 			GrainBoundary* GB = findGrainBoundary(key);
 			Vector3d current = m_actualHull[i].computeBarycenter();
