@@ -174,8 +174,8 @@ void TripleLine::computeTripleLineLength() {
 	for(int i=0; i <m_vertices.size();i++){
 		vertices.push_back((m_vertices[i]->get_Position()));
 	}
-	for(auto it : m_barycenterTriangles)
-		cout << it <<endl;
+//	for(auto it : m_barycenterTriangles)
+//		cout << it.transpose() <<endl;
 	TriplelinePointsetClass TL(m_barycenterTriangles,vertices);
 	TL.process_TriplelinePointset();
 	(*m_TPS_ref).clear();

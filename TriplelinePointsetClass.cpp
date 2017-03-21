@@ -574,8 +574,8 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 		if(sqrt(3)*N < H){
 			cout << "iterationstep: " << n << endl;
 			cout << "GlobalID_LoopPoint: " << GlobalID_LoopPoint << endl;
-			cout << "Radius exeeded possible range of datapoints" << endl;
-			exit(0);
+			cout << "Radius exceeded possible range of datapoints" << endl;
+			//exit(0);
 		}
 		
 		if ((rho < rho0) || (rho >= 1)) {
