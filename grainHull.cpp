@@ -516,7 +516,7 @@ void GrainHull::mergeJunction() {
 	for (int k = 0; k < m_HighOrderJunctions.size(); k++) {
 		for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 			if ((m_QuadruplePoints[i]->get_Position()
-					- m_HighOrderJunctions[k]->get_Position()).norm() < 4) {
+					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[k]->mergeWith(m_QuadruplePoints[i]);
 				delete m_QuadruplePoints[i];
@@ -529,7 +529,7 @@ void GrainHull::mergeJunction() {
 	for (int i = 0; i < m_HighOrderJunctions.size(); i++) {
 		for (int k = i + 1; k < m_HighOrderJunctions.size(); k++) {
 			if ((m_HighOrderJunctions[i]->get_Position()
-					- m_HighOrderJunctions[k]->get_Position()).norm() < 4) {
+					- m_HighOrderJunctions[k]->get_Position()).norm() < 2) {
 				// add Quadruple Junction to existing high order junction
 				m_HighOrderJunctions[i]->mergeWith((m_HighOrderJunctions[k]));
 

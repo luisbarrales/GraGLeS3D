@@ -890,8 +890,9 @@ void grainhdl::run_sim() {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
-			if (loop > 0
-					&& ((loop - Settings::StartTime)
+//			if (loop > 0
+//					&&
+			if (((loop - Settings::StartTime)
 							% int(
 									Settings::AnalysisTimestep
 											* Settings::PlotInterval)) == 0) {
@@ -899,7 +900,7 @@ void grainhdl::run_sim() {
 				plot_contour();
 			}
 		}
-//		plot_contour();
+//		if (loop > 0plot_contour();
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime += (dt
