@@ -23,7 +23,7 @@
 #include "Eigen/Dense"
 #include <vector>
 #include "InterfacialElement.h"
-#include "MyInt4.h"
+//#include "MyInt4.h"
 
 using namespace std;
 
@@ -63,10 +63,10 @@ public:
 	void plotNeighboringGrains(bool absoluteCoordinates, int timestep,
 			int order);
 	void plotContour(bool absoluteCoordinates, int timestep);
-	void PlotSurface(FILE* output, vector<MyDouble3>&plotlist, vector<MyInt4>&polygons,vector<double>&Interestingness);
+//	void PlotSurface(FILE* output, vector<MyDouble3>&plotlist, vector<MyInt4>&polygons,vector<double>&Interestingness);
 	void expandTripleLineArea(int rep);
-	void PlotGrainProperties(vector<Triangle> Triangles, vector<MyDouble3>& plotlist, vector<MyInt4>& polygons,
-	vector<double>& Interestingness);
+//	void PlotGrainProperties(vector<Triangle> Triangles, vector<MyDouble3>& plotlist, vector<MyInt4>& polygons,
+//	vector<double>& Interestingness);
 	void plotTripleline(int timestep);
 
 	HighOrderJunction* findHighOrderJunction(int key);

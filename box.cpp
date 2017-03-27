@@ -107,7 +107,12 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 	ymin -= grid_blowup;
 	zmax += grid_blowup;
 	zmin -= grid_blowup;
-
+	if (xmin < 0)
+		xmin = 0;
+	if (ymin < 0)
+		ymin = 0;
+	if (zmin < 0)
+		zmin = 0;
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
 	m_outputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
@@ -209,7 +214,12 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 		m_exists = false;
 		return;
 	}
-
+	if (xmin < 0)
+		xmin = 0;
+	if (ymin < 0)
+		ymin = 0;
+	if (zmin < 0)
+		zmin = 0;
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
 	m_outputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
@@ -290,6 +300,12 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 		m_exists = false;
 		return;
 	}
+	if (xmin < 0)
+		xmin = 0;
+	if (ymin < 0)
+		ymin = 0;
+	if (zmin < 0)
+		zmin = 0;
 	m_inputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
 			zmax);
 	m_outputDistance = new DimensionalBufferReal(xmin, ymin, zmin, xmax, ymax,
@@ -956,7 +972,6 @@ void LSbox::executeComparison() {
 		}
 	}
 
-
 //	vector<int> Neighbors;
 //
 //	if (m_ID == 1) {
@@ -972,8 +987,6 @@ void LSbox::executeComparison() {
 //			}
 //		}
 //	}
-
-
 
 	if (BoundaryIntersection()) {
 		m_intersectsBoundaryGrain = true;
@@ -1170,7 +1183,7 @@ void LSbox::extractContour() {
 	}
 	m_neighborCount = m_explicitHull.getAllNeighborsCount();
 //	if (m_grainHandler->get_loop() > 28)
-		m_explicitHull.plotContour(true, m_grainHandler->get_loop());
+	m_explicitHull.plotContour(true, m_grainHandler->get_loop());
 	computeGrainVolume();
 	computeSurfaceArea();
 	computeSurfaceElements();

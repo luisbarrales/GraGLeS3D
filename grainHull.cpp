@@ -30,7 +30,7 @@
 #include <sys/time.h>
 #include "TriplelinePointsetClass.h"
 #include "Point3D.h"
-#include "MyInt4.h"
+//#include "MyInt4.h"
 
 
 using namespace std;
