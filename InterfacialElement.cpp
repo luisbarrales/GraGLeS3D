@@ -67,17 +67,25 @@ GrainBoundary::~GrainBoundary() {
 }
 
 void GrainBoundary::computeEnergy() {
-	LSbox* neighbor =
-			m_owner->m_owner->get_grainHandler()->grains[m_neighborIDs[0]];
-	double misori = m_owner->m_owner->computeMisorientation(neighbor);
-	m_energy = computeReadShockleyEnergy(misori);
+	if (Settings::ResearchProject == 2)
+		m_energy = 1.;
+	else {
+		LSbox* neighbor =
+				m_owner->m_owner->get_grainHandler()->grains[m_neighborIDs[0]];
+		double misori = m_owner->m_owner->computeMisorientation(neighbor);
+		m_energy = computeReadShockleyEnergy(misori);
+	}
 }
 
 void GrainBoundary::computeMobility() {
-	LSbox* neighbor =
-			m_owner->m_owner->get_grainHandler()->grains[m_neighborIDs[0]];
-	double misori = m_owner->m_owner->computeMisorientation(neighbor);
-	m_mobility = computeMobilityMisori(misori);
+	if (Settings::ResearchProject == 2)
+		m_mobility = 1.;
+	else {
+		LSbox* neighbor =
+				m_owner->m_owner->get_grainHandler()->grains[m_neighborIDs[0]];
+		double misori = m_owner->m_owner->computeMisorientation(neighbor);
+		m_mobility = computeMobilityMisori(misori);
+	}
 }
 
 void GrainBoundary::computeArea() {
@@ -120,6 +128,8 @@ TripleLine::~TripleLine() {
 }
 
 void TripleLine::computeEnergy() {
+if(Settings::ResearchProject==2){m_energy=1;}
+else{
 	double sigma;
 	double gamma[3] = { 0.0, 0.0, 0.0 };
 	double theta_mis;
@@ -146,12 +156,17 @@ void TripleLine::computeEnergy() {
 		sigma = 1.0;
 	m_energy = sigma;
 }
-
+}
 void TripleLine::computeMobility() {
-	double averageMobility = 0;
+	double averageMobility=0;
+	grainhdl* handler = m_owner->m_owner->get_grainHandler();
+	if(Settings::ResearchProject==2)
+	averageMobility=1;
+	else
+	{
+	averageMobility = 0;
 	double theta_mis;
 	LSbox* me = m_owner->m_owner;
-	grainhdl* handler = m_owner->m_owner->get_grainHandler();
 	LSbox* neighborGrains[2] = { handler->getGrainByID(m_neighborIDs[0]),
 			handler->getGrainByID(m_neighborIDs[1]) };
 	theta_mis = me->computeMisorientation(neighborGrains[0]);
@@ -161,37 +176,81 @@ void TripleLine::computeMobility() {
 	theta_mis = me->computeMisorientation(neighborGrains[1]);
 	averageMobility += computeMobilityMisori(theta_mis);
 	averageMobility /= 3;
+	}
 //TODO:
-	double ds = 3 * sqrt(3 * handler->get_ds() * handler->get_ds());
+	double ds = 5 * sqrt(3 * handler->get_ds() * handler->get_ds());
 // ds is the extension of the Tripleline - maximum 3 times the diagonal of a grid cell
 	m_mobility = 1.
-			/ ((1. / (ds * Settings::TripleLineDrag)) + 1. / averageMobility);
+			/ ((1.
+					/ ((ds * Settings::TripleLineDrag
+							* Settings::Physical_Domain_Size)
+							/ Settings::HAGB_Mobility)) + 1. / averageMobility);
 
 }
 
 void TripleLine::computeTripleLineLength() {
-	vector<Vector3d*> vertices;
+	vector<Vector3d> vertices;
 	for(int i=0; i <m_vertices.size();i++){
-		vertices.push_back(&(m_vertices[i]->get_Position()));
+		vertices.push_back((m_vertices[i]->get_Position()));
 	}
+//	for(auto it : m_barycenterTriangles)
+//		cout << it.transpose() <<endl;
 	TriplelinePointsetClass TL(m_barycenterTriangles,vertices);
+	PlotInputData_TL(m_barycenterTriangles);
+	PlotInputData_QP(vertices);
 	TL.process_TriplelinePointset();
 	(*m_TPS_ref).clear();
+	m_TPS_ref->resize((*(TL.get_TPS_processed())).size());
 	*m_TPS_ref = *TL.get_TPS_processed();
 	m_length= TL.get_length();
 	cout << TL.get_length() <<endl;
 }
+void TripleLine::PlotInputData_TL(vector<Eigen::Vector3d>& m_barycenterTriangles){
+  
+  string filename = string("InputData_TL")+ string(".vtk");
+			
+	FILE* output = fopen(filename.c_str(), "wt");
+	if (output == NULL) {
+		throw runtime_error("Unable to save box hull!");
+	}
+
+	for (int i = 0; i < m_barycenterTriangles.size(); i++) {
+		fprintf(output, "%lf %lf %lf\n", m_barycenterTriangles[i](0),
+				m_barycenterTriangles[i](1), m_barycenterTriangles[i](2));
+	}
+	
+fclose(output);
+}
+
+void TripleLine::PlotInputData_QP(vector<Eigen::Vector3d> QP){
+  
+  string filename = string("InputData_QP")+ string(".vtk");
+			
+	FILE* output = fopen(filename.c_str(), "wt");
+	if (output == NULL) {
+		throw runtime_error("Unable to save box hull!");
+	}
+
+	for (int i = 0; i < QP.size(); i++) {
+		fprintf(output, "%lf %lf %lf\n", QP[i](0),
+				QP[i](1), QP[i](2));
+	}
+	
+fclose(output);
+}
+
+
 void GrainBoundary::findAdjacentTripleLines(vector<TripleLine*> Junctions) {
-	int i = 0;
+	//int i = 0;
 	for (const auto it : Junctions) {
 		if (it->get_FirstNeighbor() == m_neighborIDs[0]
 				|| it->get_SecondNeighbor() == m_neighborIDs[0]) {
 			m_edges.push_back(&(*it));
-			i++;
-			if (i == 1)
-				return;
+			//i++;
+			//if (i == 1)
 		}
 	}
+	return;
 }
 void TripleLine::findAdjacentJunctions(vector<QuadrupleJunction*> JunctionsQ,
 		vector<HighOrderJunction*> JunctionsH) {

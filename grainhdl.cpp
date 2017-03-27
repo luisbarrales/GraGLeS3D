@@ -257,7 +257,7 @@ void grainhdl::VOROMicrostructure() {
 		/*
 		 * Double pyramid
 		 */
-//
+
 //			if (i == 0) {
 //				x = 0.5;
 //				y = 0.5;
@@ -298,27 +298,28 @@ void grainhdl::VOROMicrostructure() {
 		/*
 		 * Tetraeder
 		 */
-//			if (i == 0) {
-//				x = 0.5;
-//				y = 0.5;
-//				z = 0.5;
-//			} else if (i == 1) {
-//				x = 0.5;
-//				y = 0.5;
-//				z = 0.0;
-//			} else if (i == 2) {
-//				x = 0.5;
-//				y = 0.9713;
-//				z = 0.6669;
-//			} else if (i == 3) {
-//				x = 0.319;
-//				y = 0.3427;
-//				z = 0.6669;
-//			} else if (i == 4) {
-//				x = 0.6928;
-//				y = 0.1337;
-//				z = 0.6669;
-//			}
+
+/*			if (i == 0) {
+				x = 0.5;
+				y = 0.5;
+				z = 0.5;
+			} else if (i == 1) {
+				x = 0.5;
+				y = 0.5;
+				z = 0.3;
+			} else if (i == 2) {
+				x = 0.5;
+				y = 0.6886;
+				z = 0.5667;
+			} else if (i == 3) {
+				x = 0.3367;
+				y = 0.4057;
+				z = 0.5667;
+			} else if (i == 4) {
+				x = 0.6633;
+				y = 0.4057;
+				z = 0.5667;
+			}*/
 		con.put(i, x, y, z);
 
 	}
@@ -392,7 +393,7 @@ void grainhdl::VOROMicrostructure() {
 		delete initialHulls[i];
 	}
 //	con.draw_particles("VoronoyP.gnu");
-//	con.draw_cells_gnuplot("VoronoyC.gnu");
+	con.draw_cells_gnuplot("VoronoyC.gnu");
 }
 
 void grainhdl::readMicrostructure() {
@@ -890,16 +891,19 @@ void grainhdl::run_sim() {
 //			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
-			if (loop > 0
-					&& ((loop - Settings::StartTime)
+//			if (loop > 0
+//					&&
+			if (((loop - Settings::StartTime)
 							% int(
 									Settings::AnalysisTimestep
 											* Settings::PlotInterval)) == 0) {
+
 //				saveNetworkAsVoxelContainer();
 				plot_contour();
 			}
 		}
-//		plot_contour();
+//		if (loop > 0plot_contour();
+
 		gettimeofday(&time, NULL);
 		output += time.tv_sec + time.tv_usec / 1000000.0 - timer;
 		Realtime += (dt
@@ -942,6 +946,7 @@ void grainhdl::countGrains() {
 	}
 }
 
+
 void grainhdl::plot_contour() {
 //#pragma omp parallel
 //	{
@@ -961,6 +966,7 @@ void grainhdl::plot_contour() {
 		grains[neighbors[j]]->get_GrainHull()->plotTripleline(get_loop());
 
 	grains[id]->plotNeighboringGrains(true);
+
 }
 
 void grainhdl::saveMicrostructure() {

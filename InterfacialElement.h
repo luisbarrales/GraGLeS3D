@@ -176,6 +176,8 @@ public:
 	~TripleLine();
 	void computeEnergy();
 	void computeMobility();
+	void PlotInputData_TL(vector<Eigen::Vector3d>&);
+	void PlotInputData_QP(vector<Eigen::Vector3d>);
 	void findAdjacentJunctions(vector<QuadrupleJunction*>,
 			vector<HighOrderJunction*>);
 	void computeTripleLineLength();

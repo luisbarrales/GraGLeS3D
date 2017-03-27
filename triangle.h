@@ -3,12 +3,14 @@
 
 #include "Eigen/Dense"
 #include <iostream>
+#include <math.h>
 using namespace Eigen;
 using namespace std;
 
 struct Triangle {
 	Vector3d points[3];
 	int additionalData;
+	int m_flag = 0;
 	Vector3d computeBarycenter() {
 		Vector3d barycenter;
 		barycenter[0] = (points[0][0] + points[1][0] + points[2][0]) / 3;
@@ -116,7 +118,7 @@ struct Triangle {
 		 * if it is antiparallel the angle is negative this is accounted for in the next if-statement
 		 */
 		Vector3d crossprod = normal1.cross(normal2);
-		if (crossprod.dot(sharedLine)> 0) {
+		if (crossprod.dot(sharedLine) > 0) {
 			beta *= -1;
 		}
 		if (beta != beta) {
@@ -129,6 +131,34 @@ struct Triangle {
 			cout << "epsilon" << endl;
 		return beta * epsilon;
 
+	}
+	bool IsConnectedWithTriangle(Triangle *T2) {
+		int number = 0;
+		double epsilon = 0.05;
+		for (int i = 0; i <= 2; i++) {
+			for (int j = 0; j <= 2; j++) {
+				if (fabs((points[i] - T2->points[j]).norm()) < epsilon) {
+					number = number + 1;
+				}
+			}
+		}
+		if (number > 0)
+			return true;
+		else {
+			return false;
+		}
+	}
+	inline void set_additionalData(double data) {
+		additionalData = data;
+	}
+	inline double get_additionalData() {
+		return additionalData;
+	}
+	inline void set_flag(double data) {
+		m_flag = data;
+	}
+	inline double get_flag() {
+		return m_flag;
 	}
 };
 

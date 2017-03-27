@@ -11,17 +11,16 @@
 //#include <cstdlib>
 //#include <math.h>
 //#include <Eigen/Geometry>
-
+#include "Settings.h"
 #include "TriplelinePointsetClass.h"
 //#include "Spline.h"
 #include "PointCloudGenerator.h"
 #include "LocalPointset.h"
 #include "Point3D.h"
 
-
 TriplelinePointsetClass::TriplelinePointsetClass() {
-    
-        PC_GEN = 1;
+
+	PC_GEN = 1;
 	//input:
 	use_PointCloudGenerator(100);
 
@@ -32,12 +31,12 @@ TriplelinePointsetClass::TriplelinePointsetClass() {
 
 	//TriplelinePointset process parameter:
 	//Smoothing:
-	n0 = 5;
+	n0 = 10;
 	n = 0;
-	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
+	H0 = 4; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
 	Nmin = 3; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
-	rho0 = 0.4;
+	rho0 = 0.6;
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
@@ -76,14 +75,15 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 
 TriplelinePointsetClass::TriplelinePointsetClass(
 		vector<Eigen::Vector3d>& RawTriplelinePointsetInput,
-		vector<Eigen::Vector3d*> QP) {
+		vector<Eigen::Vector3d> QP) {
 	PC_GEN = 0;
-        n0 = 2;
+	n0 = 5;
 	n = 0;
-	H0 = 4; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
-	Nmin = 3; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
+	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
+	Hmax = 10;
+	Nmin = 5; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
-	rho0 = 0.6;
+	rho0 = 0.5;
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
@@ -92,8 +92,15 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 
 	TPS_BeforeMLS = new vector<Point3D>(N);
 
-	input_TPS_LevelSet(RawTriplelinePointsetInput, QP);
+	Settings::DebugTripleLine=1;
 
+	input_TPS_LevelSet(RawTriplelinePointsetInput, QP);
+	//input_TPS_LevelSet_ohneQP(RawTriplelinePointsetInput);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_BeforeMLS, "TestInput_TL", TPS_BeforeMLS->size()-1);}
+	
+	PlotInputData_QP_Fatim(QP);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile_QP(QP, "TestInput_QP", QP.size());}
+	
 	TPS_AfterMLS = new vector<Point3D>(N);
 	TPS_Ordered_Forward_Buffer = new vector<Point3D>(N);
 	TPS_Ordered_Backward_Buffer = new vector<Point3D>(N);
@@ -109,7 +116,7 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 	//Ordering:
 	rho_order = 0.9;
 	weight_order = 0.7;
-	max_gap = H0 / 2;
+	max_gap = 2*H0;
 	min_gap = 0.3;
 	ID_starting_point = 0;
 	ID_last_point = 0;
@@ -144,33 +151,21 @@ TriplelinePointsetClass::~TriplelinePointsetClass() {
 
 void TriplelinePointsetClass::use_PointCloudGenerator(int N_Points) {
 
-    N = N_Points;
-    maxPointID = N - 1; //vector size da ID bei 0 beginnt
-    TPS_BeforeMLS = new vector<Point3D>(N);
-    PointCloudGenerator PC1(TPS_BeforeMLS);
-    
-    if(PC_GEN == 1){
-	
+	N = N_Points;
+	maxPointID = N - 1; //vector size da ID bei 0 beginnt
+	TPS_BeforeMLS = new vector<Point3D>(N);
+	PointCloudGenerator PC1(TPS_BeforeMLS);
 	PC1.generate_PointCloud(); //stored in TriplelinePointsetBeforeMLS
-	output_TPS_IntoTxtFile(TPS_BeforeMLS, "generatedPC", maxPointID);
-    }
-    if(PC_GEN == 2){
-        
-        PC1.input_FunctionPoints_OutOfTxtFile("PunktKurve2");
-        
-    }
-    
-    if((PC_GEN < 1) || (PC_GEN > 2)){
-        cout << "Error PCGEN" << endl;
-        exit(0);
-    }
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_BeforeMLS, "generatedPC", maxPointID);}
 
 }
 
 void TriplelinePointsetClass::input_TPS_LevelSet(
-		vector<Eigen::Vector3d>& TPS_Input, vector<Eigen::Vector3d*> QP) {
+		vector<Eigen::Vector3d>& TPS_Input, vector<Eigen::Vector3d> QP) {
+	
+	
 	for (int i = 0; i < QP.size(); i++) {
-		Eigen::Vector3d* temp = QP[i];
+		Eigen::Vector3d* temp = &QP[i];
 		(*TPS_BeforeMLS)[i].set_CoordinatesXYZ(temp);
 		(*TPS_BeforeMLS)[i].set_GlobalID(i);
 		(*TPS_BeforeMLS)[i].set_epsilon(0.0); //so wird am anfang jeder Punkt
@@ -179,15 +174,32 @@ void TriplelinePointsetClass::input_TPS_LevelSet(
 	for (int i = QP.size(); i <= maxPointID; i++) {
 		//cout << "input ID: " << i << endl;
 		//cout << *(&RawTriplelinePointsetInput[i]) << endl;
+		(*TPS_BeforeMLS)[i].set_CoordinatesXYZ(&TPS_Input[i-QP.size()]);
+		(*TPS_BeforeMLS)[i].set_GlobalID(i);
+		(*TPS_BeforeMLS)[i].set_epsilon(1); //so wird am anfang jeder Punkt gemoved
+	}
+
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile_onlyCoordinates(TPS_BeforeMLS, "BEGIN_MLS", maxPointID);}
+
+}
+
+void TriplelinePointsetClass::input_TPS_LevelSet_ohneQP(
+		vector<Eigen::Vector3d>& TPS_Input) {
+	
+      
+	TPS_BeforeMLS->resize(TPS_Input.size());
+	for (int i = 0; i < TPS_Input.size(); i++) {
+		//cout << "input ID: " << i << endl;
+		//cout << *(&RawTriplelinePointsetInput[i]) << endl;
 		(*TPS_BeforeMLS)[i].set_CoordinatesXYZ(&TPS_Input[i]);
 		(*TPS_BeforeMLS)[i].set_GlobalID(i);
 		(*TPS_BeforeMLS)[i].set_epsilon(1); //so wird am anfang jeder Punkt gemoved
 	}
 
-	output_TPS_IntoTxtFile_onlyCoordinates(TPS_BeforeMLS, "BEGIN_MLS",
-			maxPointID);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile_onlyCoordinates(TPS_BeforeMLS, "BEGIN_MLS", maxPointID);}
 
 }
+
 
 void TriplelinePointsetClass::input_TPS_OutOfTxtFile(string inFilename) {
 
@@ -300,7 +312,7 @@ void TriplelinePointsetClass::input_TPS_OutOfTxtFile(string inFilename) {
 
 	inFile.close();
 
-	output_TPS_IntoTxtFile(TPS_BeforeMLS, "OutputTest", maxPointID);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_BeforeMLS, "OutputTest", maxPointID);}
 }
 
 void TriplelinePointsetClass::output_DataDebugging_txt(string outFilename) {
@@ -316,8 +328,8 @@ void TriplelinePointsetClass::output_TPS_IntoTxtFile(vector<Point3D>* Pointset,
 	ofstream outFile;
 	string directory = outFilename;
 	outFile.open(directory.c_str());
-	outFile << "X" << "    " << "Y" << "   " << "Z" << "   " << "GLobalID"
-			<< "    " << "OrderedID" << "   " << "epsilon" << endl; //Header
+//	outFile << "X" << "    " << "Y" << "   " << "Z" << "   " << "GLobalID"
+//			<< "    " << "OrderedID" << "   " << "epsilon" << endl; //Header
 
 	for (int i = 0; i <= maxID; i++) {
 		if (i == maxID) {
@@ -337,6 +349,45 @@ void TriplelinePointsetClass::output_TPS_IntoTxtFile(vector<Point3D>* Pointset,
 		}
 	}
 	outFile.close();
+}
+
+void TriplelinePointsetClass::output_TPS_IntoTxtFile_QP(vector<Eigen::Vector3d> QP, string outFilename, int QP_size){
+  
+	ofstream outFile;
+	string directory = outFilename;
+	outFile.open(directory.c_str());
+//	outFile << "X" << "	" << "Y" << "	" << "Z" << endl; //Header
+
+	for (int i = 0; i < QP_size; i++) {
+		if (i == QP_size-1) {
+			outFile << (QP)[i](0) << "	"
+					<< outFile << (QP)[i](1) << "	"
+					<< outFile << (QP)[i](2);
+		} else {
+			outFile << (QP)[i](0) << "	"
+					<< outFile << (QP)[i](1) << "	"
+					<< outFile << (QP)[i](2) << endl;
+		}
+	}
+	outFile.close();
+  
+}  
+
+void TriplelinePointsetClass::PlotInputData_QP_Fatim(vector<Eigen::Vector3d> QP){
+  
+  string filename = string("InputData_QP_FW")+ string(".vtk");
+			
+	FILE* output = fopen(filename.c_str(), "wt");
+	if (output == NULL) {
+		throw runtime_error("Unable to save box hull!");
+	}
+
+	for (int i = 0; i < QP.size(); i++) {
+		fprintf(output, "%lf %lf %lf\n", QP[i](0),
+				QP[i](1), QP[i](2));
+	}
+	
+fclose(output);
 }
 
 void TriplelinePointsetClass::output_TPS_IntoTxtFile_onlyCoordinates(
@@ -380,6 +431,12 @@ void TriplelinePointsetClass::set_Parameter() {
 void TriplelinePointsetClass::process_TriplelinePointset() { // input matrix mit spalntezahl = punktzahl also 3xN matrix
 
 	cout << "TPS_BeforeMLS size: " << TPS_BeforeMLS->size() << endl;
+
+	if(TPS_BeforeMLS->size() < Nmin){
+		Nmin = TPS_BeforeMLS->size();
+		cout << "TPS_BeforeMLS->size() < Nmin; TPS_BeforeMLS" << endl;
+	}
+
 	if (N > 2) {
 		//set_Parameter();
 		smoothe_TPS();
@@ -388,7 +445,8 @@ void TriplelinePointsetClass::process_TriplelinePointset() { // input matrix mit
 		cout << "order" << endl;
 		calc_BSpline_ProcessedTPS();
 		cout << "spline" << endl;
-	} else {
+	}
+	if(N==2){
 		//TPS nur zwei Punkte --> keine Rechnung möglich
 		(*Vector3d_1) = (*TPS_BeforeMLS)[0].get_CoordinatesXYZ()
 				- (*TPS_BeforeMLS)[1].get_CoordinatesXYZ();
@@ -398,6 +456,11 @@ void TriplelinePointsetClass::process_TriplelinePointset() { // input matrix mit
 		TPS_processed->push_back((*TPS_BeforeMLS)[1]);
 		cout << "lenght_spline mit N=2: " << lenght_spline << endl;
 	}
+	if(N==1){
+	  lenght_spline = 0; 
+	  TPS_processed->resize(0);
+	  TPS_processed->push_back((*TPS_BeforeMLS)[0]);
+	}  
 }
 
 void TriplelinePointsetClass::smoothe_TPS() {
@@ -410,7 +473,7 @@ void TriplelinePointsetClass::smoothe_TPS() {
 		string seperator = "_";
 		string outFilename = n_MLSIterationStep.str() + seperator + "n"
 				+ seperator + "TriplelinePointsetBeforeMLS";
-		output_TPS_IntoTxtFile(TPS_BeforeMLS, outFilename, maxPointID);
+		if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_BeforeMLS, outFilename, maxPointID);}
 		calc_PointToPointDistances(TPS_BeforeMLS);
 		//output_EigenMatrixXd(PointToPointDistances, "PointToPointDistances");
 		//output_EigenMatrixXd(QuadraticPointToPointDistances, "QuadraticPointToPointDistances");
@@ -418,8 +481,8 @@ void TriplelinePointsetClass::smoothe_TPS() {
 		calc_MLS_Iteration();
 		outFilename = n_MLSIterationStep.str() + seperator + "nE" + seperator
 				+ "TriplelinePointsetAfterMLS";
-		output_TPS_IntoTxtFile(TPS_AfterMLS, "TriplelinePointsetAfterMLS",
-				maxPointID);
+		if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_AfterMLS, "TriplelinePointsetAfterMLS",
+				maxPointID);}
 		if (i < n0 - 1) {
 			switch_Buffer();
 		}
@@ -538,7 +601,6 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 	//Grund: keine quadratische curve aus weniger als drei punkten berechenbar.Nicht genug Gleichungssysteme.
 	//Folge: rho wird wie in default =0 zurück gegeben und Punktset automatisch vergrößert.
 	//ABER: (rho==1) kann bei zwei punkten vorkommen!!!! siehe constructor erklärung
-        
 	outFile << "Expand Local Pointset with rho: " << endl << endl;
 	iterationscount = 0;
 	//Expand Local Pointset with rho
@@ -547,7 +609,7 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 		(*(*LP_Object).get_LocalPoints()).resize(0);
 		(*LP_Object).set_OriginPoint(GlobalID_LoopPoint, TPS_BeforeMLS);
 		calc_NextNeighborSet_RadiusH(H, TPS_BeforeMLS);
-		if ((*LP_Object).get_N_LocalPoints() >= Nmin){
+		if ((*LP_Object).get_N_LocalPoints() >= Nmin) {
 			if (((*LP_Object).get_N_LocalPoints() > N_LocalPoints)) {
 				rho = fabs((*LP_Object).calc_Correlation_LP(H));
 				N_LocalPoints = (*LP_Object).get_N_LocalPoints();
@@ -555,32 +617,57 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 
 				//Möglichkeit 1: punktset mit rho möglichst nahe zu rho0
 				if (delta_rho < delta_rho_min) {
-                                    delta_rho_min = delta_rho;
-                                    H_end = H;
-                                    rho_end = rho;
+					delta_rho_min = delta_rho;
+					H_end = H;
+					rho_end = rho;
 				}
-                                
+
 				//Möglichkeit 2:  Punktset mit rho_max genommen;
 				if (rho > rho_max) {
 
-                                    rho_max = rho;
-                                    H_rho_max = H;
+					rho_max = rho;
+					H_rho_max = H;
 				}
 			}
-		}	
+		}
 		outFile << "count: " << count << endl;
 		outFile << "interationscount: " << iterationscount << endl;
 		outFile << "N: " << (*LP_Object).get_N_LocalPoints() << endl;
 		outFile << "H: " << H << endl;
 		outFile << "rho: " << rho << endl;
+		if(sqrt(3)*N < H){
+			cout << "iterationstep: " << n << endl;
+			cout << "GlobalID_LoopPoint: " << GlobalID_LoopPoint << endl;
+			cout << "Radius exceeded possible range of datapoints" << endl;
+			//exit(0);
+		}
 		
-                if ((rho < rho0) || (rho >= 1)) {
+		if ((rho < rho0) || (rho >= 1)) {
 			H += dH; //region expansion
 		}
 		
-                if (N_LocalPoints == N) {
-			cout << "ERROR LP FOR WLS" << endl;
-			cout << "N_LocalPoints: " << N_LocalPoints << endl;
+
+		if ((N_LocalPoints == N) || ((H > Hmax) && ((*LP_Object).get_N_LocalPoints() >= Nmin)) ) {
+
+			if(N_LocalPoints == N){
+				cout << "ERROR LP FOR WLS; N_LocalPoints == N" << endl;
+				cout << "N_LocalPoints: " << N_LocalPoints << endl;
+				outFile << "ERROR LP FOR WLS, N_LocalPoints == N" << endl;
+				outFile << "N_LocalPoints: " << N_LocalPoints << endl;
+
+			}
+			if(((H > Hmax) && ((*LP_Object).get_N_LocalPoints() >= Nmin))){
+				cout << "ERROR LP FOR WLS; H > Hmax; Nmin aber erfuellt" << endl;
+				cout << "H: " << H << endl;
+				cout << "Hmax: " << Hmax << endl;
+				cout << "N: " << (*LP_Object).get_N_LocalPoints() << endl;
+				cout << "Nmin: " << Nmin << endl;
+				outFile << "ERROR LP FOR WLS, H > Hmax; Nmin aber erfuellt" << endl;
+				outFile << "N: " << (*LP_Object).get_N_LocalPoints() << endl;
+				outFile << "Nmin: " << Nmin << endl;
+				outFile << "H: " << H << endl;
+				outFile << "Hmax: " << Hmax << endl;
+			}
 
 			//Wenn Möglickeit 2:
 			H_end = H_rho_max; //M2
@@ -594,13 +681,13 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 	outFile << "used rho_end: " << rho_end << endl;
 	//cout << "used H_end: " << H_end << endl;
 	//cout << "used rho_end: " << rho_end << endl;
-        
+
 	(*(*LP_Object).get_LocalPoints()).resize(0);
 	(*LP_Object).set_OriginPoint(GlobalID_LoopPoint, TPS_BeforeMLS);
 	calc_NextNeighborSet_RadiusH(H_end, TPS_BeforeMLS);
 	rho = fabs((*LP_Object).calc_Correlation_LP(H_end));
 	N_LocalPoints = (*LP_Object).get_N_LocalPoints();
-        
+
 	outFile << "Final N: " << N_LocalPoints << endl;
 	outFile << "Final rho: " << rho << endl;
 	//cout << "Final N: " << N_LocalPoints << endl;
@@ -663,8 +750,8 @@ void TriplelinePointsetClass::switch_Buffer() { //Pointer switchen
 
 void TriplelinePointsetClass::orderAndReduce_TPS() {
 
-	output_TPS_IntoTxtFile_onlyCoordinates(TPS_AfterMLS, "BEGIN_ORDERING",
-			maxPointID);
+
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile_onlyCoordinates(TPS_AfterMLS, "BEGIN_ORDERING", maxPointID);}
 
 	n = n0 + 1; // nur für output nummerierung
 	calc_PointToPointDistances(TPS_AfterMLS);
@@ -688,16 +775,16 @@ void TriplelinePointsetClass::orderAndReduce_TPS() {
 	(*pOutFile) << "ID_ordered_backward: " << ID_ordered_backward << endl;
 
 	int maxID_ordered_forward = TPS_Ordered_Forward_Buffer->size() - 1;
-	output_TPS_IntoTxtFile(TPS_Ordered_Forward_Buffer,
-			"TPS_Ordered_Forward_Buffer", maxID_ordered_forward);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_Ordered_Forward_Buffer,
+			"TPS_Ordered_Forward_Buffer", maxID_ordered_forward);}
 	int maxID_ordered_backward = TPS_Ordered_Backward_Buffer->size() - 1;
-	output_TPS_IntoTxtFile(TPS_Ordered_Backward_Buffer,
-			"TPS_Ordered_Backward_Buffer", maxID_ordered_backward);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_Ordered_Backward_Buffer,
+			"TPS_Ordered_Backward_Buffer", maxID_ordered_backward);}
 	copy_Buffer_ReducedAndOrdered();
 	int maxID_ordered = TPS_processed->size() - 1;
-	output_TPS_IntoTxtFile(TPS_processed, "TPS_processed", maxID_ordered);
-	output_TPS_IntoTxtFile(TPS_AfterMLS, "TPS_complete_AfterOrdering",
-			maxPointID);
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_processed, "TPS_processed", maxID_ordered);}
+	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_AfterMLS, "TPS_complete_AfterOrdering",
+			maxPointID);}
 
 	pOutFile->close();
 	delete pOutFile;
@@ -869,7 +956,8 @@ int TriplelinePointsetClass::check_existing_neighbor(int ID_last_orderedPoint,
 }
 
 int TriplelinePointsetClass::check_Neighbor_within_min_gap() {
-
+  int blubb;
+  return blubb;
 }
 
 bool TriplelinePointsetClass::check_direction_dotProduct(int ID_newP,
@@ -1120,14 +1208,17 @@ void TriplelinePointsetClass::ordering_Next_Neighbor_method() {
 	TPS_Ordered_Forward_Buffer->push_back(
 			(*TPS_AfterMLS)[ID_first_forwardPoint]);
 	(*pOutFile) << "ID_first_forwardPoint: " << ID_first_forwardPoint << endl;
-	(*pOutFile) << (*TPS_AfterMLS)[ID_first_forwardPoint].get_CoordinatesXYZ() << endl;
+	(*pOutFile) << (*TPS_AfterMLS)[ID_first_forwardPoint].get_CoordinatesXYZ()
+			<< endl;
 
 	ID_first_backwardPoint = check_existing_neighbor(ID_starting_point,
 			ID_first_forwardPoint);
 	(*pOutFile) << "ID_first_backwardPoint: " << ID_first_backwardPoint << endl;
 
 	if (ID_first_backwardPoint >= 0) {
-		(*pOutFile) << (*TPS_AfterMLS)[ID_first_backwardPoint].get_CoordinatesXYZ() << endl;
+		(*pOutFile)
+				<< (*TPS_AfterMLS)[ID_first_backwardPoint].get_CoordinatesXYZ()
+				<< endl;
 		ID_ordered_backward--;
 		(*TPS_AfterMLS)[ID_first_backwardPoint].set_ID_ordered(
 				ID_ordered_backward);
@@ -1140,7 +1231,8 @@ void TriplelinePointsetClass::ordering_Next_Neighbor_method() {
 
 		cout << "ERROR get_next_orderedPoint; no ID_first_backwardPoint!!!"
 				<< endl;
-		(*pOutFile) << "ERROR get_next_orderedPoint; no ID_first_backwardPoint!!!"
+		(*pOutFile)
+				<< "ERROR get_next_orderedPoint; no ID_first_backwardPoint!!!"
 				<< endl;
 	}
 
@@ -1252,6 +1344,11 @@ void TriplelinePointsetClass::calc_BSpline_ProcessedTPS() {
 	double delta_length = 0;
 	cout << "TPS_processed size :" << TPS_processed->size() << endl;
 
+	if(TPS_processed->size() < Nmin){
+			Nmin = TPS_processed->size();
+			cout << "TPS_processed->size() < Nmin; TPS_processed" << endl;
+		}
+
 	if (TPS_processed->size() > 2) {
 
 		Spline_Object->input_Pointset(TPS_processed);
@@ -1259,16 +1356,20 @@ void TriplelinePointsetClass::calc_BSpline_ProcessedTPS() {
 		lenght_spline = Spline_Object->calc_Line_Lenght_Spline();
 		cout << "lenght_spline: " << lenght_spline << endl;
 		cout << "lenght_input: "
-					<< Spline_Object->calc_Line_Lenght_ordered_PointInput() << endl;
+				<< Spline_Object->calc_Line_Lenght_ordered_PointInput() << endl;
 		cout << "delta_length: " << delta_length << endl;
+	}
 
-	} else {
+	if (TPS_processed->size() == 2) {
 		//TPS nur zwei Punkte --> keine Splineberechnung möglich
 		(*Vector3d_1) = (*TPS_processed)[0].get_CoordinatesXYZ()
-					- (*TPS_processed)[1].get_CoordinatesXYZ();
+				- (*TPS_processed)[1].get_CoordinatesXYZ();
 		lenght_spline = (*Vector3d_1).norm();
 		cout << "lenght_spline mit N_processed=2: " << lenght_spline << endl;
 		//exit(0);
+	}
+	if ((TPS_processed->size() == 1) || (TPS_processed->size() == 0)){
+	  lenght_spline = 0;
 	}
 
 }

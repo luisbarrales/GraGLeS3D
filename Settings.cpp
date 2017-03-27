@@ -59,6 +59,8 @@ bool Settings::GridCoarsement = false;
 //! Enables the generation and capture of a wider spectrum of analysing data
 bool Settings::UniqueGBEnergies = false;
 bool Settings::DecoupleGrains = false;
+bool Settings::DebugTripleLine=false;
+bool Settings::expandTripleLineArea=false;
 double Settings::ConstantSectorRadius = 0.0;
 double Settings::InterpolatingSectorRadius = 0.0;
 unsigned long Settings::NeighborTracking = 0;
@@ -251,6 +253,14 @@ void Settings::initializeParameters(string filename) {
 	if (0 != rootNode->first_node("DecoupleGrains")) {
 		DecoupleGrains = (bool) std::stoul(
 				rootNode->first_node("DecoupleGrains")->value());
+	}
+	if (0 != rootNode->first_node("DebugTripleLine")) {
+		DebugTripleLine = (bool) std::stoul(
+				rootNode->first_node("DebugTripleLine")->value());
+	}
+	if (0 != rootNode->first_node("expandTripleLineArea")) {
+		expandTripleLineArea = (bool) std::stoul(
+				rootNode->first_node("expandTripleLineArea")->value());
 	}
 	if (0 != rootNode->first_node("NeighbourhoodGrain")) {
 		NeighbourhoodGrain = std::stoul(

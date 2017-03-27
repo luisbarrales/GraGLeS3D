@@ -30,6 +30,8 @@
 #include <sys/time.h>
 #include "TriplelinePointsetClass.h"
 #include "Point3D.h"
+#include "MyInt4.h"
+
 
 using namespace std;
 double pointToTriangleDistance(Vector3d& point, Triangle& triangle);
@@ -192,6 +194,9 @@ void GrainHull::computeGrainBoundaryElements() {
 //			m_triangleNeighborLists[i].PrintNeighborList();
 //		}
 		switch (junctionType) {
+		case 1:{
+			break;
+			}
 		case 2: {
 //			if(m_owner->getID()==4 || m_owner->getID()==1) cout << "--------------------GRAINBOUNDARY---------------------" << endl;
 			GrainBoundary* newGB = new GrainBoundary(i, this);
@@ -231,6 +236,9 @@ void GrainHull::subDivideTrianglesToInterfacialElements() {
 		unsigned int type =
 				m_triangleNeighborLists[key].getNeighborsListCount();
 		switch (type) {
+		case 1:{
+			break;
+			}
 		case 2: {
 			GrainBoundary* GB = findGrainBoundary(key);
 			Vector3d current = m_actualHull[i].computeBarycenter();
@@ -472,19 +480,26 @@ void GrainHull::computeInterfacialElementMesh() {
 	for (const auto it : m_Grainboundary) {
 		it->findAdjacentTripleLines(m_TripleLines);
 	}
+
 //	if (m_owner->get_grainHandler()->get_loop() == 150
 //			|| m_owner->get_grainHandler()->get_loop() == 100
 //			|| m_owner->get_grainHandler()->get_loop() == 250
 //			|| m_owner->get_grainHandler()->get_loop() == 500) {
+	//if (m_owner->getID() == 1) {
 //		meanWidth();
+//		computeTriplelineLength();
+	//}
 
+//	}
+//	if (m_owner->getID() == 9) {
 //	if (m_owner->getID() == 10) {
 		computeTriplelineLength();
 //		cout <<"Triple line length " <<  m_TripleLineLength << endl;
 		plotTripleline(m_owner->get_grainHandler()->get_loop());
-//	}
+//}
 }
 void GrainHull::mergeJunction() {
+//	vector<int> QP_to_remove;
 	for (int i = 0; i < m_QuadruplePoints.size(); i++) {
 		for (int j = i + 1; j < m_QuadruplePoints.size(); j++) {
 			if ((m_QuadruplePoints[i]->get_Position()
@@ -494,6 +509,8 @@ void GrainHull::mergeJunction() {
 						m_QuadruplePoints[i], m_QuadruplePoints[j], this);
 				delete m_QuadruplePoints[i];
 				delete m_QuadruplePoints[j];
+//				QP_to_remove.push_back(i);
+//				QP_to_remove.push_back(j);
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + i);
 				m_QuadruplePoints.erase(m_QuadruplePoints.begin() + j - 1);
 				i--;
@@ -1140,6 +1157,7 @@ void GrainHull::plotContour(bool absoluteCoordinates, int timestep) {
 	}
 	fclose(output);
 }
+
 void GrainHull::plotInterfacialElements(bool absoluteCoordinates,
 		int timestep) {
 	int ID = 0;
@@ -1334,10 +1352,13 @@ void GrainHull::computeTriplelineLength() {
 //		}
 //		m_TripleLineLength += (vertices_temp[0]->get_Position()
 //				- vertices_temp[1]->get_Position()).norm();
+//	if(m_owner->get_grainHandler()->get_loop()=35){
 		(*iter)->computeTripleLineLength();
 		m_TripleLineLength += (*iter)->m_length;
-//		cin >> buf;
+		//cin >> buf;
+//	}
 	}
+
 	if (Settings::DecoupleGrains == 1) {
 		vector<SPoint> ProjectedPoints;
 		if (m_owner->getID() == 1) {
@@ -1390,6 +1411,7 @@ void GrainHull::computeTriplelineLength() {
 			 */
 		}
 	}
+
 }
 
 vector<Face>* GrainHull::get_Faces() {

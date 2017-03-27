@@ -28,12 +28,13 @@ public:
     
     TriplelinePointsetClass();
     TriplelinePointsetClass(const Eigen::MatrixXd*, int);
-    TriplelinePointsetClass(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d*>);
+    TriplelinePointsetClass(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d>);
     ~TriplelinePointsetClass();
   
     void use_PointCloudGenerator(int);
     void input_TPS_OutOfTxtFile(string);
-    void input_TPS_LevelSet(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d*>);
+    void input_TPS_LevelSet(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d>);
+    void input_TPS_LevelSet_ohneQP(vector<Eigen::Vector3d>&);
     void set_Parameter();
     void process_TriplelinePointset(); // const oder nicht const... leiber neue matrizen erstellen ??
     
@@ -81,6 +82,8 @@ private:
     void output_internFunctionIntoTxtFile();
     void output_TPS_IntoTxtFile_onlyCoordinates(vector<Point3D>*, string, int);
     void output_TPS_IntoTxtFile(vector<Point3D>*, string, int);
+    void output_TPS_IntoTxtFile_QP(vector<Eigen::Vector3d>, string, int);
+    void PlotInputData_QP_Fatim(vector<Eigen::Vector3d>);
     void output_EigenMatrixXd(Eigen::MatrixXd*, string);
     void output_LP_Object_IntoTxtFile(double, double);
     void output_DataDebugging_txt(string);
@@ -144,6 +147,7 @@ private:
     int n0; //vorgesehene Anzahl Schleifendurchläufe über das gesamte Triplelinepunktset
     int n; //aktueller Schleifendurchlauf
     double H0;
+    double Hmax;
     int N; //Punktanzahl im TriplelinePointsetInput
     int maxPointID;
     int Nmin; //mindestanzahl Punkte in lokaler regression bzw local point set A
