@@ -78,6 +78,7 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 		vector<Eigen::Vector3d> QP) {
 	PC_GEN = 0;
 	n0 = 5;
+
 	n = 0;
 	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
 	Hmax = 10;
@@ -155,15 +156,33 @@ void TriplelinePointsetClass::use_PointCloudGenerator(int N_Points) {
 	maxPointID = N - 1; //vector size da ID bei 0 beginnt
 	TPS_BeforeMLS = new vector<Point3D>(N);
 	PointCloudGenerator PC1(TPS_BeforeMLS);
+
 	PC1.generate_PointCloud(); //stored in TriplelinePointsetBeforeMLS
 	if(Settings::DebugTripleLine==1){output_TPS_IntoTxtFile(TPS_BeforeMLS, "generatedPC", maxPointID);}
+
+
+	if (PC_GEN == 1) {
+
+		PC1.generate_PointCloud(); //stored in TriplelinePointsetBeforeMLS
+		output_TPS_IntoTxtFile(TPS_BeforeMLS, "generatedPC", maxPointID);
+	}
+	if (PC_GEN == 2) {
+
+		PC1.input_FunctionPoints_OutOfTxtFile("PunktKurve2");
+
+	}
+
+	if ((PC_GEN < 1) || (PC_GEN > 2)) {
+		cout << "Error PCGEN" << endl;
+		exit(0);
+	}
+
 
 }
 
 void TriplelinePointsetClass::input_TPS_LevelSet(
 		vector<Eigen::Vector3d>& TPS_Input, vector<Eigen::Vector3d> QP) {
-	
-	
+
 	for (int i = 0; i < QP.size(); i++) {
 		Eigen::Vector3d* temp = &QP[i];
 		(*TPS_BeforeMLS)[i].set_CoordinatesXYZ(temp);
@@ -645,7 +664,6 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 		if ((rho < rho0) || (rho >= 1)) {
 			H += dH; //region expansion
 		}
-		
 
 		if ((N_LocalPoints == N) || ((H > Hmax) && ((*LP_Object).get_N_LocalPoints() >= Nmin)) ) {
 
@@ -668,6 +686,7 @@ void TriplelinePointsetClass::calc_Sufficient_LP_forMLS(
 				outFile << "H: " << H << endl;
 				outFile << "Hmax: " << Hmax << endl;
 			}
+
 
 			//Wenn Möglickeit 2:
 			H_end = H_rho_max; //M2

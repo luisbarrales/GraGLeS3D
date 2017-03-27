@@ -220,7 +220,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 
 	resizeIDLocalToDistanceBuffer();
 
-
 	m_StoredElasticEnergy = (double) rand() / (double) RAND_MAX * 10e-14;
 
 }
@@ -660,7 +659,6 @@ void LSbox::convolutionGeneratorFFTW(fftwp_complex *fftTemp,
 
 						G = exp( -sqrt(2/PI)*
 								(i2 * i2 + j2 * j2 + k2 * k2) * 4.0 * dt * nsq
-
 								/ local_nsq * PI * PI) / (local_nsq*n);
 						fftTemp[j + n2 * (i + n * k)][0] = fftTemp[j + n2 * (i + n
 								* k)][0] * G;
@@ -959,21 +957,22 @@ void LSbox::executeComparison() {
 	}
 
 
-	vector<int> Neighbors;
+//	vector<int> Neighbors;
+//
+//	if (m_ID == 1) {
+//		for (int k = z_min_new; k < z_max_new; k++) {
+//			for (int i = y_min_new; i < y_max_new; i++) {
+//				for (int j = x_min_new; j < x_max_new; j++) {
+//					if (find(Neighbors.begin(), Neighbors.end(),
+//							m_IDLocal.getValueAt(i, j, k).grainID)
+//							== Neighbors.end())
+//						Neighbors.push_back(
+//								m_IDLocal.getValueAt(i, j, k).grainID);
+//				}
+//			}
+//		}
+//	}
 
-	if (m_ID == 1) {
-		for (int k = z_min_new; k < z_max_new; k++) {
-			for (int i = y_min_new; i < y_max_new; i++) {
-				for (int j = x_min_new; j < x_max_new; j++) {
-					if (find(Neighbors.begin(), Neighbors.end(),
-							m_IDLocal.getValueAt(i, j, k).grainID)
-							== Neighbors.end())
-						Neighbors.push_back(
-								m_IDLocal.getValueAt(i, j, k).grainID);
-				}
-			}
-		}
-	}
 
 
 	if (BoundaryIntersection()) {

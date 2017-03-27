@@ -34,7 +34,9 @@ public:
     void use_PointCloudGenerator(int);
     void input_TPS_OutOfTxtFile(string);
     void input_TPS_LevelSet(vector<Eigen::Vector3d>&, vector<Eigen::Vector3d>);
+
     void input_TPS_LevelSet_ohneQP(vector<Eigen::Vector3d>&);
+
     void set_Parameter();
     void process_TriplelinePointset(); // const oder nicht const... leiber neue matrizen erstellen ??
     
