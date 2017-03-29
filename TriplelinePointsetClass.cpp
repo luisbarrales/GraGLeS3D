@@ -31,12 +31,12 @@ TriplelinePointsetClass::TriplelinePointsetClass() {
 
 	//TriplelinePointset process parameter:
 	//Smoothing:
-	n0 = 10;
+	n0 = 5;
 	n = 0;
 	H0 = 4; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
 	Nmin = 3; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
-	rho0 = 0.6;
+	rho0 = 0.65;
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
@@ -80,11 +80,11 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 	n0 = 5;
 
 	n = 0;
-	H0 = 2; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
-	Hmax = 10;
+	H0 = 3.5; // muss mindestens >= NN radius sein!!! rho kann bei zwei punkten = 1 sein; wenn diese schon vor drehung und projektion in einer ebene liegen !!!
+	Hmax = 4*H0;
 	Nmin = 5; //mindestanzahl Punkte in lokaler regression bzw im LocalPointsetForLoopPointID
 	dH = 0.02;
-	rho0 = 0.5;
+	rho0 = 0.65;
 	epsilon0 = 0.15; //prescribed local average approximation error
 	count = 0;
 	iterationscount = 0;
@@ -117,7 +117,7 @@ TriplelinePointsetClass::TriplelinePointsetClass(
 	//Ordering:
 	rho_order = 0.9;
 	weight_order = 0.7;
-	max_gap = 2*H0;
+	max_gap = 2;
 	min_gap = 0.3;
 	ID_starting_point = 0;
 	ID_last_point = 0;
