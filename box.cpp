@@ -450,8 +450,6 @@ void LSbox::executeConvolution(ExpandingVector<char>& mem_pool) {
 	MKL_Complex16* fftTemp = (MKL_Complex16*) &mem_pool[0];
 	convolutionGeneratorMKL(fftTemp);
 #endif
-	resizeIDLocalToDistanceBuffer();
-	m_IDLocal.clear();
 	if (!Settings::DisableConvolutionCorrection && m_grainHandler->loop != 0
 			&& m_isMotionRegular == true) {
 		double actualGrainRadius = pow(getVolume() / PI, 1 / 3)
