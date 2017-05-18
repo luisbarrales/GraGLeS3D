@@ -22,6 +22,7 @@
 #include <iostream>
 #include <cmath>
 #include "ExpandingVector.h"
+#include "Settings.h"
 
 /*!
  * \class DimensionalBuffer
@@ -177,41 +178,43 @@ public:
 
 
 		//Now move the cube in the bounds if it has left them
-		if( m_xMin < 0 )
-		{
-			int delta = -(int)m_xMin;
-			m_xMax += delta;
-			m_xMin += delta;
-		}
-		else if (m_xMax > grid_size)
-		{
-			int delta = grid_size - m_xMax;
-			m_xMax += delta;
-			m_xMin += delta;
-		}
-		if( m_yMin < 0 )
-		{
-			int delta = -(int)m_yMin;
-			m_yMax += delta;
-			m_yMin += delta;
-		}
-		else if (m_yMax > grid_size)
-		{
-			int delta = grid_size - m_yMax;
-			m_yMax += delta;
-			m_yMin += delta;
-		}
-		if( m_zMin < 0 )
-		{
-			int delta = -(int)m_zMin;
-			m_zMax += delta;
-			m_zMin += delta;
-		}
-		else if (m_zMax > grid_size)
-		{
-			int delta = grid_size - m_zMax;
-			m_zMax += delta;
-			m_zMin += delta;
+		if(!Settings::PeriodicBoundaryConditions){
+			if( m_xMin < 0 )
+			{
+				int delta = -(int)m_xMin;
+				m_xMax += delta;
+				m_xMin += delta;
+			}
+			else if (m_xMax > grid_size)
+			{
+				int delta = grid_size - m_xMax;
+				m_xMax += delta;
+				m_xMin += delta;
+			}
+			if( m_yMin < 0 )
+			{
+				int delta = -(int)m_yMin;
+				m_yMax += delta;
+				m_yMin += delta;
+			}
+			else if (m_yMax > grid_size)
+			{
+				int delta = grid_size - m_yMax;
+				m_yMax += delta;
+				m_yMin += delta;
+			}
+			if( m_zMin < 0 )
+			{
+				int delta = -(int)m_zMin;
+				m_zMax += delta;
+				m_zMin += delta;
+			}
+			else if (m_zMax > grid_size)
+			{
+				int delta = grid_size - m_zMax;
+				m_zMax += delta;
+				m_zMin += delta;
+			}
 		}
 
 

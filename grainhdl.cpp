@@ -1768,7 +1768,10 @@ void grainhdl::updateGridAndTimeVariables(double newGridSize) {
 	}
 	grid_blowup = Settings::DomainBorderSize;
 	delta = Settings::DomainBorderSize / double(realDomainSize);
-	ngridpoints = realDomainSize + 2 * grid_blowup;
+	if(Settings::PeriodicBoundaryConditions)
+		ngridpoints = realDomainSize;
+	else
+		ngridpoints = realDomainSize + 2 * grid_blowup;
 	h = 1.0 / realDomainSize;
 	//find_correctTimestepSize();
 }
@@ -1843,7 +1846,7 @@ void grainhdl::checkBorderOverlap(){
 					grains[id]->shiftYDirection();
 				}
 				if(grains[id]->getMinZ()<0){
-									grains[id]->shiftZDirection();
+					grains[id]->shiftZDirection();
 				}
 			}
 		}
