@@ -907,12 +907,12 @@ void grainhdl::run_sim() {
 			//			saveNetworkState();
 			save_Texture();
 			save_NrGrainsStats();
-			if (loop > 0
-					&& ((loop - Settings::StartTime)
+			if (//loop > 0 &&
+					((loop - Settings::StartTime)
 							% int(
 									Settings::AnalysisTimestep
 									* Settings::PlotInterval)) == 0) {
-				saveNetworkAsVoxelContainer();
+//				saveNetworkAsVoxelContainer();
 				plot_contour();
 			}
 		}
@@ -975,7 +975,7 @@ void grainhdl::plot_contour(){
 
 	int id = Settings::NeighbourhoodGrain;
 	grains[id]->plotBoxContour(true);
-	grains[id]->plotNeighboringGrains(true);
+//	grains[id]->plotNeighboringGrains(true);
 }
 
 void grainhdl::saveMicrostructure() {
