@@ -83,17 +83,17 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 		z = hull.at(k)[2];
 
 		if (y / h < ymin)
-			ymin = grid_blowup + y / h;
+			ymin = y / h;
 		if (y / h > ymax)
-			ymax = grid_blowup + y / h + 1;
+			ymax =  y / h + 1;
 		if (x / h < xmin)
-			xmin = grid_blowup + x / h;
+			xmin =  x / h;
 		if (x / h > xmax)
-			xmax = grid_blowup + x / h + 1;
+			xmax = x / h + 1;
 		if (z / h < zmin)
-			zmin = grid_blowup + z / h;
+			zmin = z / h;
 		if (z / h > zmax)
-			zmax = grid_blowup + z / h + 1;
+			zmax = z / h + 1;
 	}
 
 	if (xmin == m_grainHandler->get_ngridpoints()) {
@@ -125,8 +125,6 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 
 	if (Settings::PeriodicBoundaryConditions) {
 		if (m_inputDistance->getMinX() < 0) {
-			m_explicitHull.shift_x_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinX(
 					m_inputDistance->getMinX()
 					+ m_grainHandler->get_ngridpoints());
@@ -141,8 +139,7 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 					+ m_grainHandler->get_ngridpoints());
 		}
 		if (m_inputDistance->getMinY() < 0) {
-			m_explicitHull.shift_y_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
+
 			m_inputDistance->setMinY(
 					m_inputDistance->getMinY()
 					+ m_grainHandler->get_ngridpoints());
@@ -157,8 +154,6 @@ LSbox::LSbox(int id, vector<Vector3d>& hull, grainhdl* owner) :
 					+ m_grainHandler->get_ngridpoints());
 		}
 		if (m_inputDistance->getMinZ() < 0) {
-			m_explicitHull.shift_z_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinZ(
 					m_inputDistance->getMinZ()
 					+ m_grainHandler->get_ngridpoints());
@@ -294,8 +289,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 
 	if (Settings::PeriodicBoundaryConditions) {
 		if (m_inputDistance->getMinX() < 0) {
-			m_explicitHull.shift_x_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinX(
 					m_inputDistance->getMinX()
 					+ m_grainHandler->get_ngridpoints());
@@ -310,8 +303,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 					+ m_grainHandler->get_ngridpoints());
 		}
 		if (m_inputDistance->getMinY() < 0) {
-			m_explicitHull.shift_y_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinY(
 					m_inputDistance->getMinY()
 					+ m_grainHandler->get_ngridpoints());
@@ -326,8 +317,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices,
 					+ m_grainHandler->get_ngridpoints());
 		}
 		if (m_inputDistance->getMinZ() < 0) {
-			m_explicitHull.shift_z_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinZ(
 					m_inputDistance->getMinZ()
 					+ m_grainHandler->get_ngridpoints());
@@ -446,8 +435,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 
 	if (Settings::PeriodicBoundaryConditions) {
 		if (m_inputDistance->getMinX() < 0) {
-			m_explicitHull.shift_x_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinX(
 					m_inputDistance->getMinX()
 					+ m_grainHandler->get_ngridpoints());
@@ -462,8 +449,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 					+ m_grainHandler->get_ngridpoints());
 		}
 		if (m_inputDistance->getMinY() < 0) {
-			m_explicitHull.shift_y_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinY(
 					m_inputDistance->getMinY()
 					+ m_grainHandler->get_ngridpoints());
@@ -478,8 +463,6 @@ LSbox::LSbox(int id, const vector<Vector3d>& vertices, myQuaternion ori,
 					+ m_grainHandler->get_ngridpoints());
 		}
 		if (m_inputDistance->getMinZ() < 0) {
-			m_explicitHull.shift_z_GrainBoundary(
-					m_grainHandler->get_ngridpoints(), h);
 			m_inputDistance->setMinZ(
 					m_inputDistance->getMinZ()
 					+ m_grainHandler->get_ngridpoints());
@@ -515,7 +498,7 @@ void LSbox::shiftXDirection(){
 	m_outputDistance->setMinX(m_outputDistance->getMinX()+m_grainHandler->get_ngridpoints());
 	m_outputDistance->setMaxX(m_outputDistance->getMaxX()+m_grainHandler->get_ngridpoints());
 	resizeIDLocalToDistanceBuffer();
-	m_explicitHull.shift_x_GrainBoundary(m_grainHandler->get_ngridpoints(),m_grainHandler->get_h());
+	m_explicitHull.shift_x_GrainBoundary(m_grainHandler->get_ngridpoints(),1);
 }
 
 void LSbox::shiftYDirection(){
@@ -524,7 +507,7 @@ void LSbox::shiftYDirection(){
 	m_outputDistance->setMinY(m_outputDistance->getMinY()+m_grainHandler->get_ngridpoints());
 	m_outputDistance->setMaxY(m_outputDistance->getMaxY()+m_grainHandler->get_ngridpoints());
 	resizeIDLocalToDistanceBuffer();
-	m_explicitHull.shift_y_GrainBoundary(m_grainHandler->get_ngridpoints(),m_grainHandler->get_h());
+	m_explicitHull.shift_y_GrainBoundary(m_grainHandler->get_ngridpoints(),1);
 }
 
 void LSbox::shiftZDirection(){
@@ -533,7 +516,7 @@ void LSbox::shiftZDirection(){
 	m_outputDistance->setMinZ(m_outputDistance->getMinZ()+m_grainHandler->get_ngridpoints());
 	m_outputDistance->setMaxZ(m_outputDistance->getMaxZ()+m_grainHandler->get_ngridpoints());
 	resizeIDLocalToDistanceBuffer();
-	m_explicitHull.shift_z_GrainBoundary(m_grainHandler->get_ngridpoints(),m_grainHandler->get_h());
+	m_explicitHull.shift_z_GrainBoundary(m_grainHandler->get_ngridpoints(),1);
 }
 
 void LSbox::calculateMagneticEnergy() {
@@ -623,7 +606,8 @@ void LSbox::calculateDistanceFunction(DimensionalBuffer<int>& IDField) {
 				for (int j = m_inputDistance->getMinX();
 						j < m_inputDistance->getMaxX(); j++) {
 					if ((i < min || i > max || j < min || j > max || k < min
-							|| k > max) && !Settings::PeriodicBoundaryConditions)
+							|| k > max)
+							&& !Settings::PeriodicBoundaryConditions)
 						m_inputDistance->setValueAt(i, j, k,
 								-m_grainHandler->get_h());
 					else if (m_ID == m_grainHandler->IDField->getValueAt(i, j, k))
@@ -1104,7 +1088,7 @@ void LSbox::executeSetComparison() {
 
 	int ngridpoints = m_grainHandler->get_ngridpoints();
 
-	if(Settings::PeriodicBoundaryConditions){
+	if(!Settings::PeriodicBoundaryConditions){
 		if(m_newXMin<0)
 			m_newXMin=0;
 		if(m_newYMin<0)

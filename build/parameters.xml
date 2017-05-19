@@ -6,7 +6,7 @@
    <AnalysisTimestep>5</AnalysisTimestep>
    <PlotInterval>10000</PlotInterval>
    <PlotPhysicalQuantities>0</PlotPhysicalQuantities>
-   <PeriodicBoundaryConditions>0</PeriodicBoundaryConditions>
+   <PeriodicBoundaryConditions>1</PeriodicBoundaryConditions>
    <!-- in every x-th Analysisstep the full structure is plotted -> very memory intense -->
    <NumberOfTimesteps>20000</NumberOfTimesteps>
    <BreakupNumber>100</BreakupNumber>
