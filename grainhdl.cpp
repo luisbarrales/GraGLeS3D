@@ -1074,8 +1074,7 @@ void grainhdl::find_neighbors() {
 		/*
 		 * Compute the neighbours after shifting the front and back faces into the middle
 		 */
-
-		RTree<unsigned int, int, 3, float> tree_1;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1087,7 +1086,7 @@ void grainhdl::find_neighbors() {
 			max[2] = grains[i]->getMaxZ();
 			if(min[0]>max[0])
 				max[0]+=ngridpoints;
-			tree_1.Insert(min, max, i);
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1105,7 +1104,7 @@ void grainhdl::find_neighbors() {
 					max[2] = grains[id]->getMaxZ();
 					if(min[0]>max[0])
 						max[0]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_1, min, max);
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}
@@ -1114,7 +1113,7 @@ void grainhdl::find_neighbors() {
 		 * Compute the neighbours after shifting the left and right faces into the middle
 		 */
 
-		RTree<unsigned int, int, 3, float> tree_2;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1126,7 +1125,7 @@ void grainhdl::find_neighbors() {
 			max[2] = grains[i]->getMaxZ();
 			if(min[1]>max[1])
 				max[1]+=ngridpoints;
-			tree_2.Insert(min, max, i);
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1144,7 +1143,7 @@ void grainhdl::find_neighbors() {
 					max[2] = grains[id]->getMaxZ();
 					if(min[1]>max[1])
 						max[1]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_2, min, max);
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}
@@ -1153,7 +1152,7 @@ void grainhdl::find_neighbors() {
 		 * Compute the neighbours after shifting the top and bottom faces into the middle
 		 */
 
-		RTree<unsigned int, int, 3, float> tree_3;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1165,7 +1164,7 @@ void grainhdl::find_neighbors() {
 			max[2] = (grains[i]->getMaxZ()+ngridpoints/2)%ngridpoints;
 			if(min[2]>max[2])
 				max[2]+=ngridpoints;
-			tree_3.Insert(min, max, i);
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1183,7 +1182,7 @@ void grainhdl::find_neighbors() {
 					max[2] = (grains[id]->getMaxZ()+ngridpoints/2)%ngridpoints;
 					if(min[2]>max[2])
 						max[2]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_3, min, max);
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}
@@ -1192,7 +1191,7 @@ void grainhdl::find_neighbors() {
 		 * Compute the neighbours after shifting the edges in x and y direction into the middle
 		 */
 
-		RTree<unsigned int, int, 3, float> tree_4;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1207,7 +1206,7 @@ void grainhdl::find_neighbors() {
 				max[0]+=ngridpoints;
 			if(min[1]>max[1])
 				max[1]+=ngridpoints;
-			tree_4.Insert(min, max, i);
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1228,7 +1227,7 @@ void grainhdl::find_neighbors() {
 						max[0]+=ngridpoints;
 					if(min[1]>max[1])
 						max[1]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_4, min, max);
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}
@@ -1237,7 +1236,7 @@ void grainhdl::find_neighbors() {
 		 * Compute the neighbours after shifting the edges in x and z direction into the middle
 		 */
 
-		RTree<unsigned int, int, 3, float> tree_5;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1251,8 +1250,8 @@ void grainhdl::find_neighbors() {
 			if(min[0]>max[0])
 				max[0]+=ngridpoints;
 			if(min[2]>max[2])
-				max[1]+=ngridpoints;
-			tree_5.Insert(min, max, i);
+				max[2]+=ngridpoints;
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1272,8 +1271,8 @@ void grainhdl::find_neighbors() {
 					if(min[0]>max[0])
 						max[0]+=ngridpoints;
 					if(min[2]>max[2])
-						max[1]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_5, min, max);
+						max[2]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}
@@ -1282,7 +1281,7 @@ void grainhdl::find_neighbors() {
 		 * Compute the neighbours after shifting the edges in y and z direction into the middle
 		 */
 
-		RTree<unsigned int, int, 3, float> tree_6;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1296,8 +1295,8 @@ void grainhdl::find_neighbors() {
 			if(min[1]>max[1])
 				max[1]+=ngridpoints;
 			if(min[2]>max[2])
-				max[1]+=ngridpoints;
-			tree_6.Insert(min, max, i);
+				max[2]+=ngridpoints;
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1317,8 +1316,8 @@ void grainhdl::find_neighbors() {
 					if(min[1]>max[1])
 						max[1]+=ngridpoints;
 					if(min[2]>max[2])
-						max[1]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_6, min, max);
+						max[2]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}
@@ -1327,7 +1326,7 @@ void grainhdl::find_neighbors() {
 		 * Compute the neighbours after shifting the corners into the middle
 		 */
 
-		RTree<unsigned int, int, 3, float> tree_7;
+		tree.RemoveAll();
 		for (unsigned int i = 1; i <= Settings::NumberOfParticles; i++) {
 			if (grains[i] == NULL)
 				continue;
@@ -1343,8 +1342,8 @@ void grainhdl::find_neighbors() {
 			if(min[1]>max[1])
 				max[1]+=ngridpoints;
 			if(min[2]>max[2])
-				max[1]+=ngridpoints;
-			tree_7.Insert(min, max, i);
+				max[2]+=ngridpoints;
+			tree.Insert(min, max, i);
 		}
 #pragma omp parallel
 		{
@@ -1366,8 +1365,8 @@ void grainhdl::find_neighbors() {
 					if(min[1]>max[1])
 						max[1]+=ngridpoints;
 					if(min[2]>max[2])
-						max[1]+=ngridpoints;
-					grains[id]->computeDirectNeighboursPeriodic(tree_7, min, max);
+						max[2]+=ngridpoints;
+					grains[id]->computeDirectNeighboursPeriodic(tree, min, max);
 				}
 			}
 		}

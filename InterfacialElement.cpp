@@ -349,14 +349,11 @@ HighOrderJunction::HighOrderJunction(int key, GrainHull* owner) :
 		InterfacialElement(key, owner) {
 	int currentID = owner->m_owner->getID();
 	int j = 0;
-	j = m_owner->m_triangleNeighborLists[key].neighbors[0];
-	for (int i = 0;
-			i < m_owner->m_triangleNeighborLists[key].getNeighborsListCount();
-			i++) {
+//	j = m_owner->m_triangleNeighborLists[key].neighbors[0];
+	for (int i = 0; i < m_owner->m_triangleNeighborLists[key].getNeighborsListCount(); i++) {
 		if (currentID != m_owner->m_triangleNeighborLists[key].neighbors[i]) {
-			m_neighborIDs.push_back(
-					m_owner->m_triangleNeighborLists[key].neighbors[i]);
-			j++;
+			m_neighborIDs.push_back(m_owner->m_triangleNeighborLists[key].neighbors[i]);
+//			j++;
 		}
 	}
 	computeMobility();
